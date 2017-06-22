@@ -6,15 +6,7 @@ import Products from './pages/catalog/products';
 import Pdp from './pages/catalog/pdp';
 import Search from './pages/search/search';
 
-import ProfilePage from './components/profile/page';
 import Profile from './components/profile/profile';
-import ProfileUnit from './components/profile/profile-unit';
-import EditName from './components/profile/blocks/edit-name';
-import EditEmail from './components/profile/blocks/edit-email';
-import ChangePassword from './components/profile/blocks/change-password';
-import Order from './components/profile/blocks/order';
-import AddressForm from './components/profile/blocks/address-form';
-import ReviewForm from './components/profile/blocks/review-form';
 
 import MensCatPage from './pages/category/men';
 import WomensCatPage from './pages/category/women';
@@ -42,20 +34,10 @@ export default function makeRoutes(getStore) {
       <Route name="checkout" path="/checkout" component={Checkout} />
       <Route component={StoreFront}>
         <IndexRoute component={HomePage} />
-        <Route name="profile" path="/profile" component={ProfilePage} onEnter={handleProfileEnter}>
-          <IndexRoute component={Profile} />
-          <Route component={ProfileUnit}>
-            <Route path="name" component={EditName} />
-            <Route path="email" component={EditEmail} />
-            <Route path="password" component={ChangePassword} />
-            <Route path="orders/:referenceNumber" component={Order} />
-            <Route path="addresses/:addressId" component={AddressForm} />
-            <Route path="reviews/:reviewId" component={ReviewForm} />
-          </Route>
-        </Route>
+        <Route name="profile" path="/profile" component={Profile} onEnter={handleProfileEnter} />
+        <Route path="/checkout/done" component={OrderPlaced} />
         <Route path="men" component={MensCatPage} />
         <Route path="women" component={WomensCatPage} />
-        <Route path="/checkout/done" component={OrderPlaced} />
         <Route name="product" path="/products/:productSlug" component={Pdp} />
         <Route name="gift-cards" path="/gift-cards" component={Pdp} />
         <Route name="search" path="/search/:term" component={Search} />
