@@ -1,6 +1,6 @@
 [
   {
-    "type": "eq",
+    "type": "equals",
     "in": "slug",
     "value": [ "awesome", "whatever" ]
   },

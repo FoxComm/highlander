@@ -1,16 +1,13 @@
 package foxcomm.agni.dsl
 
 import cats.data.NonEmptyList
-import cats.syntax.either._
+import cats.implicits._
+import io.circe._
 import io.circe.generic.extras.semiauto._
-import io.circe.{Decoder, JsonNumber, KeyDecoder}
 import shapeless._
 import shapeless.ops.coproduct.Folder
 
-@SuppressWarnings(
-  Array("org.wartremover.warts.AsInstanceOf",
-        "org.wartremover.warts.ExplicitImplicitTypes",
-        "org.wartremover.warts.DefaultArguments"))
+@SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
 object query {
   sealed trait QueryField {
     def toList: List[String]
@@ -20,12 +17,7 @@ object query {
       def toList: List[String] = List(field)
     }
     object Single {
-      implicit val decodeSingle: Decoder[Single] = Decoder.decodeString
-        .emap {
-          case s if s.startsWith("$") ⇒ Either.left(s"Defined unknown special query field $s")
-          case s                      ⇒ Either.right(s)
-        }
-        .map(Single(_))
+      implicit val decodeSingle: Decoder[Single] = Decoder.decodeString.map(Single(_))
     }
 
     final case class Multiple(fields: NonEmptyList[String]) extends QueryField {
@@ -37,8 +29,8 @@ object query {
     }
 
     implicit val decodeQueryField: Decoder[QueryField] =
-      Decoder[Single].map(s ⇒ s: QueryField) or
-        Decoder[Multiple].map(m ⇒ m: QueryField)
+      Decoder[Single].map(identity[QueryField]) or
+        Decoder[Multiple].map(identity[QueryField])
   }
 
   sealed trait QueryContext
@@ -164,48 +156,55 @@ object query {
   sealed trait QueryFunction
   object QueryFunction {
     sealed trait WithField { this: QueryFunction ⇒
-      def in: QueryField
+      def field: QueryField
     }
     sealed trait WithContext { this: QueryFunction ⇒
-      def context: QueryContext
+      def ctx: QueryContext
+    }
+    sealed trait TermLevel extends WithContext { this: QueryFunction ⇒
+      def context: Option[QueryContext]
+      def in: QueryField
+
+      final def ctx: QueryContext = context.getOrElse(QueryContext.filter)
+      final def field: QueryField = in
+    }
+    sealed trait FullText extends WithContext with WithField { this: QueryFunction ⇒
+      def context: Option[QueryContext]
+      def in: Option[QueryField]
+
+      final def ctx: QueryContext = context.getOrElse(QueryContext.must)
+      final def field: QueryField = in.getOrElse(QueryField.Single("_all"))
     }
 
-    final case class matches private (in: QueryField,
+    final case class matches private (in: Option[QueryField],
                                       value: QueryValue[String],
-                                      context: QueryContext = QueryContext.must)
+                                      context: Option[QueryContext])
         extends QueryFunction
-        with WithContext
-        with WithField
-    final case class range private (in: QueryField.Single,
-                                    value: RangeValue,
-                                    context: QueryContext = QueryContext.filter)
+        with FullText
+    final case class equals private (in: QueryField, value: CompoundValue, context: Option[QueryContext])
         extends QueryFunction
-        with WithContext
-        with WithField
-    final case class eq private (in: QueryField,
-                                 value: CompoundValue,
-                                 context: QueryContext = QueryContext.filter)
+        with TermLevel
+    final case class range private (in: QueryField.Single, value: RangeValue, context: Option[QueryContext])
         extends QueryFunction
-        with WithContext
-        with WithField
-    final case class neq private (in: QueryField,
-                                  value: CompoundValue,
-                                  context: QueryContext = QueryContext.not)
+        with TermLevel
+    final case class raw private (value: JsonObject, context: QueryContext)
         extends QueryFunction
-        with WithContext
-        with WithField
+        with WithContext {
+      def ctx: QueryContext = context
+    }
 
     implicit val decodeQueryFunction: Decoder[QueryFunction] = deriveDecoder[QueryFunction]
   }
 
   final case class FCQuery(query: Option[NonEmptyList[QueryFunction]])
   object FCQuery {
-    implicit val decodeFCQuery: Decoder[FCQuery] =
+    implicit val decodeFCQuery: Decoder[FCQuery] = {
       Decoder
         .decodeOption(
           Decoder
             .decodeNonEmptyList[QueryFunction]
             .or(Decoder[QueryFunction].map(NonEmptyList.of(_))))
         .map(FCQuery(_))
+    }
   }
 }

@@ -1,39 +1,54 @@
 package foxcomm.agni.interpreter.es
 
+import foxcomm.agni._
 import foxcomm.agni.dsl.query._
 import foxcomm.agni.interpreter.QueryInterpreter
+import io.circe.JsonObject
 import monix.cats._
 import monix.eval.Coeval
+import org.elasticsearch.common.xcontent.{ToXContent, XContentBuilder}
 import org.elasticsearch.index.query._
 
-@SuppressWarnings(Array("org.wartremover.warts.Overloading"))
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 object ESQueryInterpreter extends QueryInterpreter[Coeval, BoolQueryBuilder] {
   implicit class RichBoolQueryBuilder(val b: BoolQueryBuilder) extends AnyVal {
-    def inContext(qf: QueryFunction.WithContext)(qb: ⇒ QueryBuilder): BoolQueryBuilder = qf.context match {
+    def inContext(qf: QueryFunction.WithContext)(qb: ⇒ QueryBuilder): BoolQueryBuilder = qf.ctx match {
       case QueryContext.filter ⇒ b.filter(qb)
       case QueryContext.must   ⇒ b.must(qb)
       case QueryContext.should ⇒ b.should(qb)
       case QueryContext.not    ⇒ b.mustNot(qb)
     }
+  }
 
-    def foreachField(qf: QueryFunction.WithField)(
-        f: (BoolQueryBuilder, String) ⇒ BoolQueryBuilder): BoolQueryBuilder = {
-      qf.in.toList.foreach(f(b, _))
-      b
-    }
-
-    def foreachField(qf: QueryFunction.WithContext with QueryFunction.WithField)(
-        f: String ⇒ QueryBuilder): BoolQueryBuilder = {
-      qf.in.toList.foreach(n ⇒ b.inContext(qf)(f(n)))
-      b
+  final case class RawQueryBuilder(content: JsonObject) extends QueryBuilder {
+    def doXContent(builder: XContentBuilder, params: ToXContent.Params): Unit = {
+      builder.startObject()
+      content.toMap.foreach {
+        case (n, v) ⇒
+          builder.rawField(n, v.dump)
+      }
+      builder.endObject()
     }
   }
 
   def matchesF(b: BoolQueryBuilder, qf: QueryFunction.matches): Coeval[BoolQueryBuilder] = Coeval.eval {
-    val fields = qf.in.toList
     qf.value.toList.foldLeft(b)((b, v) ⇒
       b.inContext(qf) {
-        QueryBuilders.multiMatchQuery(v, fields: _*)
+        qf.field match {
+          case QueryField.Single(n)    ⇒ QueryBuilders.matchQuery(n, v)
+          case QueryField.Multiple(ns) ⇒ QueryBuilders.multiMatchQuery(v, ns.toList: _*)
+        }
+    })
+  }
+
+  def equalsF(b: BoolQueryBuilder, qf: QueryFunction.equals): Coeval[BoolQueryBuilder] = Coeval.eval {
+    val vs = qf.value.toList
+    qf.field.toList.foldLeft(b)((b, n) ⇒
+      b.inContext(qf) {
+        vs match {
+          case v :: Nil ⇒ QueryBuilders.termQuery(n, v)
+          case _        ⇒ QueryBuilders.termsQuery(n, vs: _*)
+        }
     })
   }
 
@@ -53,17 +68,7 @@ object ESQueryInterpreter extends QueryInterpreter[Coeval, BoolQueryBuilder] {
     }
   }
 
-  def eqF(b: BoolQueryBuilder, qf: QueryFunction.eq): Coeval[BoolQueryBuilder] = Coeval.eval {
-    val values = qf.value.toList
-    b.foreachField(qf) { n ⇒
-      QueryBuilders.termsQuery(n, values: _*)
-    }
-  }
-
-  def neqF(b: BoolQueryBuilder, qf: QueryFunction.neq): Coeval[BoolQueryBuilder] = Coeval.eval {
-    val values = qf.value.toList
-    b.foreachField(qf) { n ⇒
-      QueryBuilders.termsQuery(n, values: _*)
-    }
+  def rawF(b: BoolQueryBuilder, qf: QueryFunction.raw): Coeval[BoolQueryBuilder] = Coeval.eval {
+    b.inContext(qf)(RawQueryBuilder(qf.value))
   }
 }

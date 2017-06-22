@@ -1,5 +1,7 @@
 package foxcomm.agni
 
+import scala.language.higherKinds
+
 package object interpreter {
-  type Interpreter[A, B] = A ⇒ B
+  type Interpreter[F[_], A, B] = A ⇒ F[B]
 }
