@@ -13,8 +13,8 @@ import { SmartList } from 'components/core/dropdown';
 import s from './text-dropdown.css';
 
 type InternalItem = {
-  value: string;
-  displayText?: string;
+  value: string,
+  displayText?: string,
 };
 
 type Item = [string, string];
@@ -23,18 +23,18 @@ type Props = {
   /** An array of all possible values which will be in a list */
   // $FlowFixMe
   items: Array<Item | InternalItem | string>,
-  /** Message to be shown when no items */
-  emptyMessage: string,
   /** Input name which will be used by form */
   name: string, // input name
   /** Input value */
   value: string | number | null, // input value
   /** Text which is visible when no value */
   placeholder: string,
+  /** Message to be shown when no items */
+  emptyMessage: string,
   /** Additional root className */
   className?: string,
   /** If true, you cant open dropdown or change its value from UI */
-  disabled: bool,
+  disabled: boolean,
   /** Goes to `bodyPortal`, e.g. case with overflow `/customers/10/storecredit` */
   detached: boolean,
   /** If true, the component can change its value only via props */
@@ -44,15 +44,15 @@ type Props = {
 };
 
 type State = {
-  open: bool, // show or hide the menu
+  open: boolean, // show or hide the menu
   selectedValue: string, // current selected value of menu
 };
 
 /**
  * Text Dropdown component.
- * It knows how to render a list through SmartList and how to store and change (or not change) the `value`.
- *
- * WARNING: It's important to implement shouldComponentUpdate hook in host components
+ * This component is about to render simple text list and current value.
+ * This component is not responsible for different skins, TextInputs, infinite lists, or any other complex stuff.
+ * If you need any functionality which is not exists here, try different Dropdown or build new one.
  */
 export default class TextDropdown extends Component {
   props: Props;
@@ -112,12 +112,10 @@ export default class TextDropdown extends Component {
     this.setState(nextState);
   }
 
-  toggleMenu() {
-    this.setState({ open: !this.state.open });
-  }
+  toggleMenu(nextOpen: ?boolean) {
+    const open = nextOpen != null ? nextOpen : !this.state.open;
 
-  closeMenu() {
-    this.setState({ open: false });
+    this.setState({ open });
   }
 
   get displayText(): string {
@@ -141,23 +139,18 @@ export default class TextDropdown extends Component {
 
   renderItems() {
     const { detached, emptyMessage } = this.props;
-    let list = this.items.map(item => (
+    let list = this.items.map(item =>
       <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
         {item.displayText || item.value}
       </div>
-    ));
+    );
 
     if (!this.items.length) {
       list = <div className={s.item}>{emptyMessage}</div>;
     }
 
     return (
-      <SmartList
-        className={s.menu}
-        onEsc={() => this.closeMenu()}
-        detached={detached}
-        pivot={this._pivot}
-      >
+      <SmartList className={s.menu} onEsc={() => this.toggleMenu(false)} detached={detached} pivot={this._pivot}>
         {list}
       </SmartList>
     );
@@ -177,13 +170,13 @@ export default class TextDropdown extends Component {
     const cls = classNames(s.block, className, {
       [s.disabled]: disabled,
       [s.open]: open,
-      [s.empty]: !this.items.length
+      [s.empty]: !this.items.length,
     });
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
 
     return (
       <div className={cls} tabIndex="0">
-        <div className={s.pivot} ref={p => this._pivot = p} onClick={this.handleToggleClick}>
+        <div className={s.pivot} ref={p => (this._pivot = p)} onClick={this.handleToggleClick}>
           <div className={s.displayText}>{this.displayText}</div>
           <Icon name={arrow} />
           <input type="hidden" name={name} value={this.state.selectedValue} />

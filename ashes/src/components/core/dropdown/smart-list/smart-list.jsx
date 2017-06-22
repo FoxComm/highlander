@@ -14,21 +14,21 @@ import s from './smart-list.css';
 
 type Props = {
   /** Array of elements inside the list */
-  children: Array<any>;
+  children: Array<any>,
   /** Element which prepends the list */
-  before?: Element<any> | string;
+  before?: Element<any> | string,
   /** Element which goes after the list */
-  after?: Element<any> | string;
-  align?: 'left' | 'right'; // @todo
+  after?: Element<any> | string,
+  align?: 'left' | 'right', // @todo
   /** Base element: list will try to stick around it. E.g. dropdown current value box.
    * Default value: previous sibling or parent. */
-  pivot?: HTMLElement;
+  pivot?: HTMLElement,
   /** If true, BodyPortal is used */
-  detached?: boolean;
+  detached?: boolean,
   /** Additional className for block */
-  className?: string;
+  className?: string,
   /** Callback on user actions which intends to close menu */
-  onEsc: Function;
+  onEsc: Function,
 };
 
 type State = {
@@ -89,8 +89,7 @@ export default class SmartList extends Component {
   }
 
   get pivot(): any {
-    return this.props.pivot ||
-      (this._block && (this._block.previousElementSibling || this._block.parentElement));
+    return this.props.pivot || (this._block && (this._block.previousElementSibling || this._block.parentElement));
   }
 
   setDetachedCoords() {
@@ -184,18 +183,24 @@ export default class SmartList extends Component {
       case 38:
         e.preventDefault();
 
-        this.setState({
-          pointedValueIndex: getNewItemIndex(itemsCount, pointedValueIndex, -1),
-        }, () => this.scrollViewport(true));
+        this.setState(
+          {
+            pointedValueIndex: getNewItemIndex(itemsCount, pointedValueIndex, -1),
+          },
+          () => this.scrollViewport(true)
+        );
 
         break;
       // down
       case 40:
         e.preventDefault();
 
-        this.setState({
-          pointedValueIndex: getNewItemIndex(itemsCount, pointedValueIndex),
-        }, () => this.scrollViewport(false));
+        this.setState(
+          {
+            pointedValueIndex: getNewItemIndex(itemsCount, pointedValueIndex),
+          },
+          () => this.scrollViewport(false)
+        );
 
         break;
     }
@@ -207,7 +212,7 @@ export default class SmartList extends Component {
     // @todo only one child
     return React.Children.map(children, (item, index) => {
       const props: any = {
-        className: classNames(item.props.className, s.item, { [s.active]: index === this.state.pointedValueIndex })
+        className: classNames(item.props.className, s.item, { [s.active]: index === this.state.pointedValueIndex }),
       };
 
       return React.cloneElement(item, props);
@@ -219,9 +224,9 @@ export default class SmartList extends Component {
     const cls = classNames(s.block, className);
 
     return (
-      <BodyPortal active={detached} className={cls} getRef={m => this._block = m}>
+      <BodyPortal active={detached} className={cls} getRef={m => (this._block = m)}>
         {before}
-        <div className={s.list} ref={i => this._items = i}>
+        <div className={s.list} ref={i => (this._items = i)}>
           {this.renderItems()}
         </div>
         {after}
