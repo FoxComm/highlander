@@ -13,6 +13,7 @@ import { findNode, updateNodes } from 'paragons/tree';
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
 import { Button } from 'components/core/button';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './tree-table.css';
@@ -41,24 +42,27 @@ type Props = {
 
 type State = {
   root: TableTree,
-}
+};
 
 function buildTree(arr: Array<Row>, idField: string) {
   const tree: TableTree = [];
 
-  const acc: TableTreeMap = arr.reduce((acc: TableTreeMap, row: Row) => assoc(acc, row[idField], {
-    children: [],
-    node: {
-      id: row[idField],
-      row,
-      parentId: row['parentId'],
-      collapsed: true,
-      level: 0,
-    },
+  const acc: TableTreeMap = arr.reduce(
+    (acc: TableTreeMap, row: Row) =>
+      assoc(acc, row[idField], {
+        children: [],
+        node: {
+          id: row[idField],
+          row,
+          parentId: row['parentId'],
+          collapsed: true,
+          level: 0,
+        },
+      }),
+    {}
+  );
 
-  }), {});
-
-  values(acc).forEach(function (node: TableTreeNode) {
+  values(acc).forEach(function(node: TableTreeNode) {
     if (node.node.parentId) {
       acc[node.node.parentId].children.push(node);
     } else {
@@ -80,7 +84,7 @@ const collapseNode = (tree: TableTree, id: Identifier) => {
 };
 
 const toggleAll = (tree: TableTree, collapse: boolean) =>
-  updateNodes(tree, (n: TableTreeNode) => n.node.collapsed = collapse);
+  updateNodes(tree, (n: TableTreeNode) => (n.node.collapsed = collapse));
 
 class TreeTable extends Component {
   props: Props;
@@ -149,17 +153,17 @@ class TreeTable extends Component {
       let cellContents = content;
 
       if (col.field === this.props.collapseField) {
-        const iconClassName = classNames(({
-          'icon-category': !collapsible,
-          'icon-category-expand': collapsible && collapsed,
-          'icon-category-collapse': collapsible && !collapsed,
-        }));
+        const iconClassName = classNames({
+          category: !collapsible,
+          'category-expand': collapsible && collapsed,
+          'category-collapse': collapsible && !collapsed,
+        });
 
         cellContents = (
           <span className="fc-collapse" style={{ paddingLeft: `${level * 20}px` }}>
-              <i className={iconClassName} onClick={this.handleCollapse.bind(this, node)} />
+            <Icon className={iconClassName} onClick={this.handleCollapse.bind(this, node)} />
             {content}
-            </span>
+          </span>
         );
       }
 

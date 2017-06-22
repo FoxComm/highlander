@@ -1,16 +1,22 @@
+@import 'colors.css';
+
 .item {
   padding: 6px 10px;
 }
 
 .itemPrefix {
   display: inline;
-  color: #999;
+  color: var(--color-additional-text);
   font-size: 12px;
   line-height: 16px;
 }
 
 .itemValue {
-  color: #333;
+  color: var(--color-text);
   font-size: 14px;
   line-height: 20px;
+}
+
+.wrapper {
+  color: var(--color-link);
 }

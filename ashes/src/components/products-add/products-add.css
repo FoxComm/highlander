@@ -1,14 +1,4 @@
-.modal {
-  width: 836px;
-
-  & .footer {
-    margin: 50px 20px 20px;
-  }
-
-  & :global .fc-content-box-indent {
-    margin: 30px 20px 50px;
-  }
-}
+@import 'colors.css';
 
 .productSearch {
   & .search {
@@ -40,11 +30,15 @@
     }
   }
 
+  & :global .fc-table {
+    table-layout: auto;
+  }
+
   & :global .fc-table-wrap {
     display: flex;
     flex-direction: column;
     height: 484px;
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--color-border);
     overflow-y: scroll;
 
     & :global .fc-table-td {
@@ -52,7 +46,7 @@
     }
 
     & tr:last-child td {
-      border-bottom: 1px solid #d9d9d9 !important;
+      border-bottom: 1px solid var(--color-border) !important;
     }
 
     & :global .fc-table-message {

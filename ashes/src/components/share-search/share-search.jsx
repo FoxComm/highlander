@@ -9,13 +9,12 @@ import PropTypes from 'prop-types';
 import { numberize } from 'lib/text-utils';
 
 /** Component */
-import { ModalContainer } from '../modal/base';
-import ContentBox from '../content-box/content-box';
+import Modal from 'components/core/modal';
 
 import { PrimaryButton } from 'components/core/button';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import AdminsTypeahead from '../users-typeahead/admins-typeahead';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
 
 // styles
 import s from './share-search.css';
@@ -28,7 +27,6 @@ const mapStateToProps = (state, props) => {
     shares: _.get(search, 'shares', {}),
   };
 };
-
 
 class ShareSearch extends Component {
   static propTypes = {
@@ -83,14 +81,6 @@ class ShareSearch extends Component {
     this.setState(nextState);
   }
 
-  get closeAction() {
-    return (
-      <a className='fc-modal-close' onClick={this.props.onClose}>
-        <i className='icon-close' />
-      </a>
-    );
-  }
-
   get title() {
     return <span>Share Search: <strong>{this.props.title}</strong></span>;
   }
@@ -109,8 +99,11 @@ class ShareSearch extends Component {
       }
 
       return (
-        <Alert type={numberUpdatedUsers ? Alert.SUCCESS : Alert.ERROR}
-               closeAction={this.setState.bind(this, {numberUpdatedUsers: 0}, null)}>
+        <Alert
+          className={s.alert}
+          type={numberUpdatedUsers ? Alert.SUCCESS : Alert.ERROR}
+          closeAction={this.setState.bind(this, { numberUpdatedUsers: 0 }, null)}
+        >
           <span>{label}</span>
         </Alert>
       );
@@ -121,7 +114,7 @@ class ShareSearch extends Component {
     const { shares: { isFetchingAssociations = false, associations = [] }, search } = this.props;
 
     if (isFetchingAssociations) {
-      return <WaitAnimation size="s" />;
+      return <Spinner size="s" />;
     }
 
     const associationsNumber = associations.length ? associations.length : '...';
@@ -168,35 +161,31 @@ class ShareSearch extends Component {
     const associationsById = _.keyBy(associations, 'id');
 
     return (
-      <ModalContainer isVisible={this.props.isVisible}>
-        <div className="fc-share-search">
-          <div className="fc-modal-container">
-            <ContentBox title={this.title} actionBlock={this.closeAction}>
-              {this.alert}
-              <AdminsTypeahead
-                className={s.typeahead}
-                hideOnBlur
-                label="Invite Users"
-                onSelect={this.handleSelectUsers}
-                maxUsers={maxUsers}
-                mapAdmins={admins => _.filter(admins, admin => !(admin.id in associationsById))}
-              />
-              <div className="fc-share-search__controls">
-                <PrimaryButton className="fc-align-right"
-                               isLoading={isUpdatingAssociations}
-                               onClick={this.props.associateSearch.bind(null, search, state.selected)}
-                               disabled={state.selected.length === 0}>
-                  Share
-                </PrimaryButton>
-              </div>
-
-              <div className="fc-share-search__associations">
-                {this.associationsList}
-              </div>
-            </ContentBox>
-          </div>
+      <Modal title={this.title} isVisible={this.props.isVisible} onClose={this.props.onClose}>
+        {this.alert}
+        <AdminsTypeahead
+          className={s.typeahead}
+          hideOnBlur
+          label="Invite Users"
+          onSelect={this.handleSelectUsers}
+          maxUsers={maxUsers}
+          mapAdmins={admins => _.filter(admins, admin => !(admin.id in associationsById))}
+        />
+        <div className="fc-share-search__controls">
+          <PrimaryButton
+            className="fc-align-right"
+            isLoading={isUpdatingAssociations}
+            onClick={this.props.associateSearch.bind(null, search, state.selected)}
+            disabled={state.selected.length === 0}
+          >
+            Share
+          </PrimaryButton>
         </div>
-      </ModalContainer>
+
+        <div className="fc-share-search__associations">
+          {this.associationsList}
+        </div>
+      </Modal>
     );
   }
 }

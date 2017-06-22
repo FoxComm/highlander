@@ -11,7 +11,7 @@ const prodConfig = require('./webpack/prod');
 
 const baseConfig = {
   entry: {
-    app: path.resolve(__dirname, './src/client.js')
+    app: path.resolve(__dirname, './src/client.js'),
   },
 
   output: {
@@ -24,7 +24,7 @@ const baseConfig = {
     rules: [
       {
         test: /\.json$/,
-        use: [ 'json-loader' ]
+        use: ['json-loader'],
       },
       {
         test: /\.(svg|png|ico|woff|woff2)$/,
@@ -33,21 +33,23 @@ const baseConfig = {
             loader: 'file-loader',
             query: {
               name: '[name].[ext]',
-              publicPath: '/admin/'
-            }
-          }
-        ]
-      }
-    ]
+              publicPath: '/admin/',
+            },
+          },
+        ],
+      },
+    ],
   },
 
   plugins: [
     new webpack.NamedModulesPlugin(),
 
     new webpack.EnvironmentPlugin({
+      // These ↓↓↓ are just default values
       NODE_ENV: 'development',
-      BEHIND_NGINX: false,
-      GIT_REVISION: 'unknown'
+      API_URL: '',
+      URL_PREFIX: '',
+      GIT_REVISION: 'unknown',
     }),
 
     new SvgStore(),
@@ -57,10 +59,8 @@ const baseConfig = {
   ],
 
   resolve: {
-    extensions: ['.js', '.jsx']
+    extensions: ['.js', '.jsx'],
   },
 };
 
-module.exports = isProduction
-  ? merge(baseConfig, prodConfig)
-  : merge(baseConfig, devConfig);
+module.exports = isProduction ? merge(baseConfig, prodConfig) : merge(baseConfig, devConfig);

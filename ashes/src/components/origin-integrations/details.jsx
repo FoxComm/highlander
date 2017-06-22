@@ -12,7 +12,7 @@ import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
 import FormField from 'components/forms/formfield';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 // redux
 import * as originIntegrationActions from 'modules/origin-integrations/details';
@@ -44,7 +44,7 @@ type State = {
   shopify_domain: string,
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     details: state.originIntegrations.details,
     isFetching: _.get(state.asyncActions, 'getOriginIntegration.inProgress', true),
@@ -82,9 +82,9 @@ class IntegrationDetails extends Component {
     const password = _.get(originIntegration, 'shopify_password', '');
     const domain = _.get(originIntegration, 'shopify_domain', '');
 
-    return this.state.shopify_key !== key ||
-      this.state.shopify_password !== password ||
-      this.state.shopify_domain !== domain;
+    return (
+      this.state.shopify_key !== key || this.state.shopify_password !== password || this.state.shopify_domain !== domain
+    );
   }
 
   get renderPageTitle(): Element<*> {
@@ -94,17 +94,12 @@ class IntegrationDetails extends Component {
 
     return (
       <PageTitle title="Platform Integrations">
-        <PrimaryButton
-          type="button"
-          disabled={disabled}
-          isLoading={isLoading}
-          onClick={this.handleSubmit}>
+        <PrimaryButton type="button" disabled={disabled} isLoading={isLoading} onClick={this.handleSubmit}>
           Save
         </PrimaryButton>
       </PageTitle>
     );
   }
-
 
   @autobind
   handleSubmit() {
@@ -131,20 +126,20 @@ class IntegrationDetails extends Component {
     if (isFetching) {
       return (
         <div styleName="waiting">
-          <WaitAnimation />
+          <Spinner />
         </div>
       );
     }
 
-    const handleShopifyKey = ({target}) => {
+    const handleShopifyKey = ({ target }) => {
       this.setState({ shopify_key: target.value });
     };
 
-    const handleShopifyPassword = ({target}) => {
+    const handleShopifyPassword = ({ target }) => {
       this.setState({ shopify_password: target.value });
     };
 
-    const handleShopifyDomain = ({target}) => {
+    const handleShopifyDomain = ({ target }) => {
       this.setState({ shopify_domain: target.value });
     };
 
@@ -159,30 +154,21 @@ class IntegrationDetails extends Component {
                   <li styleName="entry">
                     <FormField label="Shopify Key" validator="ascii" maxLength={255}>
                       <div>
-                        <input
-                          type="text"
-                          value={this.state.shopify_key}
-                          onChange={handleShopifyKey} />
+                        <input type="text" value={this.state.shopify_key} onChange={handleShopifyKey} />
                       </div>
                     </FormField>
                   </li>
                   <li styleName="entry">
                     <FormField label="Shopify Password" validator="ascii" maxLength={255}>
                       <div>
-                        <input
-                          type="text"
-                          value={this.state.shopify_password}
-                          onChange={handleShopifyPassword} />
+                        <input type="text" value={this.state.shopify_password} onChange={handleShopifyPassword} />
                       </div>
                     </FormField>
                   </li>
                   <li styleName="entry">
                     <FormField label="Shopify Domain" validator="ascii" maxLength={255}>
                       <div>
-                        <input
-                          type="text"
-                          value={this.state.shopify_domain}
-                          onChange={handleShopifyDomain} />
+                        <input type="text" value={this.state.shopify_domain} onChange={handleShopifyDomain} />
                       </div>
                     </FormField>
                   </li>

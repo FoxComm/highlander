@@ -22,6 +22,7 @@ import phoenix.payloads.UpdateShippingMethod
 import phoenix.responses._
 import phoenix.responses.cord.CartResponse
 import phoenix.responses.cord.base.{CartResponseTotals, CordResponseLineItem}
+import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.responses.users.CustomerResponse
 import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
@@ -97,7 +98,7 @@ class CartIntegrationTest
 
       val giftCard = giftCardsApi
         .create(GiftCardCreateByCsr(giftCardAmount, reasonId = reason.id))
-        .as[GiftCardResponse.Root]
+        .as[GiftCardResponse]
 
       cartsApi(refNum).payments.giftCard
         .add(GiftCardPayment(giftCard.code, giftCardAmount.some))

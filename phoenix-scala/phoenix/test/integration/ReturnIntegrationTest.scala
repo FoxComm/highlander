@@ -1,9 +1,8 @@
 import cats.implicits._
-import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
-import phoenix.failures.ReturnFailures._
 import core.failures._
+import core.utils.Money._
 import org.scalatest.prop.PropertyChecks
-import faker.Lorem
+import phoenix.failures.OrderFailures.OnlyOneExternalPaymentIsAllowed
 import phoenix.failures.ReturnFailures._
 import phoenix.failures._
 import phoenix.models.Reason.Cancellation
@@ -20,12 +19,12 @@ import phoenix.payloads.PaymentPayloads.CreateManualStoreCredit
 import phoenix.payloads.ReturnPayloads._
 import phoenix.responses.ReturnResponse.Root
 import phoenix.responses._
+import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.services.activity.ReturnTailored._
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
-import core.utils.Money._
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -150,11 +149,11 @@ class ReturnIntegrationTest
         val gcApi = giftCardsApi(payments.giftCard.value.code)
         val scApi = storeCreditsApi(payments.storeCredit.value.id)
 
-        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.OnHold)
+        gcApi.get().as[GiftCardResponse].state must === (GiftCard.OnHold)
         scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.OnHold)
 
         completeReturn(rma.referenceNumber).payments must === (payments)
-        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.Active)
+        gcApi.get().as[GiftCardResponse].state must === (GiftCard.Active)
         scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.Active)
       }
 
@@ -168,14 +167,14 @@ class ReturnIntegrationTest
         val gcApi = giftCardsApi(payments.giftCard.value.code)
         val scApi = storeCreditsApi(payments.storeCredit.value.id)
 
-        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.OnHold)
+        gcApi.get().as[GiftCardResponse].state must === (GiftCard.OnHold)
         scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.OnHold)
 
         returnsApi(rma.referenceNumber)
           .update(ReturnUpdateStatePayload(state = Canceled, reasonId = cancellationReason.id.some))
           .as[ReturnResponse.Root]
           .payments must === (payments)
-        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.Canceled)
+        gcApi.get().as[GiftCardResponse].state must === (GiftCard.Canceled)
         scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.Canceled)
       }
 

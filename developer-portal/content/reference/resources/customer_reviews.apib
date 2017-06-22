@@ -1,0 +1,32 @@
+## Product Reviews [/v1/my/review/{id}]
+
++ Parameters
+    + id: `1` (required, number) - Unique identifier for a Review.
+
+### View [GET]
+
++ Response 200 (application/json)
+  + Attributes (ProductReviewResponse)
+
+### Create [POST /v1/my/review]
+
++ Request (application/json)
+    + Attributes (CreateProductReviewByCustomerPayload)
++ Response 200 (application/json)
+  + Attributes (ProductReviewResponse)
+
+### Update [PATCH /v1/my/review/{id}]
+
++ Parameters
+    + id: `1` (required, number) - Unique identifier for a Product Review.
++ Request (application/json)
+    + Attributes (UpdateProductReviewPayload)
++ Response 200 (application/json)
+  + Attributes (ProductReviewResponse)
+
+### Delete [DELETE /v1/my/review/{id}]
+
++ Parameters
+    + id: `1` (required, number) - Unique identifier for a Product Review.
++ Response 200 (application/json)
+

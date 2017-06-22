@@ -19,7 +19,7 @@ object StoreAdminPayloads {
       extends Validation[CreateStoreAdminPayload] {
 
     def validate: ValidatedNel[Failure, CreateStoreAdminPayload] =
-      (notEmpty(name, "name") |@| notEmpty(email, "email") |@|
+      (notEmpty(name, "name") |@| notEmpty(email, "email") |@| notEmpty(org, "org") |@|
         nullOrNotEmpty(phoneNumber, "phoneNumber") |@| nullOrNotEmpty(password, "password")).map {
         case _ ⇒ this
       }

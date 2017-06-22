@@ -14,23 +14,51 @@ import { RoundedPill } from 'components/core/rounded-pill';
 import { Form, FormField } from '../forms';
 import { Button } from 'components/core/button';
 import AccountState from './account-state';
+import { ApiErrors } from 'components/utils/errors';
+import Alert from 'components/core/alert';
 
 // styles
-import styles from './user-form.css';
+import s from './user-form.css';
 
 type Props = {
   user: Object,
   onChange: Function,
   isNew: boolean,
+  requestPasswordReset: (email: string) => Promise<*>,
+  clearResetState: () => void,
+  restoreState: AsyncState,
+};
+
+type State = {
+  isMessageDisplayed: boolean,
 };
 
 export default class UserForm extends Component {
   props: Props;
+  state: State = {
+    isMessageDisplayed: false,
+  };
 
   @autobind
   handleFormChange(attributes: Object) {
     const data = assoc(this.props.user, ['form', 'attributes'], attributes);
     this.props.onChange(data);
+  }
+
+  get changePasswordButton(): ?Element<*> {
+    if (this.props.isNew) return null;
+
+    return (
+      <Button type="button" onClick={this.resetPassword} isLoading={this.props.restoreState.inProgress}>
+        Change Password
+      </Button>
+    );
+  }
+
+  @autobind
+  resetPassword() {
+    const email = _.get(this.props, 'user.form.attributes.emailAddress.v', null);
+    this.setState({ isMessageDisplayed: true }, () => this.props.requestPasswordReset(email));
   }
 
   @autobind
@@ -39,7 +67,14 @@ export default class UserForm extends Component {
     this.props.onChange(data);
   }
 
-  renderAccountState() {
+  @autobind
+  removeAlert() {
+    this.setState({ isMessageDisplayed: false }, () => {
+      this.props.clearResetState();
+    });
+  }
+
+  renderAccountState(): Element<*> {
     const { state, disabled } = this.props.user.accountState;
 
     return (
@@ -47,55 +82,73 @@ export default class UserForm extends Component {
         userId={this.props.user.id}
         currentValue={state}
         disabled={disabled}
-        onChange={(value) => this.handleAccountStateChange(value)}
+        onChange={value => this.handleAccountStateChange(value)}
+        className={s.accountState}
       />
     );
   }
 
-  renderUserImage() {
+  renderUserImage(): Element<*> {
     const name = _.get(this.props.user, 'form.attributes.firstAndLastName.v') || 'New User';
 
     return (
       <FormField
         className="fc-object-form__field"
-        label='Image'
+        label="Image"
         getTargetValue={_.noop}
-        key={`object-form-attribute-firstAndLastName`} >
+        key={`object-form-attribute-firstAndLastName`}
+      >
         <UserInitials name={name} />
       </FormField>
     );
   }
 
-  renderGeneralForm() {
-    const { options } = this.props.user;
+  renderNotification(): ?Element<*> {
+    const { err, inProgress, finished } = this.props.restoreState;
+    const { isMessageDisplayed } = this.state;
+
+    if (isMessageDisplayed && err != null) {
+      return <ApiErrors type={Alert.SUCCESS} error={err} closeAction={this.removeAlert} />;
+    }
+
+    if (isMessageDisplayed && !inProgress && finished) {
+      return (
+        <Alert type={Alert.SUCCESS} closeAction={this.removeAlert} error={err}>
+          Password reset email was successfully sent.
+        </Alert>
+      );
+    }
+
+    return null;
+  }
+
+  renderGeneralForm(): Element<*> {
+    const { options, schema } = this.props.user;
     const { attributes } = this.props.user.form;
 
     return (
       <Form>
         <ContentBox title="General">
+          {this.renderNotification()}
           {this.renderUserImage()}
-          <ObjectFormInner
-            onChange={this.handleFormChange}
-            attributes={attributes}
-            options={options}
-          />
-          {!this.props.isNew && <Button type="button">Change Password</Button>}
+          <ObjectFormInner onChange={this.handleFormChange} attributes={attributes} options={options} schema={schema} />
+          {this.changePasswordButton}
         </ContentBox>
       </Form>
     );
   }
 
-  render() {
+  render(): Element<*> {
     return (
-      <div styleName="user-form">
-        <section styleName="main">
+      <div className={s.userForm}>
+        <section className={s.main}>
           {this.renderGeneralForm()}
         </section>
 
-        <aside styleName="aside">
+        <aside className={s.aside}>
           {!this.props.isNew && this.renderAccountState()}
 
-          <ContentBox title="Roles">
+          <ContentBox title="Roles" className={s.roles}>
             <RoundedPill text="Super Admin" />
           </ContentBox>
         </aside>

@@ -3,7 +3,7 @@
 ## Core components
 
 Core components are building blocks of the app. It is reusable components that are used all over the app,
-e.g. `Button`, `Dropdown`, `ConfirmationDialog`, etc.
+e.g. `Button`, `Dropdown`, `ConfirmationModal`, etc.
 
 ### Files structure
 

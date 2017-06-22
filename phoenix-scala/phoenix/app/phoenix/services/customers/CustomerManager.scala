@@ -161,7 +161,7 @@ object CustomerManager {
       (updated, custData) = result
       account ← * <~ Accounts.mustFindById400(updated.accountId)
       ao ← * <~ AccountOrganizations
-            .findByAccountId(account.id)
+            .filterByAccountId(account.id)
             .mustFindOneOr(NotFoundFailure400(AccountOrganizations, account.id))
       org      ← * <~ Organizations.mustFindById400(ao.organizationId)
       claimSet ← * <~ AccountManager.getClaims(account.id, org.id)

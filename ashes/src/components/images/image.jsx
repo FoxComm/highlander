@@ -10,7 +10,7 @@ import moment from 'moment';
 
 // components
 import BodyPortal from '../body-portal/body-portal';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import ImageCard from '../image-card/image-card';
 import EditImage from './edit-image';
 
@@ -19,15 +19,15 @@ import type { ImageFile, ImageInfo } from '../../modules/images';
 import type { Action } from '../image-card/image-card';
 
 export type Props = {
-  image: ImageFile;
-  editImage: (info: ImageInfo) => Promise<*>;
-  deleteImage: () => Promise<*>;
-  imagePid: string|number;
+  image: ImageFile,
+  editImage: (info: ImageInfo) => Promise<*>,
+  deleteImage: () => Promise<*>,
+  imagePid: string | number,
 };
 
 type State = {
-  editMode: boolean;
-  deleteMode: boolean;
+  editMode: boolean,
+  deleteMode: boolean,
 };
 
 export default class Image extends Component<void, Props, State> {
@@ -73,20 +73,15 @@ export default class Image extends Component<void, Props, State> {
   }
 
   get deleteImageDialog(): ?Element<*> {
-    if (!this.state.deleteMode) {
-      return;
-    }
-
     return (
       <BodyPortal className={styles.modal}>
-        <ConfirmationDialog
-          isVisible={true}
-          header='Delete Image'
-          body={'Are you sure you want to delete this image?'}
-          cancel='Cancel'
-          confirm='Yes, Delete'
+        <ConfirmationModal
+          isVisible={this.state.deleteMode}
+          title="Delete Image"
+          label="Are you sure you want to delete this image?"
+          confirmLabel="Yes, Delete"
           onCancel={this.handleCancelDeleteImage}
-          confirmAction={this.handleConfirmDeleteImage}
+          onConfirm={this.handleConfirmDeleteImage}
         />
       </BodyPortal>
     );

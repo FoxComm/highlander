@@ -1,11 +1,13 @@
+@import 'colors.css';
+
 .usermenu {
   position: absolute;
   z-index: 10;
   top: 91%;
   right: 1px;
-  background: #fff;
-  border: 1px solid #d9d9d9;
-  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.1);
+  background: var(--bg-white);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, .1);
   min-width: 300px;
 
   li {
@@ -20,10 +22,10 @@
     line-height: 20px;
     font-size: 14px;
     text-decoration: none;
-    color: #484848;
+    color: var(--color-text);
 
     &:hover {
-      background: #f5f5f5;
+      background: var(--bg-grey-headers);
     }
   }
 }
@@ -31,9 +33,9 @@
 .copyright {
   padding: 10px;
   line-height: 1.3;
-  border-top: 1px solid #D6D6D6;
+  border-top: 1px solid var(--color-border);
   font-size: 11px;
-  color: rgba(72,72,72,.72);
+  color: var(--color-additional-text);
   cursor: default;
 
   & > span {

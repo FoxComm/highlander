@@ -16,7 +16,6 @@ import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import s from './typeahead.css';
 
 export default class Typeahead extends React.Component {
-
   static propTypes = {
     onBlur: PropTypes.func, // blur handler
     onChange: PropTypes.func, // input keyup/change handler
@@ -74,7 +73,7 @@ export default class Typeahead extends React.Component {
       const event = {
         preventHiding() {
           doHide = false;
-        }
+        },
       };
 
       this.props.onItemSelected(item, event);
@@ -145,9 +144,7 @@ export default class Typeahead extends React.Component {
   }
 
   @autobind
-  textChange({ target }) {
-    let value = target.value;
-
+  textChange(value: string) {
     this.setState({
       query: value,
     });
@@ -166,7 +163,7 @@ export default class Typeahead extends React.Component {
 
   toggleVisibility(show) {
     this.setState({
-      showMenu: show
+      showMenu: show,
     });
   }
 
