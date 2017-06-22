@@ -30,6 +30,7 @@ export type CheckoutState = {
   editStage: EditStage,
   shippingAddress: ShippingAddress,
   billingAddress: ShippingAddress,
+  fetchAddressesRequired: boolean,
 };
 
 export const selectCreditCard = createAction('CHECKOUT_SET_CREDIT_CARD');

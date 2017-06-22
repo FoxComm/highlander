@@ -219,65 +219,62 @@ class Checkout extends Component {
     const isGuestMode = isGuest(_.get(props.auth, 'user'));
     const cartFetched = props.fetchCartState.finished;
 
-    if (cartFetched) {
-      const shippingAddress = _.get(this.props.cart, 'shippingAddress', {});
-      console.log('billing', this.props);
+    if (!cartFetched) {
+      return <Loader />;
+    }
 
-      return (
-        <div styleName="wrapper">
-          <div styleName="main-container">
-            <div styleName="row">
-              <div styleName="column">
-                <div styleName="shipping">
-                  <Shipping
-                    isEditing={props.editStage}
-                    onComplete={this.setShipping}
-                    addresses={this.props.addresses}
-                    fetchAddresses={this.props.fetchAddresses}
-                    fetchAddressesRequired={this.props.fetchAddressesRequired}
-                    shippingAddress={shippingAddress}
-                    auth={this.props.auth}
-                    isGuestMode={isGuestMode}
-                  />
-                </div>
-                <div styleName="delivery">
-                  <Delivery
-                    isEditing={props.editStage}
-                    onComplete={this.setDelivery}
-                    shippingMethods={props.shippingMethods}
-                    cart={this.props.cart}
-                    fetchShippingMethods={props.fetchShippingMethods}
-                    shippingAddressEmpty={_.isEmpty(shippingAddress)}
-                  />
-                </div>
-              </div>
-              <div styleName="payment">
-                <Billing
+    const shippingAddress = _.get(this.props.cart, 'shippingAddress', {});
+
+    return (
+      <div styleName="wrapper">
+        <div styleName="main-container">
+          <div styleName="row">
+            <div styleName="column">
+              <div styleName="shipping">
+                <Shipping
+                  isEditing={props.editStage}
+                  onComplete={this.setShipping}
+                  addresses={this.props.addresses}
+                  fetchAddresses={this.props.fetchAddresses}
+                  fetchAddressesRequired={this.props.fetchAddressesRequired}
+                  shippingAddress={shippingAddress}
+                  auth={this.props.auth}
                   isGuestMode={isGuestMode}
-                  paymentMethods={_.get(props.cart, 'paymentMethods', [])}
-                  chooseCreditCard={this.props.chooseCreditCard}
-                  onComplete={this.setBilling}
+                />
+              </div>
+              <div styleName="delivery">
+                <Delivery
+                  isEditing={props.editStage}
+                  onComplete={this.setDelivery}
+                  shippingMethods={props.shippingMethods}
+                  cart={this.props.cart}
+                  fetchShippingMethods={props.fetchShippingMethods}
+                  shippingAddressEmpty={_.isEmpty(shippingAddress)}
                 />
               </div>
             </div>
-            <div styleName="order-summary">
-              {this.orderContent}
+            <div styleName="payment">
+              <Billing
+                isGuestMode={isGuestMode}
+                paymentMethods={_.get(props.cart, 'paymentMethods', [])}
+                chooseCreditCard={this.props.chooseCreditCard}
+                onComplete={this.setBilling}
+              />
             </div>
           </div>
-          <div styleName="side-container">
-            {this.orderTotals}
+          <div styleName="order-summary">
+            {this.orderContent}
           </div>
-
-          <GuestAuth
-            isEditing={!this.isEmailSetForCheckout()}
-            location={this.props.location}
-          />
         </div>
-      );
-    }
+        <div styleName="side-container">
+          {this.orderTotals}
+        </div>
 
-    return (
-      <Loader />
+        <GuestAuth
+          isEditing={!this.isEmailSetForCheckout()}
+          location={this.props.location}
+        />
+      </div>
     );
   }
 

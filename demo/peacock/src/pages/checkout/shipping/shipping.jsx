@@ -59,12 +59,12 @@ class Shipping extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    console.log(this.props, nextProps);
     if (nextProps.auth !== this.props.auth) {
       this.setState({ fetchedAddresses: false });
     }
-    if (nextProps.cartChangeState.finished && !this.state.fetchedAddresses || nextProps.fetchAddressesRequired) {
-      console.log('fetching addresses');
+    if (nextProps.cartChangeState.finished &&
+      !this.state.fetchedAddresses ||
+      nextProps.fetchAddressesRequired) {
       this.fetchAddresses();
     }
   }
