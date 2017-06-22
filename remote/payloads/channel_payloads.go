@@ -18,6 +18,16 @@ type CreateChannel struct {
 	CatalogID      *int64   `json:"catalogId"`
 }
 
+// Scope gets the current scope on the payload.
+func (c CreateChannel) Scope() string {
+	return c.Scope
+}
+
+// SetScope sets the scope on the payload.
+func (c *CreateChannel) SetScope(scope string) {
+	c.Scope = scope
+}
+
 // Validate ensures that the has the correct format.
 func (c CreateChannel) Validate() failures.Failure {
 	if c.Name == "" {

@@ -69,6 +69,8 @@ func (fc *FoxContext) BindJSON(payload payloads.Payload) {
 		fc.failure = err
 		return
 	}
+
+  if 
 }
 
 // ParamInt parses an integer from the parameters list (as defined by the URI).
