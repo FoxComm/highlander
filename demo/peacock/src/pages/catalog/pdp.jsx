@@ -11,9 +11,9 @@ import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-// modules
+// actions
 import { searchGiftCards } from 'modules/products';
-import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
+import { fetch, getNextId, getPreviousId, resetProduct, resetReadyFlag } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { fetchRelatedProducts, clearRelatedProducts, MAX_CROSS_SELLS_RESULTS } from 'modules/cross-sell';
 import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
@@ -68,6 +68,7 @@ const mapStateToProps = (state) => {
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
+    isReady: _.get(state.asyncActions, ['pdp', 'isReady'], false),
     isProductReviewsLoading: _.get(state.asyncActions, ['fetchReviewsForSku', 'inProgress'], false),
     isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], false),
   };
@@ -76,6 +77,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators({
     fetch,
+    resetReadyFlag,
     getNextId,
     getPreviousId,
     resetProduct,
@@ -96,6 +98,9 @@ class PdpConnect extends Component {
 
   componentWillMount() {
     if (_.isEmpty(this.props.product)) {
+      if (this.props.isReady !== null) {
+        this.props.actions.resetReadyFlag();
+      }
       this.productPromise = this.fetchProduct();
     } else {
       this.productPromise = Promise.resolve();
@@ -249,9 +254,10 @@ class PdpConnect extends Component {
       notFound,
       fetchError,
       product,
+      isReady,
     } = this.props;
 
-    const pdpProps = { t, isLoading, notFound, fetchError, product };
+    const pdpProps = { t, isLoading, notFound, fetchError, product, isReady };
 
     return (
       <Pdp
