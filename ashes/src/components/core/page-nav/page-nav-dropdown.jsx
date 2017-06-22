@@ -60,9 +60,14 @@ class NavDropdown extends Component {
 
   render() {
     const { title, className } = this.props;
-    const cls = classNames(s.parent, s.item, {
-      [s.opened]: this.state.opened,
-    }, className);
+    const cls = classNames(
+      s.parent,
+      s.item,
+      {
+        [s.opened]: this.state.opened,
+      },
+      className
+    );
 
     return (
       <li className={cls} onMouseEnter={this.handleMouseOver} onMouseLeave={this.handleMouseOut}>

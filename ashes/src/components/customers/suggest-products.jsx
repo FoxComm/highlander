@@ -10,15 +10,12 @@ import Alert from 'components/core/alert';
 import { ApiErrors } from 'components/utils/errors';
 
 function requestSuggester(customerId, phoneNumber) {
-  return Api.post(
-    `/public/suggest/customer?channel=1`,
-    { customerId, phoneNumber }
-  );
+  return Api.post(`/public/suggest/customer?channel=1`, { customerId, phoneNumber });
 }
 
 // TODO: We need to actually handle country code instead of assuming USA.
 function prependCountryCode(phoneNumber) {
-  return phoneNumber && phoneNumber.length == 10 ? '1'+phoneNumber : phoneNumber;
+  return phoneNumber && phoneNumber.length == 10 ? '1' + phoneNumber : phoneNumber;
 }
 
 @connect((state, props) => ({
@@ -26,14 +23,13 @@ function prependCountryCode(phoneNumber) {
   cards: _.get(state.customers.creditCards, [props.customer.id, 'cards'], []),
 }))
 export default class CustomerSuggestProducts extends React.Component {
-
   static propTypes = {
-    customer: PropTypes.object
+    customer: PropTypes.object,
   };
 
   state = {
     msgSent: false,
-    error: null
+    error: null,
   };
 
   onSend = () => {
@@ -41,7 +37,7 @@ export default class CustomerSuggestProducts extends React.Component {
     requestSuggester(id.toString(), prependCountryCode(phoneNumber))
       .then(resp => this.setState({ msgSent: true }))
       .catch(error => this.setState({ error }));
-  }
+  };
 
   isEnabled() {
     const { addresses, cards } = this.props;
@@ -51,14 +47,14 @@ export default class CustomerSuggestProducts extends React.Component {
   }
 
   buttonOrNot() {
-    if(this.state.msgSent) {
+    if (this.state.msgSent) {
       return (
         <Alert type={Alert.SUCCESS}>
           Success! Your message has been sent.
         </Alert>
       );
     }
-    if(this.state.error) {
+    if (this.state.error) {
       return <ApiErrors response={this.state.error} />;
     }
     return (

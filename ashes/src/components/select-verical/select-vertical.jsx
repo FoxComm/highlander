@@ -13,24 +13,24 @@ import { Button } from 'components/core/button';
 import Icon from 'components/core/icon';
 
 type Props = {
-  options: Object; // {value -> title}
-  initialItems?: Object; // {counter -> value}
-  onChange: Function;
-  className?: string;
-  placeholder?: string;
-  emptyMessage?: string|Element<*>;
-  onChange: (values: Array<any>) => any;
-}
+  options: Object, // {value -> title}
+  initialItems?: Object, // {counter -> value}
+  onChange: Function,
+  className?: string,
+  placeholder?: string,
+  emptyMessage?: string | Element<*>,
+  onChange: (values: Array<any>) => any,
+};
 
 type State = {
-  items: Object;
-}
+  items: Object,
+};
 
 export default class SelectVertical extends Component {
   props: Props;
 
   static defaultProps = {
-    initialItems: {'1': null},
+    initialItems: { '1': null },
   };
 
   state: State = {
@@ -39,7 +39,7 @@ export default class SelectVertical extends Component {
 
   // $FlowFixMe: this method always returns object
   addEmptyItemIfNeeded(initialItems: ?Object): Object {
-    return _.isEmpty(initialItems) ? {'1': null} : initialItems;
+    return _.isEmpty(initialItems) ? { '1': null } : initialItems;
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -63,7 +63,7 @@ export default class SelectVertical extends Component {
       return;
     }
     this.setState({
-      items: assoc(this.state.items, this.nextItemId, null)
+      items: assoc(this.state.items, this.nextItemId, null),
     });
   }
 
@@ -76,7 +76,7 @@ export default class SelectVertical extends Component {
   onChangeItem(key: string, newVal: any) {
     const newItems = assoc(this.state.items, key, newVal);
     this.setState({
-      items: newItems
+      items: newItems,
     });
     this.onUpdate(newItems);
   }
@@ -90,16 +90,16 @@ export default class SelectVertical extends Component {
       newItems = dissoc(this.state.items, key);
     }
     this.setState({
-      items: newItems
+      items: newItems,
     });
     this.onUpdate(newItems);
   }
 
   addMoreIcon(isLast: boolean) {
     if (isLast) {
-      return <Button onClick={this.onAddClick} className='fc-vmultiselect-add icon-add' />;
+      return <Button onClick={this.onAddClick} className="fc-vmultiselect-add icon-add" />;
     } else {
-      return <div className='fc-vmultiselect-or'>or</div>;
+      return <div className="fc-vmultiselect-or">or</div>;
     }
   }
 
@@ -118,19 +118,18 @@ export default class SelectVertical extends Component {
       curItems = [...items, [selectedValue, props.options[selectedValue]]];
     }
 
-
     return (
-      <div className='fc-vmultiselect-cont' key={key}>
+      <div className="fc-vmultiselect-cont" key={key}>
         <Dropdown
           items={curItems}
           value={selectedValue}
           placeholder={props.placeholder}
           emptyMessage={props.emptyMessage}
           onChange={_.partial(this.onChangeItem, key)}
-          className='fc-vmultiselect-item'
+          className="fc-vmultiselect-item"
         />
         {this.addMoreIcon(isLast)}
-        <Icon onClick={_.partial(this.onClose, key)} className='fc-vmultiselect-close' name="close" />
+        <Icon onClick={_.partial(this.onClose, key)} className="fc-vmultiselect-close" name="close" />
       </div>
     );
   }

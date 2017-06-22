@@ -1,4 +1,3 @@
-
 // libs
 import React, { Element, Component } from 'react';
 import { autobind } from 'core-decorators';
@@ -18,10 +17,10 @@ import type { StockItemFlat } from 'modules/inventory/warehouses';
 type Props = {
   updateSkuItemsCount: (sku: string, stockItem: StockItemFlat, diff: number) => void,
   data: {
-    rows: Array<StockItemFlat>
+    rows: Array<StockItemFlat>,
   },
   counterId: string,
-}
+};
 
 class WarehouseDrawer extends Component {
   props: Props;
@@ -41,11 +40,7 @@ class WarehouseDrawer extends Component {
       <TableRow id={rowId} key={uniqId}>
         <td>{row.type}</td>
         <td>
-          <Counter
-            counterId={counterId}
-            value={row.onHand}
-            onChange={handleChangeQuantity}
-          />
+          <Counter counterId={counterId} value={row.onHand} onChange={handleChangeQuantity} />
         </td>
         <td className="hold">{row.onHold}</td>
         <td className="reserved">{row.reserved}</td>
@@ -58,7 +53,7 @@ class WarehouseDrawer extends Component {
   render() {
     const { props } = this;
     return (
-      <Drawer {...props} >
+      <Drawer {...props}>
         <div>
           <Table
             {...props}

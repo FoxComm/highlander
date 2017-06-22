@@ -3,7 +3,8 @@ const path = require('path');
 
 // '../../src/components/product/page' + 'wrapper' -> 'product/page__wrapper'
 function generateLongName(exportedName, filepath) {
-  const sanitisedPath = path.relative(process.cwd(), filepath)
+  const sanitisedPath = path
+    .relative(process.cwd(), filepath)
     .replace('src/components', '')
     .replace('lib/components', '')
     .replace('src/css', '')
@@ -31,7 +32,7 @@ const plugins = [
     path: ['src/css', 'node_modules'],
   }),
   require('postcss-assets')({
-    loadPaths: ['src/images/']
+    loadPaths: ['src/images/'],
   }),
 
   require('postcss-cssnext')({

@@ -62,15 +62,12 @@ export default class GroupsTypeahead extends Component {
 
   @autobind
   handleSelectItem(item: TCustomerGroupShort, event: Object) {
-    if (_.find(this.state.selected, {id: item.id})) {
+    if (_.find(this.state.selected, { id: item.id })) {
       event.preventHiding();
     } else {
       this.setState({
         term: '',
-        selected: [
-          ...this.state.selected,
-          item,
-        ],
+        selected: [...this.state.selected, item],
       });
     }
   }

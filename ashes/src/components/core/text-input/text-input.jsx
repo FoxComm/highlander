@@ -41,7 +41,7 @@ export default class TextInput extends Component {
   props: Props;
 
   state: State = {
-    value: this.props.value || this.props.defaultValue || ''
+    value: this.props.value || this.props.defaultValue || '',
   };
 
   _input: HTMLElement;

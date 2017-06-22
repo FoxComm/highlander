@@ -19,10 +19,9 @@ type UsageRuleProps = {
   usesPerCode: number,
   usesPerCustomer: number,
   onChange: Function,
-}
+};
 
 export default class UsageRules extends Component {
-
   props: UsageRuleProps;
 
   static defaultProps = {

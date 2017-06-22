@@ -49,9 +49,7 @@ class CustomerGroupsBlock extends Component {
   }
 
   get actionBlock() {
-    return (
-      <AddButton onClick={this.toggleModal} />
-    );
+    return <AddButton onClick={this.toggleModal} />;
   }
 
   @autobind
@@ -90,7 +88,7 @@ class CustomerGroupsBlock extends Component {
       const linkClass = classNames(styles.group, { [styles.dynamic]: group.groupType != 'manual' });
       return (
         <div className={styles['group-container']} key={group.id}>
-          <Link className={linkClass} to="customer-group" params={{groupId: group.id}}>
+          <Link className={linkClass} to="customer-group" params={{ groupId: group.id }}>
             <span className={styles.name}><Icon name="customers" /> {group.name}</span>
             <span className={styles.type}>{_.capitalize(group.groupType)}</span>
           </Link>
@@ -103,7 +101,6 @@ class CustomerGroupsBlock extends Component {
   }
 
   render() {
-
     return (
       <ContentBox className={styles.contentBox} title="Groups" actionBlock={this.actionBlock}>
         {this.groups}
@@ -128,10 +125,13 @@ const mapState = state => ({
 const mapActions = (dispatch, props) => {
   const customerGroups = _.map(props.customer.groups, group => group.id);
 
-  return bindActionCreators({
-    suggestGroups: suggestGroups(customerGroups),
-    saveGroups,
-  }, dispatch);
+  return bindActionCreators(
+    {
+      suggestGroups: suggestGroups(customerGroups),
+      saveGroups,
+    },
+    dispatch
+  );
 };
 
 export default connect(mapState, mapActions)(CustomerGroupsBlock);

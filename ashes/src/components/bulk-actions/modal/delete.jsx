@@ -11,21 +11,19 @@ import { numberize } from 'lib/text-utils';
 import ConfirmationModal from 'components/core/confirmation-modal';
 
 type Props = {
-  entity: string;
-  stateTitle: string;
-  label?: string;
-  count: number;
-  onCancel: Function;
-  onConfirm: Function;
+  entity: string,
+  stateTitle: string,
+  label?: string,
+  count: number,
+  onCancel: Function,
+  onConfirm: Function,
 };
 
 export default (props: Props) => {
   const { entity, stateTitle, count, label: rawLabel, onCancel, onConfirm } = props;
   const entityForm = numberize(entity, count);
 
-  const label = rawLabel
-    ? rawLabel
-    : <span>Are you sure you want to <b>{stateTitle} {count} {entityForm}</b>?</span>;
+  const label = rawLabel ? rawLabel : <span>Are you sure you want to <b>{stateTitle} {count} {entityForm}</b>?</span>;
 
   return (
     <ConfirmationModal

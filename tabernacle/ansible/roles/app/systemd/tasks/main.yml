@@ -19,7 +19,6 @@
     - postgresql
     - bottledwater_phoenix
     - bottledwater_middlewarehouse
-    - materialized_views
     - pgweb
 
 - name: Enable Onboarding Services

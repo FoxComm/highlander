@@ -23,7 +23,7 @@ const deleteCustomersFromGroup = (actions, groupId, customersIds) => (dispatch, 
     reduce((obj, c) => set(c.id, c.name, obj), {})
   )(getState());
 
-  return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: [], toDelete: customersIds, })
+  return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: [], toDelete: customersIds })
     .then(() => dispatch(actions.bulkDone(customers, null)))
     .catch(error => dispatch(actions.bulkError(error)));
 };
@@ -40,7 +40,4 @@ const { actions, reducer } = createStore({
   initialState,
 });
 
-export {
-  actions,
-  reducer as default
-};
+export { actions, reducer as default };

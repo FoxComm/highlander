@@ -6,7 +6,7 @@ type Props = {
   /** icon type */
   name: string,
   /** additional className */
-  className?: string
+  className?: string,
 };
 
 /**
@@ -18,7 +18,6 @@ type Props = {
 const Icon = (props: Props) => {
   const { name, className, ...rest } = props;
   const iconCls = classNames(className, `icon-${name}`);
-
   return <i className={iconCls} {...rest} />;
 };
 

@@ -20,9 +20,9 @@ type Props = {
 };
 
 type State = {
-  ready: boolean;
-  error: boolean;
-  src?: string;
+  ready: boolean,
+  error: boolean,
+  src?: string,
 };
 
 export default class ImageLoader extends Component {
@@ -82,11 +82,14 @@ export default class ImageLoader extends Component {
 
     this.showTransition = !this.state.ready;
 
-    this.setState({
-      ready: true,
-      src: this.img.src,
-      error: !this.img.width && !this.img.height,
-    }, this.destroyImage);
+    this.setState(
+      {
+        ready: true,
+        src: this.img.src,
+        error: !this.img.width && !this.img.height,
+      },
+      this.destroyImage
+    );
   }
 
   get loader(): ?Element<*> {

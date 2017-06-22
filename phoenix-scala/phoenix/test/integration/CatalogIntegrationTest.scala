@@ -1,3 +1,5 @@
+import core.db._
+import phoenix.models.catalog._
 import phoenix.payloads.CatalogPayloads._
 import phoenix.responses.CatalogResponse
 import testutils._
@@ -70,6 +72,56 @@ class CatalogIntegrationTest
       val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse.Root]
       response.site must === (None)
     }
+  }
+
+  "POST /v1/catalogs/:id/products" - {
+    "succeeds in adding the product to the catalog" in new Catalog_ApiFixture {
+      val product = ProductSku_ApiFixture().product
+      val payload = AddProductsPayload(productIds = Seq(product.id))
+      catalogsApi(catalog.id).addProducts(payload).mustBeOk
+
+      val catalogProduct = CatalogProducts.filterProduct(catalog.id, product.id).gimme.head
+      catalogProduct.archivedAt must === (None)
+    }
+
+    "fails with invalid catalog" in new Catalog_ApiFixture {
+      val product = ProductSku_ApiFixture().product
+      val payload = AddProductsPayload(productIds = Seq(product.id))
+      catalogsApi(100).addProducts(payload).mustHaveStatus(404)
+    }
+
+    "fails with invalid product" in new Catalog_ApiFixture {
+      val payload = AddProductsPayload(productIds = Seq(100))
+      catalogsApi(catalog.id).addProducts(payload).mustHaveStatus(400)
+    }
+  }
+
+  "DELETE /v1/catalogs/:id/products" - {
+    "succeeds in removing a product to the catalog" in new Catalog_ApiFixture {
+      val product = ProductSku_ApiFixture().product
+      val payload = AddProductsPayload(productIds = Seq(product.id))
+      catalogsApi(catalog.id).addProducts(payload).mustBeOk
+      catalogsApi(catalog.id).deleteProduct(product.id)
+
+      val catalogProduct = CatalogProducts.filterProduct(catalog.id, product.id).gimme.head
+      catalogProduct.archivedAt must !==(None)
+    }
+
+    "fails to remove a product that was not in a catalog" in new Catalog_ApiFixture {
+      val product = ProductSku_ApiFixture().product
+      catalogsApi(catalog.id).deleteProduct(product.id).mustHaveStatus(404)
+    }
+
+    "fails with invalid catalog" in new Catalog_ApiFixture {
+      val product = ProductSku_ApiFixture().product
+      catalogsApi(100).deleteProduct(product.id).mustHaveStatus(404)
+    }
+
+    "fails with invalid product" in new Catalog_ApiFixture {
+      val product = ProductSku_ApiFixture().product
+      catalogsApi(100).deleteProduct(product.id).mustHaveStatus(404)
+    }
+
   }
 
 }

@@ -1,0 +1,37 @@
+## Product Reviews [/v1/review/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a review is viewable.
+    + id: `1` (required, number) - Unique identifier for a Review.
+
+### View [GET]
+
++ Response 200 (application/json)
+  + Attributes (ProductReviewResponse)
+
+### Create [POST /v1/review/{context}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a review is viewable.
++ Request (application/json)
+    + Attributes (CreateProductReviewByAdminPayload)
++ Response 200 (application/json)
+  + Attributes (ProductReviewResponse)
+
+### Update [PATCH /v1/review/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a review is viewable.
+    + id: `1` (required, number) - Unique identifier for a Product Review.
++ Request (application/json)
+    + Attributes (UpdateProductReviewPayload)
++ Response 200 (application/json)
+  + Attributes (ProductReviewResponse)
+
+### Delete [DELETE /v1/review/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a review is viewable.
+    + id: `1` (required, number) - Unique identifier for a Product Review.
++ Response 200 (application/json)
+

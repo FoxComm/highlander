@@ -18,15 +18,15 @@ type Action = {
 };
 
 type Props = {
-  actions: Array<Action>;
-  title: string;
-  onAddFile: Function;
-  onAddUrl: Function;
-  titleWrapper?: (title: string) => Element<*>;
-  className?: string;
-  contentClassName: ?string;
+  actions: Array<Action>,
+  title: string,
+  onAddFile: Function,
+  onAddUrl: Function,
+  titleWrapper?: (title: string) => Element<*>,
+  className?: string,
+  contentClassName: ?string,
   alert: ?Element<any>,
-  children?: Array<Element<*>>|Element<*>;
+  children?: Array<Element<*>>|Element<*>,
 };
 
 const ddItems = [
@@ -35,7 +35,6 @@ const ddItems = [
 ];
 
 export default class AlbumWrapper extends Component {
-
   props: Props;
 
   static defaultProps = {

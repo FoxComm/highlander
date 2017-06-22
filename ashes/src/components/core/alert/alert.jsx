@@ -26,9 +26,14 @@ type Props = {
 };
 
 const Alert = (props: Props) => {
-  const className = classNames(s.alert, s[props.type], {
-    [s.closable]: props.closeAction,
-  }, props.className);
+  const className = classNames(
+    s.alert,
+    s[props.type],
+    {
+      [s.closable]: props.closeAction,
+    },
+    props.className
+  );
 
   let closeButton = null;
   if (props.closeAction) {
