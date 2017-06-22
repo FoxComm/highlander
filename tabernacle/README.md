@@ -59,7 +59,6 @@ The order, in which `systemd` launches the services:
 |bottledwater_phoenix        |   |kibana|                      
 |bottledwater_middlewarehouse|   +------+                      
 |bottledwater_onboarding     |                                 
-|materialized_views          |                                 
 |pgweb                       |                                 
 +----------------------------+                                 
 ```

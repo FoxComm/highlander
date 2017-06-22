@@ -108,20 +108,24 @@ object DbTestSupport extends GimmeSupport {
       stmt1.execute(s"create database $tplName owner phoenix")
     } finally stmt1.close()
 
+    DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
+
     val tplCfg = ConfigFactory.parseString(s"""db.name = "$tplName"
                                               |db.url = "jdbc:postgresql://localhost/$tplName?user=phoenix&prepareThreshold=0"
        """.stripMargin).withFallback(TestBase.bareConfig)
-    val tplDb  = Database.forConfig("db", tplCfg)
 
-    DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
-
+    val tplDb    = Database.forConfig("db", tplCfg)
     val originDs = DbTestSupport.jdbcDataSourceFromSlickDB(api)(tplDb)
-    DbTestSupport.migrateDB(originDs)
-    // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
-    DbTestSupport.randomizeSequences("public")(ec, tplDb)
-    Factories.createSingleMerchantSystem
-      .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
-    tplDb.close()
+
+    try {
+      DbTestSupport.migrateDB(originDs)
+      // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
+      tplDb.run(SequenceRandomizer.randomizeSchema("public")).futureValue
+      Factories.createSingleMerchantSystem
+        .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
+    } finally { tplDb.close() }
+
+    // kill all connections to db template database
     val stmt = conn.createStatement()
     try stmt.execute(s"""select pg_terminate_backend(pid)
                         |from pg_stat_activity
@@ -197,32 +201,4 @@ object DbTestSupport extends GimmeSupport {
     db.source match {
       case source: HikariCPJdbcDataSource ⇒ source.ds
     }
-
-  private def randomizeSequences(schema: String)(implicit ec: EC, db: DB): Unit = {
-    // When changing this, please, if anything, make them less predictable, not more. @michalrus
-    val allSequences =
-      sql"SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = $schema"
-        .as[String]
-        .gimme
-
-    // TODO: Make it possible to not filter these out… @michalrus
-    val randomizedSequences = allSequences.filterNot(
-      Set(
-        "scopes_id_seq", // FIXME: What the hell. https://foxcommerce.slack.com/archives/C06696D1R/p1495796779988723
-        "object_contexts_id_seq" // FIXME: Sigh. https://foxcommerce.slack.com/archives/C06696D1R/p1495798791447479
-      ) contains _)
-
-    val gap = 1000000
-    val withValues = Random
-      .shuffle(randomizedSequences)
-      .zip(Stream.from(1).map(_ * gap + Random.nextInt(gap / 10)))
-    DBIO
-      .sequence(withValues.map {
-        case (name, value) ⇒
-          val increment     = (if (Random.nextBoolean()) 1 else -1) * Random.nextInt(100)
-          val incrementNon0 = if (increment == 0) -1 else increment
-          sql"ALTER SEQUENCE #$name START WITH #$value INCREMENT BY #$incrementNon0 RESTART".asUpdate
-      })
-      .gimme
-  }
 }
