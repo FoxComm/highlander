@@ -193,6 +193,13 @@ object query {
         with WithContext {
       def ctx: QueryContext = context
     }
+    final case class nested private (in: QueryField.Single,
+                                     context: QueryContext,
+                                     value: QueryValue[QueryFunction])
+        extends QueryFunction
+        with WithContext {
+      def ctx: QueryContext = context
+    }
 
     implicit val decodeQueryFunction: Decoder[QueryFunction] = deriveDecoder[QueryFunction]
   }

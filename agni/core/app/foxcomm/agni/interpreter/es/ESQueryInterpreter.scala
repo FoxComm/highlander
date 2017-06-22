@@ -1,5 +1,6 @@
 package foxcomm.agni.interpreter.es
 
+import cats.implicits._
 import foxcomm.agni._
 import foxcomm.agni.dsl.query._
 import foxcomm.agni.interpreter.QueryInterpreter
@@ -31,33 +32,37 @@ object ESQueryInterpreter extends QueryInterpreter[Coeval, BoolQueryBuilder] {
     }
   }
 
-  def matchesF(b: BoolQueryBuilder, qf: QueryFunction.matches): Coeval[BoolQueryBuilder] = Coeval.eval {
-    qf.value.toList.foldLeft(b)((b, v) ⇒
-      b.inContext(qf) {
-        qf.field match {
-          case QueryField.Single(n)    ⇒ QueryBuilders.matchQuery(n, v)
-          case QueryField.Multiple(ns) ⇒ QueryBuilders.multiMatchQuery(v, ns.toList: _*)
-        }
-    })
-  }
+  def matchesF(b: BoolQueryBuilder, qf: QueryFunction.matches): Coeval[BoolQueryBuilder] =
+    Coeval.eval {
+      qf.value.toList.foldLeft(b)((b, v) ⇒
+        b.inContext(qf) {
+          qf.field match {
+            case QueryField.Single(n) ⇒ QueryBuilders.matchQuery(n, v)
+            case QueryField.Multiple(ns) ⇒
+              QueryBuilders.multiMatchQuery(v, ns.toList: _*)
+          }
+      })
+    }
 
-  def equalsF(b: BoolQueryBuilder, qf: QueryFunction.equals): Coeval[BoolQueryBuilder] = Coeval.eval {
-    val vs = qf.value.toList
-    qf.in.toList.foldLeft(b)((b, n) ⇒
-      b.inContext(qf) {
-        vs match {
-          case v :: Nil ⇒ QueryBuilders.termQuery(n, v)
-          case _        ⇒ QueryBuilders.termsQuery(n, vs: _*)
-        }
-    })
-  }
+  def equalsF(b: BoolQueryBuilder, qf: QueryFunction.equals): Coeval[BoolQueryBuilder] =
+    Coeval.eval {
+      val vs = qf.value.toList.toList
+      qf.in.toList.foldLeft(b)((b, n) ⇒
+        b.inContext(qf) {
+          vs match {
+            case v :: Nil ⇒ QueryBuilders.termQuery(n, v)
+            case _        ⇒ QueryBuilders.termsQuery(n, vs: _*)
+          }
+      })
+    }
 
-  def existsF(b: BoolQueryBuilder, qf: QueryFunction.exists): Coeval[BoolQueryBuilder] = Coeval.eval {
-    qf.value.toList.foldLeft(b)((b, n) ⇒
-      b.inContext(qf) {
-        QueryBuilders.existsQuery(n)
-    })
-  }
+  def existsF(b: BoolQueryBuilder, qf: QueryFunction.exists): Coeval[BoolQueryBuilder] =
+    Coeval.eval {
+      qf.value.toList.foldLeft(b)((b, n) ⇒
+        b.inContext(qf) {
+          QueryBuilders.existsQuery(n)
+      })
+    }
 
   def rangeF(b: BoolQueryBuilder, qf: QueryFunction.range): Coeval[BoolQueryBuilder] = Coeval.eval {
     b.inContext(qf) {
@@ -78,4 +83,9 @@ object ESQueryInterpreter extends QueryInterpreter[Coeval, BoolQueryBuilder] {
   def rawF(b: BoolQueryBuilder, qf: QueryFunction.raw): Coeval[BoolQueryBuilder] = Coeval.eval {
     b.inContext(qf)(RawQueryBuilder(qf.value))
   }
+
+  def nestedF(b: BoolQueryBuilder, qf: QueryFunction.nested): Coeval[BoolQueryBuilder] =
+    qf.value.toList
+      .foldM(QueryBuilders.boolQuery())(eval)
+      .map(b.inContext(qf)(_))
 }

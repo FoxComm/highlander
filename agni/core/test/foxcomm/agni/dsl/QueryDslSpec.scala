@@ -16,8 +16,12 @@ class QueryDslSpec extends FlatSpec with Matchers {
 
   "DSL" should "parse multiple queries" in {
     val json =
-      parse(Source.fromInputStream(getClass.getResourceAsStream("/happy_path.json")).mkString).right.value
-    val queries = json.as[FCQuery].right.value.query.map(_.toList).getOrElse(Nil)
+      parse(
+        Source
+          .fromInputStream(getClass.getResourceAsStream("/happy_path.json"))
+          .mkString).right.value
+    val queries =
+      json.as[FCQuery].right.value.query.map(_.toList).getOrElse(Nil)
     assertQueryFunction[QueryFunction.equals](queries.head) { equals ⇒
       equals.in.toList should === (List("slug"))
       equals.value.toList should === (List("awesome", "whatever"))

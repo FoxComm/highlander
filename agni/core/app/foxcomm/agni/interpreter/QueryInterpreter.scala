@@ -15,6 +15,7 @@ abstract class QueryInterpreter[F[_]: Monad, V] extends Interpreter[F, (V, NonEm
     case qf: QueryFunction.exists  ⇒ existsF(v, qf)
     case qf: QueryFunction.range   ⇒ rangeF(v, qf)
     case qf: QueryFunction.raw     ⇒ rawF(v, qf)
+    case qf: QueryFunction.nested  ⇒ nestedF(v, qf)
   }
 
   final def apply(v: (V, NonEmptyList[QueryFunction])): F[V] = v._2.foldM(v._1)(eval)
@@ -28,6 +29,8 @@ abstract class QueryInterpreter[F[_]: Monad, V] extends Interpreter[F, (V, NonEm
   def rangeF(v: V, qf: QueryFunction.range): F[V]
 
   def rawF(v: V, qf: QueryFunction.raw): F[V]
+
+  def nestedF(v: V, qf: QueryFunction.nested): F[V]
 }
 
 object QueryInterpreter {
