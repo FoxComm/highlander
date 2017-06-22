@@ -9,7 +9,7 @@
       font-family: 'Open Sans', sans-serif;
     }
 
-    h1.root-0-10 {
+    main > section > section > h1 {
       border-bottom: 1px solid #d8d8d8;
 
       a[class*=isPrimary-] {

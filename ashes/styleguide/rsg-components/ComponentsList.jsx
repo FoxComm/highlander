@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { identity, values } from 'lodash';
-import { assoc } from 'sprout-data';
 import cx from 'classnames';
 import Link from 'rsg-components/Link';
 import Styled from 'rsg-components/Styled';
@@ -144,12 +143,10 @@ export class ComponentsListRenderer extends React.Component {
   }
 
   getExpandedState(slug, expand = true) {
-    const newState = {
+    return {
       ...this.state.expandedItems,
       [slug]: expand,
     };
-
-    return newState;
   }
 
   handleScroll() {
