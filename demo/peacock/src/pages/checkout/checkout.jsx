@@ -221,6 +221,7 @@ class Checkout extends Component {
 
     if (cartFetched) {
       const shippingAddress = _.get(this.props.cart, 'shippingAddress', {});
+      console.log('billing', this.props);
 
       return (
         <div styleName="wrapper">
@@ -233,6 +234,7 @@ class Checkout extends Component {
                     onComplete={this.setShipping}
                     addresses={this.props.addresses}
                     fetchAddresses={this.props.fetchAddresses}
+                    fetchAddressesRequired={this.props.fetchAddressesRequired}
                     shippingAddress={shippingAddress}
                     auth={this.props.auth}
                     isGuestMode={isGuestMode}

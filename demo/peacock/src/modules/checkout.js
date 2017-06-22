@@ -463,6 +463,7 @@ const initialState: CheckoutState = {
   shippingModalVisible: false,
   deliveryModalVisible: false,
   paymentModalVisible: false,
+  fetchAddressesRequired: false,
 };
 
 function sortAddresses(addresses: Array<Address>): Array<Address> {
@@ -521,6 +522,7 @@ const reducer = createReducer({
     return {
       ...state,
       addresses,
+      fetchAddressesRequired: false,
     };
   },
   [cleanDeletedAddresses]: (state) => {
@@ -602,6 +604,13 @@ const reducer = createReducer({
     return {
       ...state,
       creditCard,
+    };
+  },
+  [_addCreditCard.succeeded]: (state, creditCard) => {
+    return {
+      ...state,
+      creditCard,
+      fetchAddressesRequired: true,
     };
   },
   [_resetCreditCard.succeeded]: (state) => {

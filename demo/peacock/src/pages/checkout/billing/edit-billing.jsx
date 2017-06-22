@@ -95,13 +95,17 @@ class EditBilling extends Component {
     }
 
     const coupon = this.props.coupon;
+    let newState = {};
+
     if (!_.isEmpty(coupon)) {
-      this.setState({ couponCode: coupon.code });
+      newState = { couponCode: coupon.code };
     }
 
-    if (this.props.data.address) {
-      this.state.billingAddressIsSame = false;
+    if (this.props.shippingAddress) {
+      newState = {...newState, billingAddressIsSame: false };
     }
+
+    this.setState(newState);
   }
 
   // Credit Card Handling
@@ -462,6 +466,7 @@ class EditBilling extends Component {
           checked={this.state.billingAddressIsSame}
           onChange={this.toggleSeparateBillingAddress}
           styleName="same-address-checkbox"
+          disabled={_.isEmpty(this.props.shippingAddress)}
         >
           {t('Billing address is same as shipping')}
         </Checkbox>
