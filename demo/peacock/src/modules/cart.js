@@ -187,8 +187,8 @@ export function saveLineItemsAndCoupons(merge: boolean = false) {
       return newCartItems;
     }).then((newCartItems) => {
       return dispatch(submitLineItemChange(newCartItems));
-    }).then(() => {
-      dispatch(updateCart(userCart));
+    }).then((response) => {
+      dispatch(updateCart(response.result));
 
       const {
         saveGiftCard,

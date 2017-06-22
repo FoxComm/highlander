@@ -1,3 +1,7 @@
+.spinner {
+  margin: 20px auto;
+}
+
 .stateDropdown {
   & :global .fc-dropdown__items {
     right: 0;

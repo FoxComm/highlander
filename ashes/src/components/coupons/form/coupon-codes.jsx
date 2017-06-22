@@ -1,4 +1,3 @@
-
 /* @flow */
 
 // libs
@@ -8,11 +7,12 @@ import { connect } from 'react-redux';
 
 // components
 import ContentBox from '../../content-box/content-box';
-import RadioButton from '../../forms/radio-button';
-import Counter from '../../forms/counter';
+import RadioButton from 'components/core/radio-button';
+import Counter from 'components/core/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';
 import { transitionTo } from 'browserHistory';
+import TextInput from 'components/core/text-input';
 
 // styles
 import styles from './styles.css';
@@ -39,11 +39,6 @@ type Props = {
   codeIsOfValidLength: Function,
 };
 
-type Target = {
-  name: string,
-  value: string,
-};
-
 class CouponCodes extends Component {
   props: Props;
 
@@ -55,8 +50,7 @@ class CouponCodes extends Component {
     return (
       <div styleName="form-subset">
         <div className="fc-form-field" styleName="form-group">
-          <input
-            type="text"
+          <TextInput
             styleName="full-width-field"
             name="singleCode"
             value={this.props.codeGeneration.singleCode}
@@ -71,21 +65,13 @@ class CouponCodes extends Component {
   }
 
   @autobind
-  handleFormChange({target}: {target: Target}): void {
-    this.props.couponsGenerationChange(target.name, target.value);
+  handleFormChange(value: string, name: string): void {
+    this.props.couponsGenerationChange(name, value);
   }
 
   @autobind
-  handleCounterChange({target}: {target: Target}): void {
-    const num = Number(target.value);
-    this.props.couponsGenerationChange(target.name, num);
-  }
-
-  @autobind
-  setCounterValue(name: string, value: string|number): void {
-    let num = Number(value);
-    num = isNaN(num) ? 1 : num;
-    this.props.couponsGenerationChange(name, Math.max(1, num));
+  handleCounterChange(name, num): void {
+    this.props.couponsGenerationChange(name, num);
   }
 
   @autobind
@@ -129,7 +115,7 @@ class CouponCodes extends Component {
     const quantity = this.props.codeGeneration.codesQuantity;
     const length = this.props.codeGeneration.codesLength;
     const numberOfVariants = Math.pow(10, length);
-    return Math.round((quantity / numberOfVariants) * 100);
+    return Math.round(quantity / numberOfVariants * 100);
   }
 
   get codeLengthValidationError() {
@@ -155,9 +141,7 @@ class CouponCodes extends Component {
                 id="codesQuantity"
                 name="codesQuantity"
                 value={codesQuantity}
-                decreaseAction={() => this.setCounterValue('codesQuantity', codesQuantity - 1)}
-                increaseAction={() => this.setCounterValue('codesQuantity', codesQuantity + 1)}
-                onChange={this.handleCounterChange}
+                onChange={value => this.handleCounterChange('codesQuantity', value)}
                 min={1}
               />
             </div>
@@ -166,27 +150,24 @@ class CouponCodes extends Component {
         <div styleName="form-group" className="fc-coupon-inline-row">
           <FormField label="Code Prefix">
             <div>
-              <input
+              <TextInput
                 styleName="full-width-field"
                 value={this.props.codeGeneration.codesPrefix}
                 onChange={this.handleFormChange}
-                type="text"
                 name="codesPrefix"
               />
             </div>
           </FormField>
         </div>
         <div styleName="form-group" className="fc-coupon-inline-row">
-          <FormField label="Code Character Length" >
+          <FormField label="Code Character Length">
             <div>
               <Counter
                 counterId="fct-code-length-counter"
                 id="codesLength"
                 name="codesLength"
                 value={this.props.codeGeneration.codesLength}
-                decreaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength - 1)}
-                increaseAction={() => this.setCounterValue('codesLength', this.props.codeGeneration.codesLength + 1)}
-                onChange={this.handleCounterChange}
+                onChange={value => this.handleCounterChange('codesLength', value)}
                 min={1}
               />
             </div>
@@ -214,19 +195,21 @@ class CouponCodes extends Component {
     return (
       <ContentBox title="Coupon Code">
         <div>
-          <RadioButton id="singleCouponCodeRadio"
-                       checked={this.props.codeGeneration.bulk === false}
-                       onChange={this.handleSingleSelect} >
-            <label htmlFor="singleCouponCodeRadio" styleName="field-label">Single coupon code</label>
-          </RadioButton>
+          <RadioButton
+            id="singleCouponCodeRadio"
+            label="Single coupon code"
+            checked={this.props.codeGeneration.bulk === false}
+            onChange={this.handleSingleSelect}
+          />
         </div>
         {this.singleCouponFormPart}
         <div>
-          <RadioButton id="bulkCouponCodeRadio"
-                       checked={this.props.codeGeneration.bulk === true}
-                       onChange={this.handleBulkSelect} >
-            <label htmlFor="bulkCouponCodeRadio" styleName="field-label">Bulk generate coupon codes</label>
-          </RadioButton>
+          <RadioButton
+            id="bulkCouponCodeRadio"
+            label="Bulk generate coupon codes"
+            checked={this.props.codeGeneration.bulk === true}
+            onChange={this.handleBulkSelect}
+          />
         </div>
         {this.bulkCouponFormPart}
         <CodeCreationModal
@@ -243,7 +226,7 @@ class CouponCodes extends Component {
 const mergeProps = (stateProps, dispatchProps, ownProps) => {
   return {
     ...dispatchProps,
-    ...ownProps
+    ...ownProps,
   };
 };
 

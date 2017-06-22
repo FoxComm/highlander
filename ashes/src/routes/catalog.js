@@ -29,31 +29,34 @@ import SkuImages from 'components/skus/images';
 import CatalogListWrapper from 'components/catalog/list-wrapper';
 import CatalogList from 'components/catalog/list';
 import CatalogDetails from 'components/catalog/details';
+import CatalogPage from 'components/catalog/catalog-page';
 
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
 
-  const productRoutes =
-    router.read('products-base', { path: 'products', frn: frn.pim.product }, [
-      router.read('products-list-pages', { component: ProductsListPage }, [
-        router.read('products', { component: Products, isIndex: true }),
-        router.read('products-activity-trail', {
-          path: 'activity-trail',
-          dimension: 'product',
-          component: ActivityTrailPage,
-          frn: frn.activity.product,
-        }),
-      ]),
-      router.read('product-amazon', {
-        title: 'Amazon',
-        path: 'amazon/:productId',
-        component: ProductAmazon,
+  const productRoutes = router.read('products-base', { path: 'products', frn: frn.pim.product }, [
+    router.read('products-list-pages', { component: ProductsListPage }, [
+      router.read('products', { component: Products, isIndex: true }),
+      router.read('products-activity-trail', {
+        path: 'activity-trail',
+        dimension: 'product',
+        component: ActivityTrailPage,
+        frn: frn.activity.product,
       }),
-      router.read('product', {
+    ]),
+    router.read('product-amazon', {
+      title: 'Amazon',
+      path: 'amazon/:productId',
+      component: ProductAmazon,
+    }),
+    router.read(
+      'product',
+      {
         path: ':context/:productId',
         titleParam: ':productId',
         component: ProductPage,
-      }, [
+      },
+      [
         router.read('product-details', { component: ProductForm, isIndex: true }),
         router.create('new-product', { component: ProductForm }),
         router.read('product-images', {
@@ -77,52 +80,55 @@ const getRoutes = (jwt: Object) => {
           title: 'Analytics',
           path: 'analytics',
           getComponent: (location, callback) => {
-            import('../components/analytics/analytics')
-              .then(({ Analytics }) => callback(null, Analytics));
+            import('../components/analytics/analytics').then(({ Analytics }) => callback(null, Analytics));
           },
           frn: frn.activity.product,
         }),
-      ]),
-    ]);
+      ]
+    ),
+  ]);
 
-  const catalogRoutes =
-    router.read('catalog-base', { title: 'Catalogs', path: 'catalogs', frn: frn.pim.catalog }, [
-      router.read('catalogs-list-pages', { component: CatalogListWrapper }, [
-        router.read('catalogs', { component: CatalogList, isIndex: true }),
-      ]),
-      router.read('catalog', {
+  const catalogRoutes = router.read('catalog-base', { title: 'Catalogs', path: 'catalogs', frn: frn.pim.catalog }, [
+    router.read('catalogs-list-pages', { component: CatalogListWrapper }, [
+      router.read('catalogs', { component: CatalogList, isIndex: true }),
+    ]),
+    router.read(
+      'catalog',
+      {
         path: ':catalogId',
         titleParam: ':catalogId',
-        component: CatalogDetails,
-      }, [
-        router.read('catalog-details', { isIndex: true }),
-      ]),
-    ]);
+        component: CatalogPage,
+      },
+      [router.read('catalog-details', { isIndex: true, component: CatalogDetails })]
+    ),
+  ]);
 
-  const skuRoutes =
-    router.read('skus-base', { title: 'SKUs', path: 'skus', frn: frn.pim.sku }, [
-      router.read('skus-list-pages', { component: SkusListPage }, [
-        router.read('skus', { component: Skus, isIndex: true }),
-        router.read('skus-activity-trail', {
-          path: 'activity-trail',
-          dimension: 'sku',
-          component: ActivityTrailPage,
-          frn: frn.activity.sku,
-        }),
-      ]),
-      router.read('sku', { path: ':skuCode', component: SkuPage }, [
-        router.read('sku-details', { component: SkuDetails, isIndex: true }),
-        router.read('sku-images', {
-          path: 'images',
-          title: 'Images',
-          component: SkuImages,
-          frn: frn.pim.album,
-        }),
-        router.read('sku-inventory-details-base', {
+  const skuRoutes = router.read('skus-base', { title: 'SKUs', path: 'skus', frn: frn.pim.sku }, [
+    router.read('skus-list-pages', { component: SkusListPage }, [
+      router.read('skus', { component: Skus, isIndex: true }),
+      router.read('skus-activity-trail', {
+        path: 'activity-trail',
+        dimension: 'sku',
+        component: ActivityTrailPage,
+        frn: frn.activity.sku,
+      }),
+    ]),
+    router.read('sku', { path: ':skuCode', component: SkuPage }, [
+      router.read('sku-details', { component: SkuDetails, isIndex: true }),
+      router.read('sku-images', {
+        path: 'images',
+        title: 'Images',
+        component: SkuImages,
+        frn: frn.pim.album,
+      }),
+      router.read(
+        'sku-inventory-details-base',
+        {
           path: 'inventory',
           component: InventoryItemDetailsBase,
           frn: frn.mdl.summary,
-        }, [
+        },
+        [
           router.read('sku-inventory-details', {
             component: InventoryItemDetails,
             isIndex: true,
@@ -133,33 +139,33 @@ const getRoutes = (jwt: Object) => {
             component: InventoryItemTransactions,
             frn: frn.mdl.transaction,
           }),
-        ]),
-        router.read('sku-notes', {
-          path: 'notes',
-          title: 'Notes',
-          component: Notes,
-          frn: frn.note.sku,
-        }),
-        router.read('sku-activity-trail', {
-          path: 'activity-trail',
-          component: ActivityTrailPage,
-          frn: frn.activity.sku,
-        }),
-      ]),
-    ]);
+        ]
+      ),
+      router.read('sku-notes', {
+        path: 'notes',
+        title: 'Notes',
+        component: Notes,
+        frn: frn.note.sku,
+      }),
+      router.read('sku-activity-trail', {
+        path: 'activity-trail',
+        component: ActivityTrailPage,
+        frn: frn.activity.sku,
+      }),
+    ]),
+  ]);
 
-  const inventoryRoutes =
-      router.read('inventory-base', { path: 'inventory', frn: frn.mdl.summary }, [
-        router.read('inventory-list-page',{ component: InventoryListPage }, [
-          router.read('inventory', { component: InventoryList, isIndex: true }),
-          router.read('inventory-activity-trail', {
-            path: 'activity-trail',
-            dimension: 'inventory',
-            component: ActivityTrailPage,
-            frn: frn.activity.inventory,
-          }),
-        ]),
-      ]);
+  const inventoryRoutes = router.read('inventory-base', { path: 'inventory', frn: frn.mdl.summary }, [
+    router.read('inventory-list-page', { component: InventoryListPage }, [
+      router.read('inventory', { component: InventoryList, isIndex: true }),
+      router.read('inventory-activity-trail', {
+        path: 'activity-trail',
+        dimension: 'inventory',
+        component: ActivityTrailPage,
+        frn: frn.activity.inventory,
+      }),
+    ]),
+  ]);
 
   return (
     <div>

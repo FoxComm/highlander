@@ -40,7 +40,7 @@
 
   .fc-share-search__associations-list {
     a._disabled {
-      color: #ccc;
+      color: @color-additional-text;
       cursor: default;
     }
   }
@@ -50,22 +50,16 @@
     margin-bottom: 17px;
   }
 
-  .fc-wait-animation {
-    width: 32px;
-    height: 32px;
-    margin: 20px auto;
-  }
-
   li {
     display: flex;
     align-items: center;
     height: 38px;
-    border-top: 1px solid #d9d9d9;
+    border-top: 1px solid @color-border;
 
     .fc-share-search__associations-owner {
       flex-grow: 1;
       margin-left: 10px;
-      color: #bdc3c6;
+      color: @color-additional-text;
       .font-spec(13px, bold);
     }
 
@@ -75,7 +69,7 @@
     }
 
     &:last-child {
-      border-bottom: 1px solid #d9d9d9;
+      border-bottom: 1px solid @color-border;
     }
   }
 }

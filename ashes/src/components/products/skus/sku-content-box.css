@@ -8,10 +8,6 @@
 
 .add-dialog {
   width: 600px;
-
-  & :global(.fc-checkbox__label) {
-    line-height: 29px;
-  }
 }
 
 .dialog-items {

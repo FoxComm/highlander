@@ -2,6 +2,7 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
@@ -9,8 +10,10 @@ import _ from 'lodash';
 import { isActive } from 'paragons/common';
 import { trackEvent } from 'lib/analytics';
 
+// components
 import { Dropdown } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
+import Icon from 'components/core/icon';
 
 
 type Props = {
@@ -89,7 +92,7 @@ export default class ObjectScheduler extends Component {
             onChange={this.updateActiveTo}
             onCancel={this.handleCancelTo} />
         )
-        : <a id="add-end-date-btn" onClick={this.handleShowActiveTo}><i className="icon-add" /></a>;
+        : <a id="add-end-date-btn" onClick={this.handleShowActiveTo}><Icon name="add" /></a>;
 
       return (
         <div className="fc-product-state__picker _end">
@@ -251,7 +254,7 @@ export default class ObjectScheduler extends Component {
             State
           </div>
           <div className="fc-product-state__icon">
-            <a onClick={this.handleClickCalendar}><i className="icon-calendar" /></a>
+            <a onClick={this.handleClickCalendar}><Icon name="calendar" /></a>
           </div>
         </div>
         {this.activeDropdown}

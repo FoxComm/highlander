@@ -35,6 +35,7 @@
     - "{{phoenix_test_db_name}}"
     - "{{middlewarehouse_test_db_name}}"
     - "{{hyperion_test_db_name}}"
+    - "{{geronimo_db_test_name}}"
 
 - name: Configure Db Users
   postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
@@ -44,3 +45,4 @@
       - phoenix
       - middlewarehouse
       - hyperion
+      - geronimo

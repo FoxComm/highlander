@@ -1,7 +1,7 @@
 package phoenix.models.account
 
 import java.time.Instant
-
+import phoenix.failures.UserFailures.OrganizationForAccountNotFound
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import core.db._
@@ -47,4 +47,10 @@ object Organizations
 
   def filterByIdAndScope(id: Int, scopeId: Int): QuerySeq =
     filter(_.id === id).filter(_.scopeId === scopeId)
+
+  def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[Organization] =
+    AccountOrganizations
+      .filterByAccountId(accountId)
+      .flatMap(_.organization)
+      .mustFindOneOr(OrganizationForAccountNotFound(accountId))
 }

@@ -1,11 +1,5 @@
-@color-header-fg: @color-default-fg;
-@color-header-bg: @color-decor12;
-
-@color-content-fg: @color-default-fg;
-@color-content-bg: @color-white;
-
 .common-panel() {
-  .colors(@color-subtitle, @color-white);
+  .colors(@color-additional-text, @bg-white);
   text-align: center;
 }
 
@@ -20,14 +14,14 @@
   word-break: break-word;
 
   &-featured {
-    color: @color-decor15;
+    color: @color-link;
     .font-spec(40px, 600);
     margin: 40px 0;
   }
 }
 
 .fc-panel {
-  border: 1px solid @color-decor9;
+  border: 1px solid @color-border;
   width: 100%;
 
   .common-panel();

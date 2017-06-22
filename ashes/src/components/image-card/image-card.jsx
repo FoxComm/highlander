@@ -11,6 +11,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import Image from '../image/image';
+import Icon from 'components/core/icon';
 
 export type Action = {
   name: string,
@@ -32,7 +33,6 @@ type State = {
 };
 
 export default class ImageCard extends Component {
-
   props: Props;
 
   state: State = {
@@ -76,7 +76,7 @@ export default class ImageCard extends Component {
 
     return (
       <div className={cls} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
-        {actions.map(({ name, handler }) => <i className={`icon-${name}`} onMouseDown={handler} key={name} />)}
+        {actions.map(({ name, handler }) => <Icon name={name} onMouseDown={handler} key={name} />)}
       </div>
     );
   }

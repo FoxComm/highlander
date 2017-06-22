@@ -8,7 +8,7 @@ import { frn, readAction } from 'lib/frn';
 
 // components
 import NavigationItem from '../navigation-item';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { withTaxonomies } from 'components/taxonomies/hoc';
 
 // styles
@@ -21,7 +21,7 @@ type Props = TMenuEntry & {
   fetchState: AsyncState,
   currentParams: {
     taxonomyId: string,
-  }
+  },
 };
 
 class MerchandisingEntry extends Component {
@@ -31,13 +31,13 @@ class MerchandisingEntry extends Component {
     const { claims, routes, taxonomies, currentParams, fetchState } = this.props;
 
     if (!taxonomies || fetchState.inProgress) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return taxonomies.map((taxonomy: TaxonomyResult) => {
       const linkParams = {
         context: taxonomy.context,
-        taxonomyId: taxonomy.taxonomyId
+        taxonomyId: taxonomy.taxonomyId,
       };
 
       return (
@@ -66,8 +66,9 @@ class MerchandisingEntry extends Component {
     }
 
     const routeNames = routes.map(route => route.name);
-    const manageRoute = includes(routeNames, 'taxonomies') && !currentParams.taxonomyId ||
-      includes(routeNames, 'taxonomy') && currentParams.taxonomyId === 'new';
+    const manageRoute =
+      (includes(routeNames, 'taxonomies') && !currentParams.taxonomyId) ||
+      (includes(routeNames, 'taxonomy') && currentParams.taxonomyId === 'new');
 
     return (
       <div styleName="fc-entries-wrapper">

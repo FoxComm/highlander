@@ -6,6 +6,9 @@ import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 
+// components
+import Icon from 'components/core/icon';
+
 // style
 import styles from './tree-node.css';
 
@@ -50,12 +53,12 @@ export default class TreeNode extends Component {
     const { children } = this.props.node;
 
     const cls = classNames({
-      'icon-category': !children,
-      'icon-category-expand': children && !this.state.expanded,
-      'icon-category-collapse': children && this.state.expanded,
+      'category': !children,
+      'category-expand': children && !this.state.expanded,
+      'category-collapse': children && this.state.expanded,
     });
 
-    return <i className={cls} onClick={this.toggleExpanded} />;
+    return <Icon className={cls} onClick={this.toggleExpanded} />;
   }
 
   get label() {

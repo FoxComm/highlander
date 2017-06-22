@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ItemCardContainer from './item-card-container';
 import { Button, EditButton, DeleteButton } from 'components/core/button';
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 
 export default class EditableItemCardContainer extends React.Component {
-
   static propTypes = {
     className: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
@@ -15,7 +14,7 @@ export default class EditableItemCardContainer extends React.Component {
     deleteHandler: PropTypes.func,
     editHandler: PropTypes.func,
     chooseHandler: PropTypes.func,
-    children: PropTypes.node
+    children: PropTypes.node,
   };
 
   constructor(props, context) {
@@ -27,12 +26,12 @@ export default class EditableItemCardContainer extends React.Component {
 
     if (props.checkboxLabel) {
       return (
-        <label className="fc-card-default-control">
-          <Checkbox id={`${props.id}-is-default`}
-                    checked={ props.isDefault }
-                    onChange={ props.checkboxChangeHandler } />
-          <span className="fc-card-default-control-label">{ props.checkboxLabel }</span>
-        </label>
+        <Checkbox
+          id={`${props.id}-is-default`}
+          label={props.checkboxLabel}
+          checked={props.isDefault}
+          onChange={props.checkboxChangeHandler}
+        />
       );
     }
   }
@@ -40,7 +39,7 @@ export default class EditableItemCardContainer extends React.Component {
   get editButton() {
     let editButton = null;
     if (this.props.editHandler) {
-      editButton = (<EditButton onClick={ this.props.editHandler } />);
+      editButton = <EditButton onClick={this.props.editHandler} />;
     }
     return editButton;
   }
@@ -48,7 +47,7 @@ export default class EditableItemCardContainer extends React.Component {
   get deleteButton() {
     let deleteButton = null;
     if (this.props.deleteHandler) {
-      deleteButton = (<DeleteButton onClick={ this.props.deleteHandler } />);
+      deleteButton = <DeleteButton onClick={this.props.deleteHandler} />;
     }
     return deleteButton;
   }
@@ -62,19 +61,21 @@ export default class EditableItemCardContainer extends React.Component {
   get buttons() {
     return (
       <div>
-        { this.deleteButton }
-        { this.editButton }
+        {this.deleteButton}
+        {this.editButton}
       </div>
     );
   }
 
   render() {
     return (
-      <ItemCardContainer className={ this.props.className }
-                         leftControls={ this.isDefault }
-                         rightControls={ this.buttons }
-                         chooseControl={ this.chooseButton }>
-        { this.props.children }
+      <ItemCardContainer
+        className={this.props.className}
+        leftControls={this.isDefault}
+        rightControls={this.buttons}
+        chooseControl={this.chooseButton}
+      >
+        {this.props.children}
       </ItemCardContainer>
     );
   }

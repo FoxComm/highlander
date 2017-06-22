@@ -11,19 +11,12 @@ import { fetch } from 'modules/taxonomies/flatList';
 import { getDisplayName } from 'lib/react-utils';
 
 // components
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 // styles
-import styles from './taxonomies.css';
+import s from './taxonomies.css';
 
-const omitProps = [
-  'taxonomy',
-  'taxonomies',
-  'fetch',
-  'createState',
-  'updateState',
-  'archiveState',
-];
+const omitProps = ['taxonomy', 'taxonomies', 'fetch', 'createState', 'updateState', 'archiveState'];
 
 type Props = {
   taxonomies: Array<TaxonomyResult>,
@@ -61,7 +54,7 @@ export default function withTaxonomies(options: Options) {
   options = merge({}, defaultOptions, options);
 
   // TODO: proper type for component argument
-  return function (WrappedComponent: any) {
+  return function(WrappedComponent: any) {
     class Wrapper extends Component {
       props: Props;
 
@@ -84,8 +77,8 @@ export default function withTaxonomies(options: Options) {
       render() {
         const { taxonomies, fetchState } = this.props;
 
-        if (options.showLoader && (!taxonomies || fetchState.inProgress && !fetchState.err)) {
-          return <WaitAnimation className={styles.waiting} />;
+        if (options.showLoader && (!taxonomies || (fetchState.inProgress && !fetchState.err))) {
+          return <Spinner className={s.spinner} />;
         }
 
         const props = {

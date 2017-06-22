@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import FormField from 'components/forms/formfield';
 import TaxonsDropdown from '../taxons-dropdown';
@@ -26,13 +26,9 @@ type Props = {
 
 type State = {
   taxon: TaxonDraft,
-}
+};
 
-const omitProps = [
-  'context',
-  'taxonomy',
-  'onConfirm',
-];
+const omitProps = ['context', 'taxonomy', 'onConfirm'];
 
 export default class NewTaxonModal extends Component {
   props: Props;
@@ -77,11 +73,7 @@ export default class NewTaxonModal extends Component {
     };
 
     return (
-      <FormField
-        className="fc-object-form__field"
-        labelClassName="fc-object-form__field-label"
-        label="Parent"
-      >
+      <FormField className="fc-object-form__field" labelClassName="fc-object-form__field-label" label="Parent">
         <TaxonsDropdown
           context={this.props.context}
           taxonomy={this.props.taxonomy}
@@ -92,31 +84,24 @@ export default class NewTaxonModal extends Component {
     );
   }
 
-  get body() {
+  render() {
+    const props = omit(this.props, omitProps);
+
     return (
-      <div>
+      <ConfirmationModal
+        className={s.modal}
+        title="New value"
+        confirmLabel="Save and Add Value"
+        onConfirm={this.handleConfirm}
+        {...props}
+      >
         <ObjectFormInner
           onChange={this.handleTaxonUpdate}
           fieldsToRender={['name']}
           attributes={this.state.taxon.attributes}
         />
         {this.parentInput}
-      </div>
-    );
-  }
-
-  render() {
-    const props = omit(this.props, omitProps);
-
-    return (
-      <ConfirmationDialog
-        className={s.modal}
-        header="New value"
-        body={this.body}
-        confirm="Save and Add Value"
-        confirmAction={this.handleConfirm}
-        {...props}
-      />
+      </ConfirmationModal>
     );
   }
 }

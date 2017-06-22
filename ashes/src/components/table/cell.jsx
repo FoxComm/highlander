@@ -10,7 +10,7 @@ import columnPropType from './column-prop-type';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
 import State from '../common/state';
-import Change from '../common/change';
+import Change from 'components/utils/change';
 import ProductImage from 'components/imgix/product-image';
 
 function getCurrency(column, row) {
@@ -22,7 +22,7 @@ function getCell(column, children, row) {
   const type = _.get(column, 'type');
   switch (type) {
     case 'id':
-      return <Link to={column.model} params={{[column.model]: children}}>{children}</Link>;
+      return <Link to={column.model} params={{ [column.model]: children }}>{children}</Link>;
     case 'image':
       return <ProductImage src={children} width={50} height={50} />;
     case 'state':

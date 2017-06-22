@@ -27,7 +27,7 @@ class TableView extends Component {
 
     const { data } = this.props;
 
-    return (params) => setState({ ...data, ...params });
+    return params => setState({ ...data, ...params });
   }
 
   @autobind
@@ -47,25 +47,17 @@ class TableView extends Component {
 
   @autobind
   handleExport() {
-    this.setState({ showExportModal: true});
+    this.setState({ showExportModal: true });
   }
 
   get flexSeparator() {
-    return (
-      <div className="fc-table__flex-separator" />
-    );
+    return <div className="fc-table__flex-separator" />;
   }
 
   get bulkExportButton() {
     if (!this.props.bulkExport) return null;
 
-    return (
-      <Button
-         className={s.bulkExport}
-         icon="export"
-         onClick={this.handleExport}
-       />
-    );
+    return <Button className={s.bulkExport} icon="export" onClick={this.handleExport} />;
   }
 
   get columnSelector() {
@@ -88,7 +80,7 @@ class TableView extends Component {
     const { toggledIds, allChecked, data: { total } } = this.props;
 
     //disabled if no data or nothing selected
-    const totalSelected = allChecked ? (total - toggledIds.length) : toggledIds.length;
+    const totalSelected = allChecked ? total - toggledIds.length : toggledIds.length;
     const disabled = total === 0 || totalSelected === 0;
 
     return (
@@ -108,14 +100,7 @@ class TableView extends Component {
 
     const { data } = this.props;
     const { from, total, size } = data;
-    return (
-      <TablePaginator
-        total={total}
-        from={from}
-        size={size}
-        setState={this.stateFromProps}
-      />
-    );
+    return <TablePaginator total={total} from={from} size={size} setState={this.stateFromProps} />;
   }
 
   get bottomPagination() {
@@ -124,20 +109,13 @@ class TableView extends Component {
 
     const { size } = this.props.data;
 
-    return (
-      <TablePageSize
-        setState={this.stateFromProps}
-        value={size}
-      />
-    );
+    return <TablePageSize setState={this.stateFromProps} value={size} />;
   }
 
   get topItemsLeft() {
     const actionsDropdown = this.actionsDropdown;
 
-    return [
-      actionsDropdown,
-    ];
+    return _.compact([actionsDropdown]);
   }
 
   get topItemsRight() {
@@ -146,12 +124,7 @@ class TableView extends Component {
     const columnSelector = this.columnSelector;
     const pagination = this.topPagination;
 
-    return [
-      bulkExport,
-      columnSelector,
-      pagination,
-      ...headerControls,
-    ];
+    return _.compact([bulkExport, columnSelector, pagination, ...headerControls]);
   }
 
   get topItems() {
@@ -160,24 +133,14 @@ class TableView extends Component {
 
     if (_.isEmpty(topItemsLeft) && _.isEmpty(topItemsRight)) return null;
 
-    return [
-      ...topItemsLeft,
-      this.flexSeparator,
-      ...topItemsRight
-    ];
-
+    return [...topItemsLeft, this.flexSeparator, ...topItemsRight];
   }
 
   get bottomItems() {
     const pagination = this.bottomPagination;
     const { footerControls = [] } = this.props;
 
-    return [
-      pagination,
-      this.flexSeparator,
-      this.topPagination,
-      ...footerControls,
-    ];
+    return [pagination, this.flexSeparator, this.topPagination, ...footerControls];
   }
 
   @autobind
@@ -215,10 +178,7 @@ class TableView extends Component {
         {this.bulkExportModal}
         {this.getRow('header', this.topItems)}
         <div className="fc-table__table">
-          <TableComponent
-            {...this.props}
-            setState={this.stateFromProps}
-          />
+          <TableComponent {...this.props} setState={this.stateFromProps} />
         </div>
         {this.getRow('footer', this.bottomItems)}
       </div>

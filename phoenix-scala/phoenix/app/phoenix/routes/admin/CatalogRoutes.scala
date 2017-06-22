@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import phoenix.utils.http.JsonSupport._
 import phoenix.models.account.User
-import phoenix.payloads.CatalogPayloads.{CreateCatalogPayload, UpdateCatalogPayload}
+import phoenix.payloads.CatalogPayloads._
 import phoenix.services.Authenticator.AuthData
 import phoenix.services.catalog.CatalogManager
 import phoenix.utils.aliases._
@@ -21,18 +21,32 @@ object CatalogRoutes {
             CatalogManager.createCatalog(payload)
           }
         } ~
-          pathPrefix(IntNumber) { catalogId ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                CatalogManager.getCatalog(catalogId)
+        pathPrefix(IntNumber) { catalogId ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              CatalogManager.getCatalog(catalogId)
+            }
+          } ~
+          (patch & pathEnd & entity(as[UpdateCatalogPayload])) { payload ⇒
+            mutateOrFailures {
+              CatalogManager.updateCatalog(catalogId, payload)
+            }
+          } ~
+          pathPrefix("products") {
+            (post & pathEnd & entity(as[AddProductsPayload])) { payload ⇒
+              mutateOrFailures {
+                CatalogManager.addProductsToCatalog(catalogId, payload)
               }
             } ~
-              (patch & pathEnd & entity(as[UpdateCatalogPayload])) { payload ⇒
-                mutateOrFailures {
-                  CatalogManager.updateCatalog(catalogId, payload)
+            pathPrefix(IntNumber) { productId ⇒
+              (delete & pathEnd) {
+                deleteOrFailures {
+                  CatalogManager.removeProductFromCatalog(catalogId, productId)
                 }
               }
+            }
           }
+        }
       }
     }
 }

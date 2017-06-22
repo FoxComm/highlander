@@ -5,7 +5,8 @@ import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.payloads.PaymentPayloads.{CreditCardPayment, GiftCardPayment}
 import phoenix.payloads.UpdateShippingMethod
-import phoenix.responses.{GiftCardResponse, ShippingMethodsResponse}
+import phoenix.responses.ShippingMethodsResponse
+import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixPublicApi
@@ -21,12 +22,12 @@ class RedeemedGcCheckoutIT
 
   "checkout with redeemed gc must fail nicely" in {
     val customer = api_newCustomer()
-    val sku      = new ProductSku_ApiFixture { override def skuPrice = 7000 }
+    val skuCode  = ProductSku_ApiFixture(skuPrice = 7000).skuCode
     val gc = {
       val reason = Reasons.create(Reason(body = "foo", storeAdminId = defaultAdmin.id)).gimme
       giftCardsApi
         .create(GiftCardCreateByCsr(balance = 10000, reasonId = reason.id))
-        .as[GiftCardResponse.Root]
+        .as[GiftCardResponse]
     }
     val address = randomAddress()
     val cc      = api_newCreditCard(customer.id, customer.name.value, address)
@@ -37,7 +38,7 @@ class RedeemedGcCheckoutIT
     }
 
     cartApi.lineItems
-      .add(Seq(UpdateLineItemsPayload(sku = sku.skuCode, quantity = 1)))
+      .add(Seq(UpdateLineItemsPayload(sku = skuCode, quantity = 1)))
       .mustBeOk()
 
     cartApi.shippingAddress.create(address).mustBeOk()

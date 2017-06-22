@@ -44,29 +44,27 @@ Db{x} - Db Listener, only one per each admin
  */
 
 /**
-  *
-  * @param killSwitch : KillSwitch
-  *                   shutdown this killswitch when all connected downstreams will be finished
+  * Track downstreams and run callback when all connected downstreams will be finished.
   */
-class ListenerProxy(killSwitch: SharedKillSwitch) extends GraphStage[FlowShape[SSE, SSE]] {
+class ListenerProxy(callback: ⇒ Unit) extends GraphStage[FlowShape[SSE, SSE]] {
 
   val in  = Inlet[SSE]("ListenerProxy.in")
   val out = Outlet[SSE]("ListenerProxy.out")
 
-  override val shape         = FlowShape.of(in, out)
-  val clients: AtomicInteger = new AtomicInteger(0)
+  override val shape             = FlowShape.of(in, out)
+  val downstreams: AtomicInteger = new AtomicInteger(0)
 
   override def createLogic(attr: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) with InHandler with OutHandler {
 
-      override def preStart(): Unit = clients.incrementAndGet()
+      override def preStart(): Unit = downstreams.incrementAndGet()
 
       override def onPush(): Unit = push(out, grab(in))
       override def onPull(): Unit = pull(in)
 
       override def onDownstreamFinish(): Unit = {
-        if (clients.decrementAndGet() == 0) {
-          killSwitch.shutdown()
+        if (downstreams.decrementAndGet() == 0) {
+          callback
         }
         completeStage()
       }
@@ -102,7 +100,7 @@ object NotificationFacade extends LazyLogging {
   }
 
   private def newNotifications(
-      adminId: Int)(implicit ec: EC, mat: Mat, system: ActorSystem): Source[SSE, NotUsed] =
+      adminId: Int)(implicit ec: EC, db: DB, mat: Mat, system: ActorSystem): Source[SSE, NotUsed] =
     dbListeners.getOrElseUpdate(
       adminId,
       _ ⇒ {
@@ -115,7 +113,10 @@ object NotificationFacade extends LazyLogging {
         system.actorOf(NotificationListener.props(adminId, actorRef), s"db-notify-listener-$adminId")
 
         val dbSource = Source.fromPublisher(publisher).via(killSwitch.flow)
-        createBroadcast(dbSource).via(new ListenerProxy(killSwitch))
+        createBroadcast(dbSource).via(new ListenerProxy({
+          killSwitch.shutdown()
+          dbListeners.remove(adminId)
+        }))
       }
     )
 

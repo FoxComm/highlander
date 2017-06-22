@@ -2,7 +2,7 @@ package phoenix.responses.cord
 
 import cats.implicits._
 import core.db._
-import phoenix.models.account.{User, _}
+import phoenix.models.account._
 import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems.CartLineItems
@@ -10,10 +10,10 @@ import phoenix.models.customer.{CustomerData, CustomersData}
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses._
 import phoenix.responses.cord.base._
+import phoenix.responses.users.CustomerResponse
 import phoenix.services.carts.CartQueries
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import core.utils.Money._
 
 case class CartResponse(referenceNumber: String,
                         paymentState: CordPaymentState.State,
@@ -22,7 +22,7 @@ case class CartResponse(referenceNumber: String,
                         promotion: Option[PromotionResponse.Root] = None,
                         coupon: Option[CordResponseCouponPair] = None,
                         totals: CartResponseTotals,
-                        customer: Option[CustomerResponse.Root] = None,
+                        customer: Option[CustomerResponse] = None,
                         shippingMethod: Option[ShippingMethodsResponse.Root] = None,
                         shippingAddress: Option[AddressResponse] = None,
                         paymentMethods: Seq[CordResponsePayments] = Seq.empty)

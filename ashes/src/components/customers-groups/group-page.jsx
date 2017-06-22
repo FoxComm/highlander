@@ -1,6 +1,6 @@
 /* @flow */
 
-//libs
+// libs
 import get from 'lodash/get';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
@@ -9,11 +9,14 @@ import { push } from 'react-router-redux';
 
 import { reset, fetchGroup, archiveGroup, clearArchiveErrors } from 'modules/customer-groups/details/group';
 
-//components
+// components
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 import Error from 'components/errors/error';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import GroupDetails from './group-details';
+
+// styles
+import s from './group-page.css';
 
 type Props = {
   group: TCustomerGroup,
@@ -51,11 +54,10 @@ class GroupPage extends Component {
 
   @autobind
   archiveGroup() {
-    this.props.archiveGroup(this.props.group.id)
-      .then(() => {
-        this.props.reset();
-        this.props.push({ name: 'groups' });
-      });
+    this.props.archiveGroup(this.props.group.id).then(() => {
+      this.props.reset();
+      this.props.push({ name: 'groups' });
+    });
   }
 
   render() {
@@ -66,7 +68,7 @@ class GroupPage extends Component {
     }
 
     if (!this.isRequestedGroup) {
-      return <div><WaitAnimation /></div>;
+      return <Spinner className={s.spinner} />;
     }
 
     return (

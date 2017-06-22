@@ -1,6 +1,6 @@
 package utils
 
-import core.failures.{DatabaseFailure, GeneralFailure}
+import core.failures.{DatabaseFailure, Failures, GeneralFailure}
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
 import phoenix.models.cord.Order.Shipped
@@ -38,7 +38,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "catches exceptions from DB" in {
       val account = Accounts.create(Account()).gimme
 
-      val result = (for {
+      val result: Failures = (for {
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         scope    ← * <~ Scopes.forOrganization(TENANT)
         _ ← * <~ CustomersData.create(
@@ -46,10 +46,9 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
         _       ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
         copycat ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).gimmeTxnFailures
-      result must === (
-        DatabaseFailure(
-          "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
-            s"  Detail: Key (account_id, is_default_shipping)=(${account.id}, t) already exists.").single)
+
+      result.toList.onlyElement.description contains
+      s"Key (account_id, is_default_shipping)=(${account.id}, t) already exists." must === (true)
     }
 
     "fails if model already exists" in {

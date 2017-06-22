@@ -6,6 +6,7 @@
 .*/node_modules/react-motion/lib/Types.js.flow
 .*/node_modules/nock/*
 .*/node_modules/findup/.*
+.*/node_modules/stylelint/.*
 
 [include]
 

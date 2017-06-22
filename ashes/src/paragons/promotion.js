@@ -15,7 +15,9 @@ function addEmptyDiscount(promotion) {
       offer: {
         t: 'offer',
         v: {
-          orderPercentOff: {}
+          orderPercentOff: {
+            discount: 0,
+          }
         }
       }
     },

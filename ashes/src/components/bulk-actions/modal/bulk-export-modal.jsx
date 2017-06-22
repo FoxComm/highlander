@@ -1,20 +1,18 @@
 /* @flow */
 
+// libs
+import isEmpty from 'lodash/isEmpty';
+import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
-// libs
+// helpers
 import { numberize } from 'lib/text-utils';
-import { autobind } from 'core-decorators';
-import _ from 'lodash';
-import classNames from 'classnames';
 
 // components
-import modal from 'components/modal/wrapper';
-import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/core/save-cancel';
-import TextInput from 'components/forms/text-input';
+import ConfirmationModal from 'components/core/confirmation-modal';
+import TextInput from 'components/core/text-input';
 
-import s from './bulk-export-modal.css';
+import s from './modal.css';
 
 type Props = {
   entity: string,
@@ -28,7 +26,8 @@ type Props = {
 type State = {
   value: string,
 };
-class BulkExportModal extends Component {
+
+export default class BulkExportModal extends Component {
   props: Props;
   static defaultProps = {
     inBulk: false,
@@ -39,71 +38,48 @@ class BulkExportModal extends Component {
   };
 
   @autobind
-  handleChange(value) {
+  handleChange(value: string) {
     this.setState({ value });
   }
 
   @autobind
-  handleKeyDown(event) {
+  handleKeyDown(event: KeyboardEvent) {
     const { key } = event;
-    if (key == 'Enter') {
+
+    if (key === 'Enter') {
       this.handleSave();
     }
   }
 
   @autobind
   handleSave() {
-    const description = !_.isEmpty(this.state.value) ? this.state.value : null;
+    const description = !isEmpty(this.state.value) ? this.state.value : null;
+
     this.props.onConfirm(description);
-  }
-
-  get footer() {
-    const { onCancel } = this.props;
-    const className = classNames(
-      'fc-modal-footer',
-      s.exportModalFooter,
-    );
-    return (
-      <SaveCancel
-        className={className}
-        cancelTabIndex="2"
-        cancelText="Cancel"
-        onCancel={onCancel}
-        saveTabIndex="1"
-        onSave={this.handleSave}
-        saveText="Yes, Export"
-      />
-    );
-  }
-
-  get actionBlock() {
-    return (
-      <i onClick={this.props.onCancel} className="fc-btn-close icon-close" title="Close" />
-    );
   }
 
   get label() {
     const { entity, count } = this.props;
     const entityForm = numberize(entity, count);
-    return (
-      <span>Are you sure you want to export <b>{count ? count : 'all'} {entityForm}</b>?</span>
-    );
+
+    return <span>Are you sure you want to export <b>{count ? count : 'all'} {entityForm}</b>?</span>;
   }
 
   render() {
-    const { inBulk, title } = this.props;
+    const { inBulk, title, onCancel } = this.props;
     const modalTitle = inBulk ? `Export All ${title}` : `Export Selected ${title}`;
     const fileName = title.toLowerCase().replace(' ', '_');
 
     return (
-      <ContentBox
+      <ConfirmationModal
         title={modalTitle}
-        actionBlock={this.actionBlock}
-        footer={this.footer}
-        className="fc-bulk-action-modal"
+        confirmLabel="Yes, Export"
+        onConfirm={this.handleSave}
+        onCancel={onCancel}
+        isVisible
       >
-        <div className="fc-modal-body">{this.label}</div>
-        <div className={s.customTitle}>
+        {this.label}
+        <div className={s.exportModalFileTitle}>
           <span>{`${fileName}-`}</span>
           <TextInput
             onChange={this.handleChange}
@@ -114,9 +90,7 @@ class BulkExportModal extends Component {
           />
           <span>.csv</span>
         </div>
-      </ContentBox>
+      </ConfirmationModal>
     );
   }
 }
-
-export default modal(BulkExportModal);

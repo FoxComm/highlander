@@ -1,4 +1,3 @@
-
 // libs
 import _ from 'lodash';
 import classNames from 'classnames';
@@ -10,7 +9,7 @@ import { createSelector } from 'reselect';
 import { bindActionCreators } from 'redux';
 
 // components
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { PrimaryButton } from 'components/core/button';
 import SectionTitle from '../section-title/section-title';
 import TableView from '../table/tableview';
@@ -27,7 +26,7 @@ const editingNote = createSelector(
   state => _.get(state.notes.list.currentSearch(), 'results.rows', []),
   state => _.get(state.notes, 'editingNoteId'),
   (notes, editingNoteId) => {
-    return _.find(notes, {id: editingNoteId});
+    return _.find(notes, { id: editingNoteId });
   }
 );
 
@@ -50,17 +49,17 @@ function mapDispatchToProps(dispatch, props) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Notes extends React.Component {
   static deleteOptions = {
-    header: 'Confirm',
-    body: 'Are you sure you want to delete this note?',
-    confirm: 'Yes',
-    cancel: 'No'
+    title: 'Confirm',
+    label: 'Are you sure you want to delete this note?',
+    confirmLabel: 'Yes',
+    cancelLabel: 'No',
   };
 
   static propTypes = {
     entity: PropTypes.shape({
       entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      entityType: PropTypes.string.isRequired
-    })
+      entityType: PropTypes.string.isRequired,
+    }),
   };
 
   componentDidMount() {
@@ -74,21 +73,12 @@ export default class Notes extends React.Component {
   }
 
   get tableColumns() {
-    let baseColumns = [
-      {field: 'body', text: 'Note'},
-      {field: 'author', text: 'Author'}
-    ];
+    let baseColumns = [{ field: 'body', text: 'Note' }, { field: 'author', text: 'Author' }];
     if (this.isCustomerNotes) {
-      baseColumns = [
-        {field: 'transaction', text: 'Transaction'},
-        ...baseColumns,
-      ];
+      baseColumns = [{ field: 'transaction', text: 'Transaction' }, ...baseColumns];
     }
 
-    return [
-      {field: 'createdAt', text: 'Date/Time', type: 'datetime'},
-      ...baseColumns
-    ];
+    return [{ field: 'createdAt', text: 'Date/Time', type: 'datetime' }, ...baseColumns];
   }
 
   @autobind
@@ -107,13 +97,7 @@ export default class Notes extends React.Component {
       );
     } else {
       return (
-        <NoteRow
-          note={row}
-          columns={this.tableColumns}
-          params={isNew}
-          actions={this.props}
-          key={`row-${row.id}`}
-          />
+        <NoteRow note={row} columns={this.tableColumns} params={isNew} actions={this.props} key={`row-${row.id}`} />
       );
     }
   }
@@ -125,22 +109,17 @@ export default class Notes extends React.Component {
       return [
         <TableRow key="row-add">
           <TableCell colSpan={columns.length}>
-            <NoteForm
-              onReset={this.props.stopAddingOrEditingNote}
-              onSubmit={this.props.createNote}
-            />
+            <NoteForm onReset={this.props.stopAddingOrEditingNote} onSubmit={this.props.createNote} />
           </TableCell>
         </TableRow>,
-        ...rows
+        ...rows,
       ];
     }
     return rows;
   }
 
   get controls() {
-    return (
-      <PrimaryButton icon="add" onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote } />
-    );
+    return <PrimaryButton icon="add" onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote} />;
   }
 
   get sectionClassName() {
@@ -153,14 +132,14 @@ export default class Notes extends React.Component {
     const cls = classNames('fc-notes', this.sectionClassName);
 
     return (
-      <div className={cls} >
+      <div className={cls}>
         <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
         <LiveSearchAdapter
           searches={props.list}
           searchActions={props.searchActions}
           singleSearch={true}
           placeholder="keyword search"
-          >
+        >
           <TableView
             emptyMessage="No notes found."
             data={props.list.currentSearch().results}
@@ -169,11 +148,11 @@ export default class Notes extends React.Component {
             processRows={this.injectAddingForm}
           />
         </LiveSearchAdapter>
-        <ConfirmationDialog
+        <ConfirmationModal
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}
-          confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
           onCancel={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
+          onConfirm={() => this.props.deleteNote(this.props.noteIdToDelete)}
         />
       </div>
     );

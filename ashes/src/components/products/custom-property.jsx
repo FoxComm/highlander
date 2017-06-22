@@ -8,11 +8,14 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
-import { Dropdown } from '../dropdown';
-import { FormField } from '../forms';
-import wrapModal from '../modal/wrapper';
-import ContentBox from '../content-box/content-box';
+import Modal from 'components/core/modal';
+import { Dropdown } from 'components/dropdown';
+import { FormField } from 'components/forms';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
+
+// styles
+import s from './custom-property.css';
 
 const propertyTypes = {
   string: 'Text',
@@ -23,6 +26,7 @@ const propertyTypes = {
 };
 
 type Props = {
+  isVisible: boolean,
   onSave: (state: State) => void,
   onCancel: () => void,
 };
@@ -32,7 +36,7 @@ type State = {
   propertyType: string,
 };
 
-class CustomProperty extends Component<void, Props, State> {
+export default class CustomProperty extends Component<void, Props, State> {
   props: Props;
   state: State;
 
@@ -44,17 +48,6 @@ class CustomProperty extends Component<void, Props, State> {
     };
   }
 
-  componentDidMount() {
-    const fieldLabelInput = this.refs.field;
-    if (fieldLabelInput) {
-      fieldLabelInput.focus();
-    }
-  }
-
-  get closeAction(): Element<*> {
-    return <a onClick={this.props.onCancel}>&times;</a>;
-  }
-
   get propertyTypes(): Array<Element<*>> {
     return _.map(propertyTypes, (type, key) => [key, type]);
   }
@@ -64,71 +57,71 @@ class CustomProperty extends Component<void, Props, State> {
   }
 
   @autobind
-  handleUpdateLabel({target}) {
-    this.setState({ fieldLabel: target.value });
+  handleUpdateLabel(value: string) {
+    this.setState({ fieldLabel: value });
   }
 
   @autobind
-  handleUpdateType(value) {
+  handleUpdateType(value: string) {
     this.setState({ propertyType: value });
   }
 
   @autobind
-  handleSave(event) {
+  handleSave(event: Event) {
     event.preventDefault();
+
     this.props.onSave(this.state);
   }
 
-  @autobind
-  handleKeyPress(event){
-    if (!this.saveDisabled && event.keyCode === 13 /*enter*/) {
-      event.preventDefault();
-      this.props.onSave(this.state);
-    }
+  get footer() {
+    return (
+      <SaveCancel
+        onCancel={this.props.onCancel}
+        onSave={this.handleSave}
+        saveDisabled={this.saveDisabled}
+        saveLabel="Save and Apply"
+      />
+    );
   }
 
   render() {
     return (
-      <div className="fc-product-details__custom-property">
-        <div className="fc-modal-container" onKeyDown={this.handleKeyPress}>
-          <ContentBox title="New Custom Property" actionBlock={this.closeAction}>
-            <FormField
-              className="fc-product-details__field"
-              label="Field Label"
-              labelClassName="fc-product-details__field-label">
-              <input
-                id="fct-field-label-fld"
-                type="text"
-                ref="field"
-                className="fc-product-details__field-value"
-                name="field"
-                value={this.state.fieldLabel}
-                onChange={this.handleUpdateLabel} />
-            </FormField>
-            <FormField
-              className="fc-product-details__field"
-              label="Field Type"
-              labelClassName="fc-product-details__field-label">
-              <Dropdown
-                id="fct-field-type-dd"
-                name="type"
-                value={this.state.propertyType}
-                onChange={this.handleUpdateType}
-                items={this.propertyTypes}
-              />
-            </FormField>
-            <SaveCancel
-              onCancel={this.props.onCancel}
-              onSave={this.handleSave}
-              saveDisabled={this.saveDisabled}
-              saveText="Save and Apply" />
-          </ContentBox>
-        </div>
-      </div>
+      <Modal
+        className={s.modal}
+        title="New Custom Property"
+        isVisible={this.props.isVisible}
+        footer={this.footer}
+        onClose={this.props.onCancel}
+      >
+        <FormField
+          className="fc-product-details__field"
+          label="Field Label"
+          labelClassName="fc-product-details__field-label"
+        >
+          <TextInput
+            id="fct-field-label-fld"
+            ref="field"
+            name="field"
+            value={this.state.fieldLabel}
+            onChange={this.handleUpdateLabel}
+            autoFocus
+          />
+        </FormField>
+        <FormField
+          className="fc-product-details__field"
+          label="Field Type"
+          labelClassName="fc-product-details__field-label"
+        >
+          <Dropdown
+            id="fct-field-type-dd"
+            className={s.dropdown}
+            name="type"
+            value={this.state.propertyType}
+            onChange={this.handleUpdateType}
+            items={this.propertyTypes}
+          />
+        </FormField>
+      </Modal>
     );
   }
 }
-
-const Wrapped: Class<Component<void, Props, State>> = wrapModal(CustomProperty);
-
-export default Wrapped;
