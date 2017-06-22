@@ -1,5 +1,5 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic,700,700italic);
-@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,700);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,600);
+@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
 @import 'base.css';
 @import 'variables.css';
 
@@ -44,6 +44,10 @@
           padding: 0 16px 8px;
         }
 
+        & > [class^=list-] > [class*=item-] > [class^=link-] {
+          color: #aaa;
+        }
+
         *, input::placeholder {
           font-size: 10px;
           line-height: 20px;
@@ -71,35 +75,62 @@
       }
 
       li[class*=item-] {
+        position: relative;
         overflow: visible;
+
+        &[class*=activeParent-]::before {
+          content: '';
+          background: #eee;
+          position: absolute;
+          left: -100%;
+          right: 0;
+          top: 0;
+          bottom: 0;
+        }
+
+        &[class*=isActive-] {
+          [class^=link-] {
+            color: #fff;
+
+            &::before {
+              opacity: 1;
+            }
+          }
+        }
+
+        &[class*=isChild-] {
+          &:last-child {
+            padding-bottom: 5px;
+          }
+
+          [class^=link-] {
+            font-weight: 400;
+          }
+        }
       }
 
       [class^=link-] {
         position: relative;
         display: inline-block;
         color: #666;
+        font-weight: 600;
         transition: all .2s;
         z-index: 1;
 
-        &[class*=isActive-] {
-          color: #fff;
-        }
-
-        &[class*=isActive-]::before {
+        &::before {
           content: '';
           position: absolute;
-          width: 100%;
+          width: calc(100% + 20px);
           height: 100%;
+          margin-left: -10px;
           border-radius: 100px;
           background-color: #49cab9;
           color: #fff;
+          opacity: 0;
           z-index: -1;
+          transition: all .2s;
         }
       }
-    }
-
-    a:active {
-      color: red !important;
     }
 
     .demo > * {

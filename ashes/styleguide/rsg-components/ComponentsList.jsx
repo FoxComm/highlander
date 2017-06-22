@@ -25,7 +25,10 @@ const styles = ({ font, small }) => ({
     },
   },
   isActive: {
-    color: '#f00',
+    opacity: 1,
+  },
+  activeParent: {
+    opacity: 1,
   },
   heading: {
     marginTop: 7,
@@ -38,6 +41,14 @@ export class ComponentsListRenderer extends React.Component {
   state = {
     expanded: {},
   };
+
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleScroll.bind(this));
+  }
+
+  handleScroll(e) {
+    console.log(e);
+  }
 
   expand(slug) {
     return e => {
@@ -62,25 +73,33 @@ export class ComponentsListRenderer extends React.Component {
       return null;
     }
 
-    console.log(items);
-
     const activeItem = window.location.hash.substr(2);
-    console.log(activeItem);
 
     return (
       <ul className={classes.list}>
-        {items.map(({ heading, name, slug, content }) =>
-          <li className={cx(classes.item, (!content || !content.props.items.length) && classes.isChild)} key={name}>
-            <Link
-              className={cx(heading && classes.heading, activeItem === slug && classes.isActive)}
-              href={`/#${slug}`}
-              onClick={!!content && this.expand(slug)}
-            >
-              {name}
-            </Link>
-            {this.state.expanded[slug] && content}
-          </li>
-        )}
+        {items.map(({ heading, name, slug, content }) => {
+          const isChild = !content || !content.props.items.length;
+          const activeParent = !isChild && content.props.items.some(({ slug }) => slug === activeItem);
+
+          const cls = cx(classes.item, {
+            [classes.isChild]: isChild,
+            [classes.isActive]: isChild && activeItem === slug,
+            [classes.activeParent]: activeParent,
+          });
+
+          return (
+            <li className={cls} key={name}>
+              <Link
+                className={cx({ [classes.heading]: !!heading })}
+                href={`#${slug}`}
+                onClick={!!content && this.expand(slug)}
+              >
+                {name}
+              </Link>
+              {this.state.expanded[slug] && content}
+            </li>
+          );
+        })}
       </ul>
     );
   }
