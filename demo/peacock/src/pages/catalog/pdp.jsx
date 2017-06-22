@@ -68,6 +68,7 @@ const mapStateToProps = (state) => {
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
+    isReady: _.get(state.asyncActions, ['pdp', 'isReady'], false),
     isProductReviewsLoading: _.get(state.asyncActions, ['fetchReviewsForSku', 'inProgress'], false),
     isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], false),
   };
@@ -249,9 +250,10 @@ class PdpConnect extends Component {
       notFound,
       fetchError,
       product,
+      isReady,
     } = this.props;
 
-    const pdpProps = { t, isLoading, notFound, fetchError, product };
+    const pdpProps = { t, isLoading, notFound, fetchError, product, isReady };
 
     return (
       <Pdp
