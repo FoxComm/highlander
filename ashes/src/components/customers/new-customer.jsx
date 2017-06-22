@@ -21,7 +21,7 @@ type Props = {
   submitStatus: AsyncState,
   createCustomer: (payload: NewCustomerPayload) => Promise<*>,
   clearErrors: () => void,
-}
+};
 
 function mapStateToProps(state) {
   return {
@@ -32,8 +32,7 @@ function mapStateToProps(state) {
 type State = {
   name: string,
   email: string,
-}
-
+};
 
 class NewCustomer extends Component {
   props: Props;
@@ -89,28 +88,34 @@ class NewCustomer extends Component {
           </header>
           <article className="fc-col-md-1-1">
             <div className="fc-grid fc-grid-no-gutter">
-              <Form className="fc-customer-form fc-form-vertical fc-col-md-2-5"
-                    onSubmit={this.submitForm}
-                    onChange={this.onChangeValue}>
+              <Form
+                className="fc-customer-form fc-form-vertical fc-col-md-2-5"
+                onSubmit={this.submitForm}
+                onChange={this.onChangeValue}
+              >
                 <ul className="fc-customer-form-fields">
                   <li>
                     <FormField label="Name" validator="ascii">
-                      <TextInput id="nameCustomerFormField"
-                             className="fc-customer-form-input"
-                             name="name"
-                             maxLength="255"
-                             value={name}
-                             required />
+                      <TextInput
+                        id="nameCustomerFormField"
+                        className="fc-customer-form-input"
+                        name="name"
+                        maxLength="255"
+                        value={name}
+                        required
+                      />
                     </FormField>
                   </li>
                   <li>
                     <FormField label="Email Address" validator="ascii">
-                      <TextInput id="emailCustomerFormField"
-                             className="fc-customer-form-input"
-                             name="email"
-                             maxLength="255"
-                             value={email}
-                             required />
+                      <TextInput
+                        id="emailCustomerFormField"
+                        className="fc-customer-form-input"
+                        name="email"
+                        maxLength="255"
+                        value={email}
+                        required
+                      />
                     </FormField>
                   </li>
                   {this.errors}

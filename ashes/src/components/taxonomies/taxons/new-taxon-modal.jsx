@@ -26,13 +26,9 @@ type Props = {
 
 type State = {
   taxon: TaxonDraft,
-}
+};
 
-const omitProps = [
-  'context',
-  'taxonomy',
-  'onConfirm',
-];
+const omitProps = ['context', 'taxonomy', 'onConfirm'];
 
 export default class NewTaxonModal extends Component {
   props: Props;
@@ -77,11 +73,7 @@ export default class NewTaxonModal extends Component {
     };
 
     return (
-      <FormField
-        className="fc-object-form__field"
-        labelClassName="fc-object-form__field-label"
-        label="Parent"
-      >
+      <FormField className="fc-object-form__field" labelClassName="fc-object-form__field-label" label="Parent">
         <TaxonsDropdown
           context={this.props.context}
           taxonomy={this.props.taxonomy}

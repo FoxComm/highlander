@@ -24,12 +24,9 @@ const clearProduct = createAction('PRODUCT_CLEAR');
 // without our request for saving
 export const syncProduct = createAction('PRODUCT_SYNC');
 
-const _archiveProduct = createAsyncActions(
-  'archiveProduct',
-  (id, context = defaultContext) => {
-    return Api.delete(`/products/${context}/${id}`);
-  }
-);
+const _archiveProduct = createAsyncActions('archiveProduct', (id, context = defaultContext) => {
+  return Api.delete(`/products/${context}/${id}`);
+});
 export const archiveProduct = _archiveProduct.perform;
 export const clearArchiveErrors = _archiveProduct.clearErrors;
 
@@ -41,12 +38,9 @@ export function sanitizeError(error: string): string {
   return error;
 }
 
-const _fetchProduct = createAsyncActions(
-  'fetchProduct',
-  (id: string, context: string = defaultContext) => {
-    return Api.get(`/products/${context}/${id}`);
-  }
-);
+const _fetchProduct = createAsyncActions('fetchProduct', (id: string, context: string = defaultContext) => {
+  return Api.get(`/products/${context}/${id}`);
+});
 
 export function fetchProduct(id: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
@@ -58,27 +52,28 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
   };
 }
 
-const _createProduct = createAsyncActions(
-  'createProduct',
-  (product: Product, context: string = defaultContext) => {
-    return Api.post(`/products/${context}`, cleanProductPayload(product));
-  }
-);
+const _createProduct = createAsyncActions('createProduct', (product: Product, context: string = defaultContext) => {
+  return Api.post(`/products/${context}`, cleanProductPayload(product));
+});
 
 function cleanProductPayload(product) {
   // get rid of temp. skus
   const feCodes = {};
   const uniqSkus = _.uniqBy(product.skus, 'id');
-  const skus = _.reduce(uniqSkus, (acc, sku) => {
-    const code = _.get(sku, 'attributes.code.v');
-    if (sku.feCode) {
-      feCodes[sku.feCode] = code || '';
-    }
-    if (code) {
-      return [...acc, dissoc(sku, 'feCode')];
-    }
-    return acc;
-  }, []);
+  const skus = _.reduce(
+    uniqSkus,
+    (acc, sku) => {
+      const code = _.get(sku, 'attributes.code.v');
+      if (sku.feCode) {
+        feCodes[sku.feCode] = code || '';
+      }
+      if (code) {
+        return [...acc, dissoc(sku, 'feCode')];
+      }
+      return acc;
+    },
+    []
+  );
 
   const variants = _.cloneDeep(product.variants);
 
@@ -87,34 +82,32 @@ function cleanProductPayload(product) {
     const variant = variants[i];
     for (let j = 0; j < variant.values.length; j++) {
       const value = variant.values[j];
-      value.skuCodes = _.reduce(value.skuCodes, (acc, code) => {
-        if (code) {
-          const value = _.get(feCodes, code, code);
-          if (value) {
-            return [...acc, value];
+      value.skuCodes = _.reduce(
+        value.skuCodes,
+        (acc, code) => {
+          if (code) {
+            const value = _.get(feCodes, code, code);
+            if (value) {
+              return [...acc, value];
+            }
           }
-        }
-        return acc;
-      }, []);
+          return acc;
+        },
+        []
+      );
     }
   }
 
-  return assoc(product,
-    'skus', skus,
-    'variants', variants
-  );
+  return assoc(product, 'skus', skus, 'variants', variants);
 }
 
-const _updateProduct = createAsyncActions(
-  'updateProduct',
-  (product: Product, context: string = defaultContext) => {
-    if (!product.id) {
-      throw new Error('product has no id');
-    }
-
-    return Api.patch(`/products/${context}/${product.id}`, cleanProductPayload(product));
+const _updateProduct = createAsyncActions('updateProduct', (product: Product, context: string = defaultContext) => {
+  if (!product.id) {
+    throw new Error('product has no id');
   }
-);
+
+  return Api.patch(`/products/${context}/${product.id}`, cleanProductPayload(product));
+});
 
 export const createProduct = _createProduct.perform;
 export const updateProduct = _updateProduct.perform;
@@ -146,21 +139,23 @@ export function reset() {
   };
 }
 
-const reducer = createReducer({
-  [productNew]: () => ({
-    ...initialState,
-    product: createEmptyProduct(),
-  }),
-  [productDuplicate]: (state: ProductDetailsState) => ({
-    ...initialState,
-    product: duplicateProduct(_.get(state, 'product', {})),
-  }),
-  [clearProduct]: (state: ProductDetailsState) => dissoc(state, 'product'),
-  [syncProduct]: (state: ProductDetailsState, data) => update(state, 'product', merge, data),
-  [_fetchProduct.succeeded]: updateProductInState,
-  [_updateProduct.succeeded]: updateProductInState,
-  [_createProduct.succeeded]: updateProductInState,
-}, initialState);
-
+const reducer = createReducer(
+  {
+    [productNew]: () => ({
+      ...initialState,
+      product: createEmptyProduct(),
+    }),
+    [productDuplicate]: (state: ProductDetailsState) => ({
+      ...initialState,
+      product: duplicateProduct(_.get(state, 'product', {})),
+    }),
+    [clearProduct]: (state: ProductDetailsState) => dissoc(state, 'product'),
+    [syncProduct]: (state: ProductDetailsState, data) => update(state, 'product', merge, data),
+    [_fetchProduct.succeeded]: updateProductInState,
+    [_updateProduct.succeeded]: updateProductInState,
+    [_createProduct.succeeded]: updateProductInState,
+  },
+  initialState
+);
 
 export default reducer;

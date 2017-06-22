@@ -15,13 +15,13 @@ import styles from './trend-button.css';
 type Trend = {
   index: number,
   style: string,
-}
+};
 
 type Props = {
   trendType: Trend,
   message?: string,
   value: number,
-}
+};
 
 export const TrendType = {
   gain: {
@@ -39,24 +39,21 @@ export const TrendType = {
 };
 
 const TrendButton = (props: Props) => {
-
   const { trendType, message, value } = props;
 
   let contentBody;
 
-  if(typeof message === 'undefined') {
+  if (typeof message === 'undefined') {
     contentBody = `${value}${TrendButton.defaultProps.message}`;
   } else {
     contentBody = `${value}${message}`;
   }
 
   let arrow = {};
-  arrow.direction = _.find([TrendType.gain, TrendType.steady], trendType)
-    ? 'up' : 'down';
-  arrow.color = _.find([TrendType.steady], trendType)
-    ? 'black' : 'white';
+  arrow.direction = _.find([TrendType.gain, TrendType.steady], trendType) ? 'up' : 'down';
+  arrow.color = _.find([TrendType.steady], trendType) ? 'black' : 'white';
 
-  return(
+  return (
     <div styleName={`trend-button-container-${trendType.style}`}>
       <p styleName={`trend-button-content-${trendType.style}`}>
         <Icon name={`chevron-${arrow.direction}`} styleName={`trend-button-arrow-${arrow.direction}`} />

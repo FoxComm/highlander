@@ -29,6 +29,6 @@ object UserResponse {
 
   case class ResetPasswordSendAnswer(status: String)
 
-  case class ResetPasswordDoneAnswer(status: String)
+  case class ResetPasswordDoneAnswer(email: String, org: String)
 
 }

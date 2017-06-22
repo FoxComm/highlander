@@ -14,10 +14,10 @@ import SaveCancel from 'components/core/save-cancel';
 import styles from './scheduler-modal.css';
 
 type Props = {
-  entity: string;
-  count: number;
-  onCancel: Function;
-  onConfirm: Function;
+  entity: string,
+  count: number,
+  onCancel: Function,
+  onConfirm: Function,
 };
 
 export default (props: Props) => {
@@ -29,17 +29,17 @@ export default (props: Props) => {
   const originalAttrs = {
     activeFrom: {
       t: 'datetime',
-      v: new Date().toISOString()
+      v: new Date().toISOString(),
     },
     activeTo: {
       t: 'datetime',
-      v: null
+      v: null,
     },
   };
 
   let newAttrs = originalAttrs;
 
-  const updateSchedule = (attrs) => {
+  const updateSchedule = attrs => {
     newAttrs = attrs;
   };
 
@@ -47,28 +47,11 @@ export default (props: Props) => {
     onConfirm(newAttrs);
   };
 
-  const footer = (
-    <SaveCancel
-      saveLabel="Confirm changes"
-      onSave={confirmChanges}
-      onCancel={onCancel}
-    />
-  );
+  const footer = <SaveCancel saveLabel="Confirm changes" onSave={confirmChanges} onCancel={onCancel} />;
 
   return (
-    <Modal
-      className={styles.modal}
-      title={`Schedule ${entityCap}`}
-      footer={footer}
-      isVisible
-      onClose={onCancel}
-    >
-      <ObjectScheduler
-        parent="Discounts"
-        attributes={originalAttrs}
-        title={entityCap}
-        onChange={updateSchedule}
-      />
+    <Modal className={styles.modal} title={`Schedule ${entityCap}`} footer={footer} isVisible onClose={onCancel}>
+      <ObjectScheduler parent="Discounts" attributes={originalAttrs} title={entityCap} onChange={updateSchedule} />
     </Modal>
   );
 };

@@ -5,10 +5,8 @@ import PropTypes from 'prop-types';
 /**
  * User initials(avatar) box component
  */
-const UserInitials = (props) => {
-  return (
-    <div className="initials" style={getColor(props)}>{getInitials(props)}</div>
-  );
+const UserInitials = props => {
+  return <div className="initials" style={getColor(props)}>{getInitials(props)}</div>;
 };
 
 function getColor(props) {
@@ -23,12 +21,11 @@ function getColor(props) {
   else if (code <= 90) color = '#47628d';
 
   return {
-    background: color
+    background: color,
   };
 }
 
 function getInitials({ name, firstName = '', lastName = '' }) {
-
   if (!firstName && !lastName) {
     if (name) {
       [firstName, lastName] = name.split(/\s+/);
@@ -48,7 +45,7 @@ function getInitials({ name, firstName = '', lastName = '' }) {
 UserInitials.propTypes = {
   firstName: PropTypes.string,
   lastName: PropTypes.string,
-  name: PropTypes.string
+  name: PropTypes.string,
 };
 
 export default UserInitials;

@@ -27,11 +27,10 @@ prepare:
 	mix deps.get
 
 test:
-	true
-	# $(call header, Testing)
-	# make prepare
-	# make reset-test
-	# MIX_ENV=test mix espec
+	$(call header, Testing)
+	make prepare
+	make reset-test
+	MIX_ENV=test mix espec
 
 seed:
 	mix run priv/seeds/clothes_accessories_categories.exs
@@ -83,7 +82,6 @@ migrate:
 
 reset:
 	@make drop-db
-	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
 	@make drop-user
 	@make create-user
 	@make create-db

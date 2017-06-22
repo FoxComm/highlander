@@ -8,8 +8,8 @@ import classNames from 'classnames';
 import s from './spinner.css';
 
 type Props = {
-  size?: 's' | 'm' | 'l';
-  className?: string;
+  size?: 's' | 'm' | 'l',
+  className?: string,
 };
 
 const Spinner = (props: Props) => {

@@ -72,7 +72,7 @@ class NewGroupBase extends Component {
     }
 
     // show loader if loading in progress or we have :groupId url param but have no group fetched
-    if (fetchInProgress || params.groupId && !group.id) {
+    if (fetchInProgress || (params.groupId && !group.id)) {
       return <div><Spinner /></div>;
     }
 
@@ -89,7 +89,7 @@ const mapStateToProps = state => ({
   saveInProgress: get(state, 'asyncActions.saveCustomerGroup.inProgress', false),
   fetchError: get(state, 'asyncActions.fetchCustomerGroup.err', false),
   saveError: get(state, 'asyncActions.saveCustomerGroup.err', false),
-  group: state.customerGroups.details.group
+  group: state.customerGroups.details.group,
 });
 
 const mapActions = { reset, fetchGroup, saveGroup, clearFetchErrors, clearSaveErrors, fetchRegions, push };

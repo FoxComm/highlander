@@ -1,10 +1,10 @@
 package testutils
 
-import com.typesafe.config.{Config, ConfigFactory}
 import java.sql.{Connection, PreparedStatement}
 import javax.sql.DataSource
-import scala.util.Random
 
+import com.typesafe.config.{Config, ConfigFactory}
+import core.db._
 import objectframework.models.ObjectContexts
 import org.scalatest._
 import phoenix.models.product.SimpleContext
@@ -14,8 +14,9 @@ import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
-import core.db._
+import testutils.flyway.FlywayMigrationsTest
 import scala.annotation.tailrec
+import scala.util.Random
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport { self: TestSuite ⇒
 
@@ -107,20 +108,24 @@ object DbTestSupport extends GimmeSupport {
       stmt1.execute(s"create database $tplName owner phoenix")
     } finally stmt1.close()
 
+    DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
+
     val tplCfg = ConfigFactory.parseString(s"""db.name = "$tplName"
                                               |db.url = "jdbc:postgresql://localhost/$tplName?user=phoenix&prepareThreshold=0"
        """.stripMargin).withFallback(TestBase.bareConfig)
-    val tplDb  = Database.forConfig("db", tplCfg)
 
-    DbTestSupport.setSearchPath(tplName, conn, List("\"$user\"", "public", "exts"))
-
+    val tplDb    = Database.forConfig("db", tplCfg)
     val originDs = DbTestSupport.jdbcDataSourceFromSlickDB(api)(tplDb)
-    DbTestSupport.migrateDB(originDs)
-    // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
-    tplDb.run(SequenceRandomizer.randomizeSchema("public")).futureValue
-    Factories.createSingleMerchantSystem
-      .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
-    tplDb.close()
+
+    try {
+      DbTestSupport.migrateDB(originDs)
+      // TODO: it would be best if data created in *.sql migrations above had randomized sequences as well… @michalrus
+      tplDb.run(SequenceRandomizer.randomizeSchema("public")).futureValue
+      Factories.createSingleMerchantSystem
+        .gimme(ec = ec, db = tplDb, line = implicitly[SL], file = implicitly[SF])
+    } finally { tplDb.close() }
+
+    // kill all connections to db template database
     val stmt = conn.createStatement()
     try stmt.execute(s"""select pg_terminate_backend(pid)
                         |from pg_stat_activity
@@ -180,6 +185,7 @@ object DbTestSupport extends GimmeSupport {
   def migrateDB(dataSource: DataSource): Unit = {
     val flyway = newFlyway(dataSource, rootProjectSqlLocation)
 
+    flyway.setCallbacks(FlywayMigrationsTest.list: _*)
     flyway.clean()
     flyway.migrate()
   }

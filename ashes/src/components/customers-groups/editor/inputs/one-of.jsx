@@ -9,57 +9,48 @@ import { prefix } from 'lib/text-utils';
 import propTypes from '../widgets/propTypes';
 import Icon from 'components/core/icon';
 
-
-export const Input = ({Input: Widget}) => ({criterion, value, className, changeValue}) => {
+export const Input = ({ Input: Widget }) => ({ criterion, value, className, changeValue }) => {
   const values = value || [null];
   const prefixed = prefix(prefix(className)('vertical-select'));
 
   return (
     <div className={classNames('fc-grid', prefixed())}>
-      {values.map((item, index) => renderInputItem({
-        Widget,
-        criterion,
-        values,
-        index,
-        className,
-        changeValue,
-        prefixed,
-      }))}
+      {values.map((item, index) =>
+        renderInputItem({
+          Widget,
+          criterion,
+          values,
+          index,
+          className,
+          changeValue,
+          prefixed,
+        })
+      )}
     </div>
   );
 };
 Input.propTypes = propTypes;
 
-const renderInputItem = ({Widget, criterion, values, index, className, changeValue, prefixed}) => {
+const renderInputItem = ({ Widget, criterion, values, index, className, changeValue, prefixed }) => {
   const add = () => {
-    changeValue([
-      ...values,
-      null,
-    ]);
+    changeValue([...values, null]);
   };
-  const change = (value) => {
-    changeValue([
-      ...values.slice(0, index),
-      value,
-      ...values.slice(index + 1),
-    ]);
+  const change = value => {
+    changeValue([...values.slice(0, index), value, ...values.slice(index + 1)]);
   };
   const remove = () => {
-    changeValue([
-      ...values.slice(0, index),
-      ...values.slice(index + 1),
-    ]);
+    changeValue([...values.slice(0, index), ...values.slice(index + 1)]);
   };
 
   return (
     <div className={prefixed('container')} key={index}>
       <div className={prefixed('item')}>
-        {React.createElement(Widget, ({
+        {React.createElement(Widget, {
           criterion,
           value: values[index],
           className,
           changeValue: change,
-        }))}
+        })}
       </div>
       {renderNodeOrAdd(prefixed, index < values.length - 1, add)}
       <Icon className={prefixed('remove')} name="close" onClick={remove} />

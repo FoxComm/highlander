@@ -14,10 +14,10 @@ import TextInput from 'components/core/text-input';
 import type { ImageInfo } from '../../modules/images';
 
 type Props = {
-  isVisible: boolean;
-  image: ImageInfo;
-  onSave: (info: ImageInfo) => void;
-  onCancel: () => void;
+  isVisible: boolean,
+  image: ImageInfo,
+  onSave: (info: ImageInfo) => void,
+  onCancel: () => void,
 };
 
 class EditImage extends Component {
@@ -55,37 +55,27 @@ class EditImage extends Component {
 
   render() {
     return (
-      <Modal
-        title="Edit Image"
-        footer={this.footer}
-        isVisible={this.props.isVisible}
-        onClose={this.props.onCancel}
-      >
-        <FormField label="Image Title"
-                   className="fc-product-details__field"
-                   labelClassName="fc-product-details__field-label"
+      <Modal title="Edit Image" footer={this.footer} isVisible={this.props.isVisible} onClose={this.props.onCancel}>
+        <FormField
+          label="Image Title"
+          className="fc-product-details__field"
+          labelClassName="fc-product-details__field-label"
         >
-          <TextInput name="title"
-                 value={this.state.title}
-                 onChange={this.handleUpdateField}
-          />
+          <TextInput name="title" value={this.state.title} onChange={this.handleUpdateField} />
         </FormField>
-        <FormField label="Image Alt Text"
-                   className="fc-product-details__field"
-                   labelClassName="fc-product-details__field-label">
-          <TextInput name="alt"
-                 value={this.state.alt}
-                 onChange={this.handleUpdateField}
-          />
+        <FormField
+          label="Image Alt Text"
+          className="fc-product-details__field"
+          labelClassName="fc-product-details__field-label"
+        >
+          <TextInput name="alt" value={this.state.alt} onChange={this.handleUpdateField} />
         </FormField>
-        <FormField label="Image URL"
-                   className="fc-product-details__field"
-                   labelClassName="fc-product-details__field-label">
-          <TextInput name="src"
-                 value={this.state.src}
-                 placeholder="http://"
-                 onChange={this.handleUpdateField}
-          />
+        <FormField
+          label="Image URL"
+          className="fc-product-details__field"
+          labelClassName="fc-product-details__field-label"
+        >
+          <TextInput name="src" value={this.state.src} placeholder="http://" onChange={this.handleUpdateField} />
         </FormField>
       </Modal>
     );

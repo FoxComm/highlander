@@ -15,17 +15,16 @@ import s from './indicator.css';
 // types
 type Props = {
   /** The number of available notifications */
-  count?: number;
+  count?: number,
   /** If true, shows popup with a notifications list */
-  displayed?: boolean;
+  displayed?: boolean,
   /** A callback, which supposed to switch `displayed` shmewhere outside the component */
-  toggleNotifications: Function;
+  toggleNotifications: Function,
   /** A callback, which supposed to mark all notifications as read outside the component */
-  markAsReadAndClose: Function;
+  markAsReadAndClose: Function,
 };
 
 export default class NotificationIndicator extends Component {
-
   props: Props;
 
   get indicator() {
@@ -57,17 +56,12 @@ export default class NotificationIndicator extends Component {
 
   render() {
     const classes = classNames(s.toggle, {
-      [s.active]: this.props.displayed
+      [s.active]: this.props.displayed,
     });
 
     return (
       <div className={s.block}>
-        <Button
-          icon="bell"
-          className={classes}
-          onClick={this.toggleNotifications}
-          fullWidth
-        >
+        <Button icon="bell" className={classes} onClick={this.toggleNotifications} fullWidth>
           {this.indicator}
         </Button>
       </div>

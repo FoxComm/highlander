@@ -11,8 +11,8 @@ import styles from './panel-header.css';
 
 type Props = {
   text: string,
-  isOptional?: bool,
-  showStatus?: bool,
+  isOptional?: boolean,
+  showStatus?: boolean,
   status?: string,
 };
 

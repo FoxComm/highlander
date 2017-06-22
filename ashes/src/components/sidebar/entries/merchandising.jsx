@@ -21,7 +21,7 @@ type Props = TMenuEntry & {
   fetchState: AsyncState,
   currentParams: {
     taxonomyId: string,
-  }
+  },
 };
 
 class MerchandisingEntry extends Component {
@@ -37,7 +37,7 @@ class MerchandisingEntry extends Component {
     return taxonomies.map((taxonomy: TaxonomyResult) => {
       const linkParams = {
         context: taxonomy.context,
-        taxonomyId: taxonomy.taxonomyId
+        taxonomyId: taxonomy.taxonomyId,
       };
 
       return (
@@ -66,8 +66,9 @@ class MerchandisingEntry extends Component {
     }
 
     const routeNames = routes.map(route => route.name);
-    const manageRoute = includes(routeNames, 'taxonomies') && !currentParams.taxonomyId ||
-      includes(routeNames, 'taxonomy') && currentParams.taxonomyId === 'new';
+    const manageRoute =
+      (includes(routeNames, 'taxonomies') && !currentParams.taxonomyId) ||
+      (includes(routeNames, 'taxonomy') && currentParams.taxonomyId === 'new');
 
     return (
       <div styleName="fc-entries-wrapper">

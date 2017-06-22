@@ -8,6 +8,7 @@ export type Context = {
 export type ItemDesc = {
   type?: string;
   name?: string;
+  value?: number,
   widget?: string;
   template?: (props: Object) => Element<*>;
 }
@@ -19,5 +20,6 @@ export type DescriptionType = {
   type: string;
   title: string;
   content?: Array<DiscountRow>;
+  default?: mixed,
 }
 

@@ -21,11 +21,13 @@ function mapDispatchToProps(dispatch, props) {
   });
 }
 
-@connect((state, props) => ({
-  ...state.customers.creditCards[props.customerId]
-}), mapDispatchToProps)
+@connect(
+  (state, props) => ({
+    ...state.customers.creditCards[props.customerId],
+  }),
+  mapDispatchToProps
+)
 export default class CustomerCreditCards extends React.Component {
-
   ////
   // Component default methods
   static propTypes = {
@@ -111,29 +113,31 @@ export default class CustomerCreditCards extends React.Component {
 
   @autobind
   createCardBox(card) {
-    const key = `cutomer-card-${ card.id }`;
+    const key = `cutomer-card-${card.id}`;
     let box = null;
     if (card.id === this.props.editingId) {
       box = (
         <CustomerCreditCardForm
-          key={ key }
-          card={ card }
-          form={ this.props.editingCreditCard }
-          customerId={ this.props.customerId }
-          onCancel={ this.onEditCancel }
-          onChange={ this.onEditFormChange }
-          onSubmit={ this.onEditFormSubmit }
-          isNew={ false } />
+          key={key}
+          card={card}
+          form={this.props.editingCreditCard}
+          customerId={this.props.customerId}
+          onCancel={this.onEditCancel}
+          onChange={this.onEditFormChange}
+          onSubmit={this.onEditFormSubmit}
+          isNew={false}
+        />
       );
     } else {
       box = (
         <CreditCardBox
-          key={ key }
-          card={ card }
-          customerId={ this.props.customerId }
-          onDeleteClick={ () => this.onDeleteClick(card.id) }
-          onEditClick={ () => this.onEditClick(card.id) }
-          onDefaultToggle={ () => this.props.toggleDefault(card.id) } />
+          key={key}
+          card={card}
+          customerId={this.props.customerId}
+          onDeleteClick={() => this.onDeleteClick(card.id)}
+          onEditClick={() => this.onEditClick(card.id)}
+          onDefaultToggle={() => this.props.toggleDefault(card.id)}
+        />
       );
     }
     return box;
@@ -150,29 +154,27 @@ export default class CustomerCreditCards extends React.Component {
     const { cards } = props;
 
     return (
-      <ContentBox title="Credit Cards"
-                  className="fc-customer-credit-cards"
-                  actionBlock={ this.actionBlock }>
+      <ContentBox title="Credit Cards" className="fc-customer-credit-cards" actionBlock={this.actionBlock}>
         <ul id="fct-customer-credit-cards-list" className="fc-float-list">
-          {props.newCreditCard || (cards && cards.length)
-            ? cards.map(this.createCardBox)
-            : this.emptyText}
-          {props.newCreditCard ?
-            <CustomerCreditCardForm
-              customerId={ props.customerId }
-              card={ props.newCreditCard }
-              onCancel={ this.onAddingCancel }
-              onSubmit={ this.onSubmitNewForm }
-              onChange={ this.onChangeNewFormValue }
-              isNew={ true } /> : null}
+          {props.newCreditCard || (cards && cards.length) ? cards.map(this.createCardBox) : this.emptyText}
+          {props.newCreditCard
+            ? <CustomerCreditCardForm
+                customerId={props.customerId}
+                card={props.newCreditCard}
+                onCancel={this.onAddingCancel}
+                onSubmit={this.onSubmitNewForm}
+                onChange={this.onChangeNewFormValue}
+                isNew={true}
+              />
+            : null}
         </ul>
 
         <ConfirmationModal
-          isVisible={ this.showConfirm }
+          isVisible={this.showConfirm}
           label="Are you sure you want to delete this credit card?"
           confirmLabel="Yes, Delete"
-          onConfirm={ this.onDeleteConfirm }
-          onCancel={ this.onDeleteCancel }
+          onConfirm={this.onDeleteConfirm}
+          onCancel={this.onDeleteCancel}
         />
       </ContentBox>
     );
