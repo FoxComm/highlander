@@ -148,7 +148,8 @@ class PdpConnect extends Component {
         this.props.actions.fetch(params.productSlug)
           .then((product) => {
             this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
-          });
+          })
+          .catch(_.noop);
       });
   }
 

@@ -77,7 +77,7 @@ object CartShippingAddressUpdater {
       addAndReg ← * <~ mustFindByCordRef(cart.referenceNumber)
       (address, region) = addAndReg
       _         ← * <~ address.mustBelongToAccount(cart.accountId)
-      address   ← * <~ address.unbindFromCart()
+      _         ← * <~ address.unbindFromCart()
       validated ← * <~ CartValidator(cart).validate()
       fullOrder ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()

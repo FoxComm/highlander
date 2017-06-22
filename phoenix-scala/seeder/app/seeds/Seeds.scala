@@ -280,7 +280,9 @@ object Seeds {
                                             account = account)
 
            for {
-             admin   ← * <~ Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
+             admin ← * <~ Users
+                      .take(1)
+                      .mustFindOneOr(NotFoundFailure404(User, "first")) // FIXME: get this ID from an `INSERT`? @michalrus
              context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
              ruContext ← * <~ ObjectContexts.create(
                           SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
@@ -302,11 +304,13 @@ object Seeds {
          }
     } yield {}
 
-  private def flyWayMigrate(config: Config): Unit = {
+  private def flyWayMigrate(config: Config)(implicit db: DB): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config), rootProjectSqlLocation)
 
     flyway.clean()
     flyway.migrate()
+
+    Await.result(db.run(SequenceRandomizer.randomizeSchema("public")), 1.minute /* 10 ms really */ )
   }
 
   private def jdbcDataSourceFromConfig(section: String, config: Config) = {

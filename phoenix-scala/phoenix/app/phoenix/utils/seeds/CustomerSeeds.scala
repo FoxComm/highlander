@@ -3,7 +3,9 @@ package phoenix.utils.seeds
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.models.account._
+import phoenix.models.admin.{AdminData, AdminsData}
 import phoenix.models.{Note, Notes}
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.services.account._
@@ -44,7 +46,10 @@ trait CustomerSeeds {
                                 password = "password".some))
       accountIds = users.map(_.accountId)
       scope ← * <~ Scopes.mustFindById400(scopeId)
-      _     ← * <~ Notes.createAll(customerNotes(LTree(scope.path)).map(_.copy(referenceId = accountIds.head)))
+      admin ← * <~ AdminsData.mustFindOneOr(NotFoundFailure404(AdminData, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      _ ← * <~ Notes.createAll(
+           customerNotes(LTree(scope.path))
+             .map(_.copy(referenceId = accountIds.head, storeAdminId = admin.accountId)))
     } yield
       accountIds.toList match {
         case c1 :: c2 :: c3 :: c4 :: Nil ⇒ (c1, c2, c3, c4)

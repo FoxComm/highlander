@@ -4,12 +4,12 @@ import java.time.Instant
 
 import cats.implicits._
 import core.db._
-import core.failures.NotFoundFailure400
+import core.failures.{NotFoundFailure400, NotFoundFailure404}
 import faker._
 import objectframework.models.ObjectContext
 import phoenix.failures.CreditCardFailures.CustomerHasNoCreditCard
 import phoenix.failures.CustomerFailures.CustomerHasNoDefaultAddress
-import phoenix.models.Note
+import phoenix.models.{Note, Reason, Reasons}
 import phoenix.models.account.Scope
 import phoenix.models.cord.Order._
 import phoenix.models.cord._
@@ -30,6 +30,8 @@ import phoenix.utils.aliases._
 import phoenix.utils.seeds.ShipmentSeeds
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money._
+import phoenix.models.admin.{AdminData, AdminsData}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
@@ -80,16 +82,21 @@ trait OrderGenerator extends ShipmentSeeds {
       implicit db: DB,
       au: AU): DbResultT[Order] =
     for {
-      cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order         ← * <~ Orders.createFromCart(cart, context.id, None)
-      order         ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
-      _             ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
-      origin        ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
+      cart  ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
+      order ← * <~ Orders.createFromCart(cart, context.id, None)
+      order ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
+      admin ← * <~ AdminsData.mustFindOneOr(NotFoundFailure404(AdminData, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      reason ← * <~ Reasons
+                .filter(_.reasonType === (Reason.StoreCreditCreation: Reason.ReasonType))
+                .mustFindOneOr(NotFoundFailure404(Reason, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      _ ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
+      origin ← * <~ StoreCreditManuals.create(
+                StoreCreditManual(adminId = admin.accountId, reasonId = reason.id))
       cc            ← * <~ getCc(accountId)
       op            ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr          ← * <~ getDefaultAddress(accountId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+      shipMethod    ← * <~ getShipMethod(Random.shuffle(shipMethodIds).head)
       shipM ← * <~ OrderShippingMethods.create(
                OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
 
@@ -101,11 +108,16 @@ trait OrderGenerator extends ShipmentSeeds {
                                  skuIds: Seq[Int],
                                  giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Order] =
     for {
-      cart   ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
-      order  ← * <~ Orders.createFromCart(cart, context.id, None)
-      order  ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
-      _      ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
-      origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
+      cart  ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
+      order ← * <~ Orders.createFromCart(cart, context.id, None)
+      order ← * <~ Orders.update(order, order.copy(state = ManualHold, placedAt = yesterday))
+      _     ← * <~ addProductsToOrder(skuIds, cart.refNum, OrderLineItem.Pending)
+      admin ← * <~ AdminsData.mustFindOneOr(NotFoundFailure404(AdminData, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      reason ← * <~ Reasons
+                .filter(_.reasonType === (Reason.StoreCreditCreation: Reason.ReasonType))
+                .mustFindOneOr(NotFoundFailure404(Reason, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      origin ← * <~ StoreCreditManuals.create(
+                StoreCreditManual(adminId = admin.accountId, reasonId = reason.id))
       totals ← * <~ total(skuIds)
       sc ← * <~ StoreCredits.create(
             StoreCredit(scope = Scope.current,
@@ -117,7 +129,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _             ← * <~ StoreCredits.capture(sc, op.id, totals)
       addr          ← * <~ getDefaultAddress(accountId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+      shipMethod    ← * <~ getShipMethod(Random.shuffle(shipMethodIds).head)
       shipM ← * <~ OrderShippingMethods.create(
                OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
       _ ← * <~ addr.bindToCart(cart.refNum)
@@ -136,7 +148,7 @@ trait OrderGenerator extends ShipmentSeeds {
       op            ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr          ← * <~ getDefaultAddress(accountId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+      shipMethod    ← * <~ getShipMethod(Random.shuffle(shipMethodIds).head)
       shipM ← * <~ OrderShippingMethods.create(
                OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
       _ ← * <~ addr.bindToCart(cart.refNum)
@@ -161,7 +173,7 @@ trait OrderGenerator extends ShipmentSeeds {
       op            ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
       addr          ← * <~ getDefaultAddress(accountId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+      shipMethod    ← * <~ getShipMethod(Random.shuffle(shipMethodIds).head)
       shipM ← * <~ OrderShippingMethods.create(
                OrderShippingMethod.build(cordRef = cart.refNum, method = shipMethod))
       _ ← * <~ addr.bindToCart(cart.refNum)
@@ -204,7 +216,7 @@ trait OrderGenerator extends ShipmentSeeds {
                                   giftCard: GiftCard)(implicit db: DB, au: AU): DbResultT[Order] =
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+      shipMethod    ← * <~ getShipMethod(Random.shuffle(shipMethodIds).head)
       cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order         ← * <~ Orders.createFromCart(cart, context.id, None)
       order         ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
@@ -234,7 +246,7 @@ trait OrderGenerator extends ShipmentSeeds {
       au: AU): DbResultT[Order] =
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+      shipMethod    ← * <~ getShipMethod(Random.shuffle(shipMethodIds).head)
       cart          ← * <~ Carts.create(Cart(accountId = accountId, scope = Scope.current))
       order         ← * <~ Orders.createFromCart(cart, context.id, None)
       order         ← * <~ Orders.update(order, order.copy(state = FulfillmentStarted))
@@ -272,14 +284,6 @@ trait OrderGenerator extends ShipmentSeeds {
     val itemsToInsert =
       skuIds.map(skuId ⇒ CartLineItem(cordRef = cartRef, skuId = skuId, attributes = None))
     CartLineItems.createAllReturningModels(itemsToInsert)
-  }
-
-  def orderNotes(implicit au: AU): Seq[Note] = {
-    def newNote(body: String) =
-      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = body, scope = Scope.current)
-    (1 to Random.nextInt(4)) map { i ⇒
-      newNote(Lorem.sentence(Random.nextInt(5)))
-    }
   }
 
   private def total(skuIds: Seq[Int])(implicit db: DB): DbResultT[Long] =

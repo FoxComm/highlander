@@ -24,6 +24,7 @@ case class Address(id: Int = 0,
                    zip: String,
                    isDefaultShipping: Boolean = false,
                    cordRef: Option[String] = None,
+                   parentId: Option[Int] = None,
                    phoneNumber: Option[String] = None,
                    deletedAt: Option[Instant] = None)
     extends FoxModel[Address]
@@ -42,12 +43,12 @@ case class Address(id: Int = 0,
   // we gonna have only one address bound to an order for now
   def bindToCart(cartRef: String)(implicit ec: EC): DbResultT[Address] =
     for {
-      _       ← * <~ Addresses.findByCordRef(cartRef).map(_.cordRef).update(None)
-      address ← * <~ Addresses.update(this, this.copy(cordRef = cartRef.some))
+      _       ← * <~ Addresses.findByCordRef(cartRef).deleteAll
+      address ← * <~ Addresses.create(this.copy(cordRef = cartRef.some, parentId = this.id.some))
     } yield address
 
-  def unbindFromCart()(implicit ec: EC): DbResultT[Address] =
-    Addresses.update(this, this.copy(cordRef = None))
+  def unbindFromCart()(implicit ec: EC): DbResultT[Unit] =
+    Addresses.filter(_.id === this.id).deleteAll.void
 }
 
 object Address {
@@ -116,6 +117,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
   def zip               = column[String]("zip")
   def isDefaultShipping = column[Boolean]("is_default_shipping")
   def cordRef           = column[Option[String]]("cord_ref")
+  def parentId          = column[Option[Int]]("parent_id")
   def phoneNumber       = column[Option[String]]("phone_number")
   def deletedAt         = column[Option[Instant]]("deleted_at")
 
@@ -130,6 +132,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
      zip,
      isDefaultShipping,
      cordRef,
+     parentId,
      phoneNumber,
      deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
