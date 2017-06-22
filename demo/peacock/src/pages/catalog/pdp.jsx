@@ -13,7 +13,7 @@ import type { Localized } from 'lib/i18n';
 
 // modules
 import { searchGiftCards } from 'modules/products';
-import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
+import { fetch, getNextId, getPreviousId, resetProduct, clearErrors } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { fetchRelatedProducts, clearRelatedProducts, MAX_CROSS_SELLS_RESULTS } from 'modules/cross-sell';
 import { fetchReviewsForSku, clearReviews } from 'modules/reviews';
@@ -76,6 +76,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators({
     fetch,
+    clearErrors,
     getNextId,
     getPreviousId,
     resetProduct,
@@ -95,7 +96,7 @@ class PdpConnect extends Component {
   productPromise: Promise<*>;
 
   componentWillMount() {
-    if (_.isEmpty(this.props.product)) {
+    if (_.isEmpty(this.props.product) && !this.props.notFound && !this.props.fetchError) {
       this.productPromise = this.fetchProduct();
     } else {
       this.productPromise = Promise.resolve();
@@ -123,6 +124,7 @@ class PdpConnect extends Component {
 
   componentWillUnmount() {
     this.props.actions.resetProduct();
+    this.props.actions.clearErrors();
     this.props.actions.clearRelatedProducts();
     this.props.actions.clearReviews();
   }
