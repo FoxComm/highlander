@@ -6,11 +6,14 @@ DOCKER_IMAGE ?= agni
 DOCKER_TAG ?= master
 SBT_CMD = sbt -DDOCKER_REPO=$(DOCKER_REPO) -DDOCKER_TAG=${DOCKER_TAG}
 
+autoformat-check:
+	../utils/scalafmt/scalafmt.sh --test
+
 clean:
 	$(call header, Cleaning)
 	${SBT_CMD} '; clean'
 
-build:
+build: autoformat-check
 	$(call header, Building)
 	${SBT_CMD} '; compile; test:compile'
 
