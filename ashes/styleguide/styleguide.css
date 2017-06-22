@@ -9,6 +9,24 @@
       font-family: 'Open Sans', sans-serif;
     }
 
+    h1.root-0-10 {
+      border-bottom: 1px solid #d8d8d8;
+
+      a[class*=isPrimary-] {
+        display: inline-block;
+        padding: 10px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+
     h1 [class*=heading-], h2 [class*=heading-], h3 [class*=heading-], [class*=h3] {
       font-family: Raleway, sans-serif;
     }
@@ -44,7 +62,7 @@
           padding: 0 16px 8px;
         }
 
-        & > [class^=list-] > [class*=item-] > [class^=link-] {
+        & > [class^=list-] > [class*=item-] > [class*=heading-] {
           color: #aaa;
         }
 
@@ -89,7 +107,7 @@
         }
 
         &[class*=isActive-] {
-          [class^=link-] {
+          [ class ^= link- ] {
             color: #fff;
 
             &::before {
@@ -103,13 +121,13 @@
             padding-bottom: 5px;
           }
 
-          [class^=link-] {
+          [ class ^= link- ] {
             font-weight: 400;
           }
         }
       }
 
-      [class^=link-] {
+      [ class ^= link- ] {
         position: relative;
         display: inline-block;
         color: #666;

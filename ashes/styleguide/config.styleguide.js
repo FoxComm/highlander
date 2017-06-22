@@ -20,20 +20,25 @@ module.exports = {
   },
   sections: [
     {
-      name: 'Colors and Typo',
-      content: '../docs/colors-and-typos.md',
-      components: () => [
-        path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
-        path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
-        path.resolve(__dirname, '../src/components/docs/fonts/fonts.jsx'),
-      ],
-    },
-    {
-      name: 'Iconography',
-      components: () => [
-        path.resolve(__dirname, '../src/components/docs/icons/icons.jsx'),
-        path.resolve(__dirname, '../src/components/docs/svg-icons/svg-icons.jsx'),
-        path.resolve(__dirname, '../src/components/docs/logos/logos.jsx'),
+      name: 'Documentation',
+      sections: [
+        {
+          name: 'Colors and Typo',
+          content: '../docs/colors-and-typos.md',
+          components: () => [
+            path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
+            path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
+            path.resolve(__dirname, '../src/components/docs/fonts/fonts.jsx'),
+          ],
+        },
+        {
+          name: 'Iconography',
+          components: () => [
+            path.resolve(__dirname, '../src/components/docs/icons/icons.jsx'),
+            path.resolve(__dirname, '../src/components/docs/svg-icons/svg-icons.jsx'),
+            path.resolve(__dirname, '../src/components/docs/logos/logos.jsx'),
+          ],
+        },
       ],
     },
     {

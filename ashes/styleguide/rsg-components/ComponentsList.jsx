@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { identity, values } from 'lodash';
+import { assoc } from 'sprout-data';
 import cx from 'classnames';
 import Link from 'rsg-components/Link';
 import Styled from 'rsg-components/Styled';
@@ -37,31 +39,115 @@ const styles = ({ font, small }) => ({
   },
 });
 
+function isLeaf(item) {
+  return !item.content || !item.content.props.items.length;
+}
+
+function isElementWithSlugInViewport(slug) {
+  const el = document.getElementById(slug);
+  if (!el) {
+    console.warn(`element "${slug}" not found`);
+
+    return false;
+  }
+  const elementTop = el.offsetTop;
+  const elementBottom = elementTop + el.offsetHeight;
+  const pageTop = window.scrollY;
+
+  return elementTop + 50 <= pageTop + 200 && elementBottom >= pageTop;
+}
+
+function updateHash(hash) {
+  if (history.pushState) {
+    history.pushState(null, null, `#/${hash}`);
+  } else {
+    location.hash = `#/${hash}`;
+  }
+}
+
 export class ComponentsListRenderer extends React.Component {
   state = {
-    expanded: {},
+    expandedItems: {},
+    collapsibleItems: {},
+    hasCollapsibleItems: false,
   };
 
-  componentDidMount() {
-    window.addEventListener('scroll', this.handleScroll.bind(this));
+  componentWillMount() {
+    const collapsibleItems = this.props.items.reduce(
+      (res, item) => ({
+        ...res,
+        [item.slug]: isLeaf(item) ? false : item.content.props.items.some(isLeaf),
+      }),
+      {}
+    );
+
+    const hasCollapsibleItems = values(collapsibleItems).some(identity);
+
+    this.setState({ collapsibleItems, hasCollapsibleItems });
   }
 
-  handleScroll(e) {
-    console.log(e);
+  componentDidMount() {
+    if (this.state.hasCollapsibleItems) {
+      window.addEventListener('scroll', this.handleScroll.bind(this));
+    }
+  }
+
+  get activeItem() {
+    return window.location.hash.substr(2);
+  }
+
+  getExpandedState(slug, expand = true) {
+    const newState = {
+      ...this.state.expandedItems,
+      [slug]: expand,
+    };
+
+    return newState;
+  }
+
+  handleScroll() {
+    if (!this.state.hasCollapsibleItems) {
+      return;
+    }
+
+    this.props.items.forEach(parent => {
+      if (isLeaf(parent)) {
+        return;
+      }
+
+      const elementInViewport = parent.content.props.items.find(item => {
+        if (!isLeaf(item)) {
+          return;
+        }
+
+        return isElementWithSlugInViewport(item.slug);
+      });
+
+      if (elementInViewport) {
+        if (this.activeItem !== elementInViewport.slug) {
+          updateHash(elementInViewport.slug);
+
+          this.setState({
+            expandedItems: this.getExpandedState(parent.slug, true),
+          });
+        }
+      } else {
+        this.setState({
+          expandedItems: this.getExpandedState(parent.slug, false),
+        });
+      }
+    });
   }
 
   expand(slug) {
     return e => {
-      if (this.state.expanded[slug]) {
+      const itemExpanded = this.state.expandedItems[slug];
+
+      if (this.state.collapsibleItems[slug]) {
         e.preventDefault();
       }
 
-      const newExpanded = {
-        ...this.state.expanded,
-        [slug]: !this.state.expanded[slug],
-      };
-
-      this.setState({ expanded: newExpanded });
+      this.setState({ expandedItems: this.getExpandedState(slug, !itemExpanded) });
     };
   }
 
@@ -73,30 +159,30 @@ export class ComponentsListRenderer extends React.Component {
       return null;
     }
 
-    const activeItem = window.location.hash.substr(2);
-
     return (
       <ul className={classes.list}>
-        {items.map(({ heading, name, slug, content }) => {
-          const isChild = !content || !content.props.items.length;
-          const activeParent = !isChild && content.props.items.some(({ slug }) => slug === activeItem);
+        {items.map(item => {
+          const { heading, name, slug, content } = item;
+          const isLeafElement = isLeaf(item);
+          const activeParent = !isLeafElement && content.props.items.some(({ slug }) => slug === this.activeItem);
 
           const cls = cx(classes.item, {
-            [classes.isChild]: isChild,
-            [classes.isActive]: isChild && activeItem === slug,
+            [classes.isChild]: isLeafElement,
+            [classes.isActive]: isLeafElement && this.activeItem === slug,
             [classes.activeParent]: activeParent,
           });
 
+          const renderContent = !this.state.collapsibleItems[slug] || this.state.expandedItems[slug] || activeParent;
+
+          const TitleElement = isLeafElement || this.state.collapsibleItems[slug] ? Link : 'span';
+          const clickHandler = isLeafElement || this.state.collapsibleItems[slug] ? this.expand(slug) : void 0;
+
           return (
-            <li className={cls} key={name}>
-              <Link
-                className={cx({ [classes.heading]: !!heading })}
-                href={`#${slug}`}
-                onClick={!!content && this.expand(slug)}
-              >
+            <li className={cls} key={slug}>
+              <TitleElement className={cx({ [classes.heading]: !!heading })} href={`#${slug}`} onClick={clickHandler}>
                 {name}
-              </Link>
-              {this.state.expanded[slug] && content}
+              </TitleElement>
+              {renderContent && !!content && React.cloneElement(content)}
             </li>
           );
         })}
