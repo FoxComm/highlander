@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
-import Block from '../common/block';
+// import Block from '../common/block';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import ReviewRow from './review-row';
 
@@ -58,12 +58,13 @@ class MyReviews extends Component {
     );
   }
 
+/* TODO: implement the reviews on profile page according to the new design
+  <Block title="My Reviews">
+    {this.content}
+  </Block>
+  */
   render() {
-    return (
-      <Block title="My Reviews">
-        {this.content}
-      </Block>
-    );
+    return <div />;
   }
 }
 
