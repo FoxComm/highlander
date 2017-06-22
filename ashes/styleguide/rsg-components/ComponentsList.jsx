@@ -65,6 +65,53 @@ function updateHash(hash) {
   }
 }
 
+class ListItem extends React.Component {
+  _content;
+  mounted: bool;
+
+  componentDidMount() {
+    this.mounted = true;
+
+    this.recalculateHeight();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  componentDidUpdate() {
+    this.recalculateHeight();
+  }
+
+  recalculateHeight() {
+    if (!this.props.collapsible) {
+      this._content.style.opacity = 1;
+      this._content.style.overflow = 'visible';
+
+      return;
+    }
+
+    let maxHeight = 0;
+    let opacity = 0;
+
+    if (this.props.open) {
+      maxHeight = this._content.scrollHeight;
+      opacity = 1;
+    }
+
+    this._content.style.maxHeight = `${maxHeight}px`;
+    this._content.style.opacity = opacity;
+  }
+
+  render() {
+    return (
+      <div ref={c => (this._content = c)} style={{ transition: 'all .4s', opacity: 0, overflow: 'hidden', }}>
+        {React.cloneElement(this.props.content)}
+      </div>
+    );
+  }
+}
+
 export class ComponentsListRenderer extends React.Component {
   state = {
     expandedItems: {},
@@ -182,7 +229,8 @@ export class ComponentsListRenderer extends React.Component {
               <TitleElement className={cx({ [classes.heading]: !!heading })} href={`#${slug}`} onClick={clickHandler}>
                 {name}
               </TitleElement>
-              {renderContent && !!content && React.cloneElement(content)}
+              {!!content &&
+              <ListItem open={renderContent} content={content} collapsible={this.state.collapsibleItems[slug]} />}
             </li>
           );
         })}
