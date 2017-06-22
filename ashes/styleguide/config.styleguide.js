@@ -87,6 +87,7 @@ module.exports = {
               components: () => [
                 // path.resolve(__dirname, '../src/components/core/dropdown/smart-list/smart-list.jsx'),
                 path.resolve(__dirname, '../src/components/core/dropdown/text-dropdown/text-dropdown.jsx'),
+                path.resolve(__dirname, '../src/components/core/dropdown/search-dropdown/search-dropdown.jsx'),
               ],
             },
             {
@@ -144,18 +145,15 @@ module.exports = {
             },
             {
               name: 'Other',
-              components: () => ([
+              components: () => [
                 path.resolve(__dirname, '../src/components/utils/change/change.jsx'),
                 path.resolve(__dirname, '../src/components/utils/currency/currency.jsx'),
-              ]),
+              ],
             },
           ],
         },
       ],
     },
   ],
-  require: [
-    path.join(__dirname, '../src/images/favicons/favicon.ico'),
-    path.join(__dirname, 'styleguide.css'),
-  ]
+  require: [path.join(__dirname, '../src/images/favicons/favicon.ico'), path.join(__dirname, 'styleguide.css')],
 };

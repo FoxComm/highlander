@@ -135,13 +135,13 @@ export default class AddressForm extends React.Component {
   get regionItems() {
     const regions = _.get(this.country, 'regions', []);
 
-    return _.map(regions, region => ({ value: region.id, displayText: region.name }));
+    return _.map(regions, region => [region.id, region.name]);
   }
 
   get countryItems() {
     const countries = _.get(this.props, 'countries', []);
 
-    return _.map(countries, country => ({ value: country.id, displayText: country.name }));
+    return _.map(countries, country => [country.id, country.name]);
   }
 
   get errorMessages() {
