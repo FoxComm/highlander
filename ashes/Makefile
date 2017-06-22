@@ -54,22 +54,27 @@ clean:
 
 .PHONY: test
 test: MSG=Testing
-test: notify flow lint
+test: notify flow lint mocha
 	rm -rf ./node_modules
 	make install
-	@NODE_ENV=$(NODE_ENV) gulp test
 
 .PHONY: t
-t: flow lint
-	@NODE_ENV=$(NODE_ENV) gulp test
+t: flow lint mocha
 
-.PHONY: mocha-main
-mocha-main:
-	@NODE_ENV=$(NODE_ENV) gulp mocha.main
+.PHONY: mocha-spec
+mocha-spec:
+	mocha --require test/acceptance/_setup --recursive ./src/**/*.spec.jsx
+
+.PHONY: mocha-acc
+mocha-acc:
+	@NODE_ENV=$(NODE_ENV) mocha --require test/acceptance/_setup --recursive ./test/acceptance/**/*.jsx
 
 .PHONY: mocha-unit
 mocha-unit:
-	@NODE_ENV=$(NODE_ENV) gulp mocha.unit
+	@NODE_ENV=$(NODE_ENV) mocha --recursive ./test/unit/**/*.js
+
+.PHONY: mocha
+mocha: mocha-acc mocha-spec mocha-unit
 
 .PHONY: stylelint
 stylelint:
