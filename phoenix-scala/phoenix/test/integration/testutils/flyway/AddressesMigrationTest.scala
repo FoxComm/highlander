@@ -9,13 +9,9 @@ case object AddressesMigrationTest extends FlywayMigrationsTest("5.2017060711015
   override def testBeforeMigration(implicit db: Database): Unit = {
     addressesColumns
       .as[String]
-      .gimme mustNot contain("cord_ref")
+      .gimme mustNot contain("cord_ref") // simple sanity check before and after
 
-    sql"""
-          insert into carts (account_id, reference_number, created_at, updated_at, currency, scope) values (1, 'TEST-ABC-1', now(), null, 'USD', '1');
-          insert into order_shipping_addresses(cord_ref, region_id, name, address1, address2, city, zip, phone_number, created_at, updated_at)
-            values ('TEST-ABC-1', 1, 'Test address', 'Test Case rd.', null, 'Testburg', '125438', '12345678', now(), null);
-    """.asUpdate.gimme
+    runSql("/sql/addresses_live_data.sql")
   }
 
   override def testAfterMigration(implicit db: Database): Unit = {
@@ -23,7 +19,12 @@ case object AddressesMigrationTest extends FlywayMigrationsTest("5.2017060711015
       .as[String]
       .gimme must contain("cord_ref")
 
-    sql"""select a.cord_ref from addresses as a""".as[String].gimme must === ("TEST-ABC-1")
+    def addressMustBeMigrated(cord: String, name: String): Unit =
+      sql"select name from addresses where cord_ref = $cord".as[String].gimme.head must === (name)
+
+    addressMustBeMigrated("BR10007", "Marilyne Heidenreich")
+    addressMustBeMigrated("BR10028", "Velma Quitzon")
+    addressMustBeMigrated("BR10066", "Nannie Nicolas")
   }
 
 }

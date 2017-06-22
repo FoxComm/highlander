@@ -12,7 +12,7 @@ alter table shipments add constraint shipments_shipping_address_id_fkey
 -- move everything from order_shipping_addresses to addresses
 insert into addresses(account_id, region_id, name, address1, address2, city, zip, phone_number, created_at, updated_at, deleted_at, cord_ref)
   select
-    c.account_id,
+    coalesce(c.account_id, o.account_id),
     osa.region_id,
     osa.name,
     osa.address1,
@@ -25,7 +25,8 @@ insert into addresses(account_id, region_id, name, address1, address2, city, zip
     null, -- no deleted_at
     osa.cord_ref
   from order_shipping_addresses as osa
-    inner join carts as c on osa.cord_ref = c.reference_number;
+    left outer join carts as c on osa.cord_ref = c.reference_number
+    left outer join orders as o on osa.cord_ref = o.reference_number;
 
 -- is moved to R__orders_search_view_triggers.sql
 drop function if exists update_orders_view_from_shipping_addresses_fn() cascade;
