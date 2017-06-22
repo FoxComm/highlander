@@ -1,12 +1,8 @@
 [
   {
-    "type": "eq",
+    "type": "equals",
     "in": "slug",
     "value": [ "awesome", "whatever" ]
-  },
-  {
-    "type": "state",
-    "value": "all"
   },
   {
     "type": "matches",
@@ -20,5 +16,10 @@
       "<": 5000,
       "gte": 1000
     }
+  },
+  {
+    "type": "exists",
+    "context": "not",
+    "value": "archivedAt"
   }
 ]

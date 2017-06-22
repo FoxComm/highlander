@@ -3,13 +3,13 @@ import sbtassembly.{MergeStrategy, PathList}
 lazy val core = (project in file("core"))
   .settings(Settings.common)
   .settings(
-    libraryDependencies ++= Dependencies.core ++ Dependencies.es ++ Dependencies.circe ++ Dependencies.test.core
+    libraryDependencies ++= Dependencies.core ++ Dependencies.es ++ Dependencies.circe ++ Dependencies.monix ++ Dependencies.test.core
   )
 
 lazy val finch = (project in file("finch"))
   .settings(Settings.common)
   .settings(
-    libraryDependencies ++= Dependencies.finch ++ Dependencies.circe :+ Dependencies.jwt
+    libraryDependencies ++= Dependencies.finch ++ Dependencies.circe ++ Dependencies.jwt ++ Dependencies.monix
   )
 
 lazy val api = (project in file("api"))
