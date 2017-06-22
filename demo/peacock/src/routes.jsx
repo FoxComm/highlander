@@ -7,7 +7,6 @@ import Pdp from './pages/catalog/pdp';
 import Search from './pages/search/search';
 
 import Profile from './components/profile/profile';
-import ReviewForm from './components/profile/blocks/review-form';
 
 import MensCatPage from './pages/category/men';
 import WomensCatPage from './pages/category/women';
@@ -36,7 +35,6 @@ export default function makeRoutes(getStore) {
       <Route component={StoreFront}>
         <IndexRoute component={HomePage} />
         <Route name="profile" path="/profile" component={Profile} onEnter={handleProfileEnter} />
-        <Route path="reviews/:reviewId" component={ReviewForm} />
         <Route path="/checkout/done" component={OrderPlaced} />
         <Route path="men" component={MensCatPage} />
         <Route path="women" component={WomensCatPage} />
