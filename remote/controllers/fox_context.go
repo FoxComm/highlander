@@ -16,30 +16,31 @@ import (
 // provides helper methods, and ensures we have consistent response handling.
 type FoxContext struct {
 	echo.Context
-	Scope   string
 	failure failures.Failure
 }
 
 // NewFoxContext creates a new FoxContext from an existing echo.Context.
 func NewFoxContext(c echo.Context) *FoxContext {
-	var scope string
-
-	jwtStr, fail := getJWTToken(c)
-	if fail == nil {
-		jwt, err := NewJWT(jwtStr)
-		if err != nil {
-			fail = failures.New(err)
-		} else {
-			scope = jwt.Scope()
-		}
-	}
-
-	return &FoxContext{c, scope, fail}
+	return &FoxContext{c, nil}
 }
 
-func getJWTToken(c echo.Context) (string, failures.Failure) {
+func (fc *FoxContext) getJWT() (*JWT, failures.Failure) {
+	jwtStr, fail := fc.getJWTString()
+	if fail != nil {
+		return nil, fail
+	}
+
+	jwt, err := NewJWT(jwtStr)
+	if err != nil {
+		return nil, failures.New(err)
+	}
+
+	return jwt, nil
+}
+
+func (fc *FoxContext) getJWTString() (string, failures.Failure) {
 	// Try to get from the header first.
-	req := c.Request()
+	req := fc.Request()
 	jwt, ok := req.Header["Jwt"]
 	if ok && len(jwt) > 0 {
 		return jwt[0], nil
@@ -68,6 +69,17 @@ func (fc *FoxContext) BindJSON(payload payloads.Payload) {
 	if err := payload.Validate(); err != nil {
 		fc.failure = err
 		return
+	}
+
+	scoped, ok := payload.(payloads.Scoped)
+	if ok {
+		jwt, fail := fc.getJWT()
+		if fail != nil {
+			fc.failure = fail
+			return
+		}
+
+		scoped.EnsureScope(jwt.Scope())
 	}
 }
 

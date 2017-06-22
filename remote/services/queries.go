@@ -30,7 +30,7 @@ func InsertChannel(dbs *RemoteDBs, icChannel *ic.Channel, phxChannel *phoenix.Ch
 		return fail
 	}
 
-	hostMaps := icChannel.HostMaps(hosts, "1")
+	hostMaps := icChannel.HostMaps(hosts, phxChannel.Scope)
 	// We have to iterate through each insert manually because of a limitation in
 	// Gorm. Since there will rarely be many hosts created at a time, this should
 	// be a workable solution for now.

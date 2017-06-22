@@ -18,14 +18,12 @@ type CreateChannel struct {
 	CatalogID      *int64   `json:"catalogId"`
 }
 
-// Scope gets the current scope on the payload.
-func (c CreateChannel) Scope() string {
-	return c.Scope
-}
-
-// SetScope sets the scope on the payload.
-func (c *CreateChannel) SetScope(scope string) {
-	c.Scope = scope
+// EnsureScope guarantees that a scope is set, either by using the scope that
+// already exists on the payload, or setting a default scope from the caller.
+func (c *CreateChannel) EnsureScope(scope string) {
+	if c.Scope == "" {
+		c.Scope = scope
+	}
 }
 
 // Validate ensures that the has the correct format.
