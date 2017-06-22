@@ -163,10 +163,8 @@ object query {
     }
     sealed trait TermLevel extends WithContext { this: QueryFunction ⇒
       def context: Option[QueryContext]
-      def in: QueryField
 
       final def ctx: QueryContext = context.getOrElse(QueryContext.filter)
-      final def field: QueryField = in
     }
     sealed trait FullText extends WithContext with WithField { this: QueryFunction ⇒
       def context: Option[QueryContext]
@@ -182,6 +180,9 @@ object query {
         extends QueryFunction
         with FullText
     final case class equals private (in: QueryField, value: CompoundValue, context: Option[QueryContext])
+        extends QueryFunction
+        with TermLevel
+    final case class exists private (value: QueryField, context: Option[QueryContext])
         extends QueryFunction
         with TermLevel
     final case class range private (in: QueryField.Single, value: RangeValue, context: Option[QueryContext])

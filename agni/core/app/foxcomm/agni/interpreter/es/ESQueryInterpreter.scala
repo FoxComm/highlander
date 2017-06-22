@@ -43,12 +43,19 @@ object ESQueryInterpreter extends QueryInterpreter[Coeval, BoolQueryBuilder] {
 
   def equalsF(b: BoolQueryBuilder, qf: QueryFunction.equals): Coeval[BoolQueryBuilder] = Coeval.eval {
     val vs = qf.value.toList
-    qf.field.toList.foldLeft(b)((b, n) ⇒
+    qf.in.toList.foldLeft(b)((b, n) ⇒
       b.inContext(qf) {
         vs match {
           case v :: Nil ⇒ QueryBuilders.termQuery(n, v)
           case _        ⇒ QueryBuilders.termsQuery(n, vs: _*)
         }
+    })
+  }
+
+  def existsF(b: BoolQueryBuilder, qf: QueryFunction.exists): Coeval[BoolQueryBuilder] = Coeval.eval {
+    qf.value.toList.foldLeft(b)((b, n) ⇒
+      b.inContext(qf) {
+        QueryBuilders.existsQuery(n)
     })
   }
 

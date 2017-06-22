@@ -19,7 +19,7 @@ class QueryDslSpec extends FlatSpec with Matchers {
       parse(Source.fromInputStream(getClass.getResourceAsStream("/happy_path.json")).mkString).right.value
     val queries = json.as[FCQuery].right.value.query.map(_.toList).getOrElse(Nil)
     assertQueryFunction[QueryFunction.equals](queries.head) { equals ⇒
-      equals.field.toList should === (List("slug"))
+      equals.in.toList should === (List("slug"))
       equals.value.toList should === (List("awesome", "whatever"))
     }
     assertQueryFunction[QueryFunction.matches](queries(1)) { matches ⇒
@@ -27,12 +27,16 @@ class QueryDslSpec extends FlatSpec with Matchers {
       matches.value.toList should === (List("food", "drink"))
     }
     assertQueryFunction[QueryFunction.range](queries(2)) { range ⇒
-      range.field.toList should === (List("price"))
+      range.in.toList should === (List("price"))
       range.value.unify.toMap.mapValues(_.toString) should === (
         Map(
           RangeFunction.Lt  → "5000",
           RangeFunction.Gte → "1000"
         ))
+    }
+    assertQueryFunction[QueryFunction.exists](queries(3)) { exists ⇒
+      exists.value.toList should === (List("archivedAt"))
+      exists.ctx should === (QueryContext.not)
     }
   }
 }

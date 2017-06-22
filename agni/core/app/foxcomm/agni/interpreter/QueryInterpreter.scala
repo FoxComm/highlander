@@ -12,6 +12,7 @@ abstract class QueryInterpreter[F[_]: Monad, V] extends Interpreter[F, (V, NonEm
   final def eval(v: V, qf: QueryFunction): F[V] = qf match {
     case qf: QueryFunction.matches ⇒ matchesF(v, qf)
     case qf: QueryFunction.equals  ⇒ equalsF(v, qf)
+    case qf: QueryFunction.exists  ⇒ existsF(v, qf)
     case qf: QueryFunction.range   ⇒ rangeF(v, qf)
     case qf: QueryFunction.raw     ⇒ rawF(v, qf)
   }
@@ -21,6 +22,8 @@ abstract class QueryInterpreter[F[_]: Monad, V] extends Interpreter[F, (V, NonEm
   def matchesF(v: V, qf: QueryFunction.matches): F[V]
 
   def equalsF(v: V, qf: QueryFunction.equals): F[V]
+
+  def existsF(v: V, qf: QueryFunction.exists): F[V]
 
   def rangeF(v: V, qf: QueryFunction.range): F[V]
 

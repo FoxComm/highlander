@@ -16,5 +16,10 @@
       "<": 5000,
       "gte": 1000
     }
+  },
+  {
+    "type": "exists",
+    "context": "not",
+    "value": "archivedAt"
   }
 ]
