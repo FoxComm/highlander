@@ -9,16 +9,12 @@ import AddressForm from './address-form';
 
 type Props = {
   isVisible: boolean,
-  onCancel?: Function;
+  onCancel?: Function,
 };
 
 export default ({ isVisible, ...rest }: Props) => {
   return (
-    <Modal
-      title="Address Book"
-      onClose={rest.onCancel}
-      isVisible={isVisible}
-    >
+    <Modal title="Address Book" onClose={rest.onCancel} isVisible={isVisible}>
       <AddressForm {...rest} />
     </Modal>
   );

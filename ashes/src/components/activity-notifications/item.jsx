@@ -17,7 +17,7 @@ import Icon from 'components/core/icon';
 import s from './item.css';
 
 type Props = {
-  item: Object;
+  item: Object,
 };
 
 function getIcon(type) {
@@ -46,7 +46,7 @@ function getIcon(type) {
 const NotificationItem = (props: Props) => {
   const isRead = _.get(props, ['item', 'isRead']);
   const classes = classNames(s.block, {
-    [s.notRead]: !isRead
+    [s.notRead]: !isRead,
   });
   const activity = processActivity(props.item);
   const desc = representatives[activity.kind];

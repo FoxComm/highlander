@@ -40,7 +40,7 @@ type Props = {
     dimension: string,
   },
   fetchState: AsyncState,
-  resetActivities: () => void;
+  resetActivities: () => void,
   fetchActivityTrail: (params: RequestParam, from: ?Activity) => Promise<*>,
 };
 
@@ -49,17 +49,16 @@ class ActivityTrailPage extends Component {
 
   get trailParams() {
     const { route, entity } = this.props;
-    const dimension =
-      route.dimension ? _.snakeCase(route.dimension) : _.snakeCase(entity.entityType);
+    const dimension = route.dimension ? _.snakeCase(route.dimension) : _.snakeCase(entity.entityType);
 
     if (entity) {
       return {
         dimension,
-        objectId: entity.entityId
+        objectId: entity.entityId,
       };
     } else {
       return {
-        dimension
+        dimension,
       };
     }
   }

@@ -46,7 +46,7 @@ export const Button = ({ icon, children, isLoading, className, fullWidth, return
       [s.loading]: isLoading,
       [s.fullWidth]: fullWidth,
       [s.small]: small,
-      [s.onlyIcon]: onlyIcon
+      [s.onlyIcon]: onlyIcon,
     },
     className
   );
@@ -65,41 +65,39 @@ export const Button = ({ icon, children, isLoading, className, fullWidth, return
 };
 
 export const PrimaryButton = ({ className, ...rest }: Props) => {
-  return (
-    <Button {...rest} className={classNames(s.primary, className)} />
-  );
+  return <Button {...rest} className={classNames(s.primary, className)} />;
 };
 
 export const LeftButton = (props: Props) => {
-  return <Button icon='chevron-left' {...props} />;
+  return <Button icon="chevron-left" {...props} />;
 };
 
 export const RightButton = (props: Props) => {
-  return <Button icon='chevron-right' {...props} />;
+  return <Button icon="chevron-right" {...props} />;
 };
 
 export const DecrementButton = (props: Props) => {
-  return <Button icon='chevron-down' {...props} />;
+  return <Button icon="chevron-down" {...props} />;
 };
 
 export const IncrementButton = (props: Props) => {
-  return <Button icon='chevron-up' {...props} />;
+  return <Button icon="chevron-up" {...props} />;
 };
 
 export const AddButton = (props: Props) => {
-  return <Button icon='add' {...props} />;
+  return <Button icon="add" {...props} />;
 };
 
 export const EditButton = (props: Props) => {
-  return <Button icon='edit' {...props} />;
+  return <Button icon="edit" {...props} />;
 };
 
 export const DeleteButton = ({ className, ...rest }: Props) => {
-  return <Button icon='trash' {...rest} className={classNames(s.delete, className)} />;
+  return <Button icon="trash" {...rest} className={classNames(s.delete, className)} />;
 };
 
 export const CloseButton = ({ className, ...rest }: Props) => {
-  return <Button icon='close' {...rest} className={classNames(s.close, className)} />;
+  return <Button icon="close" {...rest} className={classNames(s.close, className)} />;
 };
 
 type SocialProps = Props & {

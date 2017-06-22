@@ -6,12 +6,13 @@ import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
 import ConfirmationModal from 'components/core/confirmation-modal';
 
-
-@connect((state, props) => ({
-  ...state.customers.details
-}), CustomersActions)
+@connect(
+  (state, props) => ({
+    ...state.customers.details,
+  }),
+  CustomersActions
+)
 export default class CustomerAccountStatus extends React.Component {
-
   static propTypes = {
     customer: PropTypes.object.isRequired,
     toggleDisableStatus: PropTypes.func.isRequired,
@@ -21,7 +22,7 @@ export default class CustomerAccountStatus extends React.Component {
     startBlacklistCustomer: PropTypes.func.isRequired,
     stopBlacklistCustomer: PropTypes.func.isRequired,
     isDisablingStarted: PropTypes.bool.isRequired,
-    isBlacklistedStarted: PropTypes.bool.isRequired
+    isBlacklistedStarted: PropTypes.bool.isRequired,
   };
 
   get customerInfo() {
@@ -99,20 +100,20 @@ export default class CustomerAccountStatus extends React.Component {
       <div>
         <ContentBox title="Account Status" className="fc-customer-account-status">
           <div className="fc-customer-status-row">
-              <strong>Active Account</strong>
-              <SliderCheckbox
-                id="customerDisabled"
-                onChange={this.props.startDisablingCustomer}
-                checked={ !customer.disabled }
-              />
+            <strong>Active Account</strong>
+            <SliderCheckbox
+              id="customerDisabled"
+              onChange={this.props.startDisablingCustomer}
+              checked={!customer.disabled}
+            />
           </div>
           <div className="fc-customer-status-row">
-              <strong>Blacklist Customer</strong>
-              <SliderCheckbox
-                id="customerBlacklisted"
-                onChange={this.props.startBlacklistCustomer}
-                checked={ customer.isBlacklisted }
-              />
+            <strong>Blacklist Customer</strong>
+            <SliderCheckbox
+              id="customerBlacklisted"
+              onChange={this.props.startBlacklistCustomer}
+              checked={customer.isBlacklisted}
+            />
           </div>
 
           <ConfirmationModal

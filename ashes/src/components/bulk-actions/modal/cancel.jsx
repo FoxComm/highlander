@@ -14,22 +14,22 @@ import { CancelReason } from '../../fields';
 import s from './modal.css';
 
 type Props = {
-  entity: string;
-  label?: string;
-  count: number;
-  onCancel: Function;
-  onConfirm: Function;
+  entity: string,
+  label?: string,
+  count: number,
+  onCancel: Function,
+  onConfirm: Function,
 };
 
 type State = {
-  reason: any;
+  reason: any,
 };
 
 export default class CancelModal extends Component {
   props: Props;
 
   state: State = {
-    reason: null
+    reason: null,
   };
 
   render() {
@@ -47,9 +47,9 @@ export default class CancelModal extends Component {
         reasonType={ReasonType.CANCELLATION}
         className={s.cancelReason}
         value={this.state.reason}
-        onChange={(reason) => this.setState({reason})}
+        onChange={reason => this.setState({ reason })}
         key="reason"
-      />
+      />,
     ];
 
     return (

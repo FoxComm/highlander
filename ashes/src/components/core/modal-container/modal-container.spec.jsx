@@ -6,20 +6,15 @@ import { mount } from 'enzyme';
 
 import ModalContainer from './modal-container';
 
-describe('ModalContainer', function () {
-
-  it('should render empty ModalContainer', function () {
-    const modal = mount(
-      <ModalContainer isVisible={false} onClose={noop}>Modal Content</ModalContainer>
-    );
+describe('ModalContainer', function() {
+  it('should render empty ModalContainer', function() {
+    const modal = mount(<ModalContainer isVisible={false} onClose={noop}>Modal Content</ModalContainer>);
 
     expect(modal).to.be.empty;
   });
 
-  it('should render modal with overlay and content', function () {
-    const modal = mount(
-      <ModalContainer isVisible={false} onClose={noop}>Modal Content</ModalContainer>
-    );
+  it('should render modal with overlay and content', function() {
+    const modal = mount(<ModalContainer isVisible={false} onClose={noop}>Modal Content</ModalContainer>);
 
     expect(modal).to.be.empty;
 
@@ -32,23 +27,20 @@ describe('ModalContainer', function () {
     expect(modal.text()).to.be.equal('Modal Content');
   });
 
-  it('should handle close on overlay', function () {
+  it('should handle close on overlay', function() {
     const onClose = sinon.spy();
-    const modal = mount(
-      <ModalContainer isVisible onClose={onClose}>Modal Content</ModalContainer>
-    );
+    const modal = mount(<ModalContainer isVisible onClose={onClose}>Modal Content</ModalContainer>);
 
     modal.find('.overlay').simulate('click');
 
     expect(onClose.calledOnce).to.be.true;
   });
 
-  it('should not handle escape click when hidden', function () {
+  it('should not handle escape click when hidden', function() {
     const onClose = sinon.spy();
-    mount(
-      <ModalContainer isVisible={false} onClose={onClose}>Modal Content</ModalContainer>
-      , { attachTo: createContainer() }
-    );
+    mount(<ModalContainer isVisible={false} onClose={onClose}>Modal Content</ModalContainer>, {
+      attachTo: createContainer(),
+    });
 
     const event = simulant('keydown', { keyCode: 27 });
 
@@ -57,12 +49,9 @@ describe('ModalContainer', function () {
     expect(onClose.calledOnce).to.be.false;
   });
 
-  it('should handle escape click when shown', function () {
+  it('should handle escape click when shown', function() {
     const onClose = sinon.spy();
-    mount(
-      <ModalContainer isVisible onClose={onClose}>Modal Content</ModalContainer>
-      , { attachTo: createContainer() }
-    );
+    mount(<ModalContainer isVisible onClose={onClose}>Modal Content</ModalContainer>, { attachTo: createContainer() });
 
     const event = simulant('keydown', { keyCode: 27 });
 
@@ -70,5 +59,4 @@ describe('ModalContainer', function () {
 
     expect(onClose.calledOnce).to.be.true;
   });
-
 });

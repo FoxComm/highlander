@@ -1,0 +1,2 @@
+//npm.foxcommerce.com:4873/:_authToken=${NPM_TOKEN}
+@foxcomm:registry=https://npm.foxcommerce.com:4873/

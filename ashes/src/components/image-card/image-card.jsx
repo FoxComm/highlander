@@ -28,7 +28,6 @@ type Props = {
 };
 
 export default class ImageCard extends Component {
-
   props: Props;
 
   static defaultProps = {

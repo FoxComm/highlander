@@ -9,9 +9,9 @@ import Transition from 'react-transition-group/CSSTransitionGroup';
 import s from './menu.css';
 
 type MenuProps = {
-  children?: any;
-  position?: 'left' | 'center' | 'right';
-  isOpen?: boolean;
+  children?: any,
+  position?: 'left' | 'center' | 'right',
+  isOpen?: boolean,
 };
 
 export const Menu = (props: MenuProps) => {
@@ -26,19 +26,16 @@ export const Menu = (props: MenuProps) => {
 
   return (
     <Transition {...transitionProps}>
-      {isOpen &&
-      <div className={s.block}>{children}</div>
-      }
+      {isOpen && <div className={s.block}>{children}</div>}
     </Transition>
-
   );
 };
 
 type MenuItemProps = {
-  className?: string;
-  children?: any;
-  clickAction?: Function;
-  active?: boolean;
+  className?: string,
+  children?: any,
+  clickAction?: Function,
+  active?: boolean,
 };
 
 const preventBlur = event => {
@@ -60,12 +57,7 @@ export const MenuItem = (props: MenuItemProps) => {
   };
 
   return (
-    <div
-      className={klass}
-      onClick={click}
-      onMouseDown={preventBlur}
-      onMouseUp={preventBlur}
-    >
+    <div className={klass} onClick={click} onMouseDown={preventBlur} onMouseUp={preventBlur}>
       {children}
     </div>
   );

@@ -14,33 +14,33 @@ import s from './save-cancel.css';
 
 type Props = {
   /** Additional className */
-  className?: string;
+  className?: string,
   /** Component tabindex value */
-  cancelTabIndex: string;
+  cancelTabIndex: string,
   /** Save button tabindex value */
-  saveTabIndex: string;
+  saveTabIndex: string,
   /** Cancel button label */
-  cancelLabel?: string;
+  cancelLabel?: string,
   /** If cancel button is disabled */
-  cancelDisabled?: boolean;
+  cancelDisabled?: boolean,
   /** Save button label */
-  saveLabel?: string;
+  saveLabel?: string,
   /** If save button is disabled */
-  saveDisabled?: boolean;
+  saveDisabled?: boolean,
   /** If provided, save button acts as a ButtonWithMenu - it provides additional actions in a menu */
   saveItems?: SaveComboItems,
   /** Callback called on save button click */
-  onSave?: (value: any) => void;
+  onSave?: (value: any) => void,
   /** Callback called on menu item click. Used when 'saveItems' is not empty  */
-  onSaveSelect?: (value: any) => void;
+  onSaveSelect?: (value: any) => void,
   /** Callback called on cancel button click */
-  onCancel?: (event: SyntheticEvent) => void;
+  onCancel?: (event: SyntheticEvent) => void,
   /** If to show loading animation */
-  isLoading?: boolean;
+  isLoading?: boolean,
   /** If true, wil set focus on Cancel button, otherwise do nothing */
-  focusCancel?: boolean;
+  focusCancel?: boolean,
   /** If true, wil set focus on Action button, otherwise do nothing */
-  focusAction?: boolean;
+  focusAction?: boolean,
 };
 
 /**
@@ -78,12 +78,7 @@ export default class SaveCancel extends Component {
   }
 
   get cancel() {
-    const {
-      cancelTabIndex,
-      onCancel,
-      cancelLabel,
-      cancelDisabled,
-    } = this.props;
+    const { cancelTabIndex, onCancel, cancelLabel, cancelDisabled } = this.props;
 
     return (
       <Button
@@ -100,16 +95,7 @@ export default class SaveCancel extends Component {
   }
 
   get primary() {
-    const {
-      saveTabIndex,
-      saveLabel,
-      saveItems,
-      saveDisabled,
-      onSave,
-      onSaveSelect,
-      isLoading,
-    } = this.props;
-
+    const { saveTabIndex, saveLabel, saveItems, saveDisabled, onSave, onSaveSelect, isLoading } = this.props;
 
     if (!isEmpty(saveItems)) {
       return (

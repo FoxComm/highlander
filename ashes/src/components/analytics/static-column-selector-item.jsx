@@ -15,7 +15,7 @@ type Props = {
   checked: boolean,
   id: any,
   text: string,
-}
+};
 
 export default class StaticColumnSelectorItem extends React.Component {
   props: Props;

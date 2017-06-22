@@ -10,7 +10,6 @@ import TabView from './tab';
 import TextInput from 'components/core/text-input';
 
 export default class EditableTabView extends React.Component {
-
   state = {
     editValue: this.props.defaultValue,
   };
@@ -33,7 +32,7 @@ export default class EditableTabView extends React.Component {
   };
 
   get className() {
-    return classnames({ '_editing': this.props.editMode });
+    return classnames({ _editing: this.props.editMode });
   }
 
   get dirtyState() {
@@ -51,9 +50,12 @@ export default class EditableTabView extends React.Component {
   cancelEdit(event) {
     this.preventAction(event);
 
-    this.setState({
-      editValue: this.props.defaultValue,
-    }, () => this.props.onEditNameCancel());
+    this.setState(
+      {
+        editValue: this.props.defaultValue,
+      },
+      () => this.props.onEditNameCancel()
+    );
   }
 
   get tabContent() {
@@ -71,10 +73,7 @@ export default class EditableTabView extends React.Component {
             value={this.state.editValue}
           />
           <div className="fc-editable-tab__content-close">
-            <a
-              onClick={this.cancelEdit}
-              onMouseDown={this.preventAction}
-              onMouseUp={this.preventAction}>
+            <a onClick={this.cancelEdit} onMouseDown={this.preventAction} onMouseUp={this.preventAction}>
               &times;
             </a>
           </div>

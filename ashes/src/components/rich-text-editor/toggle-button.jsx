@@ -34,7 +34,7 @@ export default class ToggleButton extends Component {
 
   render() {
     const className = classNames('fc-rich-text-editor__command-button', this.props.className, {
-      '_active': this.props.isActive,
+      _active: this.props.isActive,
     });
 
     return (
@@ -44,7 +44,8 @@ export default class ToggleButton extends Component {
         className={className}
         onClick={this.handleClick}
         onMouseDown={stop}
-        onMouseUp={stop}>
+        onMouseUp={stop}
+      >
         <Icon name={this.props.labelIcon} />
       </button>
     );
