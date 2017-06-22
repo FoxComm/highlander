@@ -1,13 +1,19 @@
 package phoenix.utils.seeds
 
+import cats._
+import cats.implicits._
+import core.db._
+import core.failures.NotFoundFailure404
 import phoenix.models.Reason
 import phoenix.models.Reason.{Cancellation, GiftCardCreation, StoreCreditCreation}
+import phoenix.models.account.{Organization, Organizations}
 import phoenix.models.cord.OrderPayment
 import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
+import slick.sql.SqlStreamingAction
 
 object Factories
     extends CustomerSeeds
@@ -87,6 +93,12 @@ object Factories
   def createSingleMerchantSystem(implicit ec: EC) =
     sql""" select bootstrap_single_merchant_system() """.as[Int]
 
-  def createSecondStageMerchant(implicit ec: EC) =
-    sql""" select bootstrap_demo_organization('merchant2', 'merchant2.com', 1, 1) """.as[Int]
+  def createSecondStageMerchant(implicit ec: EC): DbResultT[Vector[Int]] =
+    for {
+      parentOrg ← Organizations
+                   .filter(_.parentId.isEmpty)
+                   .mustFindOneOr(NotFoundFailure404(Organization, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      xs ← * <~ sql""" select bootstrap_demo_organization('merchant2', 'merchant2.com', ${parentOrg.id}, ${parentOrg.scopeId}) """
+            .as[Int]
+    } yield xs
 }

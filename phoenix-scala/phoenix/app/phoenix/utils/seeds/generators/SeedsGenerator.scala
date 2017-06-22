@@ -4,6 +4,7 @@ import core.db._
 import core.failures.NotFoundFailure404
 import faker.Faker
 import objectframework.models.ObjectContexts
+import phoenix.models.{Reason, Reasons}
 import phoenix.models.account._
 import phoenix.models.admin.{AdminData, AdminsData}
 import phoenix.models.coupon._
@@ -73,28 +74,31 @@ object SeedsGenerator
                     Account()
                   })
       accountCustomers = accountIds zip generatedCustomers
-      customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map {
-                     case (accountId, customer) ⇒
-                       customer.copy(accountId = accountId)
-                   })
-      customers ← * <~ Users.filter(_.id.inSet(customerIds)).result
+      customers ← * <~ Users.createAllReturningModels(accountCustomers.map {
+                   case (accountId, customer) ⇒
+                     customer.copy(accountId = accountId)
+                 })
       _ ← * <~ CustomersData.createAll(customers.map { c ⇒
            CustomerData(accountId = c.accountId, userId = c.id, scope = Scope.current)
          })
-      _            ← * <~ Addresses.createAll(generateAddresses(customers))
-      _            ← * <~ CreditCards.createAll(generateCreditCards(customers))
-      admin        ← * <~ AdminsData.take(1).mustFindOneOr(NotFoundFailure404(AdminData, "first"))
-      orderedGcs   ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCard(admin.accountId, context))
-      appeasements ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCardAppeasement)
-      giftCards    ← * <~ orderedGcs ++ appeasements
+      _     ← * <~ Addresses.createAll(generateAddresses(customers))
+      _     ← * <~ CreditCards.createAll(generateCreditCards(customers))
+      admin ← * <~ AdminsData.mustFindOneOr(NotFoundFailure404(AdminData, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      gcReason ← * <~ Reasons
+                  .filter(_.reasonType === (Reason.GiftCardCreation: Reason.ReasonType))
+                  .mustFindOneOr(NotFoundFailure404(Reason, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      orderedGcs ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCard(admin.accountId, gcReason, context))
+      appeasements ← * <~ (1 to appeasementCount).map(_ ⇒
+                      generateGiftCardAppeasement(admin.accountId, gcReason))
+      giftCards ← * <~ orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(1)
       promotions     ← * <~ generatePromotions(unsavedPromotions)
       unsavedCoupons ← * <~ makeCoupons(promotions.filter(_.applyType == Promotion.Coupon))
       coupons        ← * <~ generateCoupons(unsavedCoupons)
       unsavedCodes   ← * <~ makeCouponCodes(coupons)
       _              ← * <~ CouponCodes.createAll(unsavedCodes)
-      _ ← * <~ randomSubset(customerIds, customerIds.length).map { id ⇒
-           generateOrders(id, context, skuIds, pickOne(giftCards))
+      _ ← * <~ randomSubset(customers, customers.length).map { customer ⇒
+           generateOrders(customer.accountId, context, skuIds, pickOne(giftCards))
          }
     } yield {}
   }
