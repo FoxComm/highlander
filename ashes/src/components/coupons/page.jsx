@@ -89,14 +89,8 @@ class CouponPage extends ObjectPage {
       quantity: codesQuantity,
       length: Number(codesLength) + codesPrefix.length,
     };
-    if(!bulk) return {
-      ..._.omit(this.state.object,'generateCodes'),
-      singleCode,
-    };
-    return {
-      ..._.omit(this.state.object,'singleCode'),
-      generateCodes,
-    };
+    if (!bulk) return { ..._.omit(this.state.object,'generateCodes'), singleCode };
+    return { ..._.omit(this.state.object,'singleCode'), generateCodes };
   }
 
   save(): ?Promise<*> {
@@ -117,12 +111,11 @@ class CouponPage extends ObjectPage {
       if (bulk === true && this.props.actions.codeIsOfValidLength()) {
         this.props.actions.couponsGenerationShowDialog();
       }
-    })
+    });
   }
 
   @autobind
   saveBulk(): Promise<*> {
-    const { bulk } = this.props.details.codeGeneration;
     const willBeCoupon = super.save();
     return willBeCoupon;
   }
