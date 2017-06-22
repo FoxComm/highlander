@@ -22,6 +22,9 @@ const items = [{ value: 'One' }, { value: 'Two' }, { value: 'Three', displayText
   <div style={{ width: '200px', marginRight: '10px' }}>
     <TextDropdown items={[]} disabled placeholder="disabled" />
   </div>
-  <TextDropdown items={['One', 'Two', 'Three!']} stateless placeholder="Action" />
+  <div style={{ width: '200px', marginRight: '10px' }}>
+    <TextDropdown items={['One', 'Two', 'Three!']} stateless placeholder="Action" />
+  </div>
+  <TextDropdown placeholder="Empty" />
 </div>
 ```

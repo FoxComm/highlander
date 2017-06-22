@@ -19,8 +19,6 @@ type Props = {
   before?: Element<any> | string;
   /** Element which goes after the list */
   after?: Element<any> | string;
-  /** Element which is rendered instead of the list, when no items */
-  emptyMessage?: Element<any>;
   align?: 'left' | 'right'; // @todo
   /** Base element: list will try to stick around it. E.g. dropdown current value box.
    * Default value: previous sibling or parent. */
@@ -204,7 +202,7 @@ export default class SmartList extends Component {
   }
 
   renderItems() {
-    const { children, emptyMessage } = this.props;
+    const { children } = this.props;
 
     // @todo only one child
     return React.Children.map(children, (item, index) => {

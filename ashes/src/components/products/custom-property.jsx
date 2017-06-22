@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 // components
 import Modal from 'components/core/modal';
-import { Dropdown } from 'components/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import { FormField } from 'components/forms';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/core/text-input';
@@ -112,8 +112,7 @@ export default class CustomProperty extends Component<void, Props, State> {
           label="Field Type"
           labelClassName="fc-product-details__field-label"
         >
-          <Dropdown
-            id="fct-field-type-dd"
+          <TextDropdown
             className={s.dropdown}
             name="type"
             value={this.state.propertyType}

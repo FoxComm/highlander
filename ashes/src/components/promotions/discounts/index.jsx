@@ -1,7 +1,11 @@
+// @todo this file not used anywhere
+
+!@#$%^&*()_+
+
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import { Dropdown } from '../../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 
 import Currency from 'components/utils/currency';
 import Counter from './counter';
@@ -136,7 +140,7 @@ export default class Discounts extends Component {
   @autobind
   renderDiscount() {
     return (
-      <Dropdown
+      <TextDropdown
         className="autowidth_dd"
         items={DISCOUNT_TYPES}
         value={this.qualifier.discountType}
@@ -149,8 +153,9 @@ export default class Discounts extends Component {
   renderQualifier() {
     let discountType = this.qualifier.discountType;
     let items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
+
     return (
-      <Dropdown
+      <TextDropdown
         className="autowidth_dd"
         items={items}
         value={this.qualifier.qualifierType}
@@ -252,7 +257,7 @@ export default class Discounts extends Component {
             onChange={this.toggleExGiftCardOffer}
           />
         </FormField>
-        <Dropdown
+        <TextDropdown
           className="autowidth_dd"
           items={OFFER_TYPES}
           value={this.offer.offerType}

@@ -15,7 +15,7 @@ import { transitionTo, transitionToLazy } from 'browserHistory';
 import { PageTitle } from '../../section-title';
 import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
-import Dropdown from '../../dropdown/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import Currency from 'components/utils/currency';
 import SaveCancel from 'components/core/save-cancel';
 import TextInput from 'components/core/text-input';
@@ -151,12 +151,12 @@ export default class NewStoreCredit extends React.Component {
           </label>
         </div>
         <div>
-          <Dropdown id="scTypeId"
-                    name="type"
-                    items={this.scTypes}
-                    placeholder="- Select -"
-                    value={this.props.form.type}
-                    onChange={this.changeScType} />
+          <TextDropdown
+            name="type"
+            items={this.scTypes}
+            value={this.props.form.type}
+            onChange={this.changeScType}
+          />
         </div>
         {this.storeCreditTypeError}
       </li>
@@ -200,7 +200,7 @@ export default class NewStoreCredit extends React.Component {
     const { form, changeScFormData } = this.props;
 
     return (
-      <Form className="fc-store-credit-form fc-form-vertical"
+      <Form className="fc-store-credit-form fc-form-vertical dima"
             onChange={this.onChangeValue}
             onSubmit={this.submitCreateStoreCredit}>
         <div className="fc-grid">
@@ -246,12 +246,12 @@ export default class NewStoreCredit extends React.Component {
               </label>
             </div>
             <div>
-              <Dropdown id="subReasonIdField"
-                        name="subReasonId"
-                        items={this.scSubtypes}
-                        placeholder="- Select -"
-                        value={form.subTypeId}
-                        onChange={(value) => changeScFormData('subTypeId', value)} />
+              <TextDropdown
+                name="subReasonId"
+                items={this.scSubtypes}
+                value={form.subTypeId}
+                onChange={(value) => changeScFormData('subTypeId', value)}
+              />
             </div>
           </div>
         </div>
@@ -335,6 +335,8 @@ export default class NewStoreCredit extends React.Component {
     const form = this.props.form.type === 'giftCardTransfer'
       ? this.giftCardConvertForm
       : this.storeCreditForm;
+
+      console.log('this.props.form.type', this.props.form.type);
 
     return (
       <div className="fc-store-credits-new">

@@ -3,6 +3,7 @@
 .block {
   position: relative;
   font: var(--font-labels);
+  text-align: left; /* in case if dropdown in centered stuff, e.g. Order State */
 
   &.open {
     z-index: 1;
@@ -29,6 +30,9 @@
 .displayText {
   flex: 1 1 auto;
   margin-right: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   .placeholder & {
     color: var(--color-additional-text);
@@ -44,11 +48,16 @@
 .item {
   padding: 12px 20px;
   background-color: white;
-  cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font: var(--font-nav);
+  cursor: default;
+
+  .block:not(.empty) &:hover {
+    background-color: var(--bg-grey-headers);
+    cursor: pointer;
+  }
 }
 
 .toggleBtn {

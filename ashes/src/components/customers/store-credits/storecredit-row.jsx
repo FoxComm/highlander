@@ -10,7 +10,7 @@ import MultiSelectRow from 'components/table/multi-select-row';
 import Initials from 'components/user-initials/initials';
 import OriginType from 'components/common/origin-type';
 import State from 'components/common/state';
-import Dropdown from 'components/dropdown/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 
 const activeStateTransitions = [
   ['onHold', 'On Hold'],
@@ -44,7 +44,7 @@ const StoreCreditRow = (props: Props) => {
     switch(rowState) {
       case 'active':
         return (
-          <Dropdown
+          <TextDropdown
             name="state"
             className="fc-store-credits__status-dropdown"
             items={ activeStateTransitions }
@@ -52,11 +52,12 @@ const StoreCreditRow = (props: Props) => {
             value={ rowState }
             detached={true}
             onChange={(value) => changeState(rowId, value)}
+            stateless
           />
         );
       case 'onHold':
         return (
-          <Dropdown
+          <TextDropdown
             name="state"
             className="fc-store-credits__status-dropdown"
             items={ onHoldStateTransitions }
@@ -64,6 +65,7 @@ const StoreCreditRow = (props: Props) => {
             value={ rowState }
             detached={true}
             onChange={(value) => changeState(rowId, value)}
+            stateless
           />
         );
       default:

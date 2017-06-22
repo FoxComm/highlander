@@ -25,11 +25,11 @@ type Props = {
   identifier: string,
   actionButtonText?: string,
   dropdownTitle?: string,
-}
+};
 
 type State = {
   selectedColumns: Array<Object>,
-}
+};
 
 export default class StaticColumnSelector extends React.Component {
 

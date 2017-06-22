@@ -8,7 +8,7 @@ import { trackEvent } from 'lib/analytics';
 import { allowedStateTransitions } from '../../paragons/order';
 
 // components
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import RemorseTimer from './remorseTimer';
 import { DateTime } from '../common/datetime';
 import { PanelList, PanelListItem } from '../panel/panel-list';
@@ -157,7 +157,7 @@ export default class Order extends React.Component {
     });
   }
 
-  get orderStateDropdown(): Element<StateComponent|Dropdown> {
+  get orderStateDropdown(): Element<StateComponent|TextDropdown> {
     const order = this.order;
     const claims = getClaims();
 
@@ -182,21 +182,13 @@ export default class Order extends React.Component {
     });
 
     return (
-      <Dropdown
-        id="fct-order-state-dd"
-        dropdownValueId="fct-order-state__value"
+      <TextDropdown
         name="orderState"
         items={_.map(visibleAndSortedOrderStates, state => [state, states.order[state]])}
-        placeholder={'Order state'}
+        placeholder="Order state"
         value={order.orderState}
         onChange={this.onStateChange}
-        changeable={false}
-        renderNullTitle={(value, placeholder) => {
-          if (value in states.order) {
-            return states.order[value];
-          }
-          return placeholder;
-        }}
+        stateless
       />
     );
   }

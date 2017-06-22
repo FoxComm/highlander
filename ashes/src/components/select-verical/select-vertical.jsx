@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { assoc, dissoc } from 'sprout-data';
 
 // components
-import Dropdown from '../dropdown/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import { Button } from 'components/core/button';
 import Icon from 'components/core/icon';
 
@@ -120,7 +120,7 @@ export default class SelectVertical extends Component {
 
     return (
       <div className="fc-vmultiselect-cont" key={key}>
-        <Dropdown
+        <TextDropdown
           items={curItems}
           value={selectedValue}
           placeholder={props.placeholder}

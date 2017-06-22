@@ -10,7 +10,7 @@ import { bindActionCreators } from 'redux';
 import styles from './select-products.css';
 
 import SelectVertical from '../../select-verical/select-vertical';
-import { Dropdown } from '../../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 
 import { actions } from '../../../modules/products/list';
 import type { Context } from '../types';
@@ -103,7 +103,7 @@ class ProductsQualifier extends Component {
       const initialValue = references.length && references[0].productSearchId || void 0;
 
       return (
-        <Dropdown
+        <TextDropdown
           className="select-product-search-dd"
           styleName="wide-dropdown"
           value={initialValue}
@@ -156,11 +156,12 @@ class ProductsQualifier extends Component {
     return (
       <div styleName="products">
         <strong styleName="label">{this.props.label}</strong>
-        <Dropdown className="modifier-dd"
-                  styleName="mode-dropdown"
-                  value={this.state.selectMode}
-                  onChange={this.handleChangeSelectMode}
-                  items={SELECT_PRODUCT_ITEMS}
+        <TextDropdown
+          className="modifier-dd"
+          styleName="mode-dropdown"
+          value={this.state.selectMode}
+          onChange={this.handleChangeSelectMode}
+          items={SELECT_PRODUCT_ITEMS}
         />
         {this.productReferences}
       </div>

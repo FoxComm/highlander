@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // components
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import ContentBox from '../content-box/content-box';
 import ConfirmationModal from 'components/core/confirmation-modal';
 
@@ -76,11 +76,12 @@ class AccountState extends Component {
     return (
       <div>
         <ContentBox title="Account State">
-          <Dropdown value={this.props.currentValue}
-                    onChange={(value) => this.handleDropdownChange(value)}
-                    disabled={this.props.disabled}
-                    items={SELECT_STATE}
-                    changeable={false}
+          <TextDropdown
+            value={this.props.currentValue}
+            onChange={(value) => this.handleDropdownChange(value)}
+            disabled={this.props.disabled}
+            items={SELECT_STATE}
+            stateless
           />
         </ContentBox>
         <ConfirmationModal

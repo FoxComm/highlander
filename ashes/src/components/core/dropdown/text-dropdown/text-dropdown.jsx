@@ -23,10 +23,12 @@ type Props = {
   /** An array of all possible values which will be in a list */
   // $FlowFixMe
   items: Array<Item | InternalItem | string>,
+  /** Message to be shown when no items */
+  emptyMessage: string,
   /** Input name which will be used by form */
   name: string, // input name
   /** Input value */
-  value: string, // input value
+  value: string | number | null, // input value
   /** Text which is visible when no value */
   placeholder: string,
   /** Additional root className */
@@ -59,6 +61,7 @@ export default class TextDropdown extends Component {
     name: '',
     value: '',
     placeholder: '- Select -',
+    emptyMessage: '- Empty -',
     disabled: false,
     detached: false,
     onChange: () => {},
@@ -68,13 +71,19 @@ export default class TextDropdown extends Component {
 
   state: State = {
     open: false,
-    selectedValue: this.props.value,
+    selectedValue: this.getValue(this.props.value),
   };
+
+  _pivot: HTMLElement;
 
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.value !== this.props.value) {
-      this.setState({ selectedValue: nextProps.value });
+      this.setState({ selectedValue: this.getValue(nextProps.value) });
     }
+  }
+
+  getValue(value: any) {
+    return value ? String(value) : '';
   }
 
   @autobind
@@ -131,15 +140,25 @@ export default class TextDropdown extends Component {
   }
 
   renderItems() {
-    const { detached } = this.props;
+    const { detached, emptyMessage } = this.props;
+    let list = this.items.map(item => (
+      <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
+        {item.displayText || item.value}
+      </div>
+    ));
+
+    if (!this.items.length) {
+      list = <div className={s.item}>{emptyMessage}</div>;
+    }
 
     return (
-      <SmartList className={s.menu} onEsc={() => this.closeMenu()} detached={detached}>
-        {this.items.map(item => (
-          <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
-            {item.displayText || item.value}
-          </div>
-        ))}
+      <SmartList
+        className={s.menu}
+        onEsc={() => this.closeMenu()}
+        detached={detached}
+        pivot={this._pivot}
+      >
+        {list}
       </SmartList>
     );
   }
@@ -158,12 +177,13 @@ export default class TextDropdown extends Component {
     const cls = classNames(s.block, className, {
       [s.disabled]: disabled,
       [s.open]: open,
+      [s.empty]: !this.items.length
     });
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
 
     return (
       <div className={cls} tabIndex="0">
-        <div className={s.pivot} onClick={this.handleToggleClick}>
+        <div className={s.pivot} ref={p => this._pivot = p} onClick={this.handleToggleClick}>
           <div className={s.displayText}>{this.displayText}</div>
           <Icon name={arrow} />
           <input type="hidden" name={name} value={this.state.selectedValue} />

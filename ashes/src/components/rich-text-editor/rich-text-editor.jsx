@@ -13,7 +13,7 @@ import { stateToMarkdown } from 'draft-js-export-markdown';
 
 // components
 import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draft-js';
-import { Dropdown } from '../dropdown';
+import { Dropdown } from '../dropdown'; // @todo replace with personal dropdown
 import ToggleButton from './toggle-button';
 import s from './rich-text-editor.css';
 import Icon from 'components/core/icon';

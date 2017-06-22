@@ -11,7 +11,7 @@ import criterions, { getCriterion, getOperators, getWidget } from 'paragons/cust
 import { prefix } from 'lib/text-utils';
 
 //components
-import { Dropdown } from 'components/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import Icon from 'components/core/icon';
 
 const prefixed = prefix('fc-customer-group-builder');
@@ -30,7 +30,7 @@ class Criterion extends Component {
 
     return (
       <div className={classNames('fc-grid', prefixed('criterion'))}>
-        <Dropdown
+        <TextDropdown
           items={fields}
           className={prefixed('field')}
           placeholder="- Select criteria -"
@@ -53,7 +53,7 @@ const renderOperator = (criterion, operator, changeOperator) => {
   const operators = _.map(getOperators(criterion), (label, operator) => [operator, label]);
 
   return (
-    <Dropdown
+    <TextDropdown
       items={operators}
       className={prefixed('operator')}
       placeholder="- Select operator -"

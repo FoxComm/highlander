@@ -5,7 +5,7 @@ import React from 'react';
 
 import Content from 'components/core/content/content';
 import ContentBox from 'components/content-box/content-box';
-import { Dropdown } from 'components/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import Alert from 'components/core/alert';
 import Form from 'components/forms/form';
 import TextInput from 'components/core/text-input';
@@ -34,7 +34,7 @@ const CatalogDetails = (props: Props) => {
   const country = _.find(countries, { id: countryId });
 
   let languages = _.get(country, 'languages', []);
-  if (_.indexOf('en') == -1) {
+  if (languages.indexOf('en') == -1) {
     languages = ['en', ...languages];
   }
 
@@ -53,16 +53,24 @@ const CatalogDetails = (props: Props) => {
             <VerticalFormField controlId="site" label="Site URL">
               <TextInput onChange={v => onChange('site', v)} value={site} />
             </VerticalFormField>
-            <VerticalFormField controlId="countryId" label="Country" required>
-              <Dropdown
+            <VerticalFormField
+              controlId="countryId"
+              label="Country"
+              required
+            >
+              <TextDropdown
                 name="countryId"
                 value={countryId}
                 items={countryItems}
                 onChange={c => onChange('countryId', c)}
               />
             </VerticalFormField>
-            <VerticalFormField controlId="defaultLanguage" label="Default Language" required>
-              <Dropdown
+            <VerticalFormField
+              controlId="defaultLanguage"
+              label="Default Language"
+              required
+            >
+              <TextDropdown
                 name="defaultLanguage"
                 value={defaultLanguage}
                 items={languageItems}

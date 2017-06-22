@@ -79,14 +79,13 @@ export default class BodyPortal extends Component {
 
     this.updateStyle();
 
-    const componentNode = ReactDOM.unstable_renderSubtreeIntoContainer(
+    ReactDOM.unstable_renderSubtreeIntoContainer(
       this,
-      Children.only(this.props.children),
+      <div>{this.props.children}</div>,
       this._target
     );
-    const domNode = ReactDOM.findDOMNode(componentNode);
 
-    this.props.getRef(domNode);
+    this.props.getRef(this._target);
   }
 
   render() {

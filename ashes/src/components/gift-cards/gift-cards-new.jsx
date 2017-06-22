@@ -12,7 +12,7 @@ import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
 import Counter from 'components/core/counter';
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import { Form } from '../forms';
 import SaveCancel from 'components/core/save-cancel';
 import CurrencyInput from '../forms/currency-input';
@@ -137,11 +137,10 @@ export default class NewGiftCard extends React.Component {
       return (
         <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
           <label className="fc-new-gift-card__label" htmlFor="subTypeId">Subtype</label>
-          <Dropdown
-            id="gift-card-subtype-dd"
+          <TextDropdown
             value={`${props.subTypeId}`}
             onChange={value => props.changeFormData('subTypeId', Number(value))}
-            items={props.subTypes.map(subType => [subType.id, subType.title])}
+            items={props.subTypes.map(subType =>[subType.id, subType.title])}
           />
         </div>
       );
@@ -171,8 +170,7 @@ export default class NewGiftCard extends React.Component {
           <div className="fc-grid fc-grid-no-gutter fc-new-gift-card__fieldset">
             <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label className="fc-new-gift-card__label" htmlFor="originType">Gift Card Type</label>
-              <Dropdown
-                id="fct-gift-card-type-dd"
+              <TextDropdown
                 value={originType}
                 onChange={value => changeFormData('originType', value)}
                 items={types.map((entry, idx) => [entry.originType, typeTitles[entry.originType]])}

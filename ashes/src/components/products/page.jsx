@@ -17,7 +17,7 @@ import { transitionTo } from 'browserHistory';
 // components
 import SubNav from './sub-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import { Button } from 'components/core/button';
 import s from './page.css';
 
@@ -122,7 +122,7 @@ class ProductPage extends ObjectPage {
   get selectContextDropdown() {
     if (this.props.selectContextAvailable) {
       return (
-        <Dropdown
+        <TextDropdown
           onChange={this.handleContextChange}
           value={this.entityContext}
           items={SELECT_CONTEXT}

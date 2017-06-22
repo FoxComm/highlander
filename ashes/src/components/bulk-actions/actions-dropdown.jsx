@@ -4,7 +4,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // components
-import { Dropdown } from '../dropdown';
 import { TextDropdown } from 'components/core/dropdown';
 
 // styles

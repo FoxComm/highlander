@@ -5,7 +5,7 @@ import React from 'react';
 import styles from './attrs-edit.css';
 
 import * as widgets from './widgets';
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 
 import type { ItemDesc, DiscountRow, DescriptionType, Context } from './types';
 
@@ -14,8 +14,7 @@ const renderers = {
     const typeItems = _.map(context.root, entry => [entry.type, entry.title]);
 
     return (
-      <Dropdown
-        id={dropdownId}
+      <TextDropdown
         styleName="type-chooser"
         items={typeItems}
         value={context.type}

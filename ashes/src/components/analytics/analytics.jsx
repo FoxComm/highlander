@@ -15,7 +15,7 @@ import type { Props as QuestionBoxType } from './question-box';
 import Currency from 'components/utils/currency';
 import TrendButton, { TrendType } from './trend-button';
 import StaticColumnSelector from './static-column-selector';
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import ProductConversionChart from './charts/product-conversion-chart';
 import TotalRevenueChart, { ChartSegmentType } from './charts/total-revenue-chart';
 import SegmentControlList from './segment-control-list';
@@ -593,17 +593,13 @@ export class Analytics extends React.Component {
 
           return (
             <div>
-              <Dropdown
+              <TextDropdown
                 styleName="comparison-period-filter-date-picker"
                 name="dateControl"
                 items={_.map(comparisonPeriodOptions, ({ id, displayText }) => [id, displayText])}
                 placeholder="Comparison Period"
-                changeable={true}
                 onChange={this.onComparisonPeriodChange}
                 value={comparisonPeriod.dateDisplay}
-                renderNullTitle={(value, placeholder) => {
-                  return _.isNil(value) ? placeholder : value;
-                }}
               />
               <ActionBlock
                 onActionClick={this.onRemoveComparison}
@@ -629,17 +625,13 @@ export class Analytics extends React.Component {
     return (
       <div>
         <div styleName="analytics-filters">
-          <Dropdown
+          <TextDropdown
             styleName="analytics-filter-date-picker"
             name="dateControl"
             items={_.map(datePickerOptions, ({ id, displayText }) => [id, displayText])}
             placeholder={`${moment().format(datePickerFormat)}`}
-            changeable={true}
             onChange={this.onDatePickerChange}
             value={dateDisplay}
-            renderNullTitle={(value, placeholder) => {
-              return _.isNull(value) ? placeholder : value;
-            }}
           />
           <StaticColumnSelector
             setColumns={null}
