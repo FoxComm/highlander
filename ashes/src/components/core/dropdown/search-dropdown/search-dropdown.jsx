@@ -30,6 +30,8 @@ type Props = {
   name: string, // input name
   /** Input value */
   value: string | number | null, // input value
+  /** Initial display text to be shown (if no renderItem defined) */
+  displayText: string,
   /** Text which is visible when no value */
   placeholder: string,
   /** Placeholder for search input */
@@ -44,11 +46,14 @@ type Props = {
   onChange: Function,
   /** Callback for token change (fetching new results for the list) */
   fetch: (token: string) => Promise<any>,
+  /** For custom layout of each item */
+  renderItem?: Function,
 };
 
 type State = {
   open: boolean, // show or hide the menu
   selectedValue: string, // current selected value of menu
+  displayText: string,
   items: Array<InternalItem>,
   isLoading: boolean,
 };
@@ -65,6 +70,7 @@ export default class SearchDropdown extends Component {
   static defaultProps = {
     name: '',
     value: '',
+    displayText: '',
     placeholder: '- Select -',
     searchbarPlaceholder: 'Start to type...',
     disabled: false,
@@ -76,18 +82,13 @@ export default class SearchDropdown extends Component {
   state: State = {
     open: false,
     selectedValue: this.getValue(this.props.value),
+    displayText: this.props.displayText,
     items: this.unifyItems(this.props.items),
     isLoading: false,
   };
 
   _pivot: HTMLElement;
   _input: Element;
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.value !== this.props.value) {
-      this.setState({ selectedValue: this.getValue(nextProps.value) });
-    }
-  }
 
   componentDidUpdate(prevProps, prevState) {
     const input = ReactDOM.findDOMNode(this._input);
@@ -113,31 +114,22 @@ export default class SearchDropdown extends Component {
   }
 
   handleItemClick(item: InternalItem) {
-    const { stateless } = this.props;
-    let nextState = { open: false, selectedValue: this.state.selectedValue };
+    const nextState = {
+      open: false,
+      selectedValue: item.value,
+      displayText: item.displayText || item.value,
+    };
 
     if (item.value !== this.state.selectedValue) {
-      if (!stateless) {
-        nextState.selectedValue = item.value;
-      }
-
       this.props.onChange(item.value);
+      this.setState(nextState);
     }
-
-    this.setState(nextState);
   }
 
   toggleMenu(nextOpen: ?boolean) {
     const open = nextOpen != null ? nextOpen : !this.state.open;
 
     this.setState({ open });
-  }
-
-  get displayText(): string {
-    const { placeholder } = this.props;
-    const item = _.find(this.state.items, item => item.value == this.state.selectedValue); // could be number == string
-
-    return (item && item.displayText) || this.state.selectedValue || placeholder;
   }
 
   unifyItems(dirtyItems): Array<InternalItem> {
@@ -191,11 +183,19 @@ export default class SearchDropdown extends Component {
   }
 
   renderItems() {
-    let content = this.state.items.map(item =>
-      <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
-        {item.displayText || item.value}
-      </div>
-    );
+    let content = this.state.items.map(item => {
+      let itemContent = item.displayText || item.value;
+
+      if (this.props.renderItem) {
+        itemContent = this.props.renderItem(item.value);
+      }
+
+      return (
+        <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
+          {itemContent}
+        </div>
+      );
+    });
 
     if (!content.length && this.state.isLoading) {
       content = <Spinner className={s.spinner} />;
@@ -222,7 +222,7 @@ export default class SearchDropdown extends Component {
   }
 
   render() {
-    const { disabled, name, placeholder, className } = this.props;
+    const { disabled, name, placeholder, className, renderItem } = this.props;
     const { items, selectedValue, open } = this.state;
     const cls = classNames(s.block, className, {
       [s.disabled]: disabled,
@@ -230,11 +230,16 @@ export default class SearchDropdown extends Component {
       [s.empty]: !items.length,
     });
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
+    let displayText = this.state.displayText;
+
+    if (renderItem && this.state.selectedValue) {
+      displayText = renderItem(this.state.selectedValue);
+    }
 
     return (
-      <div className={cls} tabIndex="0">
+      <div className={cls}>
         <div className={s.pivot} ref={p => (this._pivot = p)} onClick={this.handleToggleClick}>
-          <div className={s.displayText}>{this.displayText}</div>
+          <div className={s.displayText}>{displayText || this.state.selectedValue || placeholder}</div>
           <Icon name={arrow} />
           <input type="hidden" name={name} value={this.state.selectedValue} />
         </div>

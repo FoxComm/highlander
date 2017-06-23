@@ -211,6 +211,7 @@ export default class SmartList extends Component {
     const { children } = this.props;
 
     // @todo only one child
+    // @todo if some child is null, it fails
     return React.Children.map(children, (item, index) => {
       const props: any = {
         className: classNames(item.props.className, s.item, { [s.active]: index === this.state.pointedValueIndex }),

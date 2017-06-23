@@ -10,7 +10,7 @@ import s from './dropdown-item.css';
 
 type ItemProps = {
   onSelect?: Function,
-  value: number|string|boolean,
+  value: number | string | boolean,
   children?: Element<any>,
   className?: string,
   isHidden?: boolean,
@@ -18,6 +18,7 @@ type ItemProps = {
 
 const DropdownItem = ({ children, className = '', isHidden = false, value, onSelect = noop }: ItemProps) => {
   const handleClick = event => {
+    debugger;
     event.preventDefault();
     onSelect(value, children);
   };

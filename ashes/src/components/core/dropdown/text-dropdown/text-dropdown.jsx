@@ -175,7 +175,7 @@ export default class TextDropdown extends Component {
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
 
     return (
-      <div className={cls} tabIndex="0">
+      <div className={cls}>
         <div className={s.pivot} ref={p => (this._pivot = p)} onClick={this.handleToggleClick}>
           <div className={s.displayText}>{this.displayText}</div>
           <Icon name={arrow} />
