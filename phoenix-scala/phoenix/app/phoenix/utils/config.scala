@@ -10,8 +10,8 @@ import pureconfig._
 import shapeless._
 import scala.reflect._
 import scala.util.{Failure, Success, Try}
-
 import phoenix.libs.oauth.{FacebookOauthOptions, GoogleOauthOptions, OauthClientOptions}
+import scala.concurrent.duration.FiniteDuration
 
 sealed trait Environment {
   def isProd: Boolean = false
@@ -96,7 +96,7 @@ object FoxConfig extends StrictLogging {
   case class AWS(accessKey: String, secretKey: String, s3Bucket: String, s3Region: String)
   case class ESConfig(host: String, cluster: String, index: String)
   case class MWH(url: String)
-  case class Stripe(key: String)
+  case class Stripe(key: String, timeout: FiniteDuration)
   case class Kafka(schemaRegistryURL: String,
                    bootStrapServersConfig: String,
                    producerTimeout: String,
