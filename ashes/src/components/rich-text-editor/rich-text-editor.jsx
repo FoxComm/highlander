@@ -13,7 +13,7 @@ import { stateToMarkdown } from 'draft-js-export-markdown';
 
 // components
 import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draft-js';
-import { Dropdown } from '../dropdown'; // @todo replace with personal dropdown
+import FontDropdown from './font-dropdown';
 import ToggleButton from './toggle-button';
 import s from './rich-text-editor.css';
 import Icon from 'components/core/icon';
@@ -138,15 +138,13 @@ export default class RichTextEditor extends Component {
     const blockType = editorState.getCurrentContent().getBlockForKey(selection.getStartKey()).getType();
 
     return (
-      <div className={classNames('fc-rich-text-editor__command-set', s.set)} key="header-buttons">
-        <Dropdown
-          className="fc-rich-text-editor__command-headers"
-          placeholder={<Icon name="size" />}
-          onChange={this.handleBlockTypeChange}
-          value={blockType}
-          items={headerStyles.map(t => [t.value, t.label])}
-        />
-      </div>
+      <FontDropdown
+        key="header-buttons"
+        className={s.set}
+        onChange={this.handleBlockTypeChange}
+        value={blockType}
+        items={headerStyles.map(t => [t.value, t.label])}
+      />
     );
   }
 
@@ -271,7 +269,7 @@ export default class RichTextEditor extends Component {
       );
     });
 
-    return <div className={classNames('fc-rich-text-editor__command-set', s.set)} {...props}>{buttons}</div>;
+    return <div className={s.set} {...props}>{buttons}</div>;
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -293,7 +291,7 @@ export default class RichTextEditor extends Component {
       <div className={className}>
         {this.props.label && <div className="fc-rich-text-editor__label">{this.props.label}</div>}
         <div className="fc-rich-text-editor__command-bar">
-          <div className="fc-rich-text-editor__main-commands">
+          <div className={s.commands}>
             {this.commandBarContent}
           </div>
           <div>

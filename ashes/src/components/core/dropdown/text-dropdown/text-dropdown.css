@@ -4,6 +4,7 @@
   position: relative;
   font: var(--font-labels);
   text-align: left; /* in case if dropdown in centered stuff, e.g. Order State */
+  user-select: none;
 
   &.open {
     z-index: 1;

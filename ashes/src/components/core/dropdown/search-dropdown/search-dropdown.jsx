@@ -24,13 +24,13 @@ type Item = [string, string];
 
 type Props = {
   /** An array of initial values which will be in a list */
-  items: Array<Item | InternalItem | string>,
+  initialItems: Array<Item | InternalItem | string>,
   /** Input name which will be used by form */
   name: string, // input name
   /** Input value */
-  value: string | number | null, // input value
+  initialValue: string | number | null, // input value
   /** Initial display text to be shown (if no renderItem defined) */
-  displayText: string,
+  initialDisplayText: string,
   /** Text which is visible when no value */
   placeholder: string,
   /** Placeholder for search input */
@@ -57,30 +57,30 @@ type State = {
 };
 
 /**
- * Search Dropdown component.
- * This component is for fetching and rendering fetched results as a list.
- * There are initial value, displayText and items, but after mounting component handle these values internaly.
+ * This component is for fetching and rendering fetched results as a list of simple or user defined blocks.
+ * It is possible to define some initials: value, displayText and items.
+ * But after mounting component handle these values monopoly via state.
  */
 export default class SearchDropdown extends Component {
   props: Props;
 
   static defaultProps = {
     name: '',
-    value: '',
-    displayText: '',
+    initialValue: '',
+    initialDisplayText: '',
     placeholder: '- Select -',
     searchbarPlaceholder: 'Start to type...',
     disabled: false,
     onChange: () => {},
-    items: [],
+    initialItems: [],
   };
 
   state: State = {
     open: false,
-    selectedValue: this.getValue(this.props.value),
-    displayText: this.getDisplayText(this.props.items),
+    selectedValue: this.getValue(this.props.initialValue),
+    displayText: this.getDisplayText(this.props.initialItems),
     token: '',
-    items: this.unifyItems(this.props.items),
+    items: this.unifyItems(this.props.initialItems),
     isLoading: false,
   };
 
@@ -101,10 +101,10 @@ export default class SearchDropdown extends Component {
 
   getDisplayText(dirtyItems: Array<any>): string {
     const items = this.unifyItems(dirtyItems);
-    const value = this.getValue(this.props.value);
+    const value = this.getValue(this.props.initialValue);
     const item = items.find(item => item.value === value);
 
-    return item ? item.displayText : this.props.displayText;
+    return item ? item.displayText : this.props.initialDisplayText;
   }
 
   @autobind
@@ -153,8 +153,15 @@ export default class SearchDropdown extends Component {
 
   @debounce(400)
   fetch(token: string) {
-    this.props
-      .fetch(token)
+    let promise;
+
+    if (token) {
+      promise = this.props.fetch(token);
+    } else {
+      promise = Promise.resolve({ items: [], token });
+    }
+
+    promise
       .then(data => {
         if (data.token === token) {
           this.setState({ items: this.unifyItems(data.items), isLoading: false });
@@ -164,14 +171,8 @@ export default class SearchDropdown extends Component {
   }
 
   onTokenChange(token: string) {
-    this.setState({ token });
-
-    if (!token) {
-      this.setState({ items: [], isLoading: false });
-    } else {
-      this.setState({ isLoading: true });
-      this.fetch(token);
-    }
+    this.setState({ token, isLoading: true });
+    this.fetch(token);
   }
 
   renderSearchBar() {

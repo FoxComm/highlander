@@ -1,3 +1,10 @@
 .set {
   display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+}
+
+.commands {
+  display: flex;
+  flex: 1 1 auto;
 }

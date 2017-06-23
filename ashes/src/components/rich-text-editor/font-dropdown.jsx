@@ -10,7 +10,7 @@ import Icon from 'components/core/icon';
 import { SmartList } from 'components/core/dropdown';
 
 // styles
-import s from './text-dropdown.css';
+import s from './font-dropdown.css';
 
 type InternalItem = {
   value: string,
@@ -23,22 +23,12 @@ type Props = {
   /** An array of all possible values which will be in a list */
   // $FlowFixMe
   items: Array<Item | InternalItem | string>,
-  /** Input name which will be used by form */
-  name: string, // input name
   /** Input value */
   value: string | number | null, // input value
-  /** Text which is visible when no value */
-  placeholder: string,
-  /** Message to be shown when no items */
-  emptyMessage: string,
   /** Additional root className */
   className?: string,
   /** If true, you cant open dropdown or change its value from UI */
   disabled: boolean,
-  /** Goes to `bodyPortal`, e.g. case with overflow `/customers/10/storecredit` */
-  detached: boolean,
-  /** If true, the component can change its value only via props */
-  stateless: boolean,
   /** Callback which fires when the value has been changes */
   onChange: Function,
 };
@@ -57,14 +47,9 @@ export default class TextDropdown extends Component {
   props: Props;
 
   static defaultProps = {
-    name: '',
     value: '',
-    placeholder: '- Select -',
-    emptyMessage: '- Empty -',
     disabled: false,
-    detached: false,
     onChange: () => {},
-    stateless: false,
     items: [],
   };
 
@@ -97,13 +82,10 @@ export default class TextDropdown extends Component {
   }
 
   handleItemClick(item: InternalItem) {
-    const { stateless } = this.props;
     let nextState = { open: false, selectedValue: this.state.selectedValue };
 
     if (item.value !== this.state.selectedValue) {
-      if (!stateless) {
-        nextState.selectedValue = item.value;
-      }
+      nextState.selectedValue = item.value;
 
       this.props.onChange(item.value);
     }
@@ -118,10 +100,9 @@ export default class TextDropdown extends Component {
   }
 
   get displayText(): string {
-    const { placeholder } = this.props;
     const item = _.find(this.items, item => item.value == this.state.selectedValue); // could be number == string
 
-    return (item && item.displayText) || this.state.selectedValue || placeholder;
+    return (item && item.displayText) || this.state.selectedValue;
   }
 
   get items(): Array<InternalItem> {
@@ -137,19 +118,14 @@ export default class TextDropdown extends Component {
   }
 
   renderItems() {
-    const { detached, emptyMessage } = this.props;
     let list = this.items.map(item =>
       <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
         {item.displayText || item.value}
       </div>
     );
 
-    if (!this.items.length) {
-      list = <div className={s.item}>{emptyMessage}</div>;
-    }
-
     return (
-      <SmartList className={s.menu} onEsc={() => this.toggleMenu(false)} detached={detached} pivot={this._pivot}>
+      <SmartList className={s.menu} onEsc={() => this.toggleMenu(false)} pivot={this._pivot}>
         {list}
       </SmartList>
     );
@@ -164,12 +140,11 @@ export default class TextDropdown extends Component {
   }
 
   render() {
-    const { disabled, name, className } = this.props;
-    const { selectedValue, open } = this.state;
+    const { disabled, className } = this.props;
+    const { open } = this.state;
     const cls = classNames(s.block, className, {
       [s.disabled]: disabled,
       [s.open]: open,
-      [s.empty]: !this.items.length,
     });
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
 
@@ -178,7 +153,6 @@ export default class TextDropdown extends Component {
         <div className={s.pivot} ref={p => (this._pivot = p)} onClick={this.handleToggleClick}>
           <div className={s.displayText}>{this.displayText}</div>
           <Icon name={arrow} />
-          <input type="hidden" name={name} value={selectedValue} />
         </div>
         {this.menu}
       </div>

@@ -87,12 +87,13 @@ export default class SelectProduct extends Component {
   }
 
   render() {
+    /* @todo initialDisplayText */
     return (
       <SearchDropdown
         name="selectProduct"
         placeholder="- Select Product -"
         searchbarPlaceholder="Product name or ID"
-        value={this.selectedProduct}
+        initialValue={this.selectedProduct}
         fetch={this.handleProductSearch}
         renderItem={this.renderProductOption}
         onChange={this.handleSelectProduct}

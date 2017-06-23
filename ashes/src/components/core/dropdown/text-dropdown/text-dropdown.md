@@ -17,14 +17,14 @@ const items = [{ value: 'One' }, { value: 'Two' }, { value: 'Three', displayText
 
 <div style={{ display: 'flex' }}>
   <div style={{ width: '200px', marginRight: '10px' }}>
-    <TextDropdown items={items} onChange={e => console.log(e)} value="One" />
+    <TextDropdown items={items} onChange={e => console.log(e)} placeholder="- Change me -" />
   </div>
   <div style={{ width: '200px', marginRight: '10px' }}>
     <TextDropdown items={[]} disabled placeholder="disabled" />
   </div>
   <div style={{ width: '200px', marginRight: '10px' }}>
-    <TextDropdown items={['One', 'Two', 'Three!']} stateless placeholder="Action" />
+    <TextDropdown items={['Action one', 'Action two']} stateless placeholder="Run action" />
   </div>
-  <TextDropdown placeholder="Empty" />
+  <TextDropdown placeholder="No items" />
 </div>
 ```

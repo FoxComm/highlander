@@ -1,0 +1,37 @@
+@import 'variables.css';
+
+.block {
+  position: relative;
+  font: var(--font-labels);
+  user-select: none;
+
+  &.open {
+    z-index: 1;
+  }
+}
+
+.pivot {
+  display: flex;
+  cursor: pointer;
+}
+
+.displayText {
+  margin-right: 10px;
+}
+
+.menu {
+  top: 30px;
+  left: -10px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, .2);
+}
+
+.item {
+  padding: 12px 20px;
+  background-color: white;
+  font: var(--font-nav);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--bg-grey-headers);
+  }
+}

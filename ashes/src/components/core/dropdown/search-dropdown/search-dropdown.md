@@ -3,27 +3,25 @@
 ```javascript
 import { SearchDropdown } from 'components/core/dropdown';
 
-const items = [
-  { value: 'One' },
-  { value: 'Two' },
-  { value: 'Three', displayText: 'Three!' }
-];
+function fetch(token) {
+  return new Promise(...);
+};
 
-<SearchDropdown items={items} />
+<SearchDropdown fetch={(token) => new Promise(...)} />
 ```
 
 ```
-const items = [{ value: 'One' }, { value: 'Two' }, { value: 'Three', displayText: 'Three!' }];
-
 function fetch(token) {
   return new Promise(function(resolve, reject) {
+    const items = _.uniq(token.split('')).map(ch => ch);
+
     setTimeout(() => resolve({ items, token }), 1000);
   });
 };
 
 <div style={{ display: 'flex' }}>
   <div style={{ width: '200px', marginRight: '10px' }}>
-    <SearchDropdown fetch={fetch} items={items.slice(1)} />
+    <SearchDropdown fetch={fetch} initialItems={['Initial item 1']} />
   </div>
 </div>
 ```
