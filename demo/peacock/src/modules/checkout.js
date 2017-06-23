@@ -30,7 +30,6 @@ export type CheckoutState = {
   editStage: EditStage,
   shippingAddress: ShippingAddress,
   billingAddress: ShippingAddress,
-  fetchAddressesRequired: boolean,
 };
 
 export const selectCreditCard = createAction('CHECKOUT_SET_CREDIT_CARD');
@@ -464,7 +463,6 @@ const initialState: CheckoutState = {
   shippingModalVisible: false,
   deliveryModalVisible: false,
   paymentModalVisible: false,
-  fetchAddressesRequired: false,
 };
 
 function sortAddresses(addresses: Array<Address>): Array<Address> {
@@ -523,7 +521,6 @@ const reducer = createReducer({
     return {
       ...state,
       addresses,
-      fetchAddressesRequired: false,
     };
   },
   [cleanDeletedAddresses]: (state) => {
@@ -605,13 +602,6 @@ const reducer = createReducer({
     return {
       ...state,
       creditCard,
-    };
-  },
-  [_addCreditCard.succeeded]: (state, creditCard) => {
-    return {
-      ...state,
-      creditCard,
-      fetchAddressesRequired: true,
     };
   },
   [_resetCreditCard.succeeded]: (state) => {

@@ -236,7 +236,6 @@ class Checkout extends Component {
                   onComplete={this.setShipping}
                   addresses={this.props.addresses}
                   fetchAddresses={this.props.fetchAddresses}
-                  fetchAddressesRequired={this.props.fetchAddressesRequired}
                   shippingAddress={shippingAddress}
                   auth={this.props.auth}
                   isGuestMode={isGuestMode}
@@ -259,6 +258,7 @@ class Checkout extends Component {
                 paymentMethods={_.get(props.cart, 'paymentMethods', [])}
                 chooseCreditCard={this.props.chooseCreditCard}
                 onComplete={this.setBilling}
+                fetchAddresses={this.props.fetchAddresses}
               />
             </div>
           </div>

@@ -55,6 +55,7 @@ type Props = CheckoutActions & {
   creditCards: Array<CreditCardType>,
   creditCardsLoading: boolean,
   chooseCreditCard: () => Promise<*>,
+  fetchAddresses: () => Promise<*>,
 };
 
 type State = {
@@ -220,6 +221,7 @@ class EditBilling extends Component {
 
     return operation.then((card) => {
       this.props.fetchCreditCards();
+      this.props.fetchAddresses();
       this.props.resetBillingData();
       this.setState({ addingNew: false, cardAdded: (id === undefined) });
       return card;
