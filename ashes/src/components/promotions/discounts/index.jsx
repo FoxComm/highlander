@@ -1,7 +1,5 @@
 // @todo this file not used anywhere
 
-!@#$%^&*()_+
-
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';

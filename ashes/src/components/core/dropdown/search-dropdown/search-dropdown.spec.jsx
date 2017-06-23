@@ -6,47 +6,47 @@ import SearchDropdown from './search-dropdown';
 
 describe.only('SearchDropdown', function() {
   // @todo sinon and promises
-  it.skip('should set list only for corresponding token', function() {
-    const clock = sinon.useFakeTimers();
-    const stub = sinon.stub();
-    const items = ['one', 'two'];
-    const resolver = sinon.spy((resolve, value) => resolve(value));
+  // it.skip('should set list only for corresponding token', function() {
+  //   const clock = sinon.useFakeTimers();
+  //   const stub = sinon.stub();
+  //   const items = ['one', 'two'];
+  //   const resolver = sinon.spy((resolve, value) => resolve(value));
 
-    function fetch(token) {
-      console.log('fetch');
-      return {};
+  //   function fetch(token) {
+  //     console.log('fetch');
+  //     return {};
 
-      new Promise(function(resolve, reject) {
-        setTimeout(() => {
-          resolve({ items, token });
-          console.log('resolve');
-        }, 10);
-      });
-    }
+  //     new Promise(function(resolve, reject) {
+  //       setTimeout(() => {
+  //         resolve({ items, token });
+  //         console.log('resolve');
+  //       }, 10);
+  //     });
+  //   }
 
-    for (let i = 0; i < 25; i++) {
-      setTimeout(() => console.log(i), i);
-    }
+  //   for (let i = 0; i < 25; i++) {
+  //     setTimeout(() => console.log(i), i);
+  //   }
 
-    const searchDropdown = mount(<SearchDropdown fetch={fetch} />);
+  //   const searchDropdown = mount(<SearchDropdown fetch={fetch} />);
 
-    const spySetState = sinon.spy(searchDropdown, 'setState');
+  //   const spySetState = sinon.spy(searchDropdown, 'setState');
 
-    searchDropdown.find('.pivot').simulate('click');
+  //   searchDropdown.find('.pivot').simulate('click');
 
-    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'foo' } });
-    clock.tick(5);
-    searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'bar' } });
-    clock.tick(6); // foo response ended
-    console.log('∑∑∑ foo response ended', searchDropdown.state('items').length);
-    expect(searchDropdown.state('items').length).to.equal(0); // foo response must be cancelled
-    clock.tick(15); // bar response ended
-    console.log('∑∑∑ bar response ended');
-    console.log(searchDropdown.state('items'));
-    expect(searchDropdown.state('items').length).to.equal(2);
+  //   searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'foo' } });
+  //   clock.tick(5);
+  //   searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'bar' } });
+  //   clock.tick(6); // foo response ended
+  //   console.log('∑∑∑ foo response ended', searchDropdown.state('items').length);
+  //   expect(searchDropdown.state('items').length).to.equal(0); // foo response must be cancelled
+  //   clock.tick(15); // bar response ended
+  //   console.log('∑∑∑ bar response ended');
+  //   console.log(searchDropdown.state('items'));
+  //   expect(searchDropdown.state('items').length).to.equal(2);
 
-    clock.restore();
-  });
+  //   clock.restore();
+  // });
 
   it('should open TextInput', function() {
     const searchDropdown = mount(<SearchDropdown />);

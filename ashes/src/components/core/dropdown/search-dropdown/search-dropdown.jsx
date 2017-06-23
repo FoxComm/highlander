@@ -17,14 +17,13 @@ import s from './search-dropdown.css';
 
 type InternalItem = {
   value: string,
-  displayText?: string,
+  displayText: string,
 };
 
 type Item = [string, string];
 
 type Props = {
   /** An array of initial values which will be in a list */
-  // $FlowFixMe
   items: Array<Item | InternalItem | string>,
   /** Input name which will be used by form */
   name: string, // input name
@@ -52,6 +51,7 @@ type State = {
   open: boolean, // show or hide the menu
   selectedValue: string, // current selected value of menu
   displayText: string,
+  token: string,
   items: Array<InternalItem>,
   isLoading: boolean,
 };
@@ -79,26 +79,27 @@ export default class SearchDropdown extends Component {
     open: false,
     selectedValue: this.getValue(this.props.value),
     displayText: this.getDisplayText(this.props.items),
+    token: '',
     items: this.unifyItems(this.props.items),
     isLoading: false,
   };
 
   _pivot: HTMLElement;
-  _input: Element;
+  _input: React$Component<any, any, any>;
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     const input = ReactDOM.findDOMNode(this._input);
 
-    if (this.state.open && !prevState.open && input) {
+    if (this.state.open && !prevState.open && input instanceof HTMLElement) {
       input.focus();
     }
   }
 
-  getValue(value: any) {
+  getValue(value: any): string {
     return value ? String(value) : '';
   }
 
-  getDisplayText(dirtyItems) {
+  getDisplayText(dirtyItems: Array<any>): string {
     const items = this.unifyItems(dirtyItems);
     const value = this.getValue(this.props.value);
     const item = items.find(item => item.value === value);
@@ -138,7 +139,7 @@ export default class SearchDropdown extends Component {
     this.setState({ open });
   }
 
-  unifyItems(dirtyItems): Array<InternalItem> {
+  unifyItems(dirtyItems: Array<any>): Array<InternalItem> {
     if (Array.isArray(dirtyItems[0])) {
       return dirtyItems.map(([value, displayText]) => ({ value, displayText }));
     } else if (typeof dirtyItems[0] === 'string') {
@@ -232,7 +233,7 @@ export default class SearchDropdown extends Component {
 
   render() {
     const { disabled, name, placeholder, className, renderItem } = this.props;
-    const { items, selectedValue, open } = this.state;
+    const { selectedValue, open } = this.state;
     const cls = classNames(s.block, className, {
       [s.disabled]: disabled,
       [s.open]: open,
@@ -240,14 +241,14 @@ export default class SearchDropdown extends Component {
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
     let displayText = this.state.displayText;
 
-    if (renderItem && this.state.selectedValue) {
-      displayText = renderItem(this.state.selectedValue);
+    if (renderItem && selectedValue) {
+      displayText = renderItem(selectedValue);
     }
 
     return (
       <div className={cls}>
         <div className={s.pivot} ref={p => (this._pivot = p)} onClick={this.handleToggleClick}>
-          <div className={s.displayText}>{displayText || this.state.selectedValue || placeholder}</div>
+          <div className={s.displayText}>{displayText || selectedValue || placeholder}</div>
           <Icon name={arrow} />
           <input type="hidden" name={name} value={this.state.selectedValue} />
         </div>

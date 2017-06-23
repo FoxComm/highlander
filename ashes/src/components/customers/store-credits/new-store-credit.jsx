@@ -37,20 +37,22 @@ const actions = {
   ...CustomerActions,
   ...NewStoreCreditActions,
   ...ScTypesActions,
-  ...ReasonsActions
+  ...ReasonsActions,
 };
 
-@connect((state, props) => ({
-  ...state.customers.details[props.params.customerId],
-  ...state.customers.newStoreCredit,
-  ...state.storeCreditTypes,
-  ...state.reasons
-}), actions)
+@connect(
+  (state, props) => ({
+    ...state.customers.details[props.params.customerId],
+    ...state.customers.newStoreCredit,
+    ...state.storeCreditTypes,
+    ...state.reasons,
+  }),
+  actions
+)
 export default class NewStoreCredit extends React.Component {
-
   static propTypes = {
     params: PropTypes.shape({
-      customerId: PropTypes.number.required
+      customerId: PropTypes.number.required,
     }),
     error: PropTypes.array,
   };
@@ -129,13 +131,11 @@ export default class NewStoreCredit extends React.Component {
   get balances() {
     return this.props.balances.map((balance, idx) => {
       const classes = classNames('fc-store-credit-form__balance-value', {
-        '_selected': this.props.form.amount === balance
+        _selected: this.props.form.amount === balance,
       });
 
       return (
-        <div className={classes}
-             key={`balance-${idx}`}
-             onClick={() => this.props.changeScFormData('amount', balance)}>
+        <div className={classes} key={`balance-${idx}`} onClick={() => this.props.changeScFormData('amount', balance)}>
           ${balance / 100}
         </div>
       );
@@ -151,12 +151,7 @@ export default class NewStoreCredit extends React.Component {
           </label>
         </div>
         <div>
-          <TextDropdown
-            name="type"
-            items={this.scTypes}
-            value={this.props.form.type}
-            onChange={this.changeScType}
-          />
+          <TextDropdown name="type" items={this.scTypes} value={this.props.form.type} onChange={this.changeScType} />
         </div>
         {this.storeCreditTypeError}
       </li>
@@ -194,37 +189,37 @@ export default class NewStoreCredit extends React.Component {
 
   get storeCreditForm() {
     const hiddenClass = classNames('fc-col-md-1-3', {
-      '_hidden': _.isEmpty(this.scSubtypes)
+      _hidden: _.isEmpty(this.scSubtypes),
     });
 
     const { form, changeScFormData } = this.props;
 
     return (
-      <Form className="fc-store-credit-form fc-form-vertical dima"
-            onChange={this.onChangeValue}
-            onSubmit={this.submitCreateStoreCredit}>
+      <Form
+        className="fc-store-credit-form fc-form-vertical dima"
+        onChange={this.onChangeValue}
+        onSubmit={this.submitCreateStoreCredit}
+      >
         <div className="fc-grid">
           <div className="fc-col-md-1-3">
             <ul>
               {this.typeChangeField}
               <li className="fc-store-credit-form__input-group-amount">
-                <FormField label="Value"
-                           labelClassName="fc-store-credit-form__label">
+                <FormField label="Value" labelClassName="fc-store-credit-form__label">
                   <div className="fc-input-group fc-store-credit-form__input-group-amount-field">
                     <div className="fc-input-prepend fc-store-credit-form__amount-field-prepend">
                       <Icon name="usd" />
                     </div>
-                    <input id="scAmountField"
-                           type="hidden"
-                           name="amount"
-                           value={form.amount} />
-                    <input id="scAmountTextField"
-                           className="fc-store-credit-form__amount-field _no-counters"
-                           type="number"
-                           name="amountText"
-                           value={form.amountText}
-                           min="0"
-                           step="0.01" />
+                    <input id="scAmountField" type="hidden" name="amount" value={form.amount} />
+                    <input
+                      id="scAmountTextField"
+                      className="fc-store-credit-form__amount-field _no-counters"
+                      type="number"
+                      name="amountText"
+                      value={form.amountText}
+                      min="0"
+                      step="0.01"
+                    />
                   </div>
                 </FormField>
               </li>
@@ -233,7 +228,7 @@ export default class NewStoreCredit extends React.Component {
               </li>
               <li className="fc-store-credit-form__controls">
                 <SaveCancel
-                  onCancel={transitionToLazy('customer-storecredits', {customerId: this.customerId})}
+                  onCancel={transitionToLazy('customer-storecredits', { customerId: this.customerId })}
                   saveLabel="Issue Store Credit"
                 />
               </li>
@@ -250,7 +245,7 @@ export default class NewStoreCredit extends React.Component {
                 name="subReasonId"
                 items={this.scSubtypes}
                 value={form.subTypeId}
-                onChange={(value) => changeScFormData('subTypeId', value)}
+                onChange={value => changeScFormData('subTypeId', value)}
               />
             </div>
           </div>
@@ -290,23 +285,29 @@ export default class NewStoreCredit extends React.Component {
     const { form, convertGiftCard } = this.props;
 
     return (
-      <Form className="fc-store-credit-form fc-form-vertical"
-            onChange={this.onChangeValue}
-            onSubmit={() => convertGiftCard(this.customerId)}>
+      <Form
+        className="fc-store-credit-form fc-form-vertical"
+        onChange={this.onChangeValue}
+        onSubmit={() => convertGiftCard(this.customerId)}
+      >
         <div className="fc-grid">
           <div className="fc-col-md-1-3">
             <ul>
               {this.typeChangeField}
               <li className="fc-store-credit-form__input-group">
-                <FormField label="Gift Card Number"
-                           labelClassName="fc-store-credit-form__label"
-                           validator={validateCardCode}>
-                  <TextInput id="gcNumberField"
-                         name="code"
-                         placeholder="1111 1111 1111 1111"
-                         className="fc-customer-form-input"
-                         value={form.code}
-                         formFieldTarget />
+                <FormField
+                  label="Gift Card Number"
+                  labelClassName="fc-store-credit-form__label"
+                  validator={validateCardCode}
+                >
+                  <TextInput
+                    id="gcNumberField"
+                    name="code"
+                    placeholder="1111 1111 1111 1111"
+                    className="fc-customer-form-input"
+                    value={form.code}
+                    formFieldTarget
+                  />
                 </FormField>
                 {this.giftCardConvertErrors}
               </li>
@@ -320,7 +321,7 @@ export default class NewStoreCredit extends React.Component {
               </li>
               <li className="fc-store-credit-form__controls">
                 <SaveCancel
-                  onCancel={transitionToLazy('customer-storecredits', {customerId: this.customerId})}
+                  onCancel={transitionToLazy('customer-storecredits', { customerId: this.customerId })}
                   saveLabel="Transfer Gift Card to Store Credit"
                 />
               </li>
@@ -332,11 +333,7 @@ export default class NewStoreCredit extends React.Component {
   }
 
   render() {
-    const form = this.props.form.type === 'giftCardTransfer'
-      ? this.giftCardConvertForm
-      : this.storeCreditForm;
-
-      console.log('this.props.form.type', this.props.form.type);
+    const form = this.props.form.type === 'giftCardTransfer' ? this.giftCardConvertForm : this.storeCreditForm;
 
     return (
       <div className="fc-store-credits-new">

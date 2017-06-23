@@ -6,7 +6,6 @@ import React, { Element, Component } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
-import Icon from 'components/core/icon';
 import BodyPortal from 'components/body-portal/body-portal';
 
 // styles

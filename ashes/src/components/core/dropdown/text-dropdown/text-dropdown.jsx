@@ -139,11 +139,11 @@ export default class TextDropdown extends Component {
 
   renderItems() {
     const { detached, emptyMessage } = this.props;
-    let list = this.items.map(item =>
+    let list = this.items.map(item => (
       <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
         {item.displayText || item.value}
       </div>
-    );
+    ));
 
     if (!this.items.length) {
       list = <div className={s.item}>{emptyMessage}</div>;
@@ -165,7 +165,7 @@ export default class TextDropdown extends Component {
   }
 
   render() {
-    const { disabled, name, placeholder, className } = this.props;
+    const { disabled, name, className } = this.props;
     const { selectedValue, open } = this.state;
     const cls = classNames(s.block, className, {
       [s.disabled]: disabled,
@@ -179,7 +179,7 @@ export default class TextDropdown extends Component {
         <div className={s.pivot} ref={p => (this._pivot = p)} onClick={this.handleToggleClick}>
           <div className={s.displayText}>{this.displayText}</div>
           <Icon name={arrow} />
-          <input type="hidden" name={name} value={this.state.selectedValue} />
+          <input type="hidden" name={name} value={selectedValue} />
         </div>
         {this.menu}
       </div>

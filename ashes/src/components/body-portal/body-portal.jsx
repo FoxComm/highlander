@@ -1,5 +1,5 @@
 // libs
-import React, { Component, Children, Element } from 'react';
+import React, { Component, Element } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 
@@ -79,11 +79,7 @@ export default class BodyPortal extends Component {
 
     this.updateStyle();
 
-    ReactDOM.unstable_renderSubtreeIntoContainer(
-      this,
-      <div>{this.props.children}</div>,
-      this._target
-    );
+    ReactDOM.unstable_renderSubtreeIntoContainer(this, <div>{this.props.children}</div>, this._target);
 
     this.props.getRef(this._target);
   }
@@ -91,7 +87,7 @@ export default class BodyPortal extends Component {
   render() {
     const { active, className, children, getRef } = this.props;
 
-    if (this.props.active) {
+    if (active) {
       return null; // see renderContent()
     }
 
