@@ -31,8 +31,6 @@ function getCell(column, children, row) {
       return <Currency value={children} currency={getCurrency(column, row)} />;
     case 'transaction':
       return <Currency value={children} currency={getCurrency(column, row)} isTransaction={true} />;
-    case 'moment':
-      return <Moment value={children} />;
     case 'date':
       return <Date value={children} />;
     case 'datetime':
