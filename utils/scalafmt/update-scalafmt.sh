@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 ROOT_DIR="$(cd -P -- "$(dirname "$0")" && git rev-parse --show-toplevel)"
 SCALAFMT="$(cd -P -- "$(dirname "$0")" && pwd -P)/scalafmt.sh"

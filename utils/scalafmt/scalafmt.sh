@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 # Not bootstrapping/installing the binary to simplify version updates.
 # Once cached, works offline well.

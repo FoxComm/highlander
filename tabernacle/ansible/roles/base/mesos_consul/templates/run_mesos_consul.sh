@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 /usr/local/bin/mesos-consul --refresh=5s \
     --healthcheck \
