@@ -51,7 +51,7 @@ object DevRoutes {
                 expMonth = payload.expMonth,
                 expYear = payload.expYear,
                 cvv = payload.cvv,
-                address = Address.fromPayload(payload.address, payload.customerId, None)
+                address = Address.fromPayload(payload.address, payload.customerId)
               )
               .map { token ⇒
                 CreditCardTokenResponse(token = token.getId,
