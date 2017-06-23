@@ -25,6 +25,7 @@ import skus from './skus';
 import user from './user';
 import usermenu from './usermenu';
 import promotions from './promotions';
+import contentTypes from './content-types';
 import coupons from './coupons';
 import users from './users';
 import plugins from './plugins';
@@ -63,6 +64,7 @@ const rootReducer = combineReducers({
   products,
   skus,
   promotions,
+  contentTypes,
   coupons,
   users,
   plugins,

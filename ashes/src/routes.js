@@ -9,6 +9,7 @@ import authRoutes from './routes/auth';
 import catalogRoutes from './routes/catalog';
 import customerRoutes from './routes/customers';
 import marketingRoutes from './routes/marketing';
+import contentRoutes from './routes/content';
 import merchandisingRoutes from './routes/merchandising';
 import orderRoutes from './routes/orders';
 import settingsRoutes from './routes/settings';
@@ -31,6 +32,7 @@ export default function makeRoutes(jwtToken) {
         {customerRoutes(claims)}
         {catalogRoutes(claims)}
         {marketingRoutes(claims)}
+        {contentRoutes(claims)}
         {merchandisingRoutes(claims)}
         {settingsRoutes(claims)}
       </Route>
