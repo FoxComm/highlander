@@ -4,10 +4,13 @@ defmodule Geronimo.Kafka.Pusher do
   """
   require Logger
 
-  def push(kind, obj) do
-    res = KafkaEx.produce("geronimo_#{kind}", 0, Poison.encode!(obj),
-                          key: "#{kind}_#{obj.id}", worker_name: :geronimo_worker)
-    Logger.debug "Pushed to Kafka #{inspect(res)}"
+  def push(module, obj) do
+    kind = apply(module, :table, [])
+    data = apply(module, :avro_encode!, [obj])
+    res = KafkaEx.produce("geronimo_#{kind}", 0, data,
+                          key: "#{kind}_#{obj.id}",
+                          worker_name: :geronimo_worker)
+    Logger.debug "#{Inflex.singularize(kind)} with id #{obj.id} pushed to kafka #{inspect(res)}"
   end
 
   def push_async(kind, obj) do
