@@ -79,7 +79,6 @@ export default class SelectProduct extends Component {
 
   @autobind
   handleSelectProduct(value: string) {
-    console.log('value', value);
     this.updateSearches([
       {
         productSearchId: value,
@@ -88,7 +87,6 @@ export default class SelectProduct extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <SearchDropdown
         name="selectProduct"

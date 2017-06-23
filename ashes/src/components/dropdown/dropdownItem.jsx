@@ -18,7 +18,6 @@ type ItemProps = {
 
 const DropdownItem = ({ children, className = '', isHidden = false, value, onSelect = noop }: ItemProps) => {
   const handleClick = event => {
-    debugger;
     event.preventDefault();
     onSelect(value, children);
   };
