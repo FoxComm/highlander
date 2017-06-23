@@ -55,8 +55,6 @@ clean:
 .PHONY: test
 test: MSG=Testing
 test: notify flow lint mocha
-	rm -rf ./node_modules
-	make install
 
 .PHONY: t
 t: flow lint mocha
@@ -109,6 +107,7 @@ styleguide sg:
 
 .PHONY: install i
 install i:
+	rm -rf ./node_modules
 	yarn cache clean
 	yarn --pure-lockfile
 
