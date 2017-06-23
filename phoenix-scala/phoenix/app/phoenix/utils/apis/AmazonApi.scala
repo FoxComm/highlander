@@ -2,6 +2,7 @@ package phoenix.utils.apis
 
 import java.io.File
 
+import scala.annotation.tailrec
 import cats.implicits._
 import com.amazonaws.AmazonClientException
 import com.amazonaws.auth.BasicAWSCredentials
@@ -17,8 +18,8 @@ import scala.concurrent.Future
 
 trait AmazonApi {
 
-  def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String]
-  def uploadFileF(fileName: String, file: File)(implicit ec: EC): Future[String]
+  def uploadFile(fileName: String, file: File, overwrite: Boolean)(implicit ec: EC): Result[String]
+  def uploadFileF(fileName: String, file: File, overwrite: Boolean)(implicit ec: EC): Future[String]
 }
 
 object AmazonS3 {
@@ -34,16 +35,35 @@ class AmazonS3 extends AmazonApi with LazyLogging {
   private[this] val credentials = new BasicAWSCredentials(accessKey, secretKey)
   private[this] val client      = new AmazonS3Client(credentials)
 
-  def uploadFileF(fileName: String, file: File)(implicit ec: EC): Future[String] =
+  @tailrec
+  private def getAvailableObjectName(fileName: String, counter: Int = 0): String =
+    if (client.doesObjectExist(s3Bucket, fileName)) {
+      val newCounter = counter + 1
+      val newFileName = fileName.lastIndexOf('.') match {
+        case -1 ⇒ s"${fileName}_$newCounter"
+        case dotIdx ⇒
+          val ext = fileName.substring(dotIdx)
+          s"${fileName.slice(0, dotIdx)}_$newCounter$ext"
+      }
+      getAvailableObjectName(newFileName, newCounter)
+    } else
+      fileName
+
+  def uploadFileF(fileName: String, file: File, overwrite: Boolean)(implicit ec: EC): Future[String] =
     Future {
-      val putRequest = new PutObjectRequest(s3Bucket, fileName, file)
+      val objectName: String =
+        if (overwrite) fileName
+        else getAvailableObjectName(fileName)
+
+      val putRequest = new PutObjectRequest(s3Bucket, objectName, file)
         .withCannedAcl(CannedAccessControlList.PublicRead)
       client.putObject(putRequest)
-      s"https://s3-$s3Region.amazonaws.com/$s3Bucket/${fileName.urlEnc}"
+
+      s"https://s3-$s3Region.amazonaws.com/$s3Bucket/${objectName.urlEnc}"
     }
 
-  def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] = {
-    val f = uploadFileF(fileName, file).map(Either.right).recover {
+  def uploadFile(fileName: String, file: File, overwrite: Boolean)(implicit ec: EC): Result[String] = {
+    val f = uploadFileF(fileName, file, overwrite).map(Either.right).recover {
       case e: AmazonS3Exception ⇒
         Either.left(GeneralFailure(e.getLocalizedMessage).single)
       case e: AmazonClientException ⇒
