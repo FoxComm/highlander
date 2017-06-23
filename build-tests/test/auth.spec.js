@@ -8,7 +8,7 @@ import * as step from '../helpers/steps';
 
 describe('[bvt] Auth', function() {
 
-	this.timeout(8000);
+	this.timeout(30000);
 
 	it('[bvt] Can sign up', async () => {
 		const api = new CustomerApi;
