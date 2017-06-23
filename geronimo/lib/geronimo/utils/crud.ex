@@ -88,7 +88,9 @@ defmodule Geronimo.Crud do
       defp apply_change(changeset) do
         Repo.transaction(fn  ->
           case Repo.update(changeset)  do
-            {:ok, record} -> Map.merge(record, %{versions: get_versions(record.id)})
+            {:ok, record} ->
+              Geronimo.Kafka.Pusher.push_async(__MODULE__, record)
+              Map.merge(record, %{versions: get_versions(record.id)})
             {:error, changeset} ->
               Repo.rollback(changeset)
               {:error, changeset}

@@ -58,6 +58,7 @@ defmodule Geronimo.Entity do
     Repo.transaction(fn ->
       case Repo.update(changes)  do
         {:ok, record} ->
+          Geronimo.Kafka.Pusher.push_async(__MODULE__, record)
           Map.merge(record, %{versions: get_versions(record.id)})
         {:error, changeset} ->
           Repo.rollback(changeset)
