@@ -23,7 +23,7 @@ function fetch(token) {
 
 <div style={{ display: 'flex' }}>
   <div style={{ width: '200px', marginRight: '10px' }}>
-    <SearchDropdown fetch={fetch} />
+    <SearchDropdown fetch={fetch} items={items.slice(1)} />
   </div>
 </div>
 ```

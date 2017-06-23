@@ -70,10 +70,10 @@ export default class SelectProduct extends Component {
     }
 
     return (
-      <div>
+      <span>
         {product.title}
         <span className={s.description}> • ID: {product.id}</span>
-      </div>
+      </span>
     );
   }
 

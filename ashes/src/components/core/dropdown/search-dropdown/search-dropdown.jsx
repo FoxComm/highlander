@@ -40,8 +40,6 @@ type Props = {
   className?: string,
   /** If true, you cant open dropdown or change its value from UI */
   disabled: boolean,
-  /** If true, the component can change its value only via props */
-  stateless: boolean,
   /** Callback which fires when the value has been changes */
   onChange: Function,
   /** Callback for token change (fetching new results for the list) */
@@ -59,10 +57,9 @@ type State = {
 };
 
 /**
- * Text Dropdown component.
- * This component is about to render simple text list and current value.
- * This component is not responsible for different skins, TextInputs, infinite lists, or any other complex stuff.
- * If you need any functionality which is not exists here, try different Dropdown or build new one.
+ * Search Dropdown component.
+ * This component is for fetching and rendering fetched results as a list.
+ * There are initial value, displayText and items, but after mounting component handle these values internaly.
  */
 export default class SearchDropdown extends Component {
   props: Props;
@@ -75,14 +72,13 @@ export default class SearchDropdown extends Component {
     searchbarPlaceholder: 'Start to type...',
     disabled: false,
     onChange: () => {},
-    stateless: false,
     items: [],
   };
 
   state: State = {
     open: false,
     selectedValue: this.getValue(this.props.value),
-    displayText: this.props.displayText,
+    displayText: this.getDisplayText(this.props.items),
     items: this.unifyItems(this.props.items),
     isLoading: false,
   };
@@ -100,6 +96,14 @@ export default class SearchDropdown extends Component {
 
   getValue(value: any) {
     return value ? String(value) : '';
+  }
+
+  getDisplayText(dirtyItems) {
+    const items = this.unifyItems(dirtyItems);
+    const value = this.getValue(this.props.value);
+    const item = items.find(item => item.value === value);
+
+    return item ? item.displayText : this.props.displayText;
   }
 
   @autobind
@@ -123,6 +127,8 @@ export default class SearchDropdown extends Component {
     if (item.value !== this.state.selectedValue) {
       this.props.onChange(item.value);
       this.setState(nextState);
+    } else {
+      this.setState({ open: false });
     }
   }
 
@@ -183,6 +189,7 @@ export default class SearchDropdown extends Component {
   }
 
   renderItems() {
+    let after = null;
     let content = this.state.items.map(item => {
       let itemContent = item.displayText || item.value;
 
@@ -198,7 +205,8 @@ export default class SearchDropdown extends Component {
     });
 
     if (!content.length && this.state.isLoading) {
-      content = <Spinner className={s.spinner} />;
+      content = null;
+      after = <Spinner className={s.spinner} />;
     }
 
     return (
@@ -207,6 +215,7 @@ export default class SearchDropdown extends Component {
         onEsc={() => this.toggleMenu(false)}
         pivot={this._pivot}
         before={this.renderSearchBar()}
+        after={after}
       >
         {content}
       </SmartList>
@@ -227,7 +236,6 @@ export default class SearchDropdown extends Component {
     const cls = classNames(s.block, className, {
       [s.disabled]: disabled,
       [s.open]: open,
-      [s.empty]: !items.length,
     });
     const arrow = this.state.open ? 'chevron-up' : 'chevron-down';
     let displayText = this.state.displayText;

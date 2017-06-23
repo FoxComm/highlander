@@ -70,11 +70,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font: var(--font-nav);
-  cursor: default;
+  cursor: pointer;
 
-  .block:not(.empty) &:hover {
+  &:hover {
     background-color: var(--bg-grey-headers);
-    cursor: pointer;
   }
 }
 
