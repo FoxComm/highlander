@@ -1,37 +1,38 @@
 defmodule SchemaRegistryClientSpec do
   use ESpec
+  use ExVCR.Mock, adapter: ExVCR.Adapter.Hackney
 
   before do
-    schema_registry_client_stub = Stubr.stub!([
-      get_schema: fn("foo", 1) -> {:ok, %{foo: "bar"}} end,
-      get_schema: fn("Not_found", 000) -> {:error, %{error: "Not found"}} end,
-      get_schema: fn("err", "e") -> {:fail, "%HTTPoison.Error{reason: :econnrefused}"} end,
-      store_schema: fn("foo", %{foo: "bar"}) -> {:ok, "Foo"} end,
-      store_schema: fn("foo", "asdasdas") -> {:error, %{error: "Not acceptable"}} end,
-      store_schema: fn(nil, nil) -> {:fail, "%HTTPoison.Error{reason: :econnrefused}"} end ],
-      module: Geronimo.Kafka.SchemaRegistryClient)
-    {:shared, stub: schema_registry_client_stub}
+    ExVCR.Config.cassette_library_dir("spec/fixture/vcr_cassettes")
+    :ok
   end
 
   describe "get_schema" do
     context "when response is successful" do
       it "should return successful response" do
-        success_response = shared.stub.get_schema("foo", 1)
-        expect(success_response).to eq({:ok, %{foo: "bar"}})
+        use_cassette "schema_registry/success_get" do
+          resp = {:ok, %{id: 140, schema: "{\"type\":\"record\",\"name\":\"entities_pkey\",\"namespace\":\"com.foxcommerce.geronimo\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",\"int\"]}]}", subject: "entities-key", version: 1}}
+          expect(Geronimo.Kafka.SchemaRegistryClient.get_schema("entities-key", 1)).to eq(resp)
+        end
       end
     end
 
+
     context "when schema is not found" do
       it "should return not_found response" do
-        not_found_response = shared.stub.get_schema("Not_found", 000)
-        expect(not_found_response).to eq({:error, %{error: "Not found"}})
+        use_cassette "schema_registry/not_found" do
+          resp = {:error, %{error_code: 40402, message: "Version not found."}}
+          expect(Geronimo.Kafka.SchemaRegistryClient.get_schema("entities-key", 112121212)).to eq(resp)
+        end
       end
     end
 
     context "when request failed" do
       it "should return error response" do
-        err_get_response = shared.stub.get_schema("err", "e")
-        expect(err_get_response).to eq({:fail, "%HTTPoison.Error{reason: :econnrefused}"})
+        use_cassette "schema_registry/fail1" do
+          resp = {:fail, "econnrefused"}
+          expect(Geronimo.Kafka.SchemaRegistryClient.get_schema("entities-key", 1)).to eq(resp)
+        end
       end
     end
   end
@@ -39,22 +40,28 @@ defmodule SchemaRegistryClientSpec do
   describe "store_schema" do
     context "when response is successful" do
       it "should return successful response" do
-        success_response = shared.stub.store_schema("foo", %{foo: "bar"})
-        expect(success_response).to eq({:ok, "Foo"})
+        use_cassette "schema_registry/store_success" do
+          resp = {:ok, %{id: 140}}
+          expect(Geronimo.Kafka.SchemaRegistryClient.store_schema("entities-key", Geronimo.Entity.avro_schema_key)).to eq({:ok, %{id: 140}})
+        end
       end
     end
 
     context "when schema can not be processed" do
-      it "should return 422 response" do
-        not_acceptable_response = shared.stub.store_schema("foo", "asdasdas")
-        expect(not_acceptable_response).to eq({:error, %{error: "Not acceptable"}})
+      it "should return error response" do
+        use_cassette "schema_registry/err" do
+          resp = {:error, %{error_code: 42201, message: "Input schema is an invalid Avro schema"}}
+          expect(Geronimo.Kafka.SchemaRegistryClient.store_schema("entities-key", "wrong!")).to eq(resp)
+        end
       end
     end
 
     context "when request failed" do
       it "should return noerrort_found response" do
-        err_post_response = shared.stub.store_schema(nil, nil)
-        expect(err_post_response).to eq({:fail, "%HTTPoison.Error{reason: :econnrefused}"})
+        use_cassette "schema_registry/fail2" do
+          resp = {:fail, "econnrefused"}
+          expect(Geronimo.Kafka.SchemaRegistryClient.store_schema("entities-key", %{foo: "bar"})).to eq(resp)
+        end
       end
     end
   end

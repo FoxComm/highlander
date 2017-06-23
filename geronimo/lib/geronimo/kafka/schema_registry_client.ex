@@ -18,7 +18,7 @@ defmodule Geronimo.Kafka.SchemaRegistryClient do
     case response do
       {:ok, %HTTPoison.Response{body: body, headers: _, status_code: 200}} -> {:ok, body}
       {:ok, %HTTPoison.Response{body: body, headers: _, status_code: _}} -> {:error, body}
-      {:error, err} -> {:fail, inspect(err)}
+      {:error, err} -> {:fail, err.reason}
     end
   end
 
