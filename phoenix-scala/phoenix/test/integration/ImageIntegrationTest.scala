@@ -354,11 +354,11 @@ class ImageIntegrationTest
           .gimme
 
         val images          = List("foxy.jpg", "fo xy.jpg", "withoutext")
-        val resultFileNames = List("foxy.jpg", "fo xy.jpg", "withoutext.jpg")
+        val resultFileNames = List("foxy.jpg", "fo xy.jpg", "withoutext.jpg").sorted
         val responseAlbum   = uploadImages(album, images).as[AlbumRoot]
         responseAlbum.images.size must === (updatedAlbumImages.size + 3)
 
-        val uploadedImages = responseAlbum.images.takeRight(3)
+        val uploadedImages = responseAlbum.images.takeRight(3).sortBy(_.title)
         resultFileNames.zip(uploadedImages).foreach {
           case (imgFileName, uploadedImage) ⇒
             uploadedImage.src must === ("http://amazon-image.url/1")
