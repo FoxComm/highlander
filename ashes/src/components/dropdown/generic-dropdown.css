@@ -1,10 +1,22 @@
+@import 'colors.css';
+
+.controls {
+  &:hover {
+    & .downArrowBtn,
+    & :global(.fc-dropdown__value) {
+      background: var(--bg-grey-buttons-hover);
+    }
+  }
+}
+
 .downArrowBtn {
   /* @todo!important something about priority for core components */
-  /* Fucks up the gear icon/button that toggles the columns for tables in Chrome 58.03 for linux*/
-  /*padding: 0 10px !important;*/
 
-  padding-top: 8px !important;
-  transition: none !important;
+  /* Fucks up the gear icon/button that toggles the columns for tables in Chrome 58.03 for linux */
+
+  /* padding: 0 10px !important; */
+
+  padding-top: 11px !important;
 
   &:active {
     box-shadow: none !important;
@@ -13,6 +25,7 @@
   :global(.fc-rich-text-editor__command-headers) & {
     /* @todo!important something about priority for core components */
     background-color: transparent !important;
+    padding-top: 9px !important;
   }
 }
 

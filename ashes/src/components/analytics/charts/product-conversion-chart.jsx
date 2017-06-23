@@ -9,17 +9,12 @@ import { autobind } from 'core-decorators';
 import { percentDifferenceFromAvg } from '../analytics';
 
 // components
-import {
-  VictoryBar,
-  VictoryChart,
-  VictoryGroup,
-  VictoryAxis,
-} from 'victory';
+import { VictoryBar, VictoryChart, VictoryGroup, VictoryAxis } from 'victory';
 import ProductConversionToolTip from './product-conversion-tooltip';
 
 // styles
-const axisTickColor = '#9BA3A7';
-const gridLineColor = '#ABB2B6';
+const axisTickColor = '#9ba3a7';
+const gridLineColor = '#abb2b6';
 
 const yAxisStyle = {
   axis: { stroke: axisTickColor },
@@ -32,75 +27,69 @@ const xAxisStyle = {
 };
 
 const singleBarStyle = {
-  data: { fill: '#4FC2C9', width: 28 },
+  data: { fill: '#49cab9', width: 28 },
   labels: { fontSize: 12 },
   parent: { border: '1px solid #ccc' },
 };
 const comparisonBarStyles = {
-  dataBarStyle:  {
-    data: { fill: '#4FC2C9', width: 28 },
+  dataBarStyle: {
+    data: { fill: '#49cab9', width: 28 },
     labels: { fontSize: 12 },
     parent: { border: '1px solid #ccc' },
   },
   comparisonDataBarStyle: {
-    data: { fill: '#CED2D5', width: 28 },
+    data: { fill: '#ced3d5', width: 28 },
     labels: { fontSize: 12 },
     parent: { border: '1px solid #ccc' },
   },
 };
 
-const dataTickValues = [
-  'Category/Search View',
-  'PDP View',
-  'Add to Cart',
-  'Enter Checkout',
-  'Purchased',
-];
+const dataTickValues = ['Category/Search View', 'PDP View', 'Add to Cart', 'Enter Checkout', 'Purchased'];
 
 // Debug response payload for UI testing
 const debugJsonData = {
-  'SearchViews': 7446,
-  'PdpViews': 236,
-  'CartClicks': 84,
-  'CheckoutClicks': 224,
-  'Purchases': 6,
-  'SearchToPdp': 0.0316948697287134,
-  'PdpToCart': 0.3559322033898305,
-  'CartToCheckout': 2.6666666666666665,
-  'CheckoutPurchased': 0.026785714285714284,
-  'Average': {
-    'SearchViews': 89665,
-    'PdpViews': 2649,
-    'CartClicks': 967,
-    'CheckoutClicks': 1836,
-    'Purchases': 24,
-    'SearchToPdp': 0.02954330006133943,
-    'PdpToCart': 0.3650434126085315,
-    'CartToCheckout': 1.8986556359875906,
-    'CheckoutPurchased': 0.013071895424836602
-  }
+  SearchViews: 7446,
+  PdpViews: 236,
+  CartClicks: 84,
+  CheckoutClicks: 224,
+  Purchases: 6,
+  SearchToPdp: 0.0316948697287134,
+  PdpToCart: 0.3559322033898305,
+  CartToCheckout: 2.6666666666666665,
+  CheckoutPurchased: 0.026785714285714284,
+  Average: {
+    SearchViews: 89665,
+    PdpViews: 2649,
+    CartClicks: 967,
+    CheckoutClicks: 1836,
+    Purchases: 24,
+    SearchToPdp: 0.02954330006133943,
+    PdpToCart: 0.3650434126085315,
+    CartToCheckout: 1.8986556359875906,
+    CheckoutPurchased: 0.013071895424836602,
+  },
 };
 const debugComparisonJsonData = {
-  'SearchViews': 4446,
-  'PdpViews': 136,
-  'CartClicks': 64,
-  'CheckoutClicks': 34,
-  'Purchases': 12,
-  'SearchToPdp': 0.0316948697287134,
-  'PdpToCart': 0.3559322033898305,
-  'CartToCheckout': 2.6666666666666665,
-  'CheckoutPurchased': 0.026785714285714284,
-  'Average': {
-    'SearchViews': 89665,
-    'PdpViews': 2649,
-    'CartClicks': 967,
-    'CheckoutClicks': 1836,
-    'Purchases': 24,
-    'SearchToPdp': 0.02954330006133943,
-    'PdpToCart': 0.3650434126085315,
-    'CartToCheckout': 1.8986556359875906,
-    'CheckoutPurchased': 0.013071895424836602
-  }
+  SearchViews: 4446,
+  PdpViews: 136,
+  CartClicks: 64,
+  CheckoutClicks: 34,
+  Purchases: 12,
+  SearchToPdp: 0.0316948697287134,
+  PdpToCart: 0.3559322033898305,
+  CartToCheckout: 2.6666666666666665,
+  CheckoutPurchased: 0.026785714285714284,
+  Average: {
+    SearchViews: 89665,
+    PdpViews: 2649,
+    CartClicks: 967,
+    CheckoutClicks: 1836,
+    Purchases: 24,
+    SearchToPdp: 0.02954330006133943,
+    PdpToCart: 0.3650434126085315,
+    CartToCheckout: 1.8986556359875906,
+    CheckoutPurchased: 0.013071895424836602,
+  },
 };
 
 const barEvents = [
@@ -109,15 +98,17 @@ const barEvents = [
     target: 'data',
     eventHandlers: {
       onMouseOut: () => {
-        return [{
-          target: 'labels',
-          mutation: (props) => {
-            return props.label;
-          }
-        }];
-      }
-    }
-  }
+        return [
+          {
+            target: 'labels',
+            mutation: props => {
+              return props.label;
+            },
+          },
+        ];
+      },
+    },
+  },
 ];
 
 // types
@@ -125,7 +116,7 @@ type Props = {
   jsonData: Object,
   debugMode?: ?boolean,
   comparisonJsonData?: Object,
-}
+};
 
 type ProductConversionChartBar = {
   key: string,
@@ -133,10 +124,9 @@ type ProductConversionChartBar = {
   delta: ?number,
   label: string,
   conversion: ?number,
-}
+};
 
 class ProductConversionChart extends React.Component {
-
   static defaultProps = {
     jsonData: {},
     debugMode: false,
@@ -147,7 +137,6 @@ class ProductConversionChart extends React.Component {
 
   @autobind
   jsonDataToChartData(jsonDisplay: Object): Array<ProductConversionChartBar> {
-
     const deltaDisplay = (deltaStr: number): number => {
       return _.round(parseFloat(deltaStr) * 100, 2);
     };
@@ -165,36 +154,28 @@ class ProductConversionChart extends React.Component {
         value: jsonDisplay.PdpViews,
         delta: deltaDisplay(jsonDisplay.SearchToPdp),
         label: jsonDisplay.PdpViews.toString(),
-        conversion: percentDifferenceFromAvg(
-          jsonDisplay.SearchToPdp, jsonDisplay.Average.SearchToPdp
-        ),
+        conversion: percentDifferenceFromAvg(jsonDisplay.SearchToPdp, jsonDisplay.Average.SearchToPdp),
       },
       {
         key: dataTickValues[2],
         value: jsonDisplay.CartClicks,
         delta: deltaDisplay(jsonDisplay.PdpToCart),
         label: jsonDisplay.CartClicks.toString(),
-        conversion: percentDifferenceFromAvg(
-          jsonDisplay.PdpToCart, jsonDisplay.Average.PdpToCart
-        ),
+        conversion: percentDifferenceFromAvg(jsonDisplay.PdpToCart, jsonDisplay.Average.PdpToCart),
       },
       {
         key: dataTickValues[3],
         value: jsonDisplay.CheckoutClicks,
         delta: deltaDisplay(jsonDisplay.CartToCheckout),
         label: jsonDisplay.CheckoutClicks.toString(),
-        conversion: percentDifferenceFromAvg(
-          jsonDisplay.CartToCheckout, jsonDisplay.Average.CartToCheckout
-        ),
+        conversion: percentDifferenceFromAvg(jsonDisplay.CartToCheckout, jsonDisplay.Average.CartToCheckout),
       },
       {
         key: dataTickValues[4],
         value: jsonDisplay.Purchases,
         delta: deltaDisplay(jsonDisplay.CheckoutPurchased),
         label: jsonDisplay.Purchases.toString(),
-        conversion: percentDifferenceFromAvg(
-          jsonDisplay.CheckoutPurchased, jsonDisplay.Average.CheckoutPurchased
-        ),
+        conversion: percentDifferenceFromAvg(jsonDisplay.CheckoutPurchased, jsonDisplay.Average.CheckoutPurchased),
       },
     ];
   }
@@ -202,21 +183,9 @@ class ProductConversionChart extends React.Component {
   @autobind
   renderDataChart(jsonData: Object) {
     return (
-      <VictoryChart
-        width={700}
-        height={350}
-        domainPadding={55}>
-        <VictoryAxis
-          standalone={false}
-          style={xAxisStyle}
-          orientation="bottom"
-          tickValues={dataTickValues} />
-        <VictoryAxis
-          dependentAxis
-          standalone={false}
-          style={yAxisStyle}
-          tickCount={3}
-          orientation="left" />
+      <VictoryChart width={700} height={350} domainPadding={55}>
+        <VictoryAxis standalone={false} style={xAxisStyle} orientation="bottom" tickValues={dataTickValues} />
+        <VictoryAxis dependentAxis standalone={false} style={yAxisStyle} tickCount={3} orientation="left" />
         <VictoryBar
           labelComponent={
             <ProductConversionToolTip
@@ -232,7 +201,7 @@ class ProductConversionChart extends React.Component {
               deltaToolTipStyles={{
                 borderColor: '#363636',
                 fill: '#3A4350',
-                textColor: '#FFFFFF',
+                textColor: '#ffffff',
                 fontSize: 6,
               }}
               conversionToolTipOffsetCoordinates={{
@@ -240,18 +209,20 @@ class ProductConversionChart extends React.Component {
                 y: 26,
               }}
               conversionToolTipStyles={{
-                textColor: '#3A4350',
+                textColor: '#3a4350',
                 fontSize: 6,
               }}
               toolTipColor="#363636"
-              getDelta={(datum) => datum.delta}
-              getConversion={(datum) => datum.conversion} />
+              getDelta={datum => datum.delta}
+              getConversion={datum => datum.conversion}
+            />
           }
           style={singleBarStyle}
           data={this.jsonDataToChartData(jsonData)}
           x="key"
           y="value"
-          events={barEvents} />
+          events={barEvents}
+        />
       </VictoryChart>
     );
   }
@@ -261,21 +232,9 @@ class ProductConversionChart extends React.Component {
     const { dataBarStyle, comparisonDataBarStyle } = comparisonBarStyles;
 
     return (
-      <VictoryChart
-        width={700}
-        height={350}
-        domainPadding={45}>
-        <VictoryAxis
-          standalone={false}
-          style={xAxisStyle}
-          orientation="bottom"
-          tickValues={dataTickValues} />
-        <VictoryAxis
-          dependentAxis
-          standalone={false}
-          style={yAxisStyle}
-          tickCount={3}
-          orientation="left" />
+      <VictoryChart width={700} height={350} domainPadding={45}>
+        <VictoryAxis standalone={false} style={xAxisStyle} orientation="bottom" tickValues={dataTickValues} />
+        <VictoryAxis dependentAxis standalone={false} style={yAxisStyle} tickCount={3} orientation="left" />
         <VictoryGroup offset={40}>
           <VictoryBar
             labelComponent={
@@ -300,18 +259,20 @@ class ProductConversionChart extends React.Component {
                   y: 26,
                 }}
                 conversionToolTipStyles={{
-                  textColor: '#3A4350',
+                  textColor: '#3a4350',
                   fontSize: 6,
                 }}
                 toolTipColor="#363636"
-                getDelta={(datum) => datum.delta}
-                getConversion={(datum) => datum.conversion} />
+                getDelta={datum => datum.delta}
+                getConversion={datum => datum.conversion}
+              />
             }
             style={dataBarStyle}
             data={this.jsonDataToChartData(jsonData)}
             x="key"
             y="value"
-            events={barEvents} />
+            events={barEvents}
+          />
           <VictoryBar
             labelComponent={
               <ProductConversionToolTip
@@ -325,8 +286,8 @@ class ProductConversionChart extends React.Component {
                   deltaTextDy: 3.25,
                 }}
                 deltaToolTipStyles={{
-                  borderColor: '#CED2D5',
-                  fill: '#CED2D5',
+                  borderColor: '#ced3d5',
+                  fill: '#ced3d5',
                   textColor: '3A4350',
                   fontSize: 6,
                 }}
@@ -335,18 +296,20 @@ class ProductConversionChart extends React.Component {
                   y: 26,
                 }}
                 conversionToolTipStyles={{
-                  textColor: '#3A4350',
+                  textColor: '#3a4350',
                   fontSize: 6,
                 }}
                 toolTipColor="#9B9B9B"
-                getDelta={(datum) => datum.delta}
-                getConversion={(datum) => datum.conversion} />
+                getDelta={datum => datum.delta}
+                getConversion={datum => datum.conversion}
+              />
             }
             style={comparisonDataBarStyle}
             data={this.jsonDataToChartData(comparisonJsonData)}
             x="key"
             y="value"
-            events={barEvents} />
+            events={barEvents}
+          />
         </VictoryGroup>
       </VictoryChart>
     );
@@ -376,4 +339,3 @@ class ProductConversionChart extends React.Component {
 }
 
 export default ProductConversionChart;
-

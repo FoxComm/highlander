@@ -84,15 +84,18 @@ class CouponPage extends ObjectPage {
       const { bulk, singleCode } = this.props.details.codeGeneration;
 
       if (bulk === false && singleCode != void 0) {
-        willBeCoupon.then((data) => {
-          const newId = _.get(data, 'id');
-          return this.props.actions.generateCode(newId, singleCode);
-        }).then(() => {
-          this.props.actions.couponsGenerationReset();
-        }).then(() => {
-          this.props.actions.refresh();
-          transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
-        });
+        willBeCoupon
+          .then(data => {
+            const newId = _.get(data, 'id');
+            return this.props.actions.generateCode(newId, singleCode);
+          })
+          .then(() => {
+            this.props.actions.couponsGenerationReset();
+          })
+          .then(() => {
+            this.props.actions.refresh();
+            transitionTo('promotion-coupons', { promotionId: this.props.params.promotionId });
+          });
       }
 
       if (bulk === true && this.props.actions.codeIsOfValidLength()) {
@@ -108,16 +111,18 @@ class CouponPage extends ObjectPage {
   @autobind
   receiveNewObject(nextObject) {
     nextObject.promotion = Number(this.props.params.promotionId);
-    nextObject.attributes.name = { // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
+    nextObject.attributes.name = {
+      // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
       t: 'string',
       v: 'Coupon name',
     };
     this.setState({
-      object: nextObject
+      object: nextObject,
     });
   }
 
-  componentDidUpdate(prevProps, prevState) { // CHECK IF NEEDED AFTER KANGAROOS MERGE
+  componentDidUpdate(prevProps, prevState) {
+    // CHECK IF NEEDED AFTER KANGAROOS MERGE
     return;
   }
 
@@ -134,7 +139,7 @@ class CouponPage extends ObjectPage {
         cancelDisabled={this.props.isSaving}
         saveDisabled={this.props.isSaving}
         onCancel={this.props.params.modalCancelAction}
-        saveText="Generate Coupon Code(s)"
+        saveLabel="Generate Coupon Code(s)"
       />
     );
   }
@@ -164,7 +169,7 @@ class CouponPage extends ObjectPage {
     let formValid = super.validateForm();
 
     if (coupon && !_.isNumber(coupon.promotion)) {
-      this.setState({promotionError: true});
+      this.setState({ promotionError: true });
       formValid = false;
     }
 

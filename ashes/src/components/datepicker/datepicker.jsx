@@ -1,12 +1,15 @@
 /* @flow weak */
 
+// libs
 import React from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';
 import classNames from 'classnames';
 
+// components
 import AppendInput from '../forms/append-input';
+import Icon from 'components/core/icon';
 
 const weeks = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -16,23 +19,23 @@ const suppressClick = event => {
 };
 
 type Props = {
-  className?: string;
-  date: Date;
-  onChange: (date: Date) => any;
-  onClick: (date: Date) => any;
-  showInput?: boolean;
-  showPicker?: boolean;
-  inputFormat: string;
-}
+  className?: string,
+  date: Date,
+  onChange: (date: Date) => any,
+  onClick: (date: Date) => any,
+  showInput?: boolean,
+  showPicker?: boolean,
+  inputFormat: string,
+};
 
 type DateState = {
-  month: number;
-  year: number;
-}
+  month: number,
+  year: number,
+};
 
 type State = DateState & {
-  showPicker: boolean;
-}
+  showPicker: boolean,
+};
 
 export default class DatePicker extends React.Component {
   props: Props;
@@ -82,8 +85,9 @@ export default class DatePicker extends React.Component {
           onBlur={this.blurred}
           onChange={this.changed}
           onFocus={this.focused}
-          placeholder={inputFormat.toLowerCase()} />
-        {showPicker && <div className="fc-datepicker__arrow-up"></div>}
+          placeholder={inputFormat.toLowerCase()}
+        />
+        {showPicker && <div className="fc-datepicker__arrow-up" />}
       </div>
     );
   }
@@ -107,7 +111,7 @@ export default class DatePicker extends React.Component {
   @autobind
   blurred(event) {
     this.setState({
-      showPicker: false
+      showPicker: false,
     });
   }
 
@@ -122,7 +126,7 @@ export default class DatePicker extends React.Component {
   @autobind
   focused(event) {
     this.setState({
-      showPicker: true
+      showPicker: true,
     });
   }
 
@@ -133,7 +137,7 @@ export default class DatePicker extends React.Component {
     const newDate = new Date(this.state.year, this.state.month - 1, 1);
     this.setState({
       month: newDate.getMonth(),
-      year: newDate.getFullYear()
+      year: newDate.getFullYear(),
     });
   }
 
@@ -144,7 +148,7 @@ export default class DatePicker extends React.Component {
     const newDate = new Date(this.state.year, this.state.month + 1, 1);
     this.setState({
       month: newDate.getMonth(),
-      year: newDate.getFullYear()
+      year: newDate.getFullYear(),
     });
   }
 
@@ -155,9 +159,12 @@ export default class DatePicker extends React.Component {
       this.props.onChange(date);
     };
 
-    this.setState({
-      showPicker: false,
-    }, action);
+    this.setState(
+      {
+        showPicker: false,
+      },
+      action
+    );
   }
 
   @autobind
@@ -165,20 +172,14 @@ export default class DatePicker extends React.Component {
     const monthName = date.toLocaleString('en-us', { month: 'long', year: 'numeric' });
 
     const backAction = (
-      <a
-        onClick={this.goBackMonth}
-        onMouseDown={suppressClick}
-        onMouseUp={suppressClick}>
-        <i className="icon-chevron-left" />
+      <a onClick={this.goBackMonth} onMouseDown={suppressClick} onMouseUp={suppressClick}>
+        <Icon name="chevron-left" />
       </a>
     );
 
     const forwardAction = (
-      <a
-        onClick={this.goForwardMonth}
-        onMouseDown={suppressClick}
-        onMouseUp={suppressClick}>
-        <i className="icon-chevron-right" />
+      <a onClick={this.goForwardMonth} onMouseDown={suppressClick} onMouseUp={suppressClick}>
+        <Icon className="chevron-right" />
       </a>
     );
 
@@ -216,8 +217,8 @@ export default class DatePicker extends React.Component {
       const klass = classNames('fc-datepicker__day', {
         '_last-month': date.getMonth() > dt.getMonth(),
         '_next-month': date.getMonth() < dt.getMonth(),
-        '_current': currentDate.getMonth() == dt.getMonth() && currentDate.getDate() == dt.getDate(),
-        '_selected': _.isEqual(dt.getTime(), selectedTime)
+        _current: currentDate.getMonth() == dt.getMonth() && currentDate.getDate() == dt.getDate(),
+        _selected: _.isEqual(dt.getTime(), selectedTime),
       });
 
       return (

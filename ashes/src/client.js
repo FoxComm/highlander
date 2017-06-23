@@ -69,7 +69,7 @@ const currentUser = get(store.getState(), 'user.current');
 const needLogin = (!currentUser || !window.tokenOk) && isPathRequiredAuth(location.pathname);
 
 if (needLogin) {
-  const loginUri = process.env.BEHIND_NGINX ? '/admin/login' : '/login';
+  const loginUri = `${process.env.URL_PREFIX}/login`;
 
   store.dispatch(push(loginUri));
 }
@@ -78,7 +78,4 @@ history.listen(location => {
   trackPageView(location.pathname);
 });
 
-render(
-  <Root store={store} routes={routes} history={history} />,
-  document.getElementById('foxcom')
-);
+render(<Root store={store} routes={routes} history={history} />, document.getElementById('foxcom'));

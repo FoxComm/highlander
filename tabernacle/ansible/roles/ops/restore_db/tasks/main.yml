@@ -5,6 +5,7 @@
     - "{{phoenix_db_name}}"
     - "{{middlewarehouse_db_name}}"
     - "{{hyperion_db_name}}"
+    - "{{geronimo_db_name}}"
     - "{{onboarding_service_db_name}}"
     - "{{bernardo_db_name}}"
   when: item != "{{onboarding_service_db_name}}" or with_onboarding
@@ -16,6 +17,7 @@
     - phoenix
     - middlewarehouse
     - hyperion
+    - geronimo
     - onboarding_service
   when: item != "onboarding_service" or with_onboarding
 
@@ -38,3 +40,9 @@
     - "{{middlewarehouse_db_name}}"
     - "{{onboarding_service_db_name}}"
   when: item != "{{onboarding_service_db_name}}" or with_onboarding
+
+# - name: Enable Temporal tables Extensions in Postgres
+#   postgresql_ext: name=temporal_tables db={{item}}
+#   with_items:
+#     - "{{geronimo_db_name}}"
+#   when: item != "{{onboarding_service_db_name}}" or with_onboarding

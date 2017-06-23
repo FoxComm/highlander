@@ -1,23 +1,36 @@
 /* @flow */
 
+// libs
 import React from 'react';
 import classNames from 'classnames';
 
+// components
+import Icon from 'components/core/icon';
+
 type Props = {
   icon: string,
-  direction: 'append'|'prepend',
+  direction: 'append' | 'prepend',
   inputClass: string,
   inputName: string,
   inputType: string,
   plate: string,
-  value: string|number,
+  value: string | number,
   inputValuePretty: string,
   className: string,
 };
 
 const PlatedInput = (props: Props) => {
   const {
-    icon, plate, inputClass, className, inputName, inputType, direction, value, inputValuePretty, ...rest
+    icon,
+    plate,
+    inputClass,
+    className,
+    inputName,
+    inputType,
+    direction,
+    value,
+    inputValuePretty,
+    ...rest
   } = props;
 
   const baseClass = `fc-${direction}-input`;
@@ -27,20 +40,13 @@ const PlatedInput = (props: Props) => {
   const vInputValue = inputValuePretty || value;
 
   const visibleInput = (
-    <input
-      className={vInputClass}
-      name={vInputName}
-      type={inputType}
-      value={vInputValue}
-      {...rest} />
+    <input className={vInputClass} name={vInputName} type={inputType} value={vInputValue} {...rest} />
   );
 
-  const hiddenInput = inputValuePretty
-    ? <input name={inputName} type="hidden" value={value} />
-    : null;
+  const hiddenInput = inputValuePretty ? <input name={inputName} type="hidden" value={value} /> : null;
 
   const inputs = [hiddenInput, visibleInput];
-  const plateInner = plate !== void 0 ? <span>{plate}</span> : <i className={`icon-${icon}`} />;
+  const plateInner = plate !== void 0 ? <span>{plate}</span> : <Icon name={icon} />;
   const plateWrapper = (
     <div className={`${baseClass}__icon`} key="wrapper">
       {plateInner}

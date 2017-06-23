@@ -3,17 +3,19 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 
+// components
+import Icon from 'components/core/icon';
+
 //styles
 import styles from './title-block.css';
 
 //components
 import Currency from '../common/currency';
-import { Moment } from 'components/common/datetime';
+import { DateTime } from 'components/common/datetime';
 
 export default class Customer extends React.Component {
-
   static propTypes = {
-    customer: PropTypes.object.isRequired
+    customer: PropTypes.object.isRequired,
   };
 
   get customerName() {
@@ -44,18 +46,19 @@ export default class Customer extends React.Component {
     let customer = this.props.customer;
     let joinedAt = '';
     if (customer.createdAt !== undefined) {
-      joinedAt = <Moment value={customer.createdAt} />;
+      joinedAt = <DateTime value={customer.createdAt} />;
     }
 
     return (
       <div styleName="block" className="fc-content-box">
         <div styleName="header">
+          <div styleName="head" />
         </div>
         <article styleName="body">
           <div className="fc-grid">
             <div className="fc-col-md-1-12">
               <div styleName="avatar">
-                <i className="icon-customer"></i>
+                <Icon name="customer" />
               </div>
             </div>
             <div className="fc-col-md-11-12">
@@ -68,31 +71,31 @@ export default class Customer extends React.Component {
               <div className="fc-col-md-1-1 fc-customer-details-block">
                 <ul styleName="fields">
                   <li>
-                    <i className="icon-customer"></i>
-                    <span>{ customer.id }</span>
+                    <Icon name="customer" />
+                    <span>{customer.id}</span>
                   </li>
                   <li>
-                    <i className="icon-phone"></i>
-                    <span>{ customer.phoneNumber }</span>
+                    <Icon name="phone" />
+                    <span>{customer.phoneNumber}</span>
                   </li>
                   <li>
-                    <i className="icon-location"></i>
-                    <span>{ customer.location }</span>
+                    <Icon name="location" />
+                    <span>{customer.location}</span>
                   </li>
                 </ul>
                 <ul styleName="fields">
                   <li>
-                    <i className="icon-calendar"></i>
-                    <span>{ joinedAt }</span>
+                    <Icon name="calendar" />
+                    <span>{joinedAt}</span>
                     <span styleName="comment">&nbsp;Date joined</span>
                   </li>
                   <li>
-                    <i className="icon-usd"></i>
+                    <Icon name="usd" />
                     <Currency value={customer.totalSales || 0} />
                     <span styleName="comment">&nbsp;Total Sales</span>
                   </li>
                   <li styleName="days">
-                    <i>0</i>
+                    <Icon>0</Icon>
                     <span>Days since last order</span>
                   </li>
                 </ul>

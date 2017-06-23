@@ -31,6 +31,11 @@ export type UserState = {
   current: ?TUser,
 };
 
+export type TResetPayload = {
+  newPassword: string,
+  code: string,
+};
+
 export const setUser = createAction('USER_SET');
 export const removeUser = createAction('REMOVE_SET');
 export const authMessage = createAction('USER_AUTH_MESSAGE');
@@ -112,6 +117,29 @@ export function logout(): ActionDispatch {
     });
   };
 }
+
+const _requestPasswordReset = createAsyncActions(
+  'requestPasswordReset',
+  function(email: string) {
+    return Api.post('/public/send-password-reset', { email });
+  }
+);
+
+export const requestPasswordReset = _requestPasswordReset.perform;
+export const clearResetPasswordState = _requestPasswordReset.clearErrors;
+
+const _resetPassword = createAsyncActions(
+  'resetPassword',
+  function(payload: TResetPayload) {
+    const {dispatch} = this;
+
+    return superagent.post(Api.apiURI('/public/reset-password'), payload)
+      .type('json')
+      .then(response => handleAuthResponse(dispatch, response));
+  }
+);
+
+export const resetPassword = _resetPassword.perform;
 
 const initialState = {
   message: null,

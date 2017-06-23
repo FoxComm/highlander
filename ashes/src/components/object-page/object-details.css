@@ -1,16 +1,9 @@
+@import 'colors.css';
 
 .object-details {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-
-  & :global(.fc-confirmation-dialog) {
-    margin-bottom: 0;
-
-    & :global(.fc-alert) {
-      margin-bottom: 20px;
-    }
-  }
 }
 
 .main {
@@ -35,9 +28,8 @@
 .sub-title {
   font-weight: 600;
   font-size: 14px;
-  color: #484848;
-
-  margin: 1em 0 0.5em 0;
+  color: var(--color-text);
+  margin: 1em 0 .5em;
 
   &:first-child {
     margin-top: 0;

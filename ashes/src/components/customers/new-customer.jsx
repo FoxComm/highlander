@@ -12,7 +12,8 @@ import * as CustomersActions from 'modules/customers/new';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import SaveCancel from 'components/core/save-cancel';
-import ErrorAlerts from '../alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
+import TextInput from 'components/core/text-input';
 
 import type { NewCustomerPayload } from 'modules/customers/new';
 
@@ -20,7 +21,7 @@ type Props = {
   submitStatus: AsyncState,
   createCustomer: (payload: NewCustomerPayload) => Promise<*>,
   clearErrors: () => void,
-}
+};
 
 function mapStateToProps(state) {
   return {
@@ -31,8 +32,7 @@ function mapStateToProps(state) {
 type State = {
   name: string,
   email: string,
-}
-
+};
 
 class NewCustomer extends Component {
   props: Props;
@@ -68,7 +68,7 @@ class NewCustomer extends Component {
     if (submitStatus.err) {
       return (
         <li>
-          <ErrorAlerts error={submitStatus.err} />
+          <ApiErrors response={submitStatus.err} />
         </li>
       );
     }
@@ -88,37 +88,41 @@ class NewCustomer extends Component {
           </header>
           <article className="fc-col-md-1-1">
             <div className="fc-grid fc-grid-no-gutter">
-              <Form className="fc-customer-form fc-form-vertical fc-col-md-2-5"
-                    onSubmit={this.submitForm}
-                    onChange={this.onChangeValue}>
+              <Form
+                className="fc-customer-form fc-form-vertical fc-col-md-2-5"
+                onSubmit={this.submitForm}
+                onChange={this.onChangeValue}
+              >
                 <ul className="fc-customer-form-fields">
                   <li>
                     <FormField label="Name" validator="ascii">
-                      <input id="nameCustomerFormField"
-                             className="fc-customer-form-input"
-                             name="name"
-                             maxLength="255"
-                             type="text"
-                             value={name}
-                             required />
+                      <TextInput
+                        id="nameCustomerFormField"
+                        className="fc-customer-form-input"
+                        name="name"
+                        maxLength="255"
+                        value={name}
+                        required
+                      />
                     </FormField>
                   </li>
                   <li>
                     <FormField label="Email Address" validator="ascii">
-                      <input id="emailCustomerFormField"
-                             className="fc-customer-form-input"
-                             name="email"
-                             maxLength="255"
-                             type="text"
-                             value={email}
-                             required />
+                      <TextInput
+                        id="emailCustomerFormField"
+                        className="fc-customer-form-input"
+                        name="email"
+                        maxLength="255"
+                        value={email}
+                        required
+                      />
                     </FormField>
                   </li>
                   {this.errors}
                   <li className="fc-customer-form-controls">
                     <SaveCancel
                       onCancel={transitionToLazy('customers')}
-                      saveText="Save Customer"
+                      saveLabel="Save Customer"
                       isLoading={submitStatus.inProgress}
                     />
                   </li>

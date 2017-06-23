@@ -6,6 +6,9 @@ import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import Transition from 'react-transition-group/CSSTransitionGroup';
 
+// components
+import Icon from 'components/core/icon';
+
 // styles
 import s from './page-nav.css';
 
@@ -57,13 +60,18 @@ class NavDropdown extends Component {
 
   render() {
     const { title, className } = this.props;
-    const cls = classNames(s.parent, s.item, {
-      [s.opened]: this.state.opened,
-    }, className);
+    const cls = classNames(
+      s.parent,
+      s.item,
+      {
+        [s.opened]: this.state.opened,
+      },
+      className
+    );
 
     return (
       <li className={cls} onMouseEnter={this.handleMouseOver} onMouseLeave={this.handleMouseOut}>
-        <a>{title}<i className="icon-chevron-down" /></a>
+        <a>{title}<Icon name="chevron-down" /></a>
 
         <Transition {...transitionProps}>
           {this.items}
