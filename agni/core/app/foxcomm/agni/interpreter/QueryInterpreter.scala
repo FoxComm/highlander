@@ -1,12 +1,10 @@
 package foxcomm.agni.interpreter
 
 import scala.language.higherKinds
-import cats.Monad
 import cats.data.{Kleisli, NonEmptyList}
-import cats.implicits._
 import foxcomm.agni.dsl.query._
 
-abstract class QueryInterpreter[F[_]: Monad, V] extends Interpreter[F, (V, NonEmptyList[QueryFunction]), V] {
+trait QueryInterpreter[F[_], V] extends Interpreter[F, (V, NonEmptyList[QueryFunction]), V] {
   final def kleisli: Kleisli[F, (V, NonEmptyList[QueryFunction]), V] = Kleisli(this)
 
   final def eval(v: V, qf: QueryFunction): F[V] = qf match {
@@ -15,10 +13,8 @@ abstract class QueryInterpreter[F[_]: Monad, V] extends Interpreter[F, (V, NonEm
     case qf: QueryFunction.exists  ⇒ existsF(v, qf)
     case qf: QueryFunction.range   ⇒ rangeF(v, qf)
     case qf: QueryFunction.raw     ⇒ rawF(v, qf)
-    case qf: QueryFunction.nested  ⇒ nestedF(v, qf)
+    case qf: QueryFunction.bool    ⇒ boolF(v, qf)
   }
-
-  final def apply(v: (V, NonEmptyList[QueryFunction])): F[V] = v._2.foldM(v._1)(eval)
 
   def matchesF(v: V, qf: QueryFunction.matches): F[V]
 
@@ -30,7 +26,7 @@ abstract class QueryInterpreter[F[_]: Monad, V] extends Interpreter[F, (V, NonEm
 
   def rawF(v: V, qf: QueryFunction.raw): F[V]
 
-  def nestedF(v: V, qf: QueryFunction.nested): F[V]
+  def boolF(v: V, qf: QueryFunction.bool): F[V]
 }
 
 object QueryInterpreter {

@@ -11,7 +11,8 @@ package object es {
 
   lazy val default: ESQueryInterpreter = {
     val eval: Interpreter[Coeval, NonEmptyList[QueryFunction], BoolQueryBuilder] =
-      ESQueryInterpreter <<< (QueryBuilders.boolQuery() → _)
+      (QueryBuilders.boolQuery() → (_: NonEmptyList[QueryFunction])) >>>
+        ESQueryInterpreter
 
     Kleisli(_.query.fold(Coeval.eval(QueryBuilders.boolQuery().must(QueryBuilders.matchAllQuery())))(eval))
   }

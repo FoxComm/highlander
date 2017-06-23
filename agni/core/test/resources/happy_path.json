@@ -6,7 +6,7 @@
   },
   {
     "type": "matches",
-    "in": [ "title", "description" ],
+    "in": [ "title", "description", "skus.code" ],
     "value": [ "food", "drink" ]
   },
   {

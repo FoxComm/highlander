@@ -1,31 +1,68 @@
 package foxcomm.agni.dsl
 
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.implicits._
 import io.circe._
 import io.circe.generic.extras.semiauto._
 import shapeless._
-import shapeless.ops.coproduct.Folder
 
-@SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+@SuppressWarnings(Array("org.wartremover.warts.Equals"))
 object query {
+  type QueryValue[T] = T :+: NonEmptyList[T] :+: CNil
+  type CompoundValue = QueryValue[JsonNumber] :+: QueryValue[String] :+: CNil
+  type Field         = String :+: NonEmptyVector[String] :+: CNil
+  type RangeValue    = RangeBound[JsonNumber] :+: RangeBound[String] :+: CNil
+
+  implicit class RichQueryValue[T](val qv: QueryValue[T]) extends AnyVal {
+    def toNEL: NonEmptyList[T] = qv.eliminate(NonEmptyList.of(_), _.eliminate(identity, _.impossible))
+
+    def toList: List[T] = toNEL.toList
+  }
+
+  implicit class RichCompoundValue(val cv: CompoundValue) extends AnyVal {
+    def toNEL: NonEmptyList[AnyRef] = cv.eliminate(_.toNEL, _.eliminate(_.toNEL, _.impossible))
+
+    def toList: List[AnyRef] = toNEL.toList
+  }
+
+  implicit def decodeQueryValue[T: Decoder]: Decoder[QueryValue[T]] =
+    Decoder[T].map(Coproduct[QueryValue[T]](_)) or Decoder
+      .decodeNonEmptyList[T]
+      .map(Coproduct[QueryValue[T]](_))
+
+  implicit val decodeCompoundValue: Decoder[CompoundValue] =
+    Decoder[QueryValue[JsonNumber]].map(Coproduct[CompoundValue](_)) or
+      Decoder[QueryValue[String]].map(Coproduct[CompoundValue](_))
+
+  implicit val decodeField: Decoder[Field] = Decoder.decodeString.map { s ⇒
+    val xs = s.split("\\.")
+    if (xs.length > 1) Coproduct[Field](NonEmptyVector.of(xs.head, xs.tail: _*))
+    else Coproduct[Field](s)
+  }
+
+  implicit val decodeRange: Decoder[RangeValue] =
+    Decoder[RangeBound[JsonNumber]].map(Coproduct[RangeValue](_)) or
+      Decoder[RangeBound[String]].map(Coproduct[RangeValue](_))
+
   sealed trait QueryField {
-    def toList: List[String]
+    def toNEL: NonEmptyList[Field]
+
+    def toList: List[Field] = toNEL.toList
   }
   object QueryField {
-    final case class Single(field: String) extends QueryField {
-      def toList: List[String] = List(field)
+    final case class Single(field: Field) extends QueryField {
+      def toNEL: NonEmptyList[Field] = NonEmptyList.of(field)
     }
     object Single {
-      implicit val decodeSingle: Decoder[Single] = Decoder.decodeString.map(Single(_))
+      implicit val decodeSingle: Decoder[Single] = Decoder[Field].map(Single(_))
     }
 
-    final case class Multiple(fields: NonEmptyList[String]) extends QueryField {
-      def toList: List[String] = fields.toList
+    final case class Multiple(fields: NonEmptyList[Field]) extends QueryField {
+      def toNEL: NonEmptyList[Field] = fields
     }
     object Multiple {
       implicit val decodeMultiple: Decoder[Multiple] =
-        Decoder.decodeNonEmptyList[String].map(Multiple(_))
+        Decoder.decodeNonEmptyList[Field].map(Multiple(_))
     }
 
     implicit val decodeQueryField: Decoder[QueryField] =
@@ -74,9 +111,7 @@ object query {
   }
 
   final case class RangeBound[T](lower: Option[(RangeFunction.LowerBound, T)],
-                                 upper: Option[(RangeFunction.UpperBound, T)]) {
-    def toMap: Map[RangeFunction, T] = Map.empty ++ lower.toList ++ upper.toList
-  }
+                                 upper: Option[(RangeFunction.UpperBound, T)])
   object RangeBound {
     import RangeFunction._
 
@@ -94,64 +129,6 @@ object query {
         else Either.right(RangeBound(lbs.headOption, ubs.headOption))
       }
   }
-
-  type QueryValue[T] = T :+: NonEmptyList[T] :+: CNil
-  type CompoundValue = QueryValue[JsonNumber] :+: QueryValue[String] :+: CNil
-  type RangeValue    = RangeBound[JsonNumber] :+: RangeBound[String] :+: CNil
-
-  object queryValueF extends Poly1 {
-    implicit def singleValue[T]: Case.Aux[T, List[T]] = at[T](List(_))
-
-    implicit def multipleValues[T]: Case.Aux[NonEmptyList[T], List[T]] = at[NonEmptyList[T]](_.toList)
-  }
-
-  object listOfAnyValueF extends Poly1 {
-    implicit val caseJsonNumber: Case.Aux[QueryValue[JsonNumber], List[AnyRef]] =
-      at[QueryValue[JsonNumber]](_.fold(queryValueF).asInstanceOf[List[AnyRef]])
-
-    implicit val caseString: Case.Aux[QueryValue[String], List[AnyRef]] =
-      at[QueryValue[String]](_.fold(queryValueF).asInstanceOf[List[AnyRef]])
-  }
-
-  // Ugly optimisation to avoid recreation of folder instance on each implicit call
-  // It is safe to cast it the implicit to proper type,
-  // since we don't assume anything about the type, but only construct list.
-  private[this] val queryValueFolderInstance = new Folder[queryValueF.type, QueryValue[_]] {
-    type Out = List[_]
-
-    def apply(qv: QueryValue[_]): Out = qv match {
-      case Inl(v)       ⇒ List(v)
-      case Inr(Inl(vs)) ⇒ vs.toList
-      case _            ⇒ Nil
-    }
-  }
-
-  // TODO: for some reason shapeless cannot find implicit `Folder` instance
-  // if Poly function cases contain generic param as in `queryValueF`
-  implicit def queryValueFolder[T]: Folder[queryValueF.type, QueryValue[T]] =
-    queryValueFolderInstance.asInstanceOf[Folder[queryValueF.type, QueryValue[T]]]
-
-  implicit class RichQueryValue[T](val qv: QueryValue[T]) extends AnyVal {
-    def toList: List[T] = qv.fold(queryValueF).asInstanceOf[List[T]]
-  }
-
-  implicit class RichCompoundValue(val cv: CompoundValue) extends AnyVal {
-    def toList(implicit folder: Folder[listOfAnyValueF.type, CompoundValue]): List[AnyRef] =
-      cv.fold(listOfAnyValueF).asInstanceOf[List[AnyRef]]
-  }
-
-  implicit def decodeQueryValue[T: Decoder]: Decoder[QueryValue[T]] =
-    Decoder[T].map(Coproduct[QueryValue[T]](_)) or Decoder
-      .decodeNonEmptyList[T]
-      .map(Coproduct[QueryValue[T]](_))
-
-  implicit val decodeCompoundValue: Decoder[CompoundValue] =
-    Decoder[QueryValue[JsonNumber]].map(Coproduct[CompoundValue](_)) or
-      Decoder[QueryValue[String]].map(Coproduct[CompoundValue](_))
-
-  implicit val decodeRange: Decoder[RangeValue] =
-    Decoder[RangeBound[JsonNumber]].map(Coproduct[RangeValue](_)) or
-      Decoder[RangeBound[String]].map(Coproduct[RangeValue](_))
 
   sealed trait QueryFunction
   object QueryFunction {
@@ -171,7 +148,7 @@ object query {
       def in: Option[QueryField]
 
       final def ctx: QueryContext = context.getOrElse(QueryContext.must)
-      final def field: QueryField = in.getOrElse(QueryField.Single("_all"))
+      final def field: QueryField = in.getOrElse(QueryField.Single(Coproduct("_all")))
     }
 
     final case class matches private (in: Option[QueryField],
@@ -182,24 +159,25 @@ object query {
     final case class equals private (in: QueryField, value: CompoundValue, context: Option[QueryContext])
         extends QueryFunction
         with TermLevel
+        with WithField {
+      def field: QueryField = in
+    }
     final case class exists private (value: QueryField, context: Option[QueryContext])
         extends QueryFunction
         with TermLevel
     final case class range private (in: QueryField.Single, value: RangeValue, context: Option[QueryContext])
         extends QueryFunction
         with TermLevel
+        with WithField {
+      def field: QueryField.Single = in
+    }
     final case class raw private (value: JsonObject, context: QueryContext)
         extends QueryFunction
         with WithContext {
       def ctx: QueryContext = context
     }
-    final case class nested private (in: QueryField.Single,
-                                     context: QueryContext,
-                                     value: QueryValue[QueryFunction])
+    final case class bool private (in: QueryField.Single, value: QueryValue[QueryFunction])
         extends QueryFunction
-        with WithContext {
-      def ctx: QueryContext = context
-    }
 
     implicit val decodeQueryFunction: Decoder[QueryFunction] = deriveDecoder[QueryFunction]
   }
