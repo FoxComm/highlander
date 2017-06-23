@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import  { DateTime, Date, Time } from './datetime';
+import { DateTime, Date, Time } from './datetime';
 
 describe('DateTime', () => {
 
