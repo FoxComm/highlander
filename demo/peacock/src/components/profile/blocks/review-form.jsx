@@ -3,15 +3,14 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import { autobind } from 'core-decorators';
 
-import Block from '../common/block';
-import Button from 'ui/buttons';
-import { FormField, Form } from 'ui/forms';
-import { TextInput } from 'ui/text-input';
-import { TextArea } from 'ui/textarea';
-
+// import Block from '../common/block';
+// import Button from 'ui/buttons';
+// import { FormField, Form } from 'ui/forms';
+// import { TextInput } from 'ui/text-input';
+// import { TextArea } from 'ui/textarea';
+// import { Link } from 'react-router';
 import * as actions from 'modules/reviews';
 
 import styles from '../profile.css';
@@ -102,34 +101,35 @@ class ReviewForm extends Component {
     return this.props.updateReview(this.props.review.id, payload);
   }
 
+/* TODO: implement the reviews on profile page according to the new design
+<Block title={ReviewForm.title}>
+  <Form onSubmit={this.submitForm}>
+    <div styleName="section">Submit your review of {this.props.review.attributes.productName.v}</div>
+    <FormField styleName="form-field">
+      <TextInput
+        required
+        placeholder="Title of Review"
+        value={this.state.title}
+        onChange={this.handleTitleChange}
+      />
+    </FormField>
+    <FormField>
+      <TextArea
+        required
+        placeholder="Please add your product review here."
+        value={this.state.body}
+        onChange={this.handleBodyChange}
+      />
+    </FormField>
+    <div styleName="buttons-footer">
+      <Button type="submit" styleName="save-button" children="Save" />
+      <Link styleName="link" to="/profile">Cancel</Link>
+    </div>
+  </Form>
+</Block>
+*/
   render() {
-    return (
-      <Block title={ReviewForm.title}>
-        <Form onSubmit={this.submitForm}>
-          <div styleName="section">Submit your review of {this.props.review.attributes.productName.v}</div>
-          <FormField styleName="form-field">
-            <TextInput
-              required
-              placeholder="Title of Review"
-              value={this.state.title}
-              onChange={this.handleTitleChange}
-            />
-          </FormField>
-          <FormField>
-            <TextArea
-              required
-              placeholder="Please add your product review here."
-              value={this.state.body}
-              onChange={this.handleBodyChange}
-            />
-          </FormField>
-          <div styleName="buttons-footer">
-            <Button type="submit" styleName="save-button" children="Save" />
-            <Link styleName="link" to="/profile">Cancel</Link>
-          </div>
-        </Form>
-      </Block>
-    );
+    return <div />;
   }
 }
 

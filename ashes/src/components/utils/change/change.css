@@ -1,8 +1,7 @@
 @import "variables.css";
 
 .change {
-
-  &:before {
+  &::before {
     width: .7em;
     text-align: center;
     display: inline-block;
@@ -11,7 +10,7 @@
   &.positive {
     color: var(--color-link);
 
-    &:before {
+    &::before {
       content: "+";
     }
   }
@@ -19,7 +18,7 @@
   &.negative {
     color: var(--color-error-text);
 
-    &:before {
+    &::before {
       content: "-";
     }
   }

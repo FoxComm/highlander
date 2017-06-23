@@ -3,7 +3,8 @@ const path = require('path');
 
 // '../../src/components/product/page' + 'wrapper' -> 'product/page__wrapper'
 function generateLongName(exportedName, filepath) {
-  const sanitisedPath = path.relative(process.cwd(), filepath)
+  const sanitisedPath = path
+    .relative(process.cwd(), filepath)
     .replace('src/components', '')
     .replace('lib/components', '')
     .replace('src/css', '')
@@ -33,6 +34,7 @@ const plugins = [
   require('postcss-url')({ url: 'inline', maxSize: 4 }),
   // @todo remove second `postcss-url` after https://github.com/postcss/postcss-url/issues/104
   require('postcss-url')({ url: 'rebase', to: './src' }),
+
   require('postcss-cssnext')({
     features: {
       // Instead of it we are using `postcss-css-variables` below

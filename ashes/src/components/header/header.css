@@ -61,7 +61,7 @@
 
   &:hover .name,
   &:hover .arrow {
-    opacity: 0.6;
+    opacity: .6;
   }
 }
 

@@ -7,12 +7,7 @@ import moment from 'moment';
 import { autobind } from 'core-decorators';
 
 // components
-import {
-  VictoryScatter,
-  VictoryArea,
-  VictoryChart,
-  VictoryAxis,
-} from 'victory';
+import { VictoryScatter, VictoryArea, VictoryChart, VictoryAxis } from 'victory';
 import TotalRevenueToolTip from './total-revenue-tooltip';
 
 // styles
@@ -22,15 +17,15 @@ const colors = {
   teal: '#008080',
   white: '#ffffff',
   darkBlue: '#25334a',
-  lightGray: '#abb2b6'
+  lightGray: '#abb2b6',
 };
 
 const areaStyle = {
-  data: { fill: colors.tealGreenish, opacity: 0.25, stroke: colors.teal }
+  data: { fill: colors.tealGreenish, opacity: 0.25, stroke: colors.teal },
 };
 
 const scatterStyle = {
-  data: { fill: colors.tealGreenish, opacity: 0 }
+  data: { fill: colors.tealGreenish, opacity: 0 },
 };
 
 const gridStyle = {
@@ -71,15 +66,11 @@ const formatTickValue = (datum: any, totalDataSize: number, groupSize: number = 
   }
 
   if (_.inRange(totalDataSize, groupSize, groupSize * 2)) {
-    return (datum.tick % 2)
-      ? ''
-      : datum.tickValue;
+    return datum.tick % 2 ? '' : datum.tickValue;
   }
 
   if (_.inRange(totalDataSize, groupSize * 2, groupSize * 6)) {
-    return (datum.tick % 2 || datum.tick % 3)
-      ? ''
-      : datum.tickValue;
+    return datum.tick % 2 || datum.tick % 3 ? '' : datum.tickValue;
   }
 };
 
@@ -109,10 +100,9 @@ type Props = {
   segmentType?: string,
   queryKey?: string,
   currencyCode?: string,
-}
+};
 
 class TotalRevenueChart extends React.Component {
-
   props: Props;
 
   static defaultProps = {
@@ -127,13 +117,13 @@ class TotalRevenueChart extends React.Component {
   generateDataTickValues(jsonData: any) {
     const { debugMode, segmentType } = this.props;
 
-    const jsonDisplay = (debugMode) ? debugJsonData[debugQueryKey] : jsonData;
+    const jsonDisplay = debugMode ? debugJsonData[debugQueryKey] : jsonData;
 
-    _.each(jsonDisplay, (d) => {
+    _.each(jsonDisplay, d => {
       const integerTime = parseInt(d.x);
       let timeFormat = null;
 
-      switch(segmentType) {
+      switch (segmentType) {
         case ChartSegmentType.Hour:
           timeFormat = 'h A';
           break;
@@ -160,36 +150,36 @@ class TotalRevenueChart extends React.Component {
 
     return (
       <div>
-        <VictoryChart
-          width={700}
-          height={350}
-          domainPadding={20}>
+        <VictoryChart width={700} height={350} domainPadding={20}>
           <VictoryAxis
             standalone={false}
             style={{
               axis: { stroke: colors.gray },
-              tickLabels: { fontSize: (dataSize < 90) ? 8 : 6, fill: colors.gray },
+              tickLabels: { fontSize: dataSize < 90 ? 8 : 6, fill: colors.gray },
             }}
             orientation="bottom"
-            tickFormat={(x) => (x) => { return formatTickValue(displayData[x - 1], dataSize); }}
-            tickValues={_.map(displayData, (datum) => { return datum.tickValue; })} />
+            tickFormat={x => x => {
+              return formatTickValue(displayData[x - 1], dataSize);
+            }}
+            tickValues={_.map(displayData, datum => {
+              return datum.tickValue;
+            })}
+          />
           <VictoryAxis
             dependentAxis
             standalone={false}
             style={gridStyle}
             orientation="left"
-            tickFormat={(rawValue) => (`${formatValue(rawValue, currencyCode)}`)} />
-          <VictoryArea
-            style={areaStyle}
-            data={displayData}
-            x="tick"
-            y="y" />
+            tickFormat={rawValue => `${formatValue(rawValue, currencyCode)}`}
+          />
+          <VictoryArea style={areaStyle} data={displayData} x="tick" y="y" />
           <VictoryScatter
             labelComponent={<TotalRevenueToolTip />}
             style={scatterStyle}
             data={displayData}
             x="tick"
-            y="y" />
+            y="y"
+          />
         </VictoryChart>
       </div>
     );
@@ -198,7 +188,7 @@ class TotalRevenueChart extends React.Component {
   get data(): any {
     const { jsonData, debugMode, queryKey, currencyCode } = this.props;
 
-    const jsonDisplay = (debugMode) ? debugJsonData[debugQueryKey] : jsonData[queryKey];
+    const jsonDisplay = debugMode ? debugJsonData[debugQueryKey] : jsonData[queryKey];
 
     // For each datum, set the x-axis tick value, mouseOver label and dateRange display
     for (let idx = 0; idx < jsonDisplay.length; idx++) {

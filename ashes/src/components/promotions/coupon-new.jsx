@@ -27,11 +27,13 @@ export default (props: Props) => {
       isVisible
       onClose={cancelAction}
     >
-      <CouponPage params={{
-        couponId: 'new',
-        promotionId: props.promotionId,
-        modalCancelAction: cancelAction
-      }}>
+      <CouponPage
+        params={{
+          couponId: 'new',
+          promotionId: props.promotionId,
+          modalCancelAction: cancelAction,
+        }}
+      >
         <CouponForm />
       </CouponPage>
     </Modal>

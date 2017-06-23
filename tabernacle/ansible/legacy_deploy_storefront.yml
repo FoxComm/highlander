@@ -17,6 +17,7 @@
     marathon_app_name: "{{ lookup('env', 'MARATHON_APP_NAME') }}"
     marathon_template_path: "{{ lookup('env', 'MARATHON_TEMPLATE_PATH') }}"
     marathon_template_file: "{{ lookup('env', 'MARATHON_TEMPLATE_FILE') }}"
+    npm_token: "{{ lookup('env', 'NPM_TOKEN') }}"
     # Environment variables for Docker container
     contact_email: "{{ lookup('env', 'CONTACT_EMAIL') }}"
     facebook_pixel_id: "{{ lookup('env', 'FB_PIXEL_ID') }}"

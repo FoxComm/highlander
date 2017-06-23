@@ -15,8 +15,7 @@
   font: var(--font-section-title);
 }
 
-.title {
-}
+.title {} /* stylelint-disable-line */
 
 .close {
   font-size: 24px;
@@ -31,6 +30,7 @@
   width: 100%;
   padding: 20px;
   font: var(--font-nav);
+  text-align: left;
 }
 
 .footer {

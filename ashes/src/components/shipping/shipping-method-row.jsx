@@ -15,22 +15,24 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
   if (shippingMethod.isSelected && isEditingPrice) {
     return (
       <div>
-        <div className='fc-shipping-method-input-price fc-left'>
+        <div className="fc-shipping-method-input-price fc-left">
           <CurrencyInput defaultValue={shippingMethod.price} />
         </div>
-        <SaveCancel className="fc-right"
-                    onCancel={cancelPriceAction}
-                    onSave={() => submitPriceAction(shippingMethod.id)} />
+        <SaveCancel
+          className="fc-right"
+          onCancel={cancelPriceAction}
+          onSave={() => submitPriceAction(shippingMethod.id)}
+        />
       </div>
     );
   }
 
   return (
     <div>
-      <div className='fc-shipping-method-row-price-field'>
+      <div className="fc-shipping-method-row-price-field">
         <Currency value={shippingMethod.price} />
       </div>
-      <div className='fc-right'>
+      <div className="fc-right">
         {shippingMethod.isSelected ? <EditButton onClick={editPriceAction} /> : null}
       </div>
     </div>
@@ -51,7 +53,7 @@ const ShippingMethodRow = props => {
   const inputId = `fc-shipping-method-${shippingMethod.id}`;
 
   return (
-    <TableRow {...rest} >
+    <TableRow {...rest}>
       <TableCell>
         <RadioButton
           id={inputId}
@@ -74,7 +76,7 @@ ShippingMethodRow.propTypes = {
   isEditingPrice: PropTypes.bool,
   editPriceAction: PropTypes.func,
   cancelPriceAction: PropTypes.func,
-  submitPriceAction: PropTypes.func
+  submitPriceAction: PropTypes.func,
 };
 
 export default ShippingMethodRow;

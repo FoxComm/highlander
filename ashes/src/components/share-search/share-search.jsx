@@ -28,7 +28,6 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-
 class ShareSearch extends Component {
   static propTypes = {
     search: PropTypes.object.isRequired,
@@ -162,11 +161,7 @@ class ShareSearch extends Component {
     const associationsById = _.keyBy(associations, 'id');
 
     return (
-      <Modal
-        title={this.title}
-        isVisible={this.props.isVisible}
-        onClose={this.props.onClose}
-      >
+      <Modal title={this.title} isVisible={this.props.isVisible} onClose={this.props.onClose}>
         {this.alert}
         <AdminsTypeahead
           className={s.typeahead}

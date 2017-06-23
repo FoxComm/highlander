@@ -5,8 +5,9 @@ header = $(call baseheader, $(1), ashes)
 export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
 SHELL := env PATH=$(PATH) /bin/sh
 
-GIT_REVISION = $(shell git describe --tags --always)
-GIT_COMMIT = $(shell git rev-parse --short HEAD)
+export GIT_REVISION = $(shell git describe --tags --always)
+export GIT_COMMIT = $(shell git rev-parse --short HEAD)
+export URL_PREFIX = /admin
 WEBPACK_PORT = 4001
 
 notify:
@@ -28,7 +29,11 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 .PHONY: docker
 docker: MSG=Dockerizing
 docker: notify
-	docker build -t $(DOCKER_IMAGE) .
+	docker build -t $(DOCKER_IMAGE) . --build-arg NPM_TOKEN=${NPM_TOKEN}
+
+.PHONY: docker-run
+docker-run:
+	docker run -it -p 4000:4000 ashes:latest
 
 .PHONY: docker-push
 docker-push: MSG=Registering
@@ -67,21 +72,34 @@ mocha-main:
 mocha-unit:
 	@NODE_ENV=$(NODE_ENV) gulp mocha.unit
 
+.PHONY: stylelint
+stylelint:
+	stylelint "./src/**/*.css"
+
 .PHONY: lint
-lint:
-	 eslint --ext .js --ext .jsx ./
+lint: stylelint
+	eslint --ext .js --ext .jsx ./
 
 .PHONY: flow
 flow:
 	flow check
 
+# run prettier against js(x)/css files in git diff that are not formatted in Prettier style
+.PHONY: fmt
+fmt:
+	../utils/prettier/fmt.sh
+
+# prettierify target directory. usage: make fmt-config
+fmt-%:
+	../utils/prettier/fmt.sh $*
+
 .PHONY: build-styleguide
 build-styleguide:
-	GIT_COMMIT=$(GIT_COMMIT) styleguidist build --config styleguide/config.styleguide.js
+	styleguidist build --config styleguide/config.styleguide.js
 
 .PHONY: styleguide sg
 styleguide sg:
-	GIT_COMMIT=$(GIT_COMMIT) styleguidist server --config styleguide/config.styleguide.js
+	styleguidist server --config styleguide/config.styleguide.js
 
 # Base ###
 
@@ -99,7 +117,7 @@ nodemon:
 
 .PHONY: build-dev
 build-dev:
-	GIT_REVISION=$(GIT_REVISION) webpack-dev-server \
+	webpack-dev-server \
 	--inline --watch --hot --progress --content-base=build/ --port $(WEBPACK_PORT)
 
 .PHONY: dev d
@@ -110,7 +128,7 @@ dev d:
 
 .PHONY: build-prod
 build-prod:
-	BEHIND_NGINX=${BEHIND_NGINX} GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack --progress
+	NODE_ENV=production webpack --progress
 
 .PHONY: prod p
 prod p: clean build-prod
@@ -119,6 +137,5 @@ prod p: clean build-prod
 # Buildkite ###
 
 .PHONY: build
-build: BEHIND_NGINX=true
 build: MSG=Building
 build: notify clean install build-styleguide build-prod

@@ -22,7 +22,7 @@ import Icon from 'components/core/icon';
 import styles from './payment-row.css';
 
 // redux
-import {deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment} from 'modules/carts/details';
+import { deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment } from 'modules/carts/details';
 
 import type { PaymentMethod } from 'paragons/order';
 
@@ -82,7 +82,7 @@ class PaymentRow extends Component {
       };
 
       let DetailsElement = null;
-      switch(paymentMethod.type) {
+      switch (paymentMethod.type) {
         case 'creditCard':
           DetailsElement = CreditCardDetails;
           break;
@@ -110,9 +110,7 @@ class PaymentRow extends Component {
 
   get editActions(): ?Element<*> {
     if (this.props.editMode) {
-      const editButton = !this.state.isEditing
-        ? <EditButton onClick={this.startEdit} />
-        : null;
+      const editButton = !this.state.isEditing ? <EditButton onClick={this.startEdit} /> : null;
 
       return (
         <TableCell styleName="actions-cell">
@@ -165,7 +163,7 @@ class PaymentRow extends Component {
   @autobind
   toggleDetails() {
     this.setState({
-      showDetails: !this.state.showDetails
+      showDetails: !this.state.showDetails,
     });
   }
 
@@ -180,8 +178,9 @@ class PaymentRow extends Component {
 }
 
 const deleteActions = {
-  deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment
+  deleteCreditCardPayment,
+  deleteGiftCardPayment,
+  deleteStoreCreditPayment,
 };
 
 export default connect(void 0, deleteActions)(PaymentRow);
-

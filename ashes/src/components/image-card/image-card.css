@@ -27,7 +27,7 @@
   background: var(--bg-nav-main);
   opacity: .86;
   text-align: right;
-  transition: transform .32s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform .32s cubic-bezier(.4, 0, .2, 1);
 
   &.actionsVisible {
     transform: translateY(-100%);

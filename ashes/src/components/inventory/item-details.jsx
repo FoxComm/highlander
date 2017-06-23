@@ -31,12 +31,12 @@ type Props = {
   fetchState: {
     inProgress?: boolean,
     err?: any,
-  }
-}
+  },
+};
 
 type State = {
-  diff: number
-}
+  diff: number,
+};
 
 function array2tableData(rows) {
   return {
@@ -51,7 +51,7 @@ class InventoryItemDetails extends Component {
   props: Props;
 
   state: State = {
-    diff: 0
+    diff: 0,
   };
 
   componentDidMount() {
@@ -90,7 +90,7 @@ class InventoryItemDetails extends Component {
   @autobind
   onChange(value) {
     this.setState({
-      diff: this.state.diff + value
+      diff: this.state.diff + value,
     });
   }
 
@@ -131,14 +131,7 @@ class InventoryItemDetails extends Component {
   renderRow(row: WarehouseInventorySummary, index: number, columns: Columns, params: Object) {
     const key = `inventory-warehouse-${row.stockLocation.id}`;
 
-    return (
-      <InventoryWarehouseRow
-        key={key}
-        warehouse={row}
-        columns={columns}
-        params={params}
-      />
-    );
+    return <InventoryWarehouseRow key={key} warehouse={row} columns={columns} params={params} />;
   }
 
   get summaryData() {

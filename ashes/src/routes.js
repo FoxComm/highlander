@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, IndexRoute, IndexRedirect } from 'react-router';
+import { Route, IndexRoute, Redirect, IndexRedirect } from 'react-router';
 
 import Site from './components/site/site';
 import Home from './components/home/home';
@@ -15,13 +15,13 @@ import settingsRoutes from './routes/settings';
 
 import { getClaims } from 'lib/claims';
 
-const rootPath = process.env.BEHIND_NGINX ? '/admin' : '/';
+const rootPath = process.env.URL_PREFIX;
 const indexRedirect = `${rootPath}/orders`;
 
 export default function makeRoutes(jwtToken) {
   const claims = getClaims(jwtToken);
 
-  return (
+  return [
     <Route path={rootPath}>
       <IndexRedirect to={indexRedirect} />
       {authRoutes(claims)}
@@ -35,6 +35,7 @@ export default function makeRoutes(jwtToken) {
         {settingsRoutes(claims)}
       </Route>
       <Route path="*" component={NotFound} />
-    </Route>
-  );
+    </Route>,
+    <Redirect from="*" to={indexRedirect} />,
+  ];
 }

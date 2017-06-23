@@ -44,7 +44,7 @@ const Messages = props => {
   });
 
   const className = classnames('fc-order-messages', {
-    '_empty': errorAlerts.length + warningAlerts.length === 0
+    _empty: errorAlerts.length + warningAlerts.length === 0,
   });
 
   const scrollToMessages = errorAlerts.length || warningAlerts.length ? <AutoScroll /> : null;
@@ -60,12 +60,12 @@ const Messages = props => {
 
 Messages.propTypes = {
   errors: PropTypes.array,
-  warnings: PropTypes.array
+  warnings: PropTypes.array,
 };
 
 Messages.defaultProps = {
   errors: [],
-  warnings: []
+  warnings: [],
 };
 
 export default Messages;

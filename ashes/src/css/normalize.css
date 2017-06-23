@@ -137,7 +137,7 @@ dfn {
 
 h1 {
   font-size: 2em;
-  margin: 0.67em 0;
+  margin: .67em 0;
 }
 
 /**
@@ -161,11 +161,11 @@ sup {
 }
 
 sup {
-  top: -0.5em;
+  top: -.5em;
 }
 
 sub {
-  bottom: -0.25em;
+  bottom: -.25em;
 }
 
 /* Embedded content
@@ -223,7 +223,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: monospace, monospace;
+  font-family: monospace;
   font-size: 1em;
 }
 
@@ -281,7 +281,7 @@ select {
  */
 
 button,
-html input[type="button"], /* 1 */
+html input[type="button"],
 input[type="reset"],
 input[type="submit"] {
   -webkit-appearance: button; /* 2 */
@@ -369,7 +369,7 @@ input[type="search"]::-webkit-search-decoration {
 fieldset {
   border: 1px solid var(--color-border);
   margin: 0 2px;
-  padding: 0.35em 0.625em 0.75em;
+  padding: .35em .625em .75em;
 }
 
 /**

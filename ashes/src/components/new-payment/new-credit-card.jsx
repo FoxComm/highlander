@@ -70,9 +70,7 @@ export default class NewCreditCard extends Component {
     const creditCards = _.get(this.props, 'creditCards.cards', []);
     return creditCards.map(card => {
       return (
-        <CreditCardBox card={card}
-                       customerId={this.props.customerId}
-                       onChooseClick={() => this.selectCard(card)} />
+        <CreditCardBox card={card} customerId={this.props.customerId} onChooseClick={() => this.selectCard(card)} />
       );
     });
   }
@@ -113,26 +111,24 @@ export default class NewCreditCard extends Component {
   get formControls() {
     if (!this.state.showForm) {
       const saveDisabled = _.isNull(this.state.selectedCard);
-      const onSave = () => this.props.actions.selectCreditCard(
-        this.props.order.referenceNumber,
-        _.get(this.state, 'selectedCard.id')
-      );
+      const onSave = () =>
+        this.props.actions.selectCreditCard(this.props.order.referenceNumber, _.get(this.state, 'selectedCard.id'));
 
       return (
-        <SaveCancel className="fc-new-order-payment__form-controls"
-                    saveLabel="Add Payment Method"
-                    saveDisabled={saveDisabled}
-                    onSave={onSave}
-                    onCancel={this.props.cancelAction} />
+        <SaveCancel
+          className="fc-new-order-payment__form-controls"
+          saveLabel="Add Payment Method"
+          saveDisabled={saveDisabled}
+          onSave={onSave}
+          onCancel={this.props.cancelAction}
+        />
       );
     }
   }
 
   get selectedCard() {
     if (!_.isNull(this.state.selectedCard)) {
-      return (
-        <CreditCardDetails customerId={this.props.customerId} card={this.state.selectedCard} />
-      );
+      return <CreditCardDetails customerId={this.props.customerId} card={this.state.selectedCard} />;
     }
   }
 

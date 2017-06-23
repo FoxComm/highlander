@@ -22,7 +22,7 @@ function getCell(column, children, row) {
   const type = _.get(column, 'type');
   switch (type) {
     case 'id':
-      return <Link to={column.model} params={{[column.model]: children}}>{children}</Link>;
+      return <Link to={column.model} params={{ [column.model]: children }}>{children}</Link>;
     case 'image':
       return <ProductImage src={children} width={50} height={50} />;
     case 'state':

@@ -11,7 +11,7 @@ import {
   saveGroupFromTemplate as saveGroup,
   clearSaveErrors,
   GROUP_TYPE_DYNAMIC,
-  GROUP_TYPE_MANUAL
+  GROUP_TYPE_MANUAL,
 } from 'modules/customer-groups/details/group';
 
 import Spinner from 'components/core/spinner';
@@ -80,9 +80,9 @@ class NewGroupWizardPage extends Component {
         <Template name="Dynamic Group" onClick={this.handleCustomGroup(GROUP_TYPE_DYNAMIC)} icon="customers" />
         <Template name="Manual Group" onClick={this.handleCustomGroup(GROUP_TYPE_MANUAL)} icon="customers" />
 
-        {templates.map((tpl: TTemplate) => (
+        {templates.map((tpl: TTemplate) =>
           <Template id={tpl.id} name={tpl.name} onClick={this.handleSave} key={tpl.id} />
-        ))}
+        )}
       </div>
     );
   }
@@ -92,7 +92,7 @@ const mapStateToProps = state => ({
   fetchFinished: get(state, 'asyncActions.fetchCustomerGroupsTemplates.finished', false),
   saveInProgress: get(state, 'asyncActions.saveCustomerGroup.inProgress', false),
   saveError: get(state, 'asyncActions.saveCustomerGroup.err', false),
-  templates: state.customerGroups.templates
+  templates: state.customerGroups.templates,
 });
 
 const mapActions = { fetchTemplates, saveGroup, clearSaveErrors, push };

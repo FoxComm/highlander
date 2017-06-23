@@ -73,6 +73,22 @@
                            :template_content []
                            :message template}))
 
+(defn trim-slash [str]
+  (string/replace str #"/$" ""))
+
+(defn extract-password-link
+  [activity email url-action is-admin]
+  (let [reset-code (get-in activity [:data "code"])
+        [base-url reset-pw-endpoint] (if is-admin
+                                       [(trim-slash (settings/get :admin_base_url))
+                                        (format "%s?token=%s&email=%s" url-action reset-code email)]
+                                       [(trim-slash (settings/get :shop_base_url))
+                                        (format (settings/get :reset_password_link_format) reset-code)])
+        reset-password-link (format "%s/%s" base-url reset-pw-endpoint)]
+
+    {:reset_password_link reset-password-link
+     :reset_code reset-code}))
+
 (defn dispatch-activity
   [activity]
   (keyword (:kind activity)))
@@ -157,15 +173,14 @@
 
 (defmethod handle-activity :user_remind_password
   [activity]
-  (let [email (get-in activity [:data "user" "email"])
-        reset-code (get-in activity [:data "code"])
-        reset-pw-link (format (settings/get :reset_password_link_format) reset-code)
-        full-reset-password-link (format "%s/%s" (settings/get :shop_base_url) reset-pw-link)
+  (let [data (:data activity)
+        email (get-in data ["user" "email"])
+        isAdmin (get-in data ["isAdmin"])
+        reset-pw (extract-password-link activity email "reset-password" isAdmin)
         customer-name (get-in activity [:data "user" "name"])]
     (send-template! (settings/get :customer_remind_password_template)
                     (gen-msg [{:email email :name customer-name}]
-                             {:reset_password_link full-reset-password-link
-                              :reset_code reset-code}
+                             reset-pw
                              {:subject (settings/get :customer_remind_password_subject)}))))
 
 (defmethod handle-activity :gift_card_created
@@ -234,10 +249,13 @@
         email (get-in data ["storeAdmin" "email"])
         new-admin-name (get-in data ["storeAdmin" "name"])
         store-admin-name (get-in data ["admin" "name"])
+        reset-pw (extract-password-link activity email "signup" true)
         msg (gen-msg [{:email email :name new-admin-name}]
-                     {:user_being_invited new-admin-name
-                      :name_of_retailer (settings/get :retailer_name)
-                      :user_that_invited_you store-admin-name}
+                     (merge
+                      {:user_being_invited new-admin-name
+                       :name_of_retailer (settings/get :retailer_name)
+                       :user_that_invited_you store-admin-name}
+                      reset-pw)
 
                      {:subject (settings/get :admin_invitation_subject)})]
 

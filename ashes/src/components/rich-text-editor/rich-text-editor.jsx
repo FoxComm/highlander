@@ -28,12 +28,12 @@ type Props = {
 type State = {
   editorState: Object,
   contentType: string,
-  richMode: boolean;
+  richMode: boolean,
 };
 type ButtonData = { label: string, value: string, title?: string };
 
 const headerStyles = [
-  { label: 'P', value: 'unstyled'},
+  { label: 'P', value: 'unstyled' },
   { label: 'H1', value: 'header-one' },
   { label: 'H2', value: 'header-two' },
   { label: 'H3', value: 'header-three' },
@@ -114,14 +114,13 @@ export default class RichTextEditor extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.value != nextProps.value) {
-
       if (!this.state.richMode) {
-        const textValue = (this.state.contentType === 'html')
+        const textValue = this.state.contentType === 'html'
           ? this.htmlContent
           : stateToMarkdown(stateFromHTML(this.htmlContent));
 
         this.setState({
-          editorState: EditorState.createWithContent(ContentState.createFromText(textValue))
+          editorState: EditorState.createWithContent(ContentState.createFromText(textValue)),
         });
       }
 
@@ -136,15 +135,10 @@ export default class RichTextEditor extends Component {
   get headerButtons(): ?Element<*> {
     const { editorState } = this.state;
     const selection = editorState.getSelection();
-    const blockType = editorState
-      .getCurrentContent()
-      .getBlockForKey(selection.getStartKey())
-      .getType();
+    const blockType = editorState.getCurrentContent().getBlockForKey(selection.getStartKey()).getType();
 
     return (
-      <div
-        className={classNames('fc-rich-text-editor__command-set', s.set)}
-        key="header-buttons">
+      <div className={classNames('fc-rich-text-editor__command-set', s.set)} key="header-buttons">
         <Dropdown
           className="fc-rich-text-editor__command-headers"
           placeholder={<Icon name="size" />}
@@ -159,11 +153,7 @@ export default class RichTextEditor extends Component {
   get listButtons(): ?Element<*> {
     const { editorState } = this.state;
     const selection = editorState.getSelection();
-    const blockType = editorState
-      .getCurrentContent()
-      .getBlockForKey(selection.getStartKey())
-      .getType();
-
+    const blockType = editorState.getCurrentContent().getBlockForKey(selection.getStartKey()).getType();
 
     const isActive = value => value == blockType;
     return this.renderToggleButtons(listStyles, isActive, this.handleBlockTypeChange, {
@@ -211,11 +201,7 @@ export default class RichTextEditor extends Component {
 
   get commandBarContent() {
     if (this.state.richMode) {
-      return [
-        this.headerButtons,
-        this.styleButtons,
-        this.listButtons,
-      ];
+      return [this.headerButtons, this.styleButtons, this.listButtons];
     } else if (this.state.contentType == 'markdown') {
       return this.markdownLink;
     }
@@ -265,10 +251,12 @@ export default class RichTextEditor extends Component {
     return false;
   }
 
-  renderToggleButtons(buttonsData: Array<ButtonData>,
-                      isActive: (v: string) => boolean,
-                      onClick: (v: any) => void,
-                      props: ?Object): Element<*> {
+  renderToggleButtons(
+    buttonsData: Array<ButtonData>,
+    isActive: (v: string) => boolean,
+    onClick: (v: any) => void,
+    props: ?Object
+  ): Element<*> {
     const buttons = buttonsData.map(type => {
       return (
         <ToggleButton
@@ -289,21 +277,17 @@ export default class RichTextEditor extends Component {
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     return (
       this.state.editorState != nextState.editorState ||
-        this.state.contentType != nextState.contentType ||
-        this.state.richMode != nextState.richMode
+      this.state.contentType != nextState.contentType ||
+      this.state.richMode != nextState.richMode
     );
   }
 
   render() {
     const { editorState, contentType, richMode } = this.state;
 
-    const className = classNames(
-      'fc-rich-text-editor',
-      this.props.className,
-      `_content-type-${contentType}`, {
-        '_rich-mode': richMode,
-      }
-    );
+    const className = classNames('fc-rich-text-editor', this.props.className, `_content-type-${contentType}`, {
+      '_rich-mode': richMode,
+    });
 
     return (
       <div className={className}>
@@ -322,7 +306,8 @@ export default class RichTextEditor extends Component {
             blockStyleFn={this.blockStyleFn}
             handleKeyCommand={this.handleKeyCommand}
             onBlur={this.handleBlur}
-            onChange={this.handleChange} />
+            onChange={this.handleChange}
+          />
         </div>
       </div>
     );

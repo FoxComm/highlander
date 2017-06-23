@@ -48,21 +48,29 @@ function attributesFromSettings(settingsWithSchema: Object): Attributes {
   const settings: Object = settingsWithSchema.settings;
   const schema: Object = settingsWithSchema.schema;
 
-  return _.reduce(schema, (acc:Attributes, property: SettingDef) => {
-    const value = settings[property.name];
-    acc[property.name] = {
-      t: guessType(value),
-      v: value
-    };
-    return acc;
-  }, {});
+  return _.reduce(
+    schema,
+    (acc: Attributes, property: SettingDef) => {
+      const value = settings[property.name];
+      acc[property.name] = {
+        t: guessType(value),
+        v: value,
+      };
+      return acc;
+    },
+    {}
+  );
 }
 
 function settingsFromAttributes(attributes: Attributes): Object {
-  return _.reduce(attributes, (acc: Object, attr: Attribute, key: string) => {
-    acc[key] = attr.v;
-    return acc;
-  }, {});
+  return _.reduce(
+    attributes,
+    (acc: Object, attr: Attribute, key: string) => {
+      acc[key] = attr.v;
+      return acc;
+    },
+    {}
+  );
 }
 
 function mapStateToProps(state, props) {
@@ -99,7 +107,7 @@ class Plugin extends Component {
     if (!_.isEqual(nextProps.settings, this.state.settings) || !_.isEqual(nextProps.schema, this.state.schema)) {
       this.setState({
         settings: nextProps.settings,
-        schema: nextProps.schema
+        schema: nextProps.schema,
       });
     }
   }
@@ -132,21 +140,12 @@ class Plugin extends Component {
     } else {
       return (
         <div>
-          <ObjectFormInner
-            title={this.pluginName}
-            attributes={this.attributes}
-            onChange={this.handleChange}
-          />
-          <SaveCancel
-            onCancel={transitionToLazy('plugins')}
-            onSave={this.handleSave}
-            isLoading={this.props.isSaving}
-          />
+          <ObjectFormInner title={this.pluginName} attributes={this.attributes} onChange={this.handleChange} />
+          <SaveCancel onCancel={transitionToLazy('plugins')} onSave={this.handleSave} isLoading={this.props.isSaving} />
         </div>
       );
     }
   }
-
 
   render() {
     const title = `Plugin ${this.pluginName}`;

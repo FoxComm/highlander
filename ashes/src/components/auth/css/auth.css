@@ -6,7 +6,7 @@
   margin-top: 40px;
 }
 
-.or-line {
+.orLine {
   margin-top: 20px;
   font-size: 16px;
   line-height: 22px;
@@ -33,6 +33,12 @@
   margin-top: 30px;
 }
 
+.buttonBlock {
+  margin-top: 20px;
+  vertical-align: baseline;
+  display: flex;
+}
+
 .form {
   width: 100%;
   margin-top: 20px;
@@ -48,18 +54,29 @@
   }
 }
 
-.submit-button {
-  margin-top: 20px;
+.backButton {
+  display: block;
+  padding: 10px 20px;
+  color: var(--color-additional-text);
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 14px;
+
+  &:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
 }
 
-.password-label {
+.passwordLabel {
   display: flex;
 }
 
-.forgot-link {
+.forgotLink {
   margin-left: auto;
   font-size: 13px;
   line-height: 18px;
+
   &:hover {
     color: var(--color-text);
   }

@@ -15,8 +15,6 @@ flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
 flyway_url: "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_vers}}/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz"
 flyway: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
 
-update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
-update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
 drop_phoenix_replication_slot_cmd: "psql {{db_connection_string}} -c \"select pg_drop_replication_slot('{{bottledwater_slot_phoenix}}');\""
 drop_middlewarehouse_replication_slot_cmd: "psql {{middlewarehouse_db_connection_string}} -c \"select pg_drop_replication_slot('{{bottledwater_slot_middlewarehouse}}');\""
 drop_onboarding_service_replication_slot_cmd: "psql {{onboarding_service_db_connection_string}} -c \"select pg_drop_replication_slot('{{bottledwater_slot_onboarding_service}}');\""
