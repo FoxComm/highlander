@@ -1,79 +1,109 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import moment from 'moment';
+import  { DateTime, Date, Time } from './datetime';
 
-import * as DateTime from './datetime';
+describe('DateTime', () => {
 
-describe('DateTime', function () {
+  describe('#DateTime', () => {
+    it('should render date/time in (L LT) format', () => {
+      const datetime = mount(
+        <DateTime value={'2017-12-29T15:10:30'} utc={false} />
+      );
 
-  it('should render emptyValue, when no value prop defined', function () {
+      expect(datetime.text()).to.equal('12/29/2017 3:10 PM');
+    });
 
-    const datetime = mount(
-      <DateTime.Moment />
-    );
+    it('should render default emptyValue when value is not defined', () => {
+      const datetime = mount(
+        <DateTime />
+      );
 
-    expect(datetime.hasClass('time')).to.be.true;
-    expect(datetime.text()).to.equal('not set');
+      expect(datetime.text()).to.equal('not set');
+    });
+
+    it('should render custom emptyValue ', () => {
+      const datetime = mount(
+        <DateTime emptyValue="date is not set" />
+      );
+
+      expect(datetime.text()).to.equal('date is not set');
+    });
+
+    it('should render passed className', () => {
+      const datetime = mount(
+        <DateTime className="test" />
+      );
+
+      expect(datetime.hasClass('test')).to.be.true;
+    });
+
   });
 
-  it('should render date/time in (L LTS) format by default', function () {
-    const date = '2017-12-29T15:10:30';
-    const expectedResult = moment.utc(date).local().format('L LTS');
-    const datetime = mount(
-      <DateTime.Moment value={date} />
-    );
+  describe('#Date', () => {
+    it('should render date/time in (L) format', () => {
+      const datetime = mount(
+        <Date value={'2017-12-29T15:10:30'} utc={false} />
+      );
 
-    expect(datetime.find('time').hasClass('time')).to.be.true;
-    expect(datetime.text()).to.equal(expectedResult);
+      expect(datetime.text()).to.equal('12/29/2017');
+    });
+
+    it('should render default emptyValue when value is not defined', () => {
+      const datetime = mount(
+        <Date />
+      );
+
+      expect(datetime.text()).to.equal('not set');
+    });
+
+    it('should render custom emptyValue ', () => {
+      const datetime = mount(
+        <Date emptyValue="date is not set" />
+      );
+
+      expect(datetime.text()).to.equal('date is not set');
+    });
+
+    it('should render passed className', () => {
+      const datetime = mount(
+        <Date className="test" />
+      );
+
+      expect(datetime.hasClass('test')).to.be.true;
+    });
   });
 
-  it('should render date/time with defined format', function () {
-    const date = '2017-12-29T15:10:30';
-    const expectedResult = moment.utc(date).local().format('L LT');
-    const datetime = mount(
-      <DateTime.Moment value={date} format="L LT" />
-    );
+  describe('#Date', () => {
+    it('should render date/time in (LT) format', () => {
+      const datetime = mount(
+        <Time value={'2017-12-29T15:10:30'} utc={false} />
+      );
 
-    expect(datetime.text()).to.equal(expectedResult);
+      expect(datetime.text()).to.equal('3:10 PM');
+    });
+
+    it('should render default emptyValue when value is not defined', () => {
+      const datetime = mount(
+        <Time />
+      );
+
+      expect(datetime.text()).to.equal('not set');
+    });
+
+    it('should render custom emptyValue ', () => {
+      const datetime = mount(
+        <Time emptyValue="time is not set" />
+      );
+
+      expect(datetime.text()).to.equal('time is not set');
+    });
+
+    it('should render passed className', () => {
+      const datetime = mount(
+        <Time className="test" />
+      );
+
+      expect(datetime.hasClass('test')).to.be.true;
+    });
   });
-
-  it('should render passed className inside Moment', function () {
-
-    const datetime = mount(
-      <DateTime.Moment className="new-className" />
-    );
-
-    expect(datetime.hasClass('new-className')).to.be.true;
-  });
-
-  it('should render date/time in (L LT) format', function () {
-    const date = '2017-12-29T15:10:30';
-    const expectedResult = moment.utc(date).local().format('L LT');
-    const datetime = mount(
-      <DateTime.DateTime value={date} />
-    );
-
-    expect(datetime.text()).to.equal(expectedResult);
-  });
-
-  it('should render date in (L) format', function () {
-    const date = '2017-12-29T15:10:30';
-    const expectedResult = moment.utc(date).local().format('L');
-    const datetime = mount(
-      <DateTime.Date value={date} />
-    );
-
-    expect(datetime.text()).to.equal(expectedResult);
-  });
-
-  it('should render date/time in (LT) format', function () {
-    const date = '2017-12-29T15:10:30';
-    const expectedResult = moment.utc(date).local().format('LT');
-    const datetime = mount(
-      <DateTime.Time value={date} />
-    );
-
-    expect(datetime.text()).to.equal(expectedResult);
-  });
-
 });
