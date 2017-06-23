@@ -11,11 +11,11 @@ import FormField from '../forms/formfield';
 import * as CardUtils from 'lib/credit-card-utils';
 
 type Props = {
-  month: string;
-  year: string;
-  onMonthChange: Function;
-  onYearChange: Function;
-}
+  month: string,
+  year: string,
+  onMonthChange: Function,
+  onYearChange: Function,
+};
 
 export default class ExpirationBlock extends Component {
   props: Props;
@@ -34,6 +34,7 @@ export default class ExpirationBlock extends Component {
           <div className="fc-col-md-1-2">
             <FormField getTargetValue={() => month} validationLabel="Month" required>
               <TextDropdown
+                className="at-expMonth"
                 name="expMonth"
                 items={CardUtils.monthList()}
                 placeholder="Month"
@@ -46,6 +47,7 @@ export default class ExpirationBlock extends Component {
           <div className="fc-col-md-1-2">
             <FormField getTargetValue={() => year} validationLabel="Year" required>
               <TextDropdown
+                className="at-expYear"
                 name="expYear"
                 items={CardUtils.expirationYears()}
                 placeholder="Year"

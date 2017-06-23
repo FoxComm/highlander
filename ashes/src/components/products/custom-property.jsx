@@ -6,6 +6,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 // components
 import Modal from 'components/core/modal';
@@ -113,7 +114,7 @@ export default class CustomProperty extends Component<void, Props, State> {
           labelClassName="fc-product-details__field-label"
         >
           <TextDropdown
-            className={s.dropdown}
+            className={classNames(s.dropdown, 'at-fct-field-type-dd')}
             name="type"
             value={this.state.propertyType}
             onChange={this.handleUpdateType}

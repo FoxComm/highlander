@@ -138,12 +138,7 @@ export default class Discounts extends Component {
   @autobind
   renderDiscount() {
     return (
-      <TextDropdown
-        className="autowidth_dd"
-        items={DISCOUNT_TYPES}
-        value={this.qualifier.discountType}
-        onChange={this.discountTypeChange}
-      />
+      <TextDropdown items={DISCOUNT_TYPES} value={this.qualifier.discountType} onChange={this.discountTypeChange} />
     );
   }
 
@@ -152,14 +147,7 @@ export default class Discounts extends Component {
     let discountType = this.qualifier.discountType;
     let items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
 
-    return (
-      <TextDropdown
-        className="autowidth_dd"
-        items={items}
-        value={this.qualifier.qualifierType}
-        onChange={this.qualifierTypeChange}
-      />
-    );
+    return <TextDropdown items={items} value={this.qualifier.qualifierType} onChange={this.qualifierTypeChange} />;
   }
 
   @autobind
@@ -255,12 +243,7 @@ export default class Discounts extends Component {
             onChange={this.toggleExGiftCardOffer}
           />
         </FormField>
-        <TextDropdown
-          className="autowidth_dd"
-          items={OFFER_TYPES}
-          value={this.offer.offerType}
-          onChange={this.offerTypeChange}
-        />
+        <TextDropdown items={OFFER_TYPES} value={this.offer.offerType} onChange={this.offerTypeChange} />
       </div>
     );
   }

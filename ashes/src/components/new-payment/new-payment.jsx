@@ -88,6 +88,7 @@ class NewPayment extends Component {
             label="Payment Type"
           >
             <TextDropdown
+              className="at-fct-payment-type-dd"
               name="paymentType"
               value={this.state.paymentType}
               onChange={this.changePaymentType}

@@ -138,9 +138,10 @@ export default class NewGiftCard extends React.Component {
         <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
           <label className="fc-new-gift-card__label" htmlFor="subTypeId">Subtype</label>
           <TextDropdown
+            className="at-gift-card-subtype-dd"
             value={`${props.subTypeId}`}
             onChange={value => props.changeFormData('subTypeId', Number(value))}
-            items={props.subTypes.map(subType =>[subType.id, subType.title])}
+            items={props.subTypes.map(subType => [subType.id, subType.title])}
           />
         </div>
       );
@@ -171,6 +172,7 @@ export default class NewGiftCard extends React.Component {
             <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label className="fc-new-gift-card__label" htmlFor="originType">Gift Card Type</label>
               <TextDropdown
+                className="at-fct-gift-card-type-dd"
                 value={originType}
                 onChange={value => changeFormData('originType', value)}
                 items={types.map((entry, idx) => [entry.originType, typeTitles[entry.originType]])}

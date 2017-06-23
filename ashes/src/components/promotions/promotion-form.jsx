@@ -120,11 +120,11 @@ export default class PromotionForm extends ObjectDetails {
       const makeKey = prefix => `${prefix}-${disc.id || index}`;
       return [
         ...acc,
-        <div key={makeKey('qualifier')} styleName="sub-title">Qualifier</div>,
+        <div key={makeKey('qualifier')} styleName="sub-title">Qualifier promotion</div>,
         <DiscountAttrs
           key={makeKey('qualifier-attrs')}
-          blockId={'promo-qualifier-block-'+index}
-          dropdownId={'promo-qualifier-dd-'+index}
+          blockId={'promo-qualifier-block-' + index}
+          dropdownId={'promo-qualifier-dd-' + index}
           discount={disc}
           attr="qualifier"
           descriptions={qualifiers}
@@ -133,13 +133,13 @@ export default class PromotionForm extends ObjectDetails {
         <div key={makeKey('offer')} styleName="sub-title">Offer</div>,
         <DiscountAttrs
           key={makeKey('offer-attrs')}
-          blockId={'promo-offer-block-'+index}
-          dropdownId={'promo-offer-dd-'+index}
+          blockId={'promo-offer-block-' + index}
+          dropdownId={'promo-offer-dd-' + index}
           discount={disc}
           attr="offer"
           descriptions={offers}
           onChange={this.handleOfferChange}
-        />
+        />,
       ];
     }, []);
 

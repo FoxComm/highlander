@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import classNames from 'classnames';
 
 // components
 import FormField from '../../forms/formfield';
@@ -250,9 +251,9 @@ export default class AddressForm extends React.Component {
                 <FormField label="Country">
                   <TextDropdown
                     name="countryId"
-                    className={s.countryList}
+                    className={classNames(s.countryList, 'at-country-dd')}
                     value={this.state.countryId}
-                    onChange={(value) => this.handleCountryChange(Number(value))}
+                    onChange={value => this.handleCountryChange(Number(value))}
                     items={this.countryItems}
                   />
                 </FormField>
@@ -275,9 +276,10 @@ export default class AddressForm extends React.Component {
               <li>
                 <FormField label={regionName(countryCode)} required>
                   <TextDropdown
+                    className="at-region-dd"
                     name="regionId"
                     value={this.state.stateId}
-                    onChange={(value) => this.handleStateChange(Number(value))}
+                    onChange={value => this.handleStateChange(Number(value))}
                     items={this.regionItems}
                   />
                 </FormField>

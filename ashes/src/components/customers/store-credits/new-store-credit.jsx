@@ -151,7 +151,13 @@ export default class NewStoreCredit extends React.Component {
           </label>
         </div>
         <div>
-          <TextDropdown name="type" items={this.scTypes} value={this.props.form.type} onChange={this.changeScType} />
+          <TextDropdown
+            className="at-scTypeId"
+            name="type"
+            items={this.scTypes}
+            value={this.props.form.type}
+            onChange={this.changeScType}
+          />
         </div>
         {this.storeCreditTypeError}
       </li>
@@ -242,6 +248,7 @@ export default class NewStoreCredit extends React.Component {
             </div>
             <div>
               <TextDropdown
+                className="at-subReasonId"
                 name="subReasonId"
                 items={this.scSubtypes}
                 value={form.subTypeId}
@@ -267,7 +274,7 @@ export default class NewStoreCredit extends React.Component {
       case 'Open transactions should be canceled/completed':
         message = 'Gift card is already used in order and cannot be transfered to store credits.';
         break;
-      case 'cannot convert a gift card with state \'FullyRedeemed\'':
+      case "cannot convert a gift card with state 'FullyRedeemed'":
         message = 'Gift card is fully redeemed.';
         break;
       default:
