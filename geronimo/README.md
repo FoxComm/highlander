@@ -488,6 +488,8 @@ Params:
 |----|----|-----------|---------|
 |content_type_id|Integer|Corresponding ContentType id|Yes|
 |content|JSON|Content of an Entity|Yes|
+|storefront|string|Storefront on which given entity has been created|Yes|
+
 
 **Request:**
 `POST /v1/admin/entities/`
@@ -495,6 +497,7 @@ Params:
 ```json
 {
 	"content_type_id": 1,
+    "storefront": "theperfectgourmet.com",
 	"content": {
 		"title":"Some title foooooo",
 		"body":"Lorem ipsum",
@@ -511,6 +514,7 @@ Params:
     "updated_at": "2017-06-12T03:15:17Z",
     "scope": "1",
     "schema_version": "2017-06-12T03:13:46Z",
+    "storefront": "theperfectgourmet.com",
     "kind": "BlogPost",
     "inserted_at": "2017-06-12T03:15:17Z",
     "id": 3,
