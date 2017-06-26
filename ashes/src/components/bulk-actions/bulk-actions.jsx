@@ -31,8 +31,7 @@ export default class BulkActions extends Component {
     children: PropTypes.element.isRequired,
     watchActions: PropTypes.bool,
 
-    //computed
-    selectedWatchers: PropTypes.array.isRequired,
+    // computed
     bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
   };
 

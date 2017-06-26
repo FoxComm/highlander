@@ -14,7 +14,7 @@ func (failure internalError) Status() int {
 	return http.StatusInternalServerError
 }
 
-func (failure internalError) ToJSON() responses.Error {
+func (failure internalError) ToJSON() responses.ErrorResponse {
 	return toJSON(failure.err)
 }
 

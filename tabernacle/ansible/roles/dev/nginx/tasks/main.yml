@@ -1,0 +1,7 @@
+---
+
+- name: Install Service Locations Upstreams
+  template: src=service_locations.j2 dest=/etc/nginx/service_locations.conf
+
+- name: Install Service Upstreams
+  template: src=services.j2 dest=/etc/nginx/services.template

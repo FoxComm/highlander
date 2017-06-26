@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 import { Dropdown } from '../../dropdown';
@@ -10,14 +10,14 @@ import styles from './discounts.css';
 
 import { OFFERS, QUALIFIERS } from './data';
 
-const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType,item.text]);
+const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType, item.text]);
 
 const OFFER_TYPES = OFFERS.map(item => [item.type,item.text]);
 
 const QUALIFIER_TYPES = QUALIFIERS.map(item => {
-  const cell = {
+  let cell = {
     scope: item.discountType,
-    list: item.qualifierTypes.map(i => [i.type,i.text]),
+    list: item.qualifierTypes.map(i => [i.type, i.text]),
   };
   return cell;
 });
@@ -60,6 +60,32 @@ export default class Discounts extends Component {
   }
 
   @autobind
+  renderDiscount() {
+    return (
+      <Dropdown
+        className="autowidth_dd"
+        items={DISCOUNT_TYPES}
+        value={this.qualifier.discountType}
+        onChange={this.discountTypeChange}
+      />
+    );
+  }
+
+  @autobind
+  renderQualifier() {
+    let discountType = this.qualifier.discountType;
+    let items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
+    return (
+      <Dropdown
+        className="autowidth_dd"
+        items={items}
+        value={this.qualifier.qualifierType}
+        onChange={this.qualifierTypeChange}
+      />
+    );
+  }
+
+  @autobind
   discountTypeChange(value) {
     const items = _.find(QUALIFIER_TYPES, i => i.scope == value).list;
     const qualifierType = _.get(items, '0.0');
@@ -90,6 +116,17 @@ export default class Discounts extends Component {
       queryObject: widget.queryObject,
     };
     this.props.onChangeQualifier(this.qualifier);
+  }
+
+  @autobind
+  renderQualWidget() {
+    let comp = this;
+    let discountType = this.qualifier.discountType;
+    let qualifierType = this.qualifier.qualifierType;
+    let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
+    let renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || (() => null);
+
+    return renderWidget(comp);
   }
 
   @autobind
@@ -201,26 +238,6 @@ export default class Discounts extends Component {
   }
 
   @autobind
-  renderDiscount() {
-    return(<Dropdown
-      className="autowidth_dd"
-      items={DISCOUNT_TYPES}
-      value={this.qualifier.discountType}
-      onChange={this.discountTypeChange}/>);
-  }
-
-  @autobind
-  renderQualifier() {
-    const discountType = this.qualifier.discountType;
-    const items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
-    return(<Dropdown
-      className="autowidth_dd"
-      items={items}
-      value={this.qualifier.qualifierType}
-      onChange={this.qualifierTypeChange}/>);
-  }
-
-  @autobind
   renderOffer() {
     return(<Dropdown
       className="autowidth_dd"
@@ -234,17 +251,6 @@ export default class Discounts extends Component {
     const comp = this;
     const offerType = this.offer.offerType;
     const renderWidget = _.find(OFFERS, i => i.type == offerType).template || function(){return null;};
-    return renderWidget(comp);
-  }
-
-
-  @autobind
-  renderQualWidget() {
-    const comp = this;
-    const discountType = this.qualifier.discountType;
-    const qualifierType = this.qualifier.qualifierType;
-    const qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
-    const renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || function(){return null;};
     return renderWidget(comp);
   }
 
@@ -267,31 +273,29 @@ export default class Discounts extends Component {
   }
 
   render() {
-    return(
+    return (
       <div styleName="discount_qualifier">
         <div styleName="sub-title">Qualifier</div>
-        <FormField
-          className="fc-object-form__field">
-          <Checkbox id="isExGiftCardQual"
-            inline
+        <FormField className="fc-object-form__field">
+          <Checkbox
+            id="isExGiftCardQual"
+            label="Exclude gift cards from quaifying criteria"
             checked={this.qualifier.exGiftCardQual}
-            onChange={this.toggleExGiftCardQual}>
-            <label htmlFor="isExGiftCardQual">Exclude gift cards from quaifying criteria</label>
-          </Checkbox>
+            onChange={this.toggleExGiftCardQual}
+          />
         </FormField>
         {this.renderDiscount()}
         {this.renderQualifier()}
         <div className="inline-container">{this.renderQualWidget()}</div>
         {this.renderQualifierQueryBuilder()}
         <div styleName="sub-title">Offer</div>
-        <FormField
-          className="fc-object-form__field">
-          <Checkbox id="isExGiftCardOffer"
-            inline
+        <FormField className="fc-object-form__field">
+          <Checkbox
+            id="isExGiftCardOffer"
+            label="Exclude gift cards from discounted items"
             checked={this.offer.exGiftCardOffer}
-            onChange={this.toggleExGiftCardOffer}>
-            <label htmlFor="isExGiftCardOffer">Exclude gift cards from discounted items</label>
-          </Checkbox>
+            onChange={this.toggleExGiftCardOffer}
+          />
         </FormField>
         {this.renderOffer()}
         <div className="inline-container">{this.renderOfferWidget()}</div>

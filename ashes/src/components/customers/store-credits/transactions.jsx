@@ -5,15 +5,24 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { bulkExportBulkAction, renderExportModal } from 'modules/bulk-export/helpers';
+import { autobind } from 'core-decorators';
+
+// actions
+import { actions as StoreCreditTransactionsActions } from 'modules/customers/store-credit-transactions/transactions';
+import * as StoreCreditTotalsActions from 'modules/customers/store-credit-totals';
+import { bulkExport } from 'modules/bulk-export/bulk-export';
+import { actions as bulkActions } from 'modules/customers/store-credit-transactions/bulk';
 
 // components
 import Summary from './summary';
-import SelectableSearchList from '../../list-page/selectable-search-list';
+import SelectableSearchList from 'components/list-page/selectable-search-list';
 import StoreCreditTransactionRow from './transactions-row';
+import BulkActions from 'components/bulk-actions/bulk-actions';
+import BulkMessages from 'components/bulk-actions/bulk-messages';
+import { Link } from 'components/link';
 
-// redux
-import { actions as StoreCreditTransactionsActions } from '../../../modules/customers/store-credit-transactions';
-import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
+import styles from './store-credits.css';
 
 type Actions = {
   fetchTotals: Function,
@@ -25,6 +34,14 @@ type Props = {
   totalsActions: Actions,
   list: Object,
   actions: Object,
+  bulkExportAction: (
+    fields: Array<string>, entity: string, identifier: string, description: string
+  ) => Promise<*>,
+  bulkActions: {
+    exportByIds: (
+      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+    ) => void,
+  },
 };
 
 class StoreCreditTransactions extends Component {
@@ -70,13 +87,40 @@ class StoreCreditTransactions extends Component {
     this.props.actions.fetch();
   }
 
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const key = `sc-transaction-${row.id}`;
+
     return (
-      <StoreCreditTransactionRow key={key}
-                                 storeCreditTransaction={row}
-                                 columns={columns}
-                                 params={params} />
+      <StoreCreditTransactionRow
+        key={key}
+        storeCreditTransaction={row}
+        columns={columns}
+        params={params}
+      />
+    );
+  }
+
+  @autobind
+  bulkExport(allChecked: boolean, toggledIds: Array<number>) {
+    const { exportByIds } = this.props.bulkActions;
+    const { tableColumns } = this.props;
+    const modalTitle = 'Store Credit Transactions';
+    const entity = 'storeCreditTransactions';
+
+    return renderExportModal(tableColumns, entity, modalTitle, exportByIds, toggledIds);
+  }
+
+  get bulkActions() {
+    return [
+      bulkExportBulkAction(this.bulkExport, 'Store Credit Transactions'),
+    ];
+  }
+
+  renderDetail(message: string, orderCode: string) {
+    return (
+      <span key={orderCode}>
+        Store Credit Transaction for order <Link to="order-details" params={{order: orderCode}}>{orderCode}</Link>
+      </span>
     );
   }
 
@@ -85,11 +129,29 @@ class StoreCreditTransactions extends Component {
 
     return (
       <div className="fc-store-credits">
-        <Summary totals={totals}
-                 params={this.props.params}
-                 transactionsSelected={true} />
+        <Summary
+          totals={totals}
+          params={this.props.params}
+          transactionsSelected={true}
+        />
         <div className="fc-store-credits__list">
+        <BulkMessages
+          storePath="customers.storeCreditTransactions.bulk"
+          module="customers.storeCreditTransactions"
+          entity="store credit transaction"
+          renderDetail={this.renderDetail}
+          className={styles['bulk-message']}
+        />
+        <BulkActions
+          module="customers.storeCreditTransactions"
+          entity="store credit transaction"
+          actions={this.bulkActions}
+        >
           <SelectableSearchList
+            exportEntity="storeCreditTransactions"
+            exportTitle="Store Credit Transactions"
+            bulkExport
+            bulkExportAction={this.props.bulkExportAction}
             entity="customers.storeCreditTransactions"
             title="Transactions"
             emptyMessage="No transactions found."
@@ -97,22 +159,28 @@ class StoreCreditTransactions extends Component {
             renderRow={this.renderRow}
             tableColumns={this.props.tableColumns}
             searchActions={this.props.actions}
-            searchOptions={{singleSearch: true}} />
+            searchOptions={{singleSearch: true}}
+          />
+        </BulkActions>
         </div>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state, props) => ({
-  list: state.customers.storeCreditTransactions,
-  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
-});
+const mapStateToProps = (state, props) => {
+  return {
+    list: _.get(state.customers, 'storeCreditTransactions.list', {}),
+    storeCreditTotals: _.get(state.customers, `storeCreditTotals[${props.params.customerId}]`, {}),
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
     actions: bindActionCreators(StoreCreditTransactionsActions, dispatch),
-    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch)
+    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch),
+    bulkExportAction: bindActionCreators(bulkExport, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
 

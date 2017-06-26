@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 WORK_DIR=/var/lib/mesos
 LOG_DIR=/var/log/mesos

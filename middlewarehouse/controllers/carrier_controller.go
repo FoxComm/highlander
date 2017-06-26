@@ -5,7 +5,6 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
-	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
@@ -56,11 +55,11 @@ func (controller *carrierController) getCarrierByID() gin.HandlerFunc {
 
 		//get carrier by id
 		carrier, err := controller.service.GetCarrierByID(id)
-		if err == nil {
-			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
-		} else {
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -77,12 +76,12 @@ func (controller *carrierController) createCarrier() gin.HandlerFunc {
 		}
 
 		//try create
-		carrier, err := controller.service.CreateCarrier(models.NewCarrierFromPayload(payload))
-		if err == nil {
-			context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
-		} else {
+		carrier, err := controller.service.CreateCarrier(payload.Model())
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -101,15 +100,15 @@ func (controller *carrierController) updateCarrier() gin.HandlerFunc {
 		}
 
 		//try update
-		model := models.NewCarrierFromPayload(payload)
+		model := payload.Model()
 		model.ID = id
 		carrier, err := controller.service.UpdateCarrier(model)
 
-		if err == nil {
-			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
-		} else {
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -120,10 +119,10 @@ func (controller *carrierController) deleteCarrier() gin.HandlerFunc {
 			return
 		}
 
-		if err := controller.service.DeleteCarrier(id); err == nil {
-			context.Status(http.StatusNoContent)
-		} else {
+		if err := controller.service.DeleteCarrier(id); err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.Status(http.StatusNoContent)
 	}
 }

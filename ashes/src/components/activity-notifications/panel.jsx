@@ -1,85 +1,73 @@
+// @flow
 
 // libs
 import _ from 'lodash';
 import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 
 // components
 import ContentBox from '../content-box/content-box';
-import NotificationItem from '../activity-notifications/item';
+import NotificationItem from './item';
 import { PrimaryButton } from 'components/core/button';
 
+// styles
+import s from './panel.css';
+
+// types
+type Props = {
+  /** An array of objects, each object is a notification */
+  notifications: Array<any>,
+  /** If true, shows popup with a notifications list */
+  displayed: boolean,
+  /** A callback, which is supposed to mark all notifications as read outside the component */
+  markAsRead: Function,
+  /** A callback, which is supposed to mark all notifications as read + switch off `displayed` outside the component */
+  markAsReadAndClose: Function,
+  /** Custom css className for root html element of Panel component */
+  className?: string,
+};
+
 export default class NotificationPanel extends React.Component {
-
-  static propTypes = {
-    notifications: PropTypes.array.isRequired,
-    displayed: PropTypes.bool,
-    markAsRead: PropTypes.func.isRequired,
-    markAsReadAndClose: PropTypes.func.isRequired
-  };
-
-  static defaultProps = {
-    displayed: false
-  }
+  props: Props;
 
   get items() {
     const items = this.props.notifications;
+
     if (_.isEmpty(items)) {
       return (
-        <div className="fc-activity-notifications__empty-message">
+        <div className={s.empty}>
           Nothing to see here yet!
         </div>
       );
-    } else {
-      return items.map(item => {
-        return (<NotificationItem item={item} key={`notification-item-${item.id}`}/>);
-      });
     }
+
+    return items.map(item => {
+      return <NotificationItem item={item} key={`notification-item-${item.id}`} />;
+    });
   }
 
   get footer() {
-    const items = this.props.notifications;
-    const shouldBeDisabled = _.isEmpty(items);
-    const buttonClassName = classNames('fc-activity-notifications__footer-button', {
-      '_disabled': shouldBeDisabled
-    });
     return (
-      <div className="fc-activity-notifications__footer">
-        <PrimaryButton onClick={this.props.markAsReadAndClose}
-                       className={buttonClassName}
-                       disabled={shouldBeDisabled}>
+      <div className={s.footer}>
+        <PrimaryButton
+          onClick={this.props.markAsReadAndClose}
+          className={s.markAll}
+          disabled={_.isEmpty(this.props.notifications)}
+        >
           Mark All As Read
         </PrimaryButton>
       </div>
     );
   }
 
-  get body() {
-    if (this.props.displayed) {
-      return (
-        <div>
-          <div className="fc-activity-notifications__overlay"
-               onClick={this.props.markAsRead}>
-          </div>
-          <ContentBox title="Notifications"
-                      className="fc-activity-notifications__box"
-                      footer={this.footer}>
-            {this.items }
-          </ContentBox>
-        </div>
-      );
-    }
-  }
-
   render() {
+    if (!this.props.displayed) {
+      return null;
+    }
+
     return (
-      <div className="fc-activity-notifications__panel">
-        { this.body }
-      </div>
+      <ContentBox className={this.props.className} title="Notifications" footer={this.footer}>
+        {this.items}
+      </ContentBox>
     );
   }
-
 }

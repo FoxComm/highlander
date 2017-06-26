@@ -8,8 +8,8 @@ import { autobind } from 'core-decorators';
 
 // components
 import ActivityTrail from './activity-trail';
-import ErrorAlerts from '../alerts/error-alerts';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
+import { ApiErrors } from 'components/utils/errors';
 import { SectionTitle } from '../section-title';
 
 // redux
@@ -18,14 +18,14 @@ import { resetActivities, fetchActivityTrail } from 'modules/activity-trail';
 type RequestParam = {
   dimension: string,
   objectId?: string | number,
-}
+};
 
 type Activity = {
   id: number,
   kind: string,
   createdAt: string,
   data: Object,
-}
+};
 
 type Props = {
   entity: {
@@ -40,8 +40,8 @@ type Props = {
     dimension: string,
   },
   fetchState: AsyncState,
-  resetActivities: () => void;
-  fetchActivityTrail: (params: RequestParam, from?: Activity) => Promise<*>,
+  resetActivities: () => void,
+  fetchActivityTrail: (params: RequestParam, from: ?Activity) => Promise<*>,
 };
 
 class ActivityTrailPage extends Component {
@@ -49,17 +49,16 @@ class ActivityTrailPage extends Component {
 
   get trailParams() {
     const { route, entity } = this.props;
-    const dimension =
-      route.dimension ? _.snakeCase(route.dimension) : _.snakeCase(entity.entityType);
+    const dimension = route.dimension ? _.snakeCase(route.dimension) : _.snakeCase(entity.entityType);
 
     if (entity) {
       return {
         dimension,
-        objectId: entity.entityId
+        objectId: entity.entityId,
       };
     } else {
       return {
-        dimension
+        dimension,
       };
     }
   }
@@ -83,11 +82,11 @@ class ActivityTrailPage extends Component {
     };
 
     if (fetchState.err) {
-      return <ErrorAlerts error={fetchState.err} />;
+      return <ApiErrors response={fetchState.err} />;
     }
 
     if (!activities.length && fetchState.inProgress) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return <ActivityTrail {...params} />;

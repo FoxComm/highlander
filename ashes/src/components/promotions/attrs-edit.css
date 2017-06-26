@@ -1,3 +1,4 @@
+@import 'colors.css';
 
 .type-chooser {
   max-width: 40%;
@@ -11,6 +12,10 @@
   line-height: 40px;
 }
 
+.counterInput {
+  width: 80px;
+}
+
 .attr-row {
   display: block;
 }
@@ -18,9 +23,8 @@
 .header {
   font-weight: bold;
   font-size: 14px;
-  color: #484848;
-
-  margin: 1em 0 0.5em 0;
+  color: var(--color-text);
+  margin: 1em 0 .5em;
 }
 
 .form-row {

@@ -44,7 +44,7 @@ type Order struct {
 }
 
 func NewOrderFromActivity(order mwhPayloads.Order) (*Order, error) {
-	shippingAddress, err := NewAddressFromPhoenix(order.ShippingAddress.Name, order.ShippingAddress)
+	shippingAddress, err := NewAddressFromPhoenix(order.ShippingAddress.Name, *order.ShippingAddress)
 	if err != nil {
 		return nil, err
 	}

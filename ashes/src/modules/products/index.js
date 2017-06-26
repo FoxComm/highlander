@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+/* @flow */
 
 // libs
 import { combineReducers } from 'redux';
@@ -11,10 +9,11 @@ import list from './list';
 import images from './images';
 import imagesBulk from './images-bulk';
 import suggest from './suggest';
-
+import bulk from './bulk';
 
 const productReducer = combineReducers({
   details,
+  bulk,
   list,
   images,
   imagesBulk,

@@ -2,6 +2,7 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -11,9 +12,10 @@ import { skuId } from 'paragons/product';
 
 // components
 import ContentBox from 'components/content-box/content-box';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import OptionEntry from './option-entry';
 import OptionEditDialog from './option-edit-dialog';
+import Icon from 'components/core/icon';
 
 // styles
 import styles from './option-list.css';
@@ -54,7 +56,7 @@ class OptionList extends Component {
   get actions(): Element<*> {
     return (
       <a id="fct-add-btn__new-option" styleName="action-icon" onClick={() => this.startEditOption('new')}>
-        <i className="icon-add" />
+        <Icon name="add" />
       </a>
     );
   }
@@ -233,7 +235,7 @@ class OptionList extends Component {
 
     const confirmation = (
       <div>
-        Are you sure you want to remove {removeTarget} from the product?<br/>
+        Are you sure you want to remove {removeTarget} from the product?<br />
         This action will remove following SKUs from product:
         <ul styleName="deleting-skus">
           {skuListForDeletion}
@@ -242,15 +244,15 @@ class OptionList extends Component {
       </div>
     );
     return (
-      <ConfirmationDialog
-        isVisible={true}
-        header={`Remove ${removeTargetTitle} from product?`}
-        body={confirmation}
-        cancel="Cancel"
-        confirm="Yes, Remove"
+      <ConfirmationModal
+        isVisible
+        title={`Remove ${removeTargetTitle} from product?`}
+        confirmLabel="Yes, Remove"
         onCancel={() => this.closeDeleteDialog()}
         confirmAction={() => this.confirmDeletion()}
-      />
+      >
+        {confirmation}
+      </ConfirmationModal>
     );
   }
 

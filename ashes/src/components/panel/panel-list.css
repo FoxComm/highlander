@@ -1,17 +1,16 @@
+@import 'colors.css';
+
 .block {
   display: flex;
+  justify-content: space-between;
 }
 
 .item {
   flex: 1 1 100%;
+  margin-bottom: 20px;
   text-align: center;
-  color: #363636;
-  border: 1px solid #9ba3a7;
-  margin-right: 20px;
-
-  &:last-child {
-    margin-right: 0;
-  }
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .header {
@@ -27,7 +26,34 @@
 
 @media (min-resolution: 120dpi) {
   .item {
-    box-shadow: 0px 0px 0px 0.5px #9ba3a7 inset;
-    border: none;
+    border-width: .5px;
+  }
+}
+
+@media (min-width: 768px) {
+  .item {
+    flex: 1;
+    margin-right: 10px;
+    margin-bottom: 0;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .content {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 880px) {
+  .content {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .content {
+    font-size: 22px;
   }
 }

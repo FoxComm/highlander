@@ -6,17 +6,19 @@
 - name: Copy Flyway Config
   template: src=flyway.conf.j2 dest="{{phoenix_dir}}/sql/flyway.conf"
 
-- name: Repair Flyway Schema
-  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
-  become: true
+- name: Clean Flyway Schema
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{phoenix_dir}}"
+  when: clean_flyway_phoenix in prompt_yes
+
+- name: Repair Flyway Schema
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  args:
+    chdir: "{{phoenix_dir}}"
+  when: clean_flyway_phoenix not in prompt_yes
 
 - name: Migrate Database
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
-  become: true
   args:
     chdir: "{{phoenix_dir}}"
-
-- name: Setup Update Materialized Views SQL
-  copy: src={{role_path}}/../../dev/db/files/update_materialized_views.sql dest={{update_materialized_views_sql}}

@@ -4,23 +4,21 @@
   padding: 10px;
 }
 
-.cell {
+.source {
   display: flex;
   align-items: center;
-}
-
-.source {
-  composes: cell;
   width: 40%;
 }
 
 .date {
-  composes: cell;
+  display: flex;
+  align-items: center;
   width: 60%;
 }
 
 .amount {
-  composes: cell;
+  display: flex;
+  align-items: center;
   min-width: 80px;
   padding-right: 10px;
   justify-content: flex-end;

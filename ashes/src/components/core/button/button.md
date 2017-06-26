@@ -26,9 +26,17 @@ import { Button } from 'components/core/button'
 
 ```
 <div className="demo">
-  <Button.Button>Push Me</Button.Button>
-  <Button.Button isLoading>Push Me</Button.Button>
-  <Button.Button disabled>Push Me</Button.Button>
+  <Button.Button>Ready</Button.Button>
+  <Button.Button isLoading>Loading...</Button.Button>
+  <Button.Button disabled>Disabled</Button.Button>
+  <Button.Button fullWidth>Stretched button, and next must be too ↓</Button.Button>
+  <Button.Button icon="add" fullWidth />
+  <Button.Button icon="add">Add</Button.Button>
+  <Button.Button icon="add" />
+  <Button.Button small>Small</Button.Button>
+  <Button.Button icon="add" small>Add</Button.Button>
+  <Button.Button icon="add" small />
+  <Button.Button>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Button.Button>
 </div>
 ```
 
@@ -39,7 +47,12 @@ import { PrimaryButton } from 'components/core/button'
 ```
 
 ```
-<Button.PrimaryButton>Push Me</Button.PrimaryButton>
+<div className="demo">
+  <Button.PrimaryButton>Push Me</Button.PrimaryButton>
+  <Button.PrimaryButton isLoading>Loading...</Button.PrimaryButton>
+  <Button.PrimaryButton disabled>Disabled</Button.PrimaryButton>
+  <Button.PrimaryButton fullWidth icon="google">Push Me</Button.PrimaryButton>
+</div>
 ```
 
 #### Left Button:
@@ -144,5 +157,20 @@ import { DeleteButton } from 'components/core/button'
   <Button.DeleteButton isLoading>Delete</Button.DeleteButton>
   <Button.DeleteButton disabled>Delete</Button.DeleteButton>
   <Button.DeleteButton />
+</div>
+```
+
+#### Social Button:
+
+```javascript
+import { SocialButton } from 'components/core/button'
+```
+
+```
+<div className="demo">
+  <Button.SocialButton type="google">Social</Button.SocialButton>
+  <Button.SocialButton type="google" isLoading>Social</Button.SocialButton>
+  <Button.SocialButton type="google" disabled>Social</Button.SocialButton>
+  <Button.SocialButton type="google" />
 </div>
 ```

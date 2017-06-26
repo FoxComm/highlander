@@ -26,19 +26,6 @@ func parse(context *gin.Context, model interface{}) failures.Failure {
 	return fail
 }
 
-func paramInt(context *gin.Context, key string) (int, failures.Failure) {
-	intStr := context.Params.ByName(key)
-	id, err := strconv.Atoi(intStr)
-	if err != nil {
-		fError := fmt.Errorf("Unable to get int param %s", key)
-		fail := failures.NewBadRequest(fError)
-		failures.Abort(context, fail)
-		return 0, fail
-	}
-
-	return id, nil
-}
-
 func paramUint(context *gin.Context, key string) (uint, failures.Failure) {
 	intStr := context.Params.ByName(key)
 	id, err := strconv.Atoi(intStr)
@@ -70,7 +57,7 @@ func getFailure(err error) failures.Failure {
 
 func logFailure(fail failures.Failure) {
 	messages := []string{}
-	for _, err := range fail.ToJSON().Errors {
+	for _, err := range fail.ToJSON().GetAllErrors() {
 		messages = append(messages, fmt.Sprintf("ServiceError: %s", err))
 	}
 

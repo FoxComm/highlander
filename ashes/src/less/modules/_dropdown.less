@@ -1,15 +1,6 @@
 @dropdown-height: 40px;
 @checkbox-dropdown-height: 24px;
 
-.fc-btn._dropdown-size {
-  width: @dropdown-height;
-  height: @dropdown-height;
-
-  &:hover {
-    background-color: @color-control-standard-bg;
-  }
-}
-
 .fc-dropdown {
   display: inline-block;
   position: relative;
@@ -21,12 +12,13 @@
     overflow: hidden;
     display: flex;
     flex: 1;
+    align-items: stretch;
   }
 
   &__value {
     height: @dropdown-height;
     padding-left: 10px;
-    .colors(@color-default-fg, @color-control-standard-bg);
+    .colors(@color-text, @bg-grey-buttons);
     .font-spec(14px, 400, @dropdown-height);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -34,15 +26,16 @@
     user-select: none;
     white-space: nowrap;
     flex-grow: 1;
+    transition: all .2s;
   }
 
   &__items {
     display: none;
     position: absolute;
     min-width: 100%;
-    z-index: 100;
-    background-color: @color-white;
-    border: 1px solid @color-decor9;
+    z-index: 20;
+    background-color: @bg-white;
+    border: 1px solid @color-border;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
     user-select: none;
     max-height: 30vh;
@@ -66,7 +59,7 @@
   &__item,
   &__blank-item {
     height: 44px;
-    .colors(@color-control-standard-fg, @color-white);
+    .colors(@color-text, @bg-white);
     .font-spec(14px, 400, 44px);
     padding: 0 20px;
     cursor: pointer;
@@ -75,7 +68,7 @@
 
     &._active,
     &:hover {
-      background-color: @color-decor11;
+      background-color: @bg-grey-headers;
     }
   }
 
@@ -85,24 +78,24 @@
 
   &__blank-item {
     font-size: 16px;
-    color: @color-decor45;
+    color: @color-additional-text;
     text-align: center;
 
     &:hover {
-      background-color: @color-white;
+      background-color: @bg-white;
     }
   }
 
   // states
   &._disabled {
     .fc-dropdown__value {
-      background-color: @color-decor7;
-      color: @color-decor31;
+      background-color: @bg-grey-buttons-hover;
+      color: @color-additional-text;
       cursor: default;
     }
 
     .fc-dropdown__button {
-      color: @color-decor31;
+      color: @color-additional-text;
       cursor: default;
     }
   }
@@ -110,7 +103,7 @@
   &._primary {
     .fc-dropdown__button,
     .fc-dropdown__value {
-      .colors(@color-control-primary-fg, @color-control-primary-bg);
+      .colors(@color-light-text, @bg-green-buttons);
     }
   }
 
@@ -121,15 +114,9 @@
       input {
         .size(100%);
         padding: 0 10px;
-        .colors(@color-control-standard-fg, @color-white);
+        .colors(@color-text, @bg-white);
       }
     }
-  }
-}
-
-.fc-checkbox-dropdown {
-  .fc-dropdown__items._dropup {
-    transform: translateY(calc(~"-100% - " @checkbox-dropdown-height));
   }
 }
 

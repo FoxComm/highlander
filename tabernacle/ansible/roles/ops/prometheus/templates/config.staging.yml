@@ -1,0 +1,75 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  # Prometheus
+  - job_name: prometheus
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - localhost:9090
+        labels:
+          group: prometheus
+
+  # Staging
+  - job_name: stage
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - 10.240.0.61:9100    # dev-amigo-server-0
+          - 10.240.0.11:9100    # dev-amigo-server-1
+          - 10.240.0.10:9100    # dev-amigo-server-2
+        labels:
+          group: amigo
+      - targets:
+          - 10.240.0.6:9100     # foxcomm-stage-backend
+          - 10.240.0.26:9100    # foxcomm-stage-consul-server
+          - 10.240.0.36:9100    # foxcomm-stage-frontend
+        labels:
+          group: stage
+      - targets:
+          - 10.240.0.42:9100    # stage2
+          - 10.240.0.46:9100    # stage3
+        labels:
+          group: stage
+
+  # Buildkite Agents
+  - job_name: buildkite-agents
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - 10.240.0.45:9100    # buildkite-agent-0
+          - 10.240.0.38:9100    # buildkite-agent-1
+          - 10.240.0.43:9100    # buildkite-agent-2
+          - 10.240.0.20:9100    # buildkite-agent-3
+          - 10.240.0.19:9100    # buildkite-agent-4
+          - 10.240.0.44:9100    # buildkite-agent-5
+        labels:
+          group: buildkite-agent
+
+  # Demo 1 & 2
+  - job_name: demo
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - 10.240.0.15:9100    # demo1-amigo
+          - 10.240.0.27:9100    # demo1-backend
+          - 10.240.0.25:9100    # demo1-frontend
+        labels:
+          group: demo1
+      - targets:
+          - 10.240.0.8:9100     # demo2-amigo
+          - 10.240.0.23:9100    # demo2-backend
+          - 10.240.0.30:9100    # demo2-frontend
+        labels:
+          group: demo2
+
+  # Tumi
+  - job_name: tumi
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - 10.240.0.39:9100    # tumi
+          - 10.240.0.24:9100    # tumi2
+        labels:
+          group: tumi

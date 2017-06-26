@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Element } from 'react';
 import PropTypes from 'prop-types';
 import { transitionTo } from 'browserHistory';
 

@@ -4,15 +4,20 @@
   hosts: '{{hostname}}'
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    clean_flyway_middlewarehouse: "{{perform_cleanup}}"
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to migrate"
-      default: "vanilla-db"
+      default: "hostname"
       private: no
     - name: "middlewarehouse_db_name"
       prompt: "Enter name of middlewarehouse db to migrate"
       default: "middlewarehouse"
       private: no
+    - name: "perform_cleanup"
+      prompt: "Perform flyway clean? (y/n)"
+      default: "n"
+      private: no
 
   roles:
-      - { role: prod/migrate_middlewarehouse_db }
+    - { role: prod/migrate_middlewarehouse_db, become: true }

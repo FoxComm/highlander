@@ -6,7 +6,8 @@ declare type Sku = {
   context: {
     attributes?: Object,
     name: string,
-  }
+  },
+  albums: Array<*>,
 };
 
 declare type SkuSearchItem = {

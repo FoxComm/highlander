@@ -1,9 +1,11 @@
+@import 'colors.css';
+
 .item {
   padding: 0 20px;
   font-size: 14px;
   line-height: 44px;
-  color: #484848;
-  background: #ffffff;
+  color: var(--color-text);
+  background: var(--bg-white);
   white-space: nowrap;
   cursor: pointer;
   transition: background .2s;
@@ -11,9 +13,9 @@
 
 .item._active,
 .item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--bg-grey-headers);
 }
 
-._hidden {
+.hidden {
   display: none;
 }

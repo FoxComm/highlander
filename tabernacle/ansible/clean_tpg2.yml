@@ -23,7 +23,6 @@
     self_host: theperfectgourmet.com
     ashes_server_name: theperfectgourmet.com
     storefront_server_name: theperfectgourmet.com
-    with_base_seeds: true
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
     docker_registry: "docker-tpg.foxcommerce.com"

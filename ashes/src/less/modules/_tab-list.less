@@ -1,30 +1,11 @@
 .fc-tab-list {
   display: flex;
   position: relative;
-  border: 1px solid @color-decor9;
-
-  &._loading:before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    opacity: .5;
-
-    background-image: url(/admin/images/caramel.png);
-    animation: caramel .5s linear infinite;
-  }
-
-  &._loading {
-    .fc-tab,
-    .fc-tab._selected {
-      color: #AFAFAF;
-    }
-  }
+  border: 1px solid @color-border;
 
   &__current-tabs {
     display: flex;
+    flex-wrap: wrap;
   }
 
   &__buffer {
@@ -39,23 +20,24 @@
     height: 58px;
     line-height: 14px;
     padding: 0 20px;
-    color: #AFAFAF;
-    border-right: 1px solid #d9d9d9;
+    color: @color-additional-text;
+    border-right: 1px solid @color-border;
     transition: color .3s, background .2s;
-    cursor: default;
+    cursor: pointer;
 
     &:after {
       content: '';
-      border-right: 1px solid #FFFFFF;
+      border-right: 1px solid @bg-white;
       display: block;
       position: absolute;
+      top: 0;
       right: -2px;
       height: 100%;
     }
 
     &__icon {
       .font-spec(18px);
-      color: @color-decor8;
+      color: @color-additional-text;
       margin-left: -5px;
       margin-right: 3px;
     }
@@ -69,27 +51,8 @@
     }
 
     &._selected {
-      color: @color-black;
+      color: @color-text;
+      cursor: default;
     }
-
-  }
-
-  &:not(._loading) {
-    .fc-tab {
-      &:not(._selected):hover {
-        background-color: @color-decor35;
-        cursor: pointer;
-      }
-    }
-  }
-}
-
-@keyframes caramel {
-  from {
-    background-position: 0 0;
-  }
-
-  to {
-    background-position: 20px 0;
   }
 }

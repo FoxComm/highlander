@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Link } from '../../../link';
+
+import { Link } from 'components/link';
 import UserInfo from './user-info';
 
 export const title = data => {

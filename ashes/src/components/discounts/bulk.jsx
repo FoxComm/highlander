@@ -6,12 +6,12 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getStore } from '../../lib/store-creator';
 
+import { Link } from 'components/link';
 import { ChangeStateModal } from '../bulk-actions/modal';
 import { DeleteModal } from '../bulk-actions/modal';
 import SchedulerModal from './scheduler-modal';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
-import { Link } from '../link';
 
 type RefId = string|number;
 
@@ -25,6 +25,7 @@ type Props = {
   };
   onDelete: () => void;
   children: Element<*>;
+  extraActions: Array<any>,
 };
 
 const mapDispatchToProps = (dispatch: Function, { entity }) => {
@@ -59,7 +60,7 @@ const deleteHandler = function(props: Props): Function {
     return (
       <DeleteModal
         count={toggledIds.length}
-        stateTitle={'Delete'}
+        stateTitle={'Archive'}
         onConfirm={() => deleteEntity(toggledIds, props.entity, props.onDelete)}
       />
     );
@@ -96,15 +97,19 @@ const renderDetail = (props: Props) => (messages, id) => {
 };
 
 const BulkWrapper = (props: Props) => {
-  const { entity,hideAlertDetails } = props;
+  const { entity,hideAlertDetails, extraActions } = props;
   const module = `${entity}s`;
   const stateActions = (entity == 'coupon') ? [] : [
     ['Activate', changeStateHandler(props, false), 'successfully activated', 'could not be activated'],
     ['Deactivate', changeStateHandler(props, false), 'successfully deactivated', 'could not be deactivated'],
     [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
   ];
+  const extras = _.isEmpty(extraActions) ? [] : extraActions;
+  const deleteAction = ['Archive', deleteHandler(props), 'successfully archived', 'could not be archived'];
+
   const bulkActions = [
-    ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'],
+    ...extras,
+    deleteAction,
     ...stateActions
   ];
 

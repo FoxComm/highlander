@@ -1,0 +1,5 @@
+detach: "false"
+with_mwh_seeder: true
+with_hyperion_seeder: true
+with_data_import: true
+with_geronimo_seeder: true

@@ -1,11 +1,8 @@
 /* @flow */
 
 //libs
-import { get, find, reduce, size } from 'lodash';
+import { get, reduce, size } from 'lodash';
 import React, { Element } from 'react';
-
-// helpers
-import { activeStatus, isArchived } from 'paragons/common';
 
 // components
 import { TableRow, TableCell } from 'components/table';

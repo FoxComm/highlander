@@ -4,11 +4,10 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { trackEvent } from 'lib/analytics';
 
 import styles from './select-groups.css';
 
-import RadioButton from '../forms/radio-button';
+import RadioButton from 'components/core/radio-button';
 import Typeahead from '../typeahead/typeahead';
 import PilledInput from '../pilled-search/pilled-input';
 import CustomerGroupRow from './customer-group-row';
@@ -22,9 +21,9 @@ type GroupType = {
 };
 
 type Props = {
-  updateSelectedIds: (groups: Array<number>) => any;
-  groups: Array<GroupType>;
-  selectedGroupIds: Array<number>;
+  updateSelectedIds: (groups: Array<number>) => any,
+  groups: Array<GroupType>,
+  selectedGroupIds: Array<number>,
   qualifyAll: boolean,
   fetch: () => Promise<*>,
   parent: string,
@@ -35,7 +34,6 @@ type State = {
   term: string,
 };
 
-
 class SelectCustomerGroups extends Component {
   props: Props;
 
@@ -44,7 +42,7 @@ class SelectCustomerGroups extends Component {
   };
 
   state: State = {
-    term: ''
+    term: '',
   };
 
   componentDidMount() {
@@ -52,43 +50,43 @@ class SelectCustomerGroups extends Component {
   }
 
   @autobind
-  handleChangeQualifier({target}: Object) {
+  handleChangeQualifier({ target }: Object) {
     const isAllQualify = target.getAttribute('name') == 'qualifyAll';
     this.props.qualifyAllChange(isAllQualify);
   }
 
-  get suggestedGroups(){
-    const suggestions = _.filter(this.props.groups, (item) => {
+  get suggestedGroups() {
+    const suggestions = _.filter(this.props.groups, item => {
       return _.includes(item.name.toLowerCase(), this.state.term.toLowerCase());
     });
     return suggestions;
   }
 
   get tableColumns(): Array<Object> {
-    return [
-      { field: 'name', text: 'Customer Group Name' },
-      { field: 'type', text: 'Type' },
-    ];
+    return [{ field: 'name', text: 'Customer Group Name' }, { field: 'type', text: 'Type' }];
   }
 
   get customersGroups(): ?Element<*> {
     if (this.props.qualifyAll !== false) return null;
-    return (<div styleName="root">
-          <Typeahead
-            className="_no-search-icon"
-            isFetching={false}
-            isAsync={false}
-            component={CustomerGroupRow}
-            items={this.suggestedGroups}
-            name="customerGroupSelect"
-            placeholder={'Add groups...'}
-            inputElement={this.pilledInput}
-            hideOnBlur={true}
-            onItemSelected={this.handleSelectItem}
-          />
-        </div>);
+    return (
+      <div styleName="root">
+        <Typeahead
+          className="_no-search-icon"
+          isFetching={false}
+          isAsync={false}
+          component={CustomerGroupRow}
+          items={this.suggestedGroups}
+          name="customerGroupSelect"
+          placeholder={'Add groups...'}
+          inputElement={this.pilledInput}
+          hideOnBlur={true}
+          onItemSelected={this.handleSelectItem}
+        />
+      </div>
+    );
   }
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,
@@ -103,7 +101,11 @@ class SelectCustomerGroups extends Component {
 
   @autobind
   handleSelectItem(item, event: Object) {
-    if (_.find(this.props.selectedGroupIds, (i) => {return i == item.id;})) {
+    if (
+      _.find(this.props.selectedGroupIds, i => {
+        return i == item.id;
+      })
+    ) {
       event.preventHiding();
     } else {
       this.setState({
@@ -115,8 +117,8 @@ class SelectCustomerGroups extends Component {
 
   get pilledInput() {
     const { state, props } = this;
-    const pills = props.selectedGroupIds.map((cg) => {
-      if (_.find(props.groups, { 'id': cg })) return _.find(props.groups, { 'id': cg }, {}).name;
+    const pills = props.selectedGroupIds.map(cg => {
+      if (_.find(props.groups, { id: cg })) return _.find(props.groups, { id: cg }, {}).name;
       return 'loading...';
     });
 
@@ -125,7 +127,7 @@ class SelectCustomerGroups extends Component {
         solid={true}
         value={state.term}
         disabled={props.groups == null}
-        onChange={({target}) => this.setTerm(target.value)}
+        onChange={value => this.setTerm(value)}
         pills={pills}
         icon={null}
         onPillClose={(name, index) => this.deselectItem(index)}
@@ -139,19 +141,17 @@ class SelectCustomerGroups extends Component {
         <RadioButton
           id="qualifyAll"
           name="qualifyAll"
+          label="All customers qualify"
           checked={this.props.qualifyAll === true}
           onChange={this.handleChangeQualifier}
-        >
-          <label htmlFor="qualifyAll">All customers qualify</label>
-        </RadioButton>
+        />
         <RadioButton
           id="qualifyGroups"
           name="qualifyGroups"
+          label="Select customer groups qualify"
           checked={this.props.qualifyAll === false}
           onChange={this.handleChangeQualifier}
-        >
-          <label htmlFor="qualifyGroups">Select customer groups qualify</label>
-        </RadioButton>
+        />
         {this.customersGroups}
       </div>
     );
@@ -159,7 +159,7 @@ class SelectCustomerGroups extends Component {
 }
 
 const mapState = state => ({
-  groups: _.get(_.invoke(state, 'customerGroups.list.currentSearch'), 'results.rows', [])
+  groups: _.get(_.invoke(state, 'customerGroups.list.currentSearch'), 'results.rows', []),
 });
 
 export default connect(mapState, { fetch: actions.fetch })(SelectCustomerGroups);

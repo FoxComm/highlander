@@ -1,0 +1,20 @@
+---
+
+- name: Packing Ark Amigo
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+    join_type: join
+    mesos_quorum: 2
+    consul_expect: 3
+
+  roles:
+    - { role: base/consul_server }
+    - { role: base/zookeeper }
+    - { role: base/mesos_master }
+    - { role: base/docker_registry }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

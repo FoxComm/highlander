@@ -1,34 +1,32 @@
-/** @flow */
-import React, { Component } from 'react';
+/* @flow */
+
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
-import Alert from '../alerts/alert';
-import ErrorAlerts from '../alerts/error-alerts';
-import Form from '../forms/form';
-import FormField from '../forms/formfield';
-import { PrimaryButton, Button } from 'components/core/button';
+// components
+import Alert from 'components/core/alert';
+import Form from 'components/forms/form';
+import FormField from 'components/forms/formfield';
+import { PrimaryButton, SocialButton } from 'components/core/button';
 import WrapToLines from './wrap-to-lines';
-import WaitAnimation from '../common/wait-animation';
+import TextInput from 'components/core/text-input';
+import { ApiErrors } from 'components/utils/errors';
 
 import * as userActions from 'modules/user';
 
-import styles from './css/auth.css';
+import s from './css/auth.css';
 
 // types
-import type {
-  LoginPayload,
-  TUser,
-} from 'modules/user';
-
+import type { LoginPayload, TUser } from 'modules/user';
 
 type TState = {
-  org: string;
-  email: string;
-  password: string;
-  message: string;
+  org: string,
+  email: string,
+  password: string,
+  message: string,
 };
 
 type LoginProps = {
@@ -37,27 +35,18 @@ type LoginProps = {
   user: {
     message: String,
   },
-  authenticationState: {
-    err?: any,
-    inProgress?: boolean,
-  },
+  authenticationState: AsyncState,
   err: any,
   googleSignin: Function,
   isMounted: boolean,
-}
+};
 
-/* ::`*/
-@connect((state) => ({
-  user: state.user,
-  authenticationState: _.get(state.asyncActions, 'authenticate', {})
-}), userActions)
-/* ::`*/
-export default class Login extends Component {
+class Login extends Component {
   state: TState = {
     org: '',
     email: '',
     password: '',
-    message: ''
+    message: '',
   };
 
   props: LoginProps;
@@ -74,29 +63,27 @@ export default class Login extends Component {
   submitLogin() {
     const payload = _.pick(this.state, 'email', 'password', 'org');
 
-    this.props.authenticate(payload).then(() => {
-      transitionTo('home');
-    });
+    this.props.authenticate(payload).then(transitionToLazy('home'));
   }
 
   @autobind
-  onOrgChange({ target }: Object) {
-    this.setState({ org: target.value });
+  onOrgChange(value: string) {
+    this.setState({ org: value });
   }
 
   @autobind
-  onEmailChange({ target }: Object) {
-    this.setState({ email: target.value });
+  onEmailChange(value: string) {
+    this.setState({ email: value });
   }
 
   @autobind
-  onPasswordChange({ target }: Object) {
-    this.setState({ password: target.value });
+  onPasswordChange(value: string) {
+    this.setState({ password: value });
   }
 
   @autobind
   onForgotClick() {
-    // @todo: restore password
+    transitionTo('restore-password');
   }
 
   @autobind
@@ -107,63 +94,58 @@ export default class Login extends Component {
   @autobind
   clearMessage() {
     this.setState({
-      message: ''
+      message: '',
     });
   }
 
-  get iForgot() {
-    return <a onClick={this.onForgotClick} styleName="forgot-link">i forgot</a>;
+  get iForgot(): Element<*> {
+    return <a onClick={this.onForgotClick} className={s.forgotLink}>i forgot</a>;
   }
 
-  get infoMessage() {
+  get infoMessage(): ?Element<*> {
     const { message } = this.state;
     if (!message) return null;
-    return <Alert type="success">{message}</Alert>;
+    return <Alert className={s.alert} type={Alert.SUCCESS}>{message}</Alert>;
   }
 
-  get errorMessage() {
+  get errorMessage(): ?Element<*> {
     const err = this.props.authenticationState.err;
     if (!err) return null;
-    return <ErrorAlerts error={err} />;
+    return <ApiErrors response={err} />;
   }
 
-  get content() {
-    if (!this.props.isMounted) {
-      return <WaitAnimation />;
-    }
-
+  get content(): Element<*> {
     const { org, email, password } = this.state;
 
     return (
-      <div styleName="content">
+      <div className={s.content}>
         {this.infoMessage}
-        <Button
-          type="button"
-          styleName="google-button"
-          icon="google"
-          onClick={this.onGoogleSignIn}
-        >
+        <SocialButton type="google" onClick={this.onGoogleSignIn} fullWidth>
           Sign In with Google
-        </Button>
-        <Form styleName="form" onSubmit={this.submitLogin}>
-          <WrapToLines styleName="or-line">or</WrapToLines>
+        </SocialButton>
+        <Form className={s.form} onSubmit={this.submitLogin}>
+          <WrapToLines className={s.orLine}>or</WrapToLines>
           {this.errorMessage}
           <FormField label="Organization" required>
-            <input onChange={this.onOrgChange} value={org} type="text" className="fc-input" />
+            <TextInput onChange={this.onOrgChange} value={org} type="text" className="fc-input" autoFocus />
           </FormField>
           <FormField label="Email" required>
-            <input onChange={this.onEmailChange} value={email} type="text" className="fc-input" />
+            <TextInput onChange={this.onEmailChange} value={email} type="text" className="fc-input" />
           </FormField>
           <FormField label="Password" labelAtRight={this.iForgot} required>
-            <input onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
+            <TextInput onChange={this.onPasswordChange} value={password} type="password" className="fc-input" />
           </FormField>
-          <PrimaryButton
-            onClick={this.clearMessage}
-            styleName="submit-button"
-            type="submit"
-            isLoading={this.props.authenticationState.inProgress}>
-            Sign In
-          </PrimaryButton>
+          <div className={s.buttonBlock}>
+            <PrimaryButton
+              onClick={this.clearMessage}
+              className={s.submitButton}
+              fullWidth
+              type="submit"
+              isLoading={this.props.authenticationState.inProgress}
+            >
+              Sign In
+            </PrimaryButton>
+          </div>
         </Form>
       </div>
     );
@@ -171,10 +153,19 @@ export default class Login extends Component {
 
   render() {
     return (
-      <div styleName="main">
-        <div className="fc-auth__title">Sign In</div>
+      <div className={s.main}>
+        <div className={s.title}>Sign In</div>
         {this.content}
       </div>
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    user: state.user,
+    authenticationState: _.get(state.asyncActions, 'authenticate', {}),
+  };
+}
+
+export default connect(mapStateToProps, userActions)(Login);

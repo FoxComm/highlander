@@ -1,5 +1,5 @@
 .fc-line-items {
-  background-color: @color-decor12;
+  background-color: @bg-grey-headers;
 
   input[type=number] {
     &::-webkit-inner-spin-button,
@@ -11,7 +11,7 @@
 
   &-add {
     margin: 20px 0;
-    background-color: @color-decor12;
+    background-color: @bg-grey-headers;
   }
 
   &-add-label {
@@ -81,18 +81,18 @@
   }
 
   &-count {
-    color: @color-decor42;
+    color: @color-additional-text;
     .font-spec(15px, 600, 20px);
     margin: 10px 20px 0 0;
   }
 
   .fc-line-item-sale {
-    color: @color-decor50;
+    color: @color-text;
   }
 
   .fc-editable-content-box-footer {
     border-top: none;
-    background-color: @color-decor12;
+    background-color: @bg-grey-headers;
   }
 
   .fc-table {
@@ -111,7 +111,7 @@
   .fc-table .fc-table-tr._with-attributes .fc-table-td,
   .line-item__attributes + .fc-table-tr .fc-table-td {
     position: relative;
-    background: #fff;
+    background: @bg-white;
     z-index: 1;
     box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.3);
 
@@ -137,7 +137,7 @@
       .fc-table-th {
         padding: 20px 15px;
         height: auto;
-        background: #e4e6ea;
+        background: @color-border;
         box-shadow: none;
       }
 
@@ -154,5 +154,9 @@
         }
       }
     }
+  }
+
+  &-errors {
+    margin-top: 20px;
   }
 }

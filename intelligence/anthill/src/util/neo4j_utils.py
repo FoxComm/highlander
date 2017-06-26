@@ -6,7 +6,10 @@ def get_all_channels(client):
     """get_all_channels
     """
     client.start()
-    query = "MATCH ()-[r:PURCHASED]-() RETURN DISTINCT r.channel"
+    query = """
+        MATCH ()-[r:PURCHASED]-()
+        WHERE r.channel IS NOT NULL
+        RETURN DISTINCT r.channel"""
     result = client.session.run(query)
     out = [record['r.channel'] for record in result]
     client.stop()

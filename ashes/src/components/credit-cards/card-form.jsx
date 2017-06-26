@@ -12,15 +12,15 @@ import { bindActionCreators } from 'redux';
 import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid } from '@foxcomm/wings/lib/payment-cards';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
+import { Checkbox } from 'components/core/checkbox';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
 import SaveCancel from 'components/core/save-cancel';
 import { TextMask } from 'components/core/text-mask';
-import TextInput from '../forms/text-input';
-import AutoScroll from '../common/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
+import TextInput from 'components/core/text-input';
 import ExpirationBlock from './card-expiration-block';
 
 import * as AddressActions from '../../modules/customers/addresses';
@@ -41,7 +41,6 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class CreditCardForm extends React.Component {
-
   static propTypes = {
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
@@ -51,23 +50,24 @@ export default class CreditCardForm extends React.Component {
     addresses: PropTypes.array,
     card: PropTypes.shape({
       address: PropTypes.shape({
-        id: PropTypes.number
-      })
+        id: PropTypes.number,
+      }),
     }),
     customerId: PropTypes.number,
     className: PropTypes.string,
-    saveText: PropTypes.string,
+    saveLabel: PropTypes.string,
   };
 
   static defaultProps = {
     isDefaultEnabled: true,
     onChange: _.noop,
-    saveText: 'Save',
+    saveLabel: 'Save',
   };
 
   state = {
     card: this.props.card,
     editingAddress: this.props.isNew,
+    inProgress: false,
   };
 
   componentDidMount() {
@@ -87,24 +87,17 @@ export default class CreditCardForm extends React.Component {
   get defaultCheckboxBlock() {
     const { isDefaultEnabled } = this.props;
 
-    const className = classNames('fc-credit-card-form__default', {
-      '_disabled': !isDefaultEnabled,
-    });
-
     const isDefault = _.get(this.state, 'card.isDefault', false);
 
     return (
       <li className="fc-credit-card-form__line">
-        <label className={className}>
-          <Checkbox disabled={!isDefaultEnabled}
-                    defaultChecked={isDefault}
-                    className="fc-credit-card-form__default-checkbox"
-                    name="isDefault"
-                    id="isDefault" />
-          <span className="fc-credit-card-form__default-label">
-            Default Card
-          </span>
-        </label>
+        <Checkbox
+          id="isDefault"
+          name="isDefault"
+          label="Default Card"
+          disabled={!isDefaultEnabled}
+          defaultChecked={isDefault}
+        />
       </li>
     );
   }
@@ -113,15 +106,15 @@ export default class CreditCardForm extends React.Component {
     const holderName = _.get(this.state, 'card.holderName', '');
     return (
       <li className="fc-credit-card-form__line">
-        <FormField label="Name on Card"
-                   validator="ascii"
-                   labelClassName="fc-credit-card-form__label">
-        <TextInput id="nameCardFormField"
-                   className="fc-credit-card-form__input"
-                   name="holderName"
-                   maxLength="255"
-                   required
-                   value={holderName} />
+        <FormField label="Name on Card" validator="ascii" labelClassName="fc-credit-card-form__label">
+          <TextInput
+            id="nameCardFormField"
+            className="fc-credit-card-form__input"
+            name="holderName"
+            maxLength="255"
+            required
+            value={holderName}
+          />
         </FormField>
       </li>
     );
@@ -170,9 +163,11 @@ export default class CreditCardForm extends React.Component {
       <li className="fc-credit-card-form__line">
         <div className="fc-grid">
           <div className="fc-col-md-3-4">
-            <FormField label="Card Number"
-                       labelClassName="fc-credit-card-form__label"
-                       validator={this.validateCardNumber}>
+            <FormField
+              label="Card Number"
+              labelClassName="fc-credit-card-form__label"
+              validator={this.validateCardNumber}
+            >
               <TextMask
                 id="numberCardFormField"
                 className="fc-credit-card-form__input"
@@ -187,15 +182,15 @@ export default class CreditCardForm extends React.Component {
             </FormField>
           </div>
           <div className="fc-col-md-1-4">
-            <FormField label="CVV"
-                       labelClassName="fc-credit-card-form__label"
-                       validator={this.validateCvvNumber}>
-              <TextInput id="cvvCardFormField"
-                     className="fc-credit-card-form__input"
-                     name="cvv"
-                     maxLength={cvvLength(this.cardType)}
-                     required
-                     value={this.cardCVV}/>
+            <FormField label="CVV" labelClassName="fc-credit-card-form__label" validator={this.validateCvvNumber}>
+              <TextInput
+                id="cvvCardFormField"
+                className="fc-credit-card-form__input"
+                name="cvv"
+                maxLength={cvvLength(this.cardType)}
+                required
+                value={this.cardCVV}
+              />
             </FormField>
           </div>
         </div>
@@ -258,11 +253,13 @@ export default class CreditCardForm extends React.Component {
             getTargetValue={() => _.get(this.state, 'card.address')}
             required
           >
-            <AddressSelect name="addressId"
-                           customerId={customerId}
-                           items={addresses}
-                           initialValue={addressId}
-                           onItemSelect={this.onAddressChange} />
+            <AddressSelect
+              name="addressId"
+              customerId={customerId}
+              items={addresses}
+              initialValue={addressId}
+              onItemSelect={this.onAddressChange}
+            />
           </FormField>
         </li>
       );
@@ -271,33 +268,32 @@ export default class CreditCardForm extends React.Component {
 
   get submit() {
     return (
-      <SaveCancel saveText={this.props.saveText}
-                  onCancel={this.props.onCancel} />
+      <SaveCancel saveLabel={this.props.saveLabel} onCancel={this.props.onCancel} isLoading={this.state.inProgress} />
     );
   }
 
   @autobind
-  onChange({target}) {
+  handleSubmit(e) {
+    // no need to set inProgress to false as cards are refetched/rerendered
+    this.setState({ inProgress: true }, () => this.props.onSubmit(e, this.state.card));
+  }
+
+  @autobind
+  onChange({ target }) {
     const newState = assoc(this.state, ['card', target.name], target.value);
-    this.setState(newState, () => this.props.onChange({target}));
+    this.setState(newState, () => this.props.onChange({ target }));
   }
 
   @autobind
   onExpYearChange(value) {
     const payload = { target: { name: 'expYear', value: +value } };
-    this.setState(
-      assoc(this.state, ['card', 'expYear'], +value),
-      () => this.props.onChange(payload)
-    );
+    this.setState(assoc(this.state, ['card', 'expYear'], +value), () => this.props.onChange(payload));
   }
 
   @autobind
   onExpMonthChange(value) {
     const payload = { target: { name: 'expMonth', value: +value } };
-    this.setState(
-      assoc(this.state, ['card', 'expMonth'], +value),
-      () => this.props.onChange(payload)
-    );
+    this.setState(assoc(this.state, ['card', 'expMonth'], +value), () => this.props.onChange(payload));
   }
 
   @autobind
@@ -306,10 +302,14 @@ export default class CreditCardForm extends React.Component {
     const address = _.find(this.props.addresses, { id: addressId });
     const payload = { target: { name: 'addressId', value: addressId } };
 
-    const newState = assoc(this.state,
-      'editingAddress', false,
-      ['card', 'addressId'], addressId,
-      ['card', 'address'], address
+    const newState = assoc(
+      this.state,
+      'editingAddress',
+      false,
+      ['card', 'addressId'],
+      addressId,
+      ['card', 'address'],
+      address
     );
 
     this.setState(newState, () => this.props.onChange(payload));
@@ -321,13 +321,11 @@ export default class CreditCardForm extends React.Component {
   }
 
   render() {
-    const { className, onSubmit } = this.props;
+    const { className } = this.props;
     const formClassName = classNames('fc-credit-card-form fc-form-vertical', className);
 
     return (
-      <Form className={formClassName}
-            onChange={this.onChange}
-            onSubmit={(event) => onSubmit(event, this.state.card)}>
+      <Form className={formClassName} onChange={this.onChange} onSubmit={this.handleSubmit}>
         <AutoScroll />
         {this.header}
         <div>

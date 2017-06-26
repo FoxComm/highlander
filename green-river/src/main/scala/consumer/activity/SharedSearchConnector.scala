@@ -19,19 +19,14 @@ object SharedSearchConnector extends ActivityConnector {
       }
     }
 
-  def createConnection(adminId: String, activityId: String): Connection = {
-    Connection(dimension = "notification",
-               objectId = adminId,
-               data = JNothing,
-               activityId = activityId)
-  }
+  def createConnection(adminId: String, activityId: String): Connection =
+    Connection(dimension = "notification", objectId = adminId, data = JNothing, activityId = activityId)
 
-  private def byAssociateData(activity: Activity): Seq[String] = {
+  private def byAssociateData(activity: Activity): Seq[String] =
     activity.data \ "associate" \ "id" match {
       case JInt(value) ⇒ Seq(value.toString)
       case _           ⇒ Seq.empty
     }
-  }
 
   private def byAssociatesData(activity: Activity): Seq[String] =
     extractStringSeq(activity.data, "associates")

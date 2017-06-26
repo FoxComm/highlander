@@ -1,0 +1,58 @@
+@import 'common.css';
+@import 'colors.css';
+
+.main {
+  display: inline-flex;
+  align-items: stretch;
+  vertical-align: top;
+  min-height: 32px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-light-text);
+  background-color: var(--bg-nav-main);
+  border-radius: 16px;
+}
+
+.loading {
+  @apply --loading-caramel;
+
+  background-color: var(--bg-nav-disabled);
+}
+
+.button {
+  padding: 0 12px 0 8px;
+  font-size: 18px;
+  font-weight: bold;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--bg-grey-buttons);
+  border-radius: 0 17px 17px 0;
+}
+
+.main:not(.loading) .button {
+  transition: background .2s;
+}
+
+.main:not(.loading) .button:hover {
+  background-color: var(--bg-nav-active);
+}
+
+.label {
+  padding: 8px 15px;
+  border-radius: 17px;
+  transition: background .2s;
+
+  .closable & {
+    border-radius: 17px 0 0 17px;
+  }
+}
+
+.main.clickable:not(.loading) .label:hover {
+  background-color: var(--bg-nav-active);
+  cursor: pointer;
+}
+
+.main.closable .label {
+  padding-right: 8px;
+  padding-left: 10px;
+}

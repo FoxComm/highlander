@@ -8,7 +8,6 @@ import { transitionTo } from 'browserHistory';
 
 // components
 import { connectPage, ObjectPage } from '../object-page/object-page';
-import SubNav from './sub-nav';
 import SaveCancel from 'components/core/save-cancel';
 
 // actions
@@ -74,21 +73,34 @@ class CouponPage extends ObjectPage {
     };
   }
 
+  get unsaved(): boolean {
+    return false;
+  }
+
   get selectedPromotions(): Array<any> {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
+  @autobind
+  updateObjectWithCodes() {
+    const { bulk, singleCode, codesQuantity, codesPrefix, codesLength } = this.props.details.codeGeneration;
+    const generateCodes = {
+      prefix: codesPrefix,
+      quantity: codesQuantity,
+      length: Number(codesLength) + codesPrefix.length,
+    };
+    if (!bulk) return { ..._.omit(this.state.object,'generateCodes'), singleCode };
+    return { ..._.omit(this.state.object,'singleCode'), generateCodes };
+  }
+
   save(): ?Promise<*> {
-    let willBeCoupon = super.save();
-
-    if (willBeCoupon) {
+    this.setState({
+      object: this.updateObjectWithCodes(),
+    }, () => {
       const { bulk, singleCode } = this.props.details.codeGeneration;
-
       if (bulk === false && singleCode != void 0) {
+        const willBeCoupon = super.save();
         willBeCoupon.then((data) => {
-          const newId = _.get(data, 'id');
-          return this.props.actions.generateCode(newId, singleCode);
-        }).then(() => {
           this.props.actions.couponsGenerationReset();
         }).then(() => {
           this.props.actions.refresh();
@@ -97,28 +109,33 @@ class CouponPage extends ObjectPage {
       }
 
       if (bulk === true && this.props.actions.codeIsOfValidLength()) {
-        willBeCoupon.then(() => {
-          return this.props.actions.couponsGenerationShowDialog();
-        });
+        this.props.actions.couponsGenerationShowDialog();
       }
-    }
+    });
+  }
 
+  @autobind
+  saveBulk(): Promise<*> {
+    const willBeCoupon = super.save();
     return willBeCoupon;
   }
 
   @autobind
   receiveNewObject(nextObject) {
+    if (_.isArray(nextObject)) return;
     nextObject.promotion = Number(this.props.params.promotionId);
-    nextObject.attributes.name = { // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
+    nextObject.attributes.name = {
+      // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
       t: 'string',
       v: 'Coupon name',
     };
     this.setState({
-      object: nextObject
+      object: nextObject,
     });
   }
 
-  componentDidUpdate(prevProps, prevState) { // CHECK IF NEEDED AFTER KANGAROOS MERGE
+  componentDidUpdate(prevProps, prevState) {
+    // CHECK IF NEEDED AFTER KANGAROOS MERGE
     return;
   }
 
@@ -135,7 +152,7 @@ class CouponPage extends ObjectPage {
         cancelDisabled={this.props.isSaving}
         saveDisabled={this.props.isSaving}
         onCancel={this.props.params.modalCancelAction}
-        saveText="Generate Coupon Code(s)"
+        saveLabel="Generate Coupon Code(s)"
       />
     );
   }
@@ -165,7 +182,7 @@ class CouponPage extends ObjectPage {
     let formValid = super.validateForm();
 
     if (coupon && !_.isNumber(coupon.promotion)) {
-      this.setState({promotionError: true});
+      this.setState({ promotionError: true });
       formValid = false;
     }
 
@@ -190,6 +207,7 @@ class CouponPage extends ObjectPage {
       createCoupon: this.createCoupon,
       selectedPromotions: this.selectedPromotions,
       refresh: this.props.actions.refresh,
+      saveBulk: this.saveBulk,
     };
   }
 

@@ -4,9 +4,6 @@
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
-// styles
-import styles from './shipment-row.css';
-
 // components
 import TableRow from 'components/table/row';
 import TableCell from 'components/table/cell';
@@ -14,26 +11,30 @@ import { DateTime } from 'components/common/datetime';
 import AddressDetails from 'components/addresses/address-details';
 import ShippedItem from './shipped-item';
 import Transaction from './transaction';
+import Icon from 'components/core/icon';
+
+// styles
+import styles from './shipment-row.css';
 
 // types
 import type { TShippingMethod, TShipmentLineItem } from 'paragons/shipment';
 
 type Props = {
-  isLoading: boolean;
-  shippingMethod: TShippingMethod;
-  state: string;
-  shipmentDate: string;
-  estimatedArrival: string;
-  deliveredDate: string;
-  trackingNumber: string;
-  address: Object;
-  lineItems: Array<TShipmentLineItem>;
-  transactions: Array<Object>; //TODO: will be picked from phoenix
-}
+  isLoading: boolean,
+  shippingMethod: TShippingMethod,
+  state: string,
+  shipmentDate: string,
+  estimatedArrival: string,
+  deliveredDate: string,
+  trackingNumber: string,
+  address: Object,
+  lineItems: Array<TShipmentLineItem>,
+  transactions: Array<Object>, //TODO: will be picked from phoenix
+};
 
 type State = {
-  isExpanded: boolean;
-}
+  isExpanded: boolean,
+};
 
 export default class ShipmentRow extends Component {
   props: Props;
@@ -76,10 +77,7 @@ export default class ShipmentRow extends Component {
     return (
       <TableRow styleName="summary-row">
         <TableCell>
-          <i styleName="row-toggle"
-             className={`icon-chevron-${toggleAction}`}
-             onClick={this.toggleExpanded}
-          />
+          <Icon styleName="row-toggle" name={`chevron-${toggleAction}`} onClick={this.toggleExpanded} />
           {props.shippingMethod.name}
         </TableCell>
         <TableCell>{props.state}</TableCell>
@@ -115,15 +113,11 @@ export default class ShipmentRow extends Component {
           </div>
           <div styleName="details-title">Items</div>
           <div styleName="items">
-            {this.props.lineItems.map((item, index) => (
-              <ShippedItem key={index} {...item} />
-            ))}
+            {this.props.lineItems.map((item, index) => <ShippedItem key={index} {...item} />)}
           </div>
           <div styleName="details-title">Transactions</div>
           <div styleName="items">
-            {this.props.transactions.map((item, index) => (
-              <Transaction key={index} {...item} />
-            ))}
+            {this.props.transactions.map((item, index) => <Transaction key={index} {...item} />)}
           </div>
         </TableCell>
       </TableRow>

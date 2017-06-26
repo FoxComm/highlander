@@ -10,7 +10,6 @@ import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 import { createAsyncActions } from '@foxcomm/wings';
 
 // components
-import { ModalContainer } from 'components/modal/base';
 import SearchInput from 'components/typeahead/input';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { Table } from 'components/table';
@@ -52,8 +51,8 @@ class ProductsAdd extends Component {
   }
 
   @autobind
-  handleInputChange({ target }: { target: HTMLInputElement }) {
-    this.props.setTerm(target.value);
+  handleInputChange(value: string) {
+    this.props.setTerm(value);
 
     this.search();
   }
@@ -131,5 +130,5 @@ const mapState = state => ({
 
 export default flow(
   connect(mapState, { fetch: fetch.perform, setTerm, setAddedProduct }),
-  makeLocalStore(addAsyncReducer(reducer), { term: '', products: [] }),
+  makeLocalStore(addAsyncReducer(reducer), { term: '', products: [] })
 )(ProductsAdd);

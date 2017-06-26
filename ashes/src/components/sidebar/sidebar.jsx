@@ -13,10 +13,11 @@ type Params = { [key: string]: string };
 type Props = {
   routes: Array<Object>,
   params: Params,
-}
+  className?: string,
+};
 
-const Sidebar = ({ routes, params }: Props) => {
-  const sidebarClass = classNames('fc-sidebar', '_open');
+const Sidebar = ({ routes, params, className }: Props) => {
+  const sidebarClass = classNames('fc-sidebar', '_open', className);
 
   return (
     <aside role="complimentary" className={sidebarClass}>

@@ -25,6 +25,9 @@
   },
   "env": {
     "ANTHILL_HOST": "{{anthill_host}}",
+    "DEXTER_BOT_ID": "{{dexter_bot_id}}",
+    "DEXTER_API_KEY": "{{dexter_api_key}}",
+    "DEXTER_BASE_URL": "{{dexter_base_url}}",
     "NEO4J_HOST": "{{neo4j_host}}",
     "NEO4J_PORT": "{{neo4j_http_port}}",
     "NEO4J_USER": "{{neo4j_user}}",

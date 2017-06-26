@@ -5,17 +5,22 @@ DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= greenriver
 DOCKER_TAG ?= master
 
-build:
+build: fmt-check
 	$(call header, Building)
 	sbt assembly
+
+fmt:
+	../utils/scalafmt/scalafmt.sh --diff
+
+fmt-check:
+	../utils/scalafmt/scalafmt.sh --test
 
 clean:
 	sbt clean
 
 test:
 	$(call header, Testing)
-	sbt scalafmtTest
-	sbt test
+	../utils/scalafmt/scalafmt.sh --test &&	sbt test
 
 docker:
 	$(call header, Dockerizing)
@@ -26,4 +31,4 @@ docker-push:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-.PHONY: build test clean docker docker-push
+.PHONY: build test clean docker docker-push fmt fmt-check

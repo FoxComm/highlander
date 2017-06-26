@@ -1,0 +1,18 @@
+---
+
+- name: Get Consul Template
+  get_url: url={{consul_template_url}} dest=/tmp/consul-template.zip
+
+- name: Unzip Consul Template
+  unarchive: src="/tmp/consul-template.zip" dest="/usr/local/bin/" copy=no
+  args:
+    creates: "/usr/local/bin/consul-template"
+
+- name: Install Consul Template Service
+  template: src=consul_template.service dest="{{dest_services}}/consul_template.service"
+
+- name: Copy Consul Template Config File
+  template: src=consul_template.conf dest="{{consul_data_dir}}/consul_template.conf"
+
+- name: Copy Consul Template Service File
+  template: src=consul_template.json dest=/etc/consul.d/consul_template.json

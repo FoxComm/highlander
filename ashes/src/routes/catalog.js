@@ -1,10 +1,9 @@
 /* @flow */
-import React, { Component, Element } from 'react';
+import React, { Element } from 'react';
 
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
 
-import Analytics from 'components/analytics/analytics';
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import Notes from 'components/notes/notes';
 
@@ -27,7 +26,10 @@ import SkuPage from 'components/skus/page';
 import SkuDetails from 'components/skus/details';
 import SkuImages from 'components/skus/images';
 
-import type { Claims } from 'lib/claims';
+import CatalogListWrapper from 'components/catalog/list-wrapper';
+import CatalogList from 'components/catalog/list';
+import CatalogDetails from 'components/catalog/details';
+import CatalogPage from 'components/catalog/catalog-page';
 
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
@@ -55,9 +57,9 @@ const getRoutes = (jwt: Object) => {
       }, [
         router.read('product-details', { component: ProductForm, isIndex: true }),
         router.create('new-product', { component: ProductForm }),
-        router.read('product-images', {
-          title: 'Images',
-          path: 'images',
+        router.read('product-media', {
+          title: 'Media',
+          path: 'media',
           component: ProductImages,
           frn: frn.pim.album,
         }),
@@ -75,9 +77,26 @@ const getRoutes = (jwt: Object) => {
         router.read('product-analytics', {
           title: 'Analytics',
           path: 'analytics',
-          component: Analytics,
+          getComponent: (location, callback) => {
+            import('../components/analytics/analytics')
+              .then(({ Analytics }) => callback(null, Analytics));
+          },
           frn: frn.activity.product,
         }),
+      ]),
+    ]);
+
+  const catalogRoutes =
+    router.read('catalog-base', { title: 'Catalogs', path: 'catalogs', frn: frn.pim.catalog }, [
+      router.read('catalogs-list-pages', { component: CatalogListWrapper }, [
+        router.read('catalogs', { component: CatalogList, isIndex: true }),
+      ]),
+      router.read('catalog', {
+        path: ':catalogId',
+        titleParam: ':catalogId',
+        component: CatalogPage,
+      }, [
+        router.read('catalog-details', { isIndex: true, component: CatalogDetails }),
       ]),
     ]);
 
@@ -94,9 +113,9 @@ const getRoutes = (jwt: Object) => {
       ]),
       router.read('sku', { path: ':skuCode', component: SkuPage }, [
         router.read('sku-details', { component: SkuDetails, isIndex: true }),
-        router.read('sku-images', {
-          path: 'images',
-          title: 'Images',
+        router.read('sku-media', {
+          path: 'media',
+          title: 'Media',
           component: SkuImages,
           frn: frn.pim.album,
         }),
@@ -145,6 +164,7 @@ const getRoutes = (jwt: Object) => {
 
   return (
     <div>
+      {catalogRoutes}
       {productRoutes}
       {skuRoutes}
       {inventoryRoutes}

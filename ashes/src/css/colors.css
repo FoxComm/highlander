@@ -1,117 +1,38 @@
 :root {
-  --nav-main: #1a2534;
-  --nav-active: #25334a;
-  --nav-pink: #fc54a6;
-  --green-buttons: #49cab9;
-  --grey-buttons: #ced2d5;
-  --grey-headers: #f7f7f7;
-  --grey-background: #f9f9f9;
+  /*
+   * https://app.zeplin.io/project/58e3cc8f1e88befbcc27121e/screen/58e3ccda94f5ae16cd341689
+   */
 
-  --white: #ffffff;
-  --black: #000000;
-  --decor0: #f2f2f2;
-  --decor1: #484848;
-  --decor2: #333a45;
-  --decor3: #3a4350;
-  --decor4: #828e9f;
-  --decor5: #9ba3a7;
-  --decor6: #bdc3c6;
-  --decor7: #ced2d5;
-  --decor8: #bfbfbf;
-  --decor9: #d9d9d9;
-  --decor10: #ebebeb;
-  --decor11: #f5f5f5;
-  --decor12: #f7f7f7;
-  --decor13: #fcfcfc;
-  --decor14: #3aacb3;
-  --decor15: #4fc2c9;
-  --decor16: #99e6ea;
-  --decor17: #a0e9ed;
-  --decor18: #7Da0f3;
-  --decor19: #a0beed;
-  --decor20: #c5d6ff;
-  --decor21: #e1eaff;
-  --decor22: #f45758;
-  --decor23: #ff9796;
+  /* colors blessed by @bree */
+  --color-text: #363636;
+  --color-additional-text: rgba(54, 54, 54, .5);
+  --color-subtitle-text: #abb2b6;
+  --color-light-text: #fff;
+  --color-light-text-hover: rgba(255, 255, 255, .5);
+  --color-link: #49cab9;
+  --color-error-text: #f65554;
+  --color-border: #d9d9d9;
+
+  /* all other colors are damned! */
+
+  /* background colors blessed by @bree */
+  --bg-white: #fff;
+  --bg-nav-main: #25334a;
+  --bg-nav-active: #1a2535;
+  --bg-nav-disabled: #99a9c4;
+  --bg-nav-pink: #fc54a6;
+  --bg-field-error: var(--color-error-text);
+  --bg-grey: #f9f9f9;
+  --bg-grey-buttons: #ced2d5;
+  --bg-grey-buttons-hover: #bdc3c6;
+  --bg-grey-headers: #f7f7f7;
+  --bg-green-buttons: #49cab9;
+  --bg-green-buttons-hover: #1dbfaa;
+  --bg-message-success: #adf2e9;
+  --bg-message-warning: #fff9a0;
+  --bg-message-error: #ffb1b1;
+
+  /* all other background colors are damned! */
+
   --decor24: #ffbb3c;
-  --decor25: #ffdd7f;
-  --decor26: #47628d;
-  --decor27: #b98bdc;
-  --decor28: #dd63b9;
-  --decor29: #a2dee1;
-  --decor31: #959698;
-  --decor32: #3e4d61;
-  --decor33: #f2595c;
-  --decor34: #f2f2f2;
-  --decor35: #e5e7e8;
-  --decor36: #333c49;
-  --decor37: #37bac2;
-  --decor38: #e9feff;
-  --decor39: #49c2ca;
-  --decor40: #cdcccc;
-  --decor41: #cdcdcd;
-  --decor42: #b1b1b1;
-  --decor43: rgba(0,0,0,0.30);
-  --decor44: #dfe3ed;
-  --decor45: #7f7f7f;
-  --decor46: #4fc2c9;
-  --decor47: #F45758;
-  --decor48: #D8FBFD;
-  --decor49: #EAFEFF;
-  --decor50: #F7423B;
-  --decor51: rgba(0,0,0,0.50);
-  --decor52: #989898;
-  --decor53: #B9B9B9;
-  --decor54: #F5FEFF;
-  --decor55: rgba(0,0,0,0.40);
-  --decor56: #3A434F;
-  --decor57: #b3b3b3;
-  --decor58: rgba(0,0,0,.1);
-  --decor59: #6a6a6a;
-  --decor60: #e4e6ea;
-  --decor61: #f4f5f6;
-
-  --text-gray: #adaaaa;
-  --transparent: transparent;
-
-  // Site colors
-  --border: #bbbdbf;
-  --header-border: --decor9;
-  --btn-bg: #f1f1f2;
-  --btn-bg-hover: #e3e3e4;
-  --link-tab: #595959;
-  --tooltip-bg: --decor3;
-  --subtitle: #abb2b6;
-
-  // Default colors
-  --default-fg: --decor1;
-  --default-bg: --decor0;
-
-  // Control colors
-  --control-primary-fg: --decor0;
-  --control-primary-bg: --decor15;
-  --control-primary-hover-fg: --decor0;
-  --control-primary-hover-bg: --decor14;
-  --control-primary-disabled-fg: --decor29;
-  --control-primary-disabled-bg: --decor15;
-
-  --control-secondary-fg: --default-fg;
-  --control-secondary-bg: --transparent;
-  --control-secondary-hover-fg: --black;
-  --control-secondary-hover-bg: --transparent;
-  --control-secondary-disabled-fg: --decor31;
-  --control-secondary-disabled-bg: --transparent;
-
-  --control-standard-fg: --default-fg;
-  --control-standard-bg: --decor7;
-  --control-standard-hover-fg: --default-fg;
-  --control-standard-hover-bg: --decor6;
-  --control-standard-disabled-fg: --decor31;
-  --control-standard-disabled-bg: --decor7;
-
-  --control-yes-fg: --decor0;
-  --control-yes-bg: --decor15;
-
-  --control-no-fg: --decor0;
-  --control-no-bg: --decor22;
 }

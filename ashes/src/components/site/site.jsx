@@ -1,9 +1,12 @@
 import React from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Header from '../header/header';
 import Sidebar from '../sidebar/sidebar';
 import * as CountriesActions from '../../modules/countries';
 import { connect } from 'react-redux';
+
+import s from './site.css';
 
 @connect(state => state, CountriesActions)
 export default class Site extends React.Component {
@@ -21,19 +24,23 @@ export default class Site extends React.Component {
 
   render() {
     return (
-      <div className="fc-admin">
-        <Sidebar
+      <div className={classNames(s.block, 'fc-admin')}>
+        <Header
+          className={s.header}
           routes={this.props.routes}
           params={this.props.params}
         />
-        <div className="fc-container">
-          <Header
+        <div className={s.content}>
+          <Sidebar
             routes={this.props.routes}
             params={this.props.params}
+            className={s.sidebar}
           />
-          <main role='main' className="fc-main">
-            {this.props.children}
-          </main>
+          <div className={classNames(s.container, 'fc-container')}>
+            <main role='main' className={classNames(s.main, 'fc-main')}>
+              {this.props.children}
+            </main>
+          </div>
         </div>
       </div>
     );

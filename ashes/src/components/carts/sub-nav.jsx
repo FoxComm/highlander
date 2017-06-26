@@ -1,7 +1,8 @@
 /* @flow */
 import React, { Element } from 'react';
+
 import { Link, IndexLink } from 'components/link';
-import LocalNav from 'components/local-nav/local-nav';
+import PageNav from 'components/core/page-nav';
 
 import type { Cart } from 'paragons/order';
 
@@ -14,11 +15,11 @@ const SubNav = (props: Props) => {
   const params = {cart: cart.referenceNumber};
 
   return (
-    <LocalNav>
+    <PageNav>
       <IndexLink to="cart-details" params={params}>Details</IndexLink>
       <Link to="cart-notes" params={params}>Notes</Link>
       <Link to="cart-activity-trail" params={params}>Activity Trail</Link>
-    </LocalNav>
+    </PageNav>
   );
 };
 

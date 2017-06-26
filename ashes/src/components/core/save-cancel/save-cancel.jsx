@@ -14,31 +14,33 @@ import s from './save-cancel.css';
 
 type Props = {
   /** Additional className */
-  className?: string;
+  className?: string,
   /** Component tabindex value */
-  cancelTabIndex: string;
+  cancelTabIndex: string,
   /** Save button tabindex value */
-  saveTabIndex: string;
+  saveTabIndex: string,
   /** Cancel button label */
-  cancelText?: string;
+  cancelLabel?: string,
   /** If cancel button is disabled */
-  cancelDisabled?: boolean;
+  cancelDisabled?: boolean,
   /** Save button label */
-  saveText?: string;
+  saveLabel?: string,
   /** If save button is disabled */
-  saveDisabled?: boolean;
+  saveDisabled?: boolean,
   /** If provided, save button acts as a ButtonWithMenu - it provides additional actions in a menu */
   saveItems?: SaveComboItems,
-  /** Dropdown menu position. Affects animation start position (css's transform-origin). Used when 'saveItems' is not empty  */
-  saveMenuPosition?: 'left'|'right',
   /** Callback called on save button click */
-  onSave?: (value: any) => void;
+  onSave?: (value: any) => void,
   /** Callback called on menu item click. Used when 'saveItems' is not empty  */
-  onSaveSelect?: (value: any) => void;
+  onSaveSelect?: (value: any) => void,
   /** Callback called on cancel button click */
-  onCancel?: (event: SyntheticEvent) => void;
+  onCancel?: (event: SyntheticEvent) => void,
   /** If to show loading animation */
-  isLoading?: boolean;
+  isLoading?: boolean,
+  /** If true, wil set focus on Cancel button, otherwise do nothing */
+  focusCancel?: boolean,
+  /** If true, wil set focus on Action button, otherwise do nothing */
+  focusAction?: boolean,
 };
 
 /**
@@ -52,59 +54,54 @@ export default class SaveCancel extends Component {
 
   static defaultProps: $Shape<Props> = {
     className: '',
-    cancelTabIndex: '0',
-    saveTabIndex: '1',
-    cancelText: 'Cancel',
+    cancelTabIndex: '101',
+    saveTabIndex: '102',
+    cancelLabel: 'Cancel',
     cancelDisabled: false,
-    saveText: 'Save',
+    saveLabel: 'Save',
     saveDisabled: false,
     saveItems: [],
-    saveMenuPosition: 'right',
     onSaveSelect: noop,
     onCancel: noop,
     isLoading: false,
   };
 
+  _cancel: HTMLElement;
+  _action: HTMLElement;
+
+  componentDidMount() {
+    if (this.props.focusCancel && this._cancel) {
+      this._cancel.focus();
+    } else if (this.props.focusAction && this._action) {
+      this._action.focus();
+    }
+  }
+
   get cancel() {
-    const {
-      cancelTabIndex,
-      onCancel,
-      cancelText,
-      cancelDisabled,
-    } = this.props;
+    const { cancelTabIndex, onCancel, cancelLabel, cancelDisabled } = this.props;
 
     return (
       <Button
         id="fct-modal-cancel-btn"
         type="button"
+        returnRef={r => this._cancel = r}
         onClick={onCancel}
         className={classNames(s.cancel, 'fc-save-cancel__cancel')}
         tabIndex={cancelTabIndex}
         disabled={cancelDisabled}
-        children={cancelText}
+        children={cancelLabel}
       />
     );
   }
 
   get primary() {
-    const {
-      saveTabIndex,
-      saveText,
-      saveItems,
-      saveMenuPosition,
-      saveDisabled,
-      onSave,
-      onSaveSelect,
-      isLoading,
-    } = this.props;
-
+    const { saveTabIndex, saveLabel, saveItems, saveDisabled, onSave, onSaveSelect, isLoading } = this.props;
 
     if (!isEmpty(saveItems)) {
       return (
         <ButtonWithMenu
           isLoading={isLoading}
-          title={saveText}
-          menuPosition={saveMenuPosition}
+          title={saveLabel}
           items={saveItems}
           onPrimaryClick={onSave}
           onSelect={onSaveSelect}
@@ -119,11 +116,12 @@ export default class SaveCancel extends Component {
         id="fct-modal-confirm-btn"
         type={onSave ? 'button' : 'submit'}
         onClick={onSave}
-        className="fc-save-cancel__save"
+        className={classNames(s.save, 'fc-save-cancel__save')}
         tabIndex={saveTabIndex}
         isLoading={isLoading}
         disabled={saveDisabled}
-        children={saveText}
+        returnRef={r => this._action = r}
+        children={saveLabel}
       />
     );
   }

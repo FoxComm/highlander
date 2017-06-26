@@ -1,10 +1,8 @@
+@import 'colors.css';
+
 .column-selector {
   position: relative;
-  margin-right: 20px;
-
-  & :global(.icon-settings-col) {
-    font-size: 20px;
-  }
+  margin-right: 10px;
 }
 
 .control {
@@ -20,6 +18,11 @@
   & :global(.fc-dropdown__items) {
     min-width: 300px;
     max-height: 304px;
+    transform: translateX(calc(-100% + 40px));
+
+    &:global(._dropup) {
+      transform: translateX(calc(-100% + 40px)) translateY(calc(-100% - 40px));
+    }
   }
 
   &:global(._open) {
@@ -38,33 +41,23 @@
     display: flex;
     line-height: 30px;
     font-size: 14px;
-    background: #fff;
+    background: var(--bg-white);
 
     &:hover {
-      background: #f5f5f5;
+      background: var(--bg-grey-headers);
     }
-  }
 
-  & :global(.icon-drag-drop) {
-    padding: 7px 2px 7px 4px;
-    font-size: 18px;
-    cursor: move;
-    color: #c0c0c0;
-  }
-
-  & :global(.fc-checkbox) {
-    width: 100%;
-  }
-
-  & :global(.fc-checkbox label) {
-    padding: 7px 10px 7px 5px;
-    width: 100%;
-    cursor: pointer;
+    & :global(.icon-wrapper) {
+      padding: 9px 2px 7px 4px;
+      font-size: 18px;
+      cursor: move;
+      color: var(--color-additional-text);
+    }
   }
 
   &:global(._hasDraggingItem) {
     & li:hover {
-      background: #FFFFFF;
+      background: var(--bg-white);
     }
   }
 }
@@ -75,7 +68,7 @@
   justify-content: center;
   align-items: center;
   height: 60px;
-  border-top: 1px solid #D9D9D9;
+  border-top: 1px solid var(--color-border);
 
   & :global(.fc-btn-primary) {
     min-width: 208px;
@@ -83,10 +76,18 @@
 }
 
 .isDragging {
-  box-shadow: inset -1px 1px 6px rgba(0, 0, 0, 0.24);
+  box-shadow: inset -1px 1px 6px rgba(0, 0, 0, .24);
 
-  & :global(.fc-checkbox),
   & :global(.icon-drag-drop) {
     opacity: 0;
+  }
+}
+
+/* @todo do not use button in generic dropdown */
+.button {
+  padding: 10px !important;
+
+  & > i {
+    font-size: 17px !important;
   }
 }

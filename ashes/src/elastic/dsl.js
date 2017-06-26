@@ -55,6 +55,12 @@ export function nestedTermFilter(term, value) {
   return nestedQuery(path, termFilter(term, value));
 }
 
+export function nestedExistsFilter(term, operator) {
+  const path = term.slice(0, term.lastIndexOf('.'));
+
+  return nestedQuery(path, existsFilter(term, operator));
+}
+
 export function nestedMatchFilter(term, value) {
   const path = term.slice(0, term.lastIndexOf('.'));
 

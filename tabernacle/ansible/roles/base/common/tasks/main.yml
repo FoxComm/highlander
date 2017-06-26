@@ -9,36 +9,22 @@
 - name: Remove Unattended Upgrades
   apt: name=unattended-upgrades state=absent
 
-- name: Copy logrotate to cron.hourly
-  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly
-
-- name: Install Core Packages 1
+- name: Install Core Packages
   apt: name={{item}} state=latest force=yes
   with_items:
     - apt-transport-https
     - ca-certificates
     - debconf-utils
     - curl
-
-- name: Install Core Packages 2
-  apt: name={{item}} state=latest force=yes
-  with_items:
     - htop
+    - iotop
     - make
     - nmap
     - python-httplib2
-
-- name: Install Core Packages 3
-  apt: name={{item}} state=latest force=yes
-  with_items:
     - python-pip
     - python-software-properties
     - software-properties-common
     - tmux
-
-- name: Install Core Packages 4
-  apt: name={{item}} state=latest force=yes
-  with_items:
     - tree
     - unzip
     - vim
@@ -50,12 +36,22 @@
 - name: Setup Unprivileged User
   command: /usr/sbin/usermod -a -G systemd-journal {{user}}
 
+- name: Stop SSH Guard
+  service: name=sshguard state=stopped enabled=no
+  when: is_appliance or is_staging
+
 - name: Install Bootstrap Scripts
   copy: src={{item}} dest=/usr/local/bin mode=775
   with_items:
     - bootstrap.sh
     - bootstrap_consul.sh
-    - bootstrap_consul_aws.sh
+
+- name: Install AWS Bootstrap Script
+  copy: src=bootstrap_consul_aws.sh dest=/usr/local/bin mode=775
+  when: is_aws
+
+- name: Copy logrotate to cron.hourly
+  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly || true
 
 - name: Install Docker
   include: docker.yml
@@ -64,7 +60,7 @@
   include: swap.yml
 
 - name: Configure VM limits
-  include: vm.yml
+  include: limits.yml
 
-- name: Remove Unattended Upgrades
-  apt: name=unattended-upgrades state=absent
+- name: Cleanup
+  include: cleanup.yml

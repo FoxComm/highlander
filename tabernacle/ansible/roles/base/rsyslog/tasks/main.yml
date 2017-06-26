@@ -5,7 +5,7 @@
   with_items:
       - debconf-utils
       - librdkafka-dev
-      - libcurl4-gnutls-dev
+      - libcurl4-nss-dev
       - libestr-dev
       - autoconf
       - automake
@@ -24,8 +24,6 @@
   args:
       chdir: "{{home}}/libfastjson"
 
-  sudo: true
-
 - name: Get Rsyslog
   get_url: url=http://www.rsyslog.com/files/download/rsyslog/rsyslog-8.23.0.tar.gz dest={{home}}/
 
@@ -40,12 +38,11 @@
       chdir: "{{home}}/rsyslog-8.23.0"
 
 - name: Make Rsyslog
-  make: 
+  make:
       chdir: "{{home}}/rsyslog-8.23.0"
 
 - name: Install Rsyslog
-  sudo: true
-  make: 
+  make:
       target: install
       chdir: "{{home}}/rsyslog-8.23.0"
 
@@ -53,39 +50,20 @@
   file: path=/etc/rsyslog.d/51-elastic.conf state=absent
 
 - name: Install Base Rsyslog Config
-  template: >
-    src=rsyslog.conf.j2
-    dest=/etc/rsyslog.conf
-    owner=root
-    group=root
-    mode=0644
+  template: src=rsyslog.conf.j2 dest=/etc/rsyslog.conf owner=root group=root mode=0644
 
 - name: Install File Data Forwarding Config
-  template: >
-    src=mesos.conf.j2
-    dest=/etc/rsyslog.d/51-mesos.conf
-    owner=root
-    group=root
-    mode=0644
+  template: src=mesos.conf.j2 dest=/etc/rsyslog.d/51-mesos.conf owner=root group=root mode=0644
 
 - name: Install Omelasticsearch Rsyslog Config
-  template: >
-    src=elastic.conf.j2
-    dest=/etc/rsyslog.d/52-elastic.conf
-    owner=root
-    group=root
-    mode=0644
+  template: src=elastic.conf.j2 dest=/etc/rsyslog.d/52-elastic.conf owner=root group=root mode=0644
 
 - name: Install rsyslog kafka config
-  template: >
-    src=kafka.conf.j2
-    dest=/etc/rsyslog.d/53-kafka.conf
-    owner=root
-    group=root
-    mode=0644
+  template: src=kafka.conf.j2 dest=/etc/rsyslog.d/53-kafka.conf owner=root group=root mode=0644
 
-- name: Reload Systemd for Rsyslog
-  command: systemctl daemon-reload
+- name: Disable ES5 logging on Appliance
+  file: path=/etc/rsyslog.d/52-elastic.conf state=absent
+  when: is_appliance
 
-- name: Restart Rsyslog
-  service: name=rsyslog state=restarted enabled=yes
+- name: Update Syslog Rotation
+  lineinfile: dest="{{logrotate_dir}}/rsyslog" regexp='^daily' line='size=100M'

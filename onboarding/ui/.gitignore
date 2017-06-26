@@ -1,0 +1,28 @@
+# Logs
+logs
+*.log
+
+# IDEs
+.idea
+.iml
+
+/node_modules
+/public
+/build
+
+# Users Environment Variables & settings
+.lock-wscript
+/.gulprc
+
+.DS_Store
+.#*
+
+# Vim
+*.swp
+*.iml
+
+# package
+onboarding.tar.bz2
+
+# certificates
+public_key.pem

@@ -12,7 +12,6 @@
     "TAG": "{{docker_tags.solomon}}"
   },
   "env": {
-    "PORT": "{{solomon_port}}",
     "DB_USER": "{{db_user}}",
     "DB_HOST": "{{docker_db_host}}",
     "DB_NAME": "{{phoenix_db_name}}",
@@ -55,7 +54,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": {{solomon_port}}
+      "portIndex": 0
     }
   ]
 }

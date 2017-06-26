@@ -1,0 +1,24 @@
+# Data Structures
+
+### Coupon
++ id: 1 (required, number) - Coupon ID.
++ context (required, ObjectContext) - Related context.
++ code (required, string) - Coupon code.
++ attributes: `<json>` (required, string) - Coupon attributes.
++ promotion: 1 (required, number) - Related promotion ID.
++ archivedAt: `2020-01-01T12:00:00Z` (optional, string) - Archiving date.
+
+### CouponCode
++ code: `ABC-123` (required, string) - Coupon code.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+### CouponPayload
++ promotion: 1 (required, number) - Related promotion ID.
++ attributes: `<json>` (required, string) - Coupon attributes.
++ singleCode: `GR8DEAL` (optional, string) - Coupon code, if you want just a single one.
++ generateCodes (optional, GenerateCodesPayload) - Codes’ generation rules, if you want more.
+
+### GenerateCodesPayload
++ prefix: `ABC` (required, string) - Coupon codes prefix.
++ quantity: 1 (required, number) - Number of coupon codes to generate.
++ length: 10 (required, number) - Resulting coupons code length.

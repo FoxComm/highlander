@@ -23,7 +23,7 @@ export type RelatedProductResponse = {
 };
 
 // const
-export const MAX_CROSS_SELLS_RESULTS = 8;
+export const MAX_CROSS_SELLS_RESULTS = 10;
 
 // actions - private
 const _fetchRelatedProducts = createAsyncActions('relatedProducts',

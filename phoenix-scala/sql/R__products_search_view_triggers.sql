@@ -51,6 +51,30 @@ begin
 end;
 $$ language plpgsql;
 
+create or replace function update_products_search_view_catalogs_fn() returns trigger as $$
+begin
+  update products_search_view
+  set
+    catalogs = case when catalogProducts.catalogs is null then
+      '[]' :: jsonb
+    else
+      catalogProducts.catalogs
+    end
+  from (
+    select array_to_json(array_agg(row_to_json(cat))) :: jsonb as catalogs
+    from (
+      select c.id, c.name
+      from catalogs as c
+      inner join catalog_products as cp on (cp.catalog_id = c.id)
+      where cp.archived_at is null and cp.product_id = new.product_id
+    ) as cat
+  ) as catalogProducts
+  where products_search_view.product_id = new.product_id;
+
+  return null;
+end;
+$$ language plpgsql;
+
 drop trigger if exists update_products_search_view_taxonomies on product_taxon_links;
 create trigger update_products_search_view_taxonomies
 after insert or update or delete on product_taxon_links
@@ -64,3 +88,10 @@ after update on taxonomy_taxon_links
 for each row
 when (old.full_path is distinct from new.full_path)
 execute procedure update_products_search_view_taxonomies_fn();
+
+drop trigger if exists update_products_search_view_catalogs on catalog_products;
+create trigger update_products_search_view_catalogs
+after insert or update on catalog_products
+  for each row
+  execute procedure update_products_search_view_catalogs_fn();
+

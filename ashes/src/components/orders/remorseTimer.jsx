@@ -1,10 +1,11 @@
-
 /* @flow */
 
+// libs
 import React, { Component, Element } from 'react';
-import moment from 'moment';
+
+// components
 import { AddButton } from 'components/core/button';
-import Countdown from '../countdown/countdown';
+import Countdown from 'components/core/countdown';
 
 type Props = {
   initialEndDate: string,
@@ -18,29 +19,24 @@ type State = {
 
 export default class RemorseTimer extends Component {
   props: Props;
-  state: State = {
-    frozen: false
-  };
 
-  onToggleOrderEdit(): void {
-    this.setState({
-      frozen: !this.state.frozen
-    });
-  }
+  state: State = {
+    frozen: false,
+  };
 
   extendButton(): Element<*> {
     return (
       <AddButton
         id="fct-remorse-timer-extend-btn"
         className="fc-remorse-timer-extend"
-        onClick={ this.props.onIncreaseClick }
+        onClick={this.props.onIncreaseClick}
       >
         15 min
       </AddButton>
     );
   }
 
-  controls(): Element<*>|string {
+  controls(): Element<*> | string {
     if (this.state.frozen) {
       return 'Frozen while editing.';
     } else {

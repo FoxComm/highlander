@@ -16,7 +16,8 @@
           "activeFrom",
           "activeTo",
           "tags",
-          "context"
+          "context",
+          "taxonomies"
         ]
       }
     },

@@ -1,8 +1,6 @@
 /* @flow */
 
-// styles
-
-import styles from './images.css';
+// parent: `products/images` which just extends `object-page/object-images`
 
 // libs
 import _ from 'lodash';
@@ -10,10 +8,13 @@ import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { AddButton } from 'components/core/button';
-import EditAlbum from './edit-album';
+import EditAlbumModal from './edit-album';
 import Album from './album';
+
+// styles
+import s from './images.css';
 
 // types
 import type { Album as TAlbum, NewAlbum, ImageInfo, ImageFile } from '../../modules/images';
@@ -23,26 +24,30 @@ export type Props = {
   context: string;
   albums: Array<TAlbum>;
   isLoading: boolean;
-  addAlbumInProgress: boolean;
-  editAlbumInProgress: boolean;
-  uploadImagesInProgress: boolean;
-  isImageLoading: (idx: number) => boolean;
-
-  uploadImages: (context: string, albumId: number, files: Array<ImageFile>) => Promise<*>;
+  failedImagesCount: number,
+  clearErrors: () => void;
+  uploadMedia: (context: string, albumId: number, files: Array<ImageFile>) => Promise<*>;
+  uploadMediaByUrl: (context: string, albumId: number, url: string) => Promise<*>;
   editImage: (context: string, albumId: number, idx: number, info: ImageInfo) => Promise<*>;
   deleteImage: (context: string, albumId: number, idx: number) => Promise<*>;
   fetchAlbums: (context: string, entityId: number) => Promise<*>;
   addAlbum: (context: string, entityId: number, album: NewAlbum) => Promise<*>;
   editAlbum: (context: string, albumId: number, album: TAlbum) => Promise<*>;
-  moveAlbum: (context: string, entityId: number, albumId: number, position: number) => Promise<*>;
   archiveAlbum: (context: string, albumId: number) => Promise<*>;
+  asyncActionsState: {
+    addAlbum?: AsyncState;
+    editAlbum?: AsyncState;
+    uploadMedia?: AsyncState;
+    uploadMediaByUrl?: AsyncState;
+    archiveAlbum?: AsyncState;
+  };
 };
 
 type State = {
   newAlbumMode: boolean;
-}
+};
 
-class Images extends Component {
+export default class Images extends Component {
   props: Props;
 
   state: State = {
@@ -78,46 +83,56 @@ class Images extends Component {
 
   get newAlbumDialog(): ?Element<*> {
     const album = { name: '', images: [] };
+    const { addAlbum = {} } = this.props.asyncActionsState;
 
     return (
-      <EditAlbum className={styles.modal}
-                 isVisible={this.state.newAlbumMode}
-                 album={album}
-                 loading={this.props.addAlbumInProgress}
-                 onCancel={this.handleCancelEditAlbum}
-                 onSave={this.addNewAlbum}
-                 isNew={true}
+      <EditAlbumModal
+        className={s.modal}
+        isVisible={this.state.newAlbumMode}
+        album={album}
+        inProgress={addAlbum.inProgress}
+        onCancel={this.handleCancelEditAlbum}
+        onSave={this.addNewAlbum}
+        isNew={true}
       />
     );
   }
 
   render() {
     if (this.props.isLoading) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
-    const { albums, editAlbumInProgress, context, entityId } = this.props;
+    const { albums, context, entityId, asyncActionsState } = this.props;
+
+    const inProgress = _.get(asyncActionsState, 'editAlbum.inProgress', false)
+      || _.get(asyncActionsState, 'uploadMedia.inProgress', false)
+      || _.get(asyncActionsState, 'uploadMediaByUrl.inProgress', false);
 
     return (
-      <div className={styles.images}>
+      <div className={s.images}>
         {this.newAlbumDialog}
-        <div className={styles.header}>
+        <div className={s.header}>
           <AddButton onClick={this.handleAddAlbum}>Album</AddButton>
         </div>
         {albums.map((album: TAlbum, i: number) => {
           return (
-            <Album album={album}
-                   loading={editAlbumInProgress}
-                   upload={(files: Array<ImageFile>) => this.props.uploadImages(context, album.id, files)}
-                   editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
-                   deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
-                   editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
-                   moveAlbum={(position: number) => this.props.moveAlbum(context, entityId, album.id, position)}
-                   archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
-                   position={i}
-                   albumsCount={albums.length}
-                   key={album.id}
-                   fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
+            <Album
+              album={album}
+              loading={inProgress}
+              clearErrors={this.props.clearErrors}
+              uploadFiles={(files: Array<ImageFile>) => this.props.uploadMedia(context, album.id, files)}
+              uploadByUrl={(albumId, url) => this.props.uploadMediaByUrl(context, albumId, url)}
+              editImage={(idx: number, form: ImageInfo) => this.props.editImage(context, album.id, idx, form)}
+              deleteImage={(idx: number) => this.props.deleteImage(context, album.id, idx)}
+              editAlbum={(album: TAlbum) => this.props.editAlbum(context, album.id, album)}
+              archiveAlbum={(id: number) => this.props.archiveAlbum(context, id)}
+              key={album.id}
+              fetchAlbums={() => this.props.fetchAlbums(context, entityId)}
+              editAlbumState={asyncActionsState.editAlbum}
+              uploadMediaState={asyncActionsState.uploadMedia}
+              uploadMediaByUrlState={asyncActionsState.uploadMediaByUrl}
+              archiveAlbumState={asyncActionsState.archiveAlbum}
             />
           );
         })}
@@ -125,5 +140,3 @@ class Images extends Component {
     );
   }
 }
-
-export default Images;

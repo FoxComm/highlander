@@ -7,3 +7,7 @@
 - name: Start Firebrand
   include: app_peacock.yml
   when: marathon_restart.peacock
+
+- name: Start Onboarding UI
+  include: app_onboarding_ui.yml
+  when: with_onboarding and marathon_restart.onboarding_ui

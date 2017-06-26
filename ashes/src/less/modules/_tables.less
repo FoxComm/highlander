@@ -1,17 +1,7 @@
 // Tables
-@color-tr-odd-bg: @color-white;
-@color-tr-even-bg: @color-decor12;
-
-@color-th-fg: @color-default-fg;
-@color-th-bg: @color-decor12;
-@color-th-bg-hover: @color-decor35;
-@color-th-border: @color-decor9;
-
-@color-border-td: @color-decor9;
-
 @keyframes fc-new-row {
   from {
-    background-color: @color-decor44;
+    background-color: @bg-grey-buttons;
   }
 
   to {
@@ -20,7 +10,7 @@
 
 .fc-table-wrap {
   position: relative;
-  border: 1px solid @color-border-td;
+  border: 1px solid @color-border;
 
   &::before, &::after {
     content: " ";
@@ -34,7 +24,7 @@
   .fc-table-message {
     padding: 10px 15px;
     z-index: 2;
-    background: #fff;
+    background: @bg-white;
 
     &._inline {
       position: absolute;
@@ -42,7 +32,7 @@
       top: 62px;
       bottom: 0;
       padding-top: 40px;
-      background: rgba(255, 255, 255, .72);
+      opacity: 0.8;
     }
   }
 }
@@ -59,14 +49,13 @@
       display: table-cell;
       position: relative;
       vertical-align: middle;
-      color: @color-th-fg;
-      background: @color-th-bg;
+      color: @color-text;
       padding: 10px 15px;
       font-size: 13px;
       font-weight: 600;
       line-height: 14px;
-      border-right: 1px solid @color-th-border;
-      border-bottom: 1px solid @color-th-border;
+      border-right: 1px solid @color-border;
+      border-bottom: 1px solid @color-border;
       height: 62px;
       user-select: none;
       background-clip: padding-box;
@@ -80,7 +69,7 @@
         cursor: pointer;
 
         &:hover {
-          background-color: @color-th-bg-hover;
+          background-color: @color-border;
 
           .icon-up {
             display: block;
@@ -124,6 +113,11 @@
     }
   }
 
+  .fc-table-head .row-head-left,
+  .fc-table-body .row-head-left {
+    position: relative;
+  }
+
   tbody, .fc-table-body {
     display: table-row-group;
 
@@ -141,12 +135,12 @@
 
       &:nth-child(odd),
       &.odd {
-        background-color: @color-tr-odd-bg;
+        background-color: @bg-white;
       }
 
       &:nth-child(even),
       &.even {
-        background-color: @color-tr-even-bg;
+        background-color: @bg-grey-headers;
       }
 
       &.is-new {
@@ -160,18 +154,18 @@
       padding: 10px 15px;
       font-size: 13px;
       line-height: 18px;
-      color: @color-decor1;
+      color: @color-text;
       vertical-align: middle;
       background-clip: padding-box;
-      border-bottom: 1px solid @color-decor9;
+      border-bottom: 1px solid @color-border;
 
       transition: background-color 500ms;
 
       &._no-results {
-        font-weight: @semibold;
+        font-weight: 600;
         font-size: 18px;
         line-height: 24px;
-        color: @color-decor8;
+        color: @color-additional-text;
         padding-top: 40px;
         padding-bottom: 40px;
       }
@@ -183,7 +177,7 @@
   position: absolute;
   top: 0;
   right: 10px;
-  color: @color-decor1;
+  color: @color-text;
   .font-spec(16px, 700, 62px);
 
   .icon-down,
@@ -214,8 +208,6 @@
 }
 
 .fc-table-actions {
-  display: flex;
-  align-items: center;
   margin-right: 20px;
 
   &__dropdown {
@@ -233,8 +225,8 @@
 
 .fc-table-paginator {
   display: flex;
-  float: right;
-  line-height: 40px;
+  align-items: center;
+  height: 40px;
 
   .fc-btn {
     .font-spec(10px);
@@ -262,12 +254,12 @@
   }
 
   .fc-form-field input.fc-table-paginator__current-page-field._disabled {
-    background-color: @color-decor12;
-    border: 1px solid @color-decor7;
+    background-color: @bg-grey-headers;
+    border: 1px solid @color-border;
   }
 
   &__current-page-selector {
-    background-color: @color-white;
+    background-color: @bg-white;
     position: absolute;
     width: 50px;
     overflow-y: scroll;
@@ -277,7 +269,7 @@
     font-weight: 400;
     line-height: 6rem;
     font-size: 12px;
-    z-index: 100;
+    z-index: 20;
     display: none;
 
     &._shown {
@@ -299,7 +291,7 @@
   }
 
   &__selector-option:hover {
-    background-color: @color-decor12;
+    background-color: @bg-grey-headers;
   }
 }
 

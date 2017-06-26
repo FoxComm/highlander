@@ -9,36 +9,40 @@ import consumer.elastic.mappings.dateFormat
 final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
   def topic() = "products_search_view"
   def mapping() = esMapping(topic()).fields(
-      field("id", LongType),
-      field("productId", IntegerType),
-      field("slug", StringType).index("not_analyzed"),
-      field("context", StringType).index("not_analyzed"),
-      field("scope", StringType).index("not_analyzed"),
-      field("title", StringType)
-        .analyzer("autocomplete")
-        .fields(field("raw", StringType).index("not_analyzed")),
-      field("description", StringType).analyzer("autocomplete"),
-      field("skus", StringType).analyzer("upper_cased"),
-      field("tags", StringType).index("not_analyzed"),
-      field("taxonomies", StringType).nested(
-          field("taxons", StringType).index("not_analyzed"),
-          field("taxonomy", StringType).index("not_analyzed")
-      ),
-      field("activeFrom", DateType).format(dateFormat),
-      field("activeTo", DateType).format(dateFormat),
+    field("id", LongType),
+    field("productId", IntegerType),
+    field("slug", StringType).index("not_analyzed"),
+    field("context", StringType).index("not_analyzed"),
+    field("scope", StringType).index("not_analyzed"),
+    field("title", StringType)
+      .analyzer("autocomplete")
+      .fields(field("raw", StringType).index("not_analyzed")),
+    field("description", StringType).analyzer("autocomplete"),
+    field("skus", StringType).analyzer("upper_cased"),
+    field("tags", StringType).index("not_analyzed"),
+    field("taxonomies", StringType).nested(
+      field("taxons", StringType).index("not_analyzed"),
+      field("taxonomy", StringType).index("not_analyzed")
+    ),
+    field("activeFrom", DateType).format(dateFormat),
+    field("activeTo", DateType).format(dateFormat),
+    field("archivedAt", DateType).format(dateFormat),
+    field("externalId", StringType).index("not_analyzed"),
+    field("albums").nested(
+      field("name", StringType).index("not_analyzed"),
       field("archivedAt", DateType).format(dateFormat),
-      field("externalId", StringType).index("not_analyzed"),
-      field("albums").nested(
-          field("name", StringType).index("not_analyzed"),
-          field("archivedAt", DateType).format(dateFormat),
-          field("images").nested(
-              field("alt", StringType).index("not_analyzed"),
-              field("src", StringType).index("not_analyzed"),
-              field("title", StringType).index("not_analyzed"),
-              field("baseUrl", StringType).index("not_analyzed")
-          )
+      field("images").nested(
+        field("alt", StringType).index("not_analyzed"),
+        field("src", StringType).index("not_analyzed"),
+        field("title", StringType).index("not_analyzed"),
+        field("baseUrl", StringType).index("not_analyzed")
       )
+    ),
+    field("catalogs").nested(
+      field("id", IntegerType),
+      field("name", StringType).index("not_analyzed")
+    )
   )
 
-  override def nestedFields() = List("albums", "skus", "tags", "taxonomies", "taxons")
+  override def nestedFields() = List("albums", "skus", "tags", "taxonomies", "taxons", "catalogs")
 }

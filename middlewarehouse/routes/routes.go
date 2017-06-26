@@ -24,21 +24,17 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 
 	//repositories
 	carrierRepository := repositories.NewCarrierRepository(db)
-	summaryRepository := repositories.NewSummaryRepository(db)
-	stockItemRepository := repositories.NewStockItemRepository(db)
-	unitRepository := repositories.NewStockItemUnitRepository(db)
 	stockLocationRepository := repositories.NewStockLocationRepository(db)
-	shipmentRepository := repositories.NewShipmentRepository(db)
 	shippingMethodRepository := repositories.NewShippingMethodRepository(db)
 
 	//services
 	activityLogger := services.NewActivityLogger(producer, db)
-	summaryService := services.NewSummaryService(summaryRepository, stockItemRepository)
-	inventoryService := services.NewInventoryService(stockItemRepository, unitRepository, summaryService)
+	summaryService := services.NewSummaryService(db)
+	inventoryService := services.NewInventoryService(db)
 	carrierService := services.NewCarrierService(carrierRepository)
 	stockLocationService := services.NewStockLocationService(stockLocationRepository)
 	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)
-	shipmentService := services.NewShipmentService(db, inventoryService, shipmentRepository, unitRepository, activityLogger)
+	shipmentService := services.NewShipmentService(db, inventoryService, summaryService, activityLogger)
 
 	return map[string]controllers.IController{
 		"v1/public/ping":             controllers.NewPingController(),
@@ -48,7 +44,9 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 		"v1/public/carriers":         controllers.NewCarrierController(carrierService),
 		"v1/public/shipping-methods": controllers.NewShippingMethodController(shippingMethodService),
 		"v1/public/shipments":        controllers.NewShipmentController(shipmentService),
+		"v1/public/skus":             controllers.NewSKUController(db),
 
 		"v1/private/reservations": controllers.NewReservationController(inventoryService),
+		"v1/private/bulk":         controllers.NewBulkActionsController(db),
 	}
 }

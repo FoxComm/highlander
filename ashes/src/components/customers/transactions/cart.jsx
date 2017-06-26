@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import React, { Component } from 'react';
@@ -9,7 +8,7 @@ import { autobind } from 'core-decorators';
 
 import { PrimaryButton } from 'components/core/button';
 import OrderDetails from 'components/orders/details';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 import * as cartActions from 'modules/carts/details';
 
@@ -20,7 +19,7 @@ type Details = {
 };
 
 type Params = {
-  customerId: number;
+  customerId: number,
 };
 
 type Props = {
@@ -31,7 +30,7 @@ type Props = {
   fetchCustomerCart: Function,
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     details: state.carts.details,
     isFetching: _.get(state.asyncActions, 'fetchCart.inProgress', false),
@@ -39,10 +38,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-/* ::`*/
-@connect(mapStateToProps, cartActions)
-/* ::`*/
-export default class CustomerCart extends Component {
+class CustomerCart extends Component {
   props: Props;
 
   componentWillMount() {
@@ -84,7 +80,7 @@ export default class CustomerCart extends Component {
   }
 
   get waitAnimation() {
-    return <WaitAnimation/>;
+    return <Spinner />;
   }
 
   get errorMessage() {
@@ -113,3 +109,5 @@ export default class CustomerCart extends Component {
     );
   }
 }
+
+export default connect(mapStateToProps, cartActions)(CustomerCart);

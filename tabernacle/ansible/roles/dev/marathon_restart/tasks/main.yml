@@ -1,0 +1,58 @@
+---
+
+- name: Debug Restart Flags
+  debug: msg={{marathon_deploy}}
+
+- name: Restart Applications
+  uri:
+    url: "{{base_url}}/highlander/{{item.group}}/{{item.app}}/restart"
+    method: POST
+  with_items:
+    - { group: core-backend, app: phoenix, id: phoenix }
+    - { group: core-backend, app: middlewarehouse, id: middlewarehouse }
+    - { group: core-backend, app: isaac, id: isaac }
+    - { group: core-backend, app: solomon, id: solomon }
+    - { group: core-frontend, app: ashes, id: ashes }
+    - { group: core-frontend, app: peacock, id: peacock }
+    - { group: core-frontend, app: perfect-gourmet, id: storefront_tpg }
+    - { group: core-frontend, app: top-drawer, id: storefront_td }
+    - { group: core-onboarding, app: onboarding-service, id: onboarding_service }
+    - { group: core-onboarding, app: onboarding-ui, id: onboarding_ui }
+    - { group: core-consumers, app: green-river, id: greenriver }
+    - { group: core-consumers, app: capture-consumer, id: capture_consumer }
+    - { group: core-consumers, app: customer-groups-consumer, id: customer_groups_consumer }
+    - { group: core-consumers, app: gift-card-consumer, id: gift_card_consumer }
+    - { group: core-consumers, app: shipments-consumer, id: shipments_consumer }
+    - { group: core-integrations, app: hyperion, id: hyperion }
+    - { group: core-integrations, app: geronimo, id: geronimo }
+    - { group: core-integrations, app: messaging, id: messaging }
+    - { group: ic-storage, app: henhouse, id: henhouse }
+    - { group: ic-storage, app: neo4j, id: neo4j }
+    - { group: ic-hooks, app: neo4j-reset, id: neo4j_reset }
+    - { group: ic-backend, app: anthill, id: anthill }
+    - { group: ic-backend, app: bernardo, id: bernardo }
+    - { group: ic-backend, app: eggcrate, id: eggcrate }
+    - { group: ic-backend, app: river-rock, id: river_rock }
+    - { group: ic-consumers, app: digger-sphex, id: digger_sphex }
+    - { group: ic-consumers, app: orders-anthill, id: orders_anthill }
+    - { group: ic-consumers, app: orders-reviews, id: orders_reviews }
+    - { group: ic-consumers, app: orders-sphex, id: orders_sphex }
+    - { group: ic-consumers, app: product-activity, id: product_activity }
+    - { group: ic-integrations, app: suggester, id: suggester }
+  when: marathon_deploy[item.id]
+
+- name: Wait for tasks to be in correct state
+  shell: curl -sS -XGET {{base_url}} | jq -c '{{jq_query}}'
+  register: unhealthy_tasks
+  until: unhealthy_tasks.stdout == '[[1,1,0,0]]'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"
+
+- name: Wait for single-instanced services
+  wait_for: host={{item.host}} port={{item.port}}
+  with_items:
+    - { host: "{{phoenix_host}}", port: "{{phoenix_port}}", id: phoenix }
+    - { host: "{{middlewarehouse_host}}", port: "{{middlewarehouse_port}}", id: middlewarehouse }
+    - { host: "{{solomon_host}}", port: "{{solomon_port}}", id: solomon }
+    - { host: "{{isaac_host}}", port: "{{isaac_port}}", id: isaac }
+  when: marathon_deploy[item.id]

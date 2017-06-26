@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { setSkuAttribute, skuId } from 'paragons/product';

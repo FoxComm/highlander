@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # A script to partially dump Elasticsearch index to local machine for debugging
 
 # Configuration

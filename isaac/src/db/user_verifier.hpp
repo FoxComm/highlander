@@ -14,7 +14,7 @@ namespace isaac
         class user_verifier
         {
             public:
-                user_verifier(pqxx::connection& c) : _c{c} {}
+                user_verifier(pqxx::connection& c);
 
             public:
                 bool valid_user(std::size_t id, int ratchet);

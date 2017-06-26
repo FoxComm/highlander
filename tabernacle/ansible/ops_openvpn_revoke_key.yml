@@ -1,0 +1,19 @@
+---
+
+- name: Revoke OpenVPN Key
+  hosts: '{{hostname}}'
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    easy_rsa_dir: /etc/openvpn/easy-rsa
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname of OpenVPN service"
+      default: "vpn"
+      private: no
+    - name: "vpn_user"
+      prompt: "Enter a username to revoke key for"
+      default: "vpn_user"
+      private: no
+  roles:
+      - { role: ops/openvpn_revoke_key }

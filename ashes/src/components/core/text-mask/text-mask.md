@@ -6,6 +6,10 @@
 
 ### States
 
+```javascript
+import { TextMask } from 'components/text-mask'
+```
+
 ```
 const phoneArrMask = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
 const strMask = '(999) 999 99 99';

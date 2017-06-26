@@ -2,15 +2,17 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import moment from 'moment';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
-import { Dropdown, DropdownItem } from '../dropdown';
+// components
 import DatePicker from '../datepicker/datepicker';
 import DateTimeCounter from './counter';
-import TextInput from '../forms/text-input';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
 type Props = {
   dateTime: ?string,
@@ -178,17 +180,15 @@ export default class DateTimePicker extends Component<void, Props, State> {
   render() {
     return (
       <div className="fc-date-time-picker">
-        <DatePicker
-          className="fc-date-time-picker__date"
-          date={this.date}
-          onChange={this.handleChangeDate} />
+        <DatePicker className="fc-date-time-picker__date" date={this.date} onChange={this.handleChangeDate} />
         <div className="fc-date-time-picker__time">
           <DateTimeCounter onClickUp={this.handleAddHour} onClickDown={this.handleSubtractHour}>
             <TextInput
               className="fc-date-time-picker__hour"
               value={this.state.hour}
               onChange={this.handleChangeHour}
-              onBlur={this.updateDateTime} />
+              onBlur={this.updateDateTime}
+            />
           </DateTimeCounter>
           <div className="fc-date-time-picker__separator">:</div>
           <DateTimeCounter onClickUp={this.handleAddMinutes} onClickDown={this.handleSubtractMinutes}>
@@ -196,20 +196,19 @@ export default class DateTimePicker extends Component<void, Props, State> {
               className="fc-date-time-picker__minute"
               value={this.state.minutes}
               onChange={this.handleChangeMinutes}
-              onBlur={this.updateDateTime} />
+              onBlur={this.updateDateTime}
+            />
           </DateTimeCounter>
           <DateTimeCounter onClickUp={this.handleAmPmToggle} onClickDown={this.handleAmPmToggle}>
             <TextInput
               className="fc-date-time-picker__ampm"
               value={this.state.ampm}
               onChange={this.handleChangeAmPm}
-              onBlur={this.updateDateTime} />
+              onBlur={this.updateDateTime}
+            />
           </DateTimeCounter>
-          <a
-            id={this.props.pickerCloseBtnId}
-            className="fc-date-time-picker__close"
-            onClick={this.props.onCancel}>
-            <i className="icon-close" />
+          <a id={this.props.pickerCloseBtnId} className="fc-date-time-picker__close" onClick={this.props.onCancel}>
+            <Icon name="close" />
           </a>
         </div>
       </div>

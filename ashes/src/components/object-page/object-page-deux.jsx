@@ -11,11 +11,10 @@ import PropTypes from 'prop-types';
 import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 import Error from 'components/errors/error';
-import LocalNav from 'components/local-nav/local-nav';
-import WaitAnimation from 'components/common/wait-animation';
+import PageNav from 'components/core/page-nav';
+import Spinner from 'components/core/spinner';
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 import ButtonWithMenu from 'components/core/button-with-menu';
-
 
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
@@ -61,7 +60,7 @@ class ObjectPageDeux extends Component {
       emitter.setMaxListeners(20);
 
       this._context = {
-        validationDispatcher: emitter
+        validationDispatcher: emitter,
       };
     }
 
@@ -80,17 +79,10 @@ class ObjectPageDeux extends Component {
     const links = navLinks.map((settings, idx) => {
       const LinkComponent = idx === 0 ? IndexLink : Link;
 
-      return (
-        <LinkComponent
-          to={settings.to}
-          params={settings.params}
-          key={settings.to}
-          children={settings.title}
-        />
-      );
+      return <LinkComponent to={settings.to} params={settings.params} key={settings.to} children={settings.title} />;
     });
 
-    return <LocalNav>{links}</LocalNav>;
+    return <PageNav>{links}</PageNav>;
   }
 
   get pageTitle(): string {
@@ -119,7 +111,9 @@ class ObjectPageDeux extends Component {
   handleSelectSaving(value: string) {
     const { actions } = this.props;
     const mayBeSaved = this.save();
-    if (!mayBeSaved) { return; }
+    if (!mayBeSaved) {
+      return;
+    }
 
     mayBeSaved.then(() => {
       switch (value) {
@@ -139,7 +133,9 @@ class ObjectPageDeux extends Component {
   @autobind
   handleSaveButton() {
     const mayBeSaved = this.save();
-    if (!mayBeSaved) { return; }
+    if (!mayBeSaved) {
+      return;
+    }
     mayBeSaved.then(this.transitionToObject);
   }
 
@@ -164,7 +160,7 @@ class ObjectPageDeux extends Component {
   @autobind
   validateChild() {
     let isValid = true;
-    this._emit('validate', (isChildValid) => {
+    this._emit('validate', isChildValid => {
       if (!isChildValid) isValid = false;
     });
 
@@ -203,13 +199,12 @@ class ObjectPageDeux extends Component {
       ...this.props.headerControls,
       <ButtonWithMenu
         title="Save"
-        menuPosition="right"
         onPrimaryClick={this.handleSaveButton}
         onSelect={this.handleSelectSaving}
         isLoading={this.props.saveState.inProgress}
         items={SAVE_COMBO_ITEMS}
         key="save-btn"
-      />
+      />,
     ];
   }
 
@@ -252,7 +247,7 @@ class ObjectPageDeux extends Component {
     }
 
     if (!object || fetchState.inProgress) {
-      return <WaitAnimation className={styles.waiting} />;
+      return <Spinner className={styles.spinner} />;
     }
 
     return (

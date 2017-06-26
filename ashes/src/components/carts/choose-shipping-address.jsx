@@ -8,8 +8,8 @@ import * as AddressActions from 'modules/customers/addresses';
 import * as CartActions from 'modules/carts/details';
 
 import AddressBox from 'components/addresses/address-box';
-import AddressForm from 'components/addresses/address-form/modal';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import AddressFormModal from 'components/addresses/address-form/modal';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import TileSelector from 'components/tile-selector/tile-selector';
 
 function mapStateToProps(state, props) {
@@ -24,7 +24,6 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch, props) {
   const customerId = _.get(props, 'cart.customer.id');
-  const refNum = _.get(props, 'cart.referenceNumber');
 
   const addressActions = _.transform(AddressActions, (res, action, key) => {
     res[key] = (...args) => dispatch(action(customerId, ...args));
@@ -111,7 +110,6 @@ export default class ChooseShippingAddress extends Component {
   }
 
   get renderedAddressBoxes() {
-    const selectedAddressId = _.get(this.props, 'selectedAddress.id');
     return this.addresses.map(a => {
       return (
         <AddressBox
@@ -119,7 +117,8 @@ export default class ChooseShippingAddress extends Component {
           chooseAction={() => this.handleChooseAddress(a)}
           editAction={() => this.handleStartEditAddress(a)}
           deleteAction={() => this.handleStartDeleteAddress(a)}
-          toggleDefaultAction={() => this.handleSetAddressDefault(a)} />
+          toggleDefaultAction={() => this.handleSetAddressDefault(a)}
+        />
       );
     });
   }
@@ -128,13 +127,14 @@ export default class ChooseShippingAddress extends Component {
     const saveTitle = _.isNull(this.state.address) ? 'Save and Choose' : 'Save';
 
     return (
-      <AddressForm
+      <AddressFormModal
         isVisible={this.state.isFormVisible}
         address={this.state.address}
         submitAction={this.handleFormSubmit}
         onCancel={this.handleCloseAddressForm}
         customerId={this.customerId}
-        saveTitle={saveTitle} />
+        saveTitle={saveTitle}
+      />
     );
   }
 
@@ -145,14 +145,15 @@ export default class ChooseShippingAddress extends Component {
           <h3 className="fc-shipping-address-sub-title">
             Chosen Address
           </h3>
-          <ul className="fc-addresses-list">
+          <ul className="fc-shipping-address__selected-list">
             <AddressBox
               address={this.props.selectedAddress}
               chosen={true}
               checkboxLabel={null}
               editAction={this.handleStartEditShippingAddress}
               deleteAction={this.handleStartDeleteShippingAddress}
-              actionBlock={null} />
+              actionBlock={null}
+            />
           </ul>
         </div>
       );
@@ -171,14 +172,13 @@ export default class ChooseShippingAddress extends Component {
       : () => this.props.actions.deleteAddress(this.state.address.id);
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={this.state.isDeleteDialogVisible}
-        header='Confirm'
-        body={text}
-        cancel='Cancel'
-        confirm='Yes, Delete'
+        label={text}
+        confirmLabel="Yes, Delete"
+        onConfirm={deleteAction}
         onCancel={this.handleStopDeletingAddress}
-        confirmAction={deleteAction} />
+      />
     );
   }
 
@@ -254,8 +254,7 @@ export default class ChooseShippingAddress extends Component {
     const { referenceNumber } = this.props.cart;
 
     if (!isEdit) {
-      this.props.actions.createShippingAddress(referenceNumber, address)
-        .then(this.props.actions.fetchAddresses);
+      this.props.actions.createShippingAddress(referenceNumber, address).then(this.props.actions.fetchAddresses);
     } else if (this.state.isShippingAddress) {
       this.props.actions.updateShippingAddress(referenceNumber, address);
     } else {
@@ -278,7 +277,8 @@ export default class ChooseShippingAddress extends Component {
           emptyMessage="Customer's address book is empty."
           isFetching={this.isFetching}
           items={this.renderedAddressBoxes}
-          title="Address Book" />
+          title="Address Book"
+        />
         {this.renderAddressForm}
         {this.renderDeleteDialog}
       </div>

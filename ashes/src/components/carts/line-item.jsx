@@ -8,11 +8,11 @@ import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
-import Counter from 'components/forms/counter';
+import { Link } from 'components/link';
+import ConfirmationModal from 'components/core/confirmation-modal';
+import Counter from 'components/core/counter';
 import { DeleteButton } from 'components/core/button';
 import Currency from 'components/common/currency';
-import Link from 'components/link/link';
 import ProductImage from 'components/imgix/product-image';
 
 // actions
@@ -32,18 +32,10 @@ type Props = {
   className?: string,
 };
 
-type Target = {
-  value: string|number,
-};
-
 type State = {
-  isDeleting: boolean;
-  lastSyncedQuantity: number;
-  quantity: number;
-};
-
-type DefaultProps = {
-  updateLineItemCount: Function,
+  isDeleting: boolean,
+  lastSyncedQuantity: number,
+  quantity: number,
 };
 
 export class CartLineItem extends Component {
@@ -68,10 +60,12 @@ export class CartLineItem extends Component {
 
     const quantityDiff = quantity - lastSyncedQuantity;
 
-    this.setState({
-      lastSyncedQuantity: quantity,
-    }, () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff, attributes));
-
+    this.setState(
+      {
+        lastSyncedQuantity: quantity,
+      },
+      () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff, attributes)
+    );
   }
 
   @autobind
@@ -81,29 +75,17 @@ export class CartLineItem extends Component {
 
   @autobind
   confirmDelete() {
-    this.setState({
-      isDeleting: false,
-      quantity: 0,
-    }, this.performUpdate());
+    this.setState(
+      {
+        isDeleting: false,
+        quantity: 0,
+      },
+      this.performUpdate()
+    );
   }
 
   @autobind
-  handleButtonClick(diff: number) {
-    const quantity = this.state.quantity + diff;
-
-    if (quantity > 0) {
-      this.setState({ quantity }, this.performUpdate);
-    }
-  }
-
-  @autobind
-  handleInputChange({ target: { value } }: {target: Target}) {
-    const quantity = value ? parseInt(value, 10) : null;
-
-    if (!quantity || quantity < 1) {
-      return;
-    }
-
+  handleQuantityChange(quantity: number) {
     this.setState({ quantity }, this.performUpdate);
   }
 
@@ -125,24 +107,20 @@ export class CartLineItem extends Component {
             id={`fct-counter-input__${skuQtyInput}`}
             value={quantity}
             min={1}
-            max={1000000}
             step={1}
-            onChange={this.handleInputChange}
-            decreaseAction={() => this.handleButtonClick(-1)}
-            increaseAction={() => this.handleButtonClick(1)}
+            onChange={this.handleQuantityChange}
           />
         </td>
         <td><Currency className="item-total-price" value={item.totalPrice} /></td>
         <td>
           <DeleteButton onClick={this.startDelete} />
-          <ConfirmationDialog
+          <ConfirmationModal
             isVisible={isDeleting}
-            header="Confirm"
-            body="Are you sure you want to delete this item?"
-            cancel="Cancel"
-            confirm="Yes, Delete"
+            label="Are you sure you want to delete this item?"
+            confirmLabel="Yes, Delete"
+            onConfirm={this.confirmDelete}
             onCancel={this.cancelDelete}
-            confirmAction={this.confirmDelete} />
+          />
         </td>
       </tr>
     );

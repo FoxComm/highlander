@@ -1,6 +1,5 @@
 /* @flow weak */
 
-import React from 'react';
 import ImagesPage, { connectImages } from '../object-page/object-images';
 
 import { actions } from 'modules/skus/images';

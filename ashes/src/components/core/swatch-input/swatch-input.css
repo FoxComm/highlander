@@ -1,0 +1,28 @@
+@import 'colors.css';
+
+.swatchInput {
+  display: flex;
+
+  &::before {
+    content: "#";
+    position: absolute;
+    padding: 0 10px;
+    line-height: 40px;
+    font-size: 20px;
+    color: var(--color-additional-text);
+  }
+
+  & .input {
+    width: 130px;
+    height: 40px;
+    padding-left: 30px;
+    text-transform: uppercase;
+  }
+}
+
+.swatch {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-left: none;
+}

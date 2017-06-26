@@ -1,18 +1,15 @@
+@import 'colors.css';
 
 .object-details {
-  lost-flex-container: row;
-
-  & :global(.fc-confirmation-dialog) {
-    margin-bottom: 0;
-
-    & :global(.fc-alert) {
-      margin-bottom: 20px;
-    }
-  }
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .main {
-  lost-column: 8/12;
+  width: calc(67% - 1.85%);
+  margin-right: 1.85%;
+  min-width: 400px;
 
   & > div {
     margin-bottom: 20px;
@@ -20,7 +17,8 @@
 }
 
 .aside {
-  lost-column: 4/12;
+  width: 33%;
+  min-width: 200px;
 
   & > div {
     margin-bottom: 20px;
@@ -30,9 +28,8 @@
 .sub-title {
   font-weight: 600;
   font-size: 14px;
-  color: #484848;
-
-  margin: 1em 0 0.5em 0;
+  color: var(--color-text);
+  margin: 1em 0 .5em;
 
   &:first-child {
     margin-top: 0;

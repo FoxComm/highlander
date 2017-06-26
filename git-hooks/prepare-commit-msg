@@ -1,3 +1,0 @@
-#!/bin/sh
-
-sed -i "1s/$/\n\n[skip ci]/" "$1" || exit 0

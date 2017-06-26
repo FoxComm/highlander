@@ -227,7 +227,7 @@ export default class Lookup extends Component {
                      items={this.items}
                      activeIndex={activeIndex}
                      onSelect={this.select}
-                     notFound={notFound}/>
+                     notFound={notFound} />
       </div>
     );
   }

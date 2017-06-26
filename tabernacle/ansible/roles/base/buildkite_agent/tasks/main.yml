@@ -1,0 +1,32 @@
+---
+
+- name: Upload Agent install script
+  copy: src="agent_core.sh" dest="{{home}}/agent_core.sh" mode=0755
+
+- name: Execute agent setup
+  shell: "{{home}}/agent_core.sh"
+
+- name: Install Ansible
+  include: ansible.yml
+
+- name: Install Isaac Dependencies
+  include: isaac.yml
+
+- name: Install Bernardo Dependencies
+  include: bernardo.yml
+
+- name: Install HashiCorp Tools
+  include: hashicorp.yml
+
+- name: Restart Buildkite Agent
+  command: systemctl restart buildkite-agent
+
+- name: Make sure buildkite keys are available.
+  file: path="/var/lib/buildkite-agent/.ssh/id_rsa" owner=buildkite-agent group=buildkite-agent mode="600"
+
+- name: Update Open Files Limit
+  pam_limits:
+    domain: "{{ci_user}}"
+    limit_item: nofile
+    limit_type: soft
+    value: "{{nofile_limit}}"

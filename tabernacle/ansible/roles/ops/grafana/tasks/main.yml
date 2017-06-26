@@ -1,0 +1,28 @@
+---
+
+- name: Download Grafana
+  get_url: url={{grafana_url}} dest={{home}}
+
+- name: Install Grafana Dependencies
+  apt: name={{item}} state=latest force=yes
+  with_items:
+    - adduser
+    - libfontconfig
+
+- name: Install Gragana
+  shell: dpkg -i {{home}}/grafana_4.2.0_amd64.deb
+
+- name: Grant Access to SSL certifications
+  shell: sudo chmod -R 755 /certs
+
+- name: Grant Binary Permissions
+  shell: setcap 'cap_net_bind_service=+ep' /usr/sbin/grafana-server
+
+- name: Copy Configuration File
+  template: src=config.ini dest=/etc/grafana/grafana.ini
+
+- name: Reload Systemd
+  command: systemctl daemon-reload
+
+- name: Restart Service
+  service: name=grafana-server state=restarted enabled=yes

@@ -1,0 +1,64 @@
+{
+    "id": "suggester",
+    "cmd": null,
+    "cpus": 0.25,
+    "mem": 64,
+    "disk": 0,
+    "instances": 1,
+    "constraints": [],
+    "container": {
+        "type": "DOCKER",
+        "volumes": [{
+            "containerPath": "{{docker_logs_dir}}",
+            "hostPath": "{{docker_logs_host_dir}}",
+            "mode": "RW"
+        }],
+        "docker": {
+            "image": "{{docker_registry}}:5000/suggester:{{docker_tags.suggester}}",
+            "network": "HOST",
+            "portMappings": null,
+            "privileged": false,
+            "parameters": [],
+            "forcePullImage": true
+        }
+    },
+    "env": {
+        "ANTHILL_HOST": "{{anthill_host}}",
+        "DEXTER_BOT_ID": "{{dexter_bot_id}}",
+        "DEXTER_API_KEY": "{{dexter_api_key}}",
+        "DEXTER_BASE_URL": "{{dexter_base_url}}",
+        "NEO4J_HOST": "{{neo4j_host}}",
+        "NEO4J_PORT": "{{neo4j_http_port}}",
+        "NEO4J_USER": "{{neo4j_user}}",
+        "NEO4J_PASS": "{{neo4j_pass}}",
+        "PHOENIX_URL": "http://{{phoenix_server}}",
+        "PHOENIX_USER": "{{phoenix_api_user}}",
+        "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+        "TWILIO_ACCOUNT_SID": "{{twilio_account_sid}}",
+        "TWILIO_AUTH_TOKEN": "{{twilio_auth_token}}",
+        "TWILIO_PHONE_NUMBER": "{{twilio_phone_number}}"
+    },
+    "healthChecks": [{
+        "protocol": "COMMAND",
+        "command": {
+            "value": "ps -ef | grep -v grep | grep suggester"
+        },
+        "gracePeriodSeconds": 300,
+        "intervalSeconds": 30,
+        "timeoutSeconds": 20,
+        "maxConsecutiveFailures": 3,
+        "ignoreHttp1xx": false
+    }],
+    "labels": {
+        "LAYER": "consumer",
+        "LANG": "go",
+        "TAG": "master",
+        "consul": "suggester",
+        "overrideTaskName": "suggester"
+    },
+    "portDefinitions": [{
+        "port": 10030,
+        "protocol": "tcp",
+        "labels": {}
+    }]
+}

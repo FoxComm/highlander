@@ -6,12 +6,12 @@ import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 
 // components
+import { Link, IndexLink } from 'components/link';
 import { SectionTitle } from '../../section-title';
 import TabListView from '../../tabs/tabs';
 import TabView from '../../tabs/tab';
 import Currency from '../../common/currency';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
-import { Link, IndexLink } from '../../link';
 
 type Props = {
   totals: Object,

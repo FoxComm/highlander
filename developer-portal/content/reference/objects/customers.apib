@@ -1,0 +1,42 @@
+# Data Structures
+
+## CustomerBase
++ id: 1 (required, number) - Unique identifier.
++ name: `John Smith` (optional, string) - The customer's full name.
++ email: `john@smith.com` (required, string) - The customer's email - by default, this is a unique identifier for all non-guest customers.
++ isGuest: false (required, boolean) - Defines whether account is guest - these accounts do not contain account credentials and are therefore unable to login to the site.
++ disabled: false (required, boolean) - Defines whether account is disabled - if this is set, the customer will be unable to login.
++ isBlacklisted: false (required, boolean) - Defines whether account is added to blacklisted - blacklisted accounts are used for fraud and will allow customers to login but not purchase.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - The date when the customer was created.
+
+## CustomerResponse
+- Include CustomerBase
++ groups (required, array[GroupSummary]) - The list of groups that the customer is a part of - groups are used to manually or programatically cluster customers.
++ storeCreditTotals (required, StoreCreditTotals) - Summary information about the store credit balance that the user possesses.
++ totalSales: 100 (optional, number) - The amount of money, in cents, that the customer has spent on the site.
+
+## FullCustomer
+- Include CustomerResponse
+
+## CustomerCreatePayload
++ email: `user@example.org` (required, string) - Customer email.
++ name: `John Smith` (optional, string) - Customer full name.
++ password: `password` (optional, string) - Customer password.
++ isGuest: false (optional, boolean) - create customer as guest if true.
+
+## CustomerUpdatePayload
++ email: `new@example.org` (optional, string) - Customer email.
++ name: `Jane Smith` (optional, string) - Customer full name.
++ phoneNumber: `555 55 55` (optional, string) - Phone number.
+
+## CustomerActivatePayload
++ name: `John Smith` (required, string)
+
+## CustomerToggleDisablePayload
++ disabled: false (required, boolean) - Defines whether account is disabled.
+
+## CustomerToggleBlacklistPayload
++ blacklisted: true (required, boolean) - Defines whether account is added to blacklisted.
+
+## CustomersList
++ result     (required, array[CustomerResponse])

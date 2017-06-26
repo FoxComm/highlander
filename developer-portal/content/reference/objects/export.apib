@@ -1,0 +1,23 @@
+# Data Structures
+
+### ExportField
++ name: `customer.email` (required, string) - Name for a field to export.
++ displayName: `Customer Email` (required, string) - Display name for a field to export.
+
+### ExportEntityByIds
++ description: `whatever` (optional, string) - Description of an export.
++ fields (required, array[ExportField]) - List of fields to export.
++ ids (required, array[number]) - List of ids.
+
+### ExportEntityByQuery
++ description: `whatever` (optional, string) - Description of an export.
++ fields (required, array[ExportField]) - List of fields to export.
++ query (required, RawQuery) - Search query in format accepted by ElasticSearch.
++ sort (optional, array[RawSort]) - Search sort in format accepted by ElasticSearch.
+
+### RawQuery
++ bool (object)
+
+### RawSort
++ `_score`: `asc`
+

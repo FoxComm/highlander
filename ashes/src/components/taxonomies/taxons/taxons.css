@@ -30,7 +30,7 @@
 .productsTable {
   & th:nth-child(4),
   & td:nth-child(4) {
-    width: 100%;
+    width: 100% !important;
   }
 
   & th:nth-child(2),
@@ -58,4 +58,12 @@
 
 .modal {
   width: 780px;
+}
+
+.bulk-message {
+  margin: 0;
+}
+
+.subValue {
+  margin: 0 10px;
 }

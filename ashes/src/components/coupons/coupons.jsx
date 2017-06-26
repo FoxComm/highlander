@@ -1,7 +1,4 @@
-
-/**
- * @flow
- */
+/* @flow */
 
 // libs
 import React, { Component, Element } from 'react';
@@ -13,7 +10,6 @@ import _ from 'lodash';
 // components
 import { SelectableSearchList } from '../list-page';
 import CouponRow from './coupon-row';
-import { ChangeStateModal } from '../bulk-actions/modal';
 
 import BulkWrapper from '../discounts/bulk';
 
@@ -84,7 +80,7 @@ export default class Coupons extends Component {
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
+  renderRow(row: Object, index: number, columns: Columns, params: Object): Element<*> {
     const key = `coupon-${row.id}`;
     return (
       <CouponRow

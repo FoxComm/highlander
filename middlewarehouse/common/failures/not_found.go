@@ -14,7 +14,7 @@ func (failure notFound) Status() int {
 	return http.StatusNotFound
 }
 
-func (failure notFound) ToJSON() responses.Error {
+func (failure notFound) ToJSON() responses.ErrorResponse {
 	return toJSON(failure.err)
 }
 

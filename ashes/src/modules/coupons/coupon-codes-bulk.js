@@ -1,7 +1,7 @@
 
 import createStore from '../../lib/store-creator';
 
-import { initialState, reducers } from '../bulk';
+import { reducers } from '../bulk';
 
 const { actions, reducer } = createStore({
   //TODO is this store needed?

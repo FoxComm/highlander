@@ -1,9 +1,9 @@
 ---
 
-- name: Install Consul Template Service
+- name: Install Demo Consul Template Service
   template: src=demo_consul_template.service dest="{{dest_services}}/demo_consul_template.service"
 
-- name: Copy Consul Template Config File
+- name: Copy Demo Consul Template Config File
   template: src=demo_consul_template.conf dest="{{consul_data_dir}}/demo_consul_template.conf"
 
 - name: Install Demo Service Upstreams
@@ -16,13 +16,14 @@
   file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link force=true
 
 - name: Restart Consul Template
-  service: name=demo_consul_template state=restarted
-  when: not packing
+  service: name=consul_template state=restarted
 
-- name: Restart Nginx every 30 seconds, Try for 30 minutes
-  shell: 'systemctl restart nginx'
-  register: nginx
-  until: nginx.rc == 0
+- name: Restart Demo Consul Template
+  service: name=demo_consul_template state=restarted
+
+- name: Wait before consul-template service will be registered
+  shell: 'ping -c 1 consul-template.{{consul_suffix}}'
+  register: consul_template_host_ex
+  until: consul_template_host_ex.rc == 0
   retries: "{{marathon_retries}}"
-  delay: 30
-  when: not packing
+  delay: 2

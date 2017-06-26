@@ -2,7 +2,6 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
 import { EventEmitter } from 'events';
 import { autobind } from 'core-decorators';
 
@@ -68,9 +67,7 @@ export default class Form extends Component {
   @autobind
   handleKeyPress(event) {
     if (event.keyCode === 13 /*enter*/) {
-      event.preventDefault();
-      const formReactDOM = ReactDOM.findDOMNode(this.refs.form);
-      formReactDOM.dispatchEvent(new Event('submit'));
+      this.handleSubmit(event);
     }
   }
 

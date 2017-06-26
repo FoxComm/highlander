@@ -1,0 +1,34 @@
+## Store Credit [/v1/customer/{id}/payment-methods/store-credits]
+
+Store credit is a tender type maintained by the Fox Platform that is specific to
+an individual customer within a site or tenant.Store credits each have a balance
+that can be spent against in multiple orders. Store credit is different from
+gift cards in that no code is required to use the credit, it is automatically
+available to each user if their store credit balance is greater than zero.
+
++ Model (application/json)
+    + Attributes (StoreCredit)
+    
++ Parameters
+    + id: 1 (required, number) - Customer ID
+
+### View [GET /v1/store-credits/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Store Credit ID
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
+
+### Update State [PATCH /v1/store-credits/{id}]
+
++ Request (application/json)
+    + Attributes (StoreCreditUpdateStatePayload)
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
+
+### Bulk Update State [PATCH /v1/store-credits]
+
++ Request (application/json)
+    + Attributes (StoreCreditBulkStateUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (array[StoreCreditBulkResponse])

@@ -1,0 +1,14 @@
+---
+
+- name: Setup Flyway Config
+  template: src=flyway.hyperion.conf dest="{{hyperion_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
+
+- name: Repair Hyperion Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} repair
+  args:
+    chdir: "{{hyperion_dir}}"
+
+- name: Migrate Hyperion Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{hyperion_dir}}"

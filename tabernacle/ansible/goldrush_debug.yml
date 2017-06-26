@@ -1,9 +1,0 @@
----
-
-- name: Debug
-  hosts: localhost
-  connection: local
-  vars:
-    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-  roles:
-    - { role: test/template }

@@ -1,20 +1,27 @@
+// libs
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Link, IndexLink } from '../link';
+
+import { Link, IndexLink } from 'components/link';
 import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
-import LocalNav, { NavDropdown } from '../local-nav/local-nav';
-import WaitAnimation from '../common/wait-animation';
+import PageNav from 'components/core/page-nav';
+import Spinner from 'components/core/spinner';
 
-@connect((state, props) => ({
-  ...state.customers.details[props.params.customerId]
-}), CustomersActions)
+// styles
+import s from './customer.css';
+
+@connect(
+  (state, props) => ({
+    ...state.customers.details[props.params.customerId],
+  }),
+  CustomersActions
+)
 export default class Customer extends Component {
-
   static propTypes = {
     params: PropTypes.shape({
-      customerId: PropTypes.string.isRequired
+      customerId: PropTypes.string.isRequired,
     }).isRequired,
     details: PropTypes.object,
     fetchCustomer: PropTypes.func,
@@ -31,7 +38,7 @@ export default class Customer extends Component {
   renderChildren() {
     return React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
-        entity: this.props.details
+        entity: this.props.details,
       });
     });
   }
@@ -55,7 +62,7 @@ export default class Customer extends Component {
   }
 
   get waitAnimation() {
-    return <WaitAnimation/>;
+    return <Spinner className={s.spinner} />;
   }
 
   get errorMessage() {
@@ -69,10 +76,10 @@ export default class Customer extends Component {
       <div>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <TitleBlock customer={details}/>
+            <TitleBlock customer={details} />
           </div>
         </div>
-        <LocalNav gutter={true}>
+        <PageNav>
           <IndexLink to="customer-details" params={params}>Details</IndexLink>
           <Link to="customer-cart" params={params}>Cart</Link>
           <Link to="customer-transactions" params={params}>Orders</Link>
@@ -80,10 +87,10 @@ export default class Customer extends Component {
           <Link to="customer-storecredits" params={params}>Store Credit</Link>
           <Link to="customer-notes" params={params}>Notes</Link>
           <Link to="customer-activity-trail" params={params}>Activity Trail</Link>
-        </LocalNav>
+        </PageNav>
         <div className="fc-grid">
           <div className="fc-col-md-1-1 fc-col-no-overflow">
-            { this.renderChildren() }
+            {this.renderChildren()}
           </div>
         </div>
       </div>

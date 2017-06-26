@@ -1,0 +1,17 @@
+---
+
+- name: Copy Onboarding Service Marathon JSON
+  template: src=onboarding_service.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update Onboarding Service in Marathon
+  shell: 'curl -sS -XPUT -d@/marathon/applications/onboarding_service.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/onboarding_service'
+
+- name: Restart Onboarding Service in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/onboarding_service/restart'
+
+- name: Get Onboarding Service Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/onboarding_service | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

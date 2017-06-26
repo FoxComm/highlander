@@ -1,10 +1,10 @@
 .fc-multi-select-table {
   &.fc-data-table {
     .inner {
-      .scroll-shadow(#e3e3e3, #fff, 12px, 55px);
+      .scroll-shadow(@color-border, @bg-white, 12px, 55px);
 
       &.inner-head {
-        .scroll-shadow(#e3e3e3, #f7f7f7, 12px, 55px);
+        .scroll-shadow(@color-border, @bg-grey-headers, 12px, 55px);
       }
     }
   }
@@ -14,7 +14,7 @@
 
     tr:hover, .fc-table-tr:hover {
       td, .fc-table-td {
-        background: @color-decor35;
+        background: @bg-grey-headers;
       }
     }
   }

@@ -8,25 +8,30 @@ INSTANCE ?= $(shell cat ../goldrush.state)
 
 build:
 	$(call header, Building)
-	sbt 'fullAssembly'
+	make build-phoenix
 
-build-phoenix:
-	sbt 'phoenixScala/assembly'
+fmt:
+	../utils/scalafmt/scalafmt.sh --diff
 
-build-seeder:
+fmt-check:
+	../utils/scalafmt/scalafmt.sh --test
+
+build-phoenix: fmt-check
+	sbt 'phoenix/assembly'
+
+build-seeder: fmt-check
 	sbt 'seeder/assembly'
 
 clean:
-	sbt '; phoenixScala/clean; seeder/clean'
+	sbt '; clean; phoenix/clean; seeder/clean'
 
 test:
 	$(call header, Testing)
-	sbt '; scalafmtTestAll ; test; seedDemo'
+	SBT_OPTS="-XX:+UseConcMarkSweepGC -Dphoenix.env=test" sbt -mem 3072 '; test; seedDemo'
 
 docker:
 	$(call header, Dockerizing)
 	make docker-phoenix
-	make docker-seeder
 
 docker-phoenix:
 	docker build -t phoenix .
@@ -37,7 +42,6 @@ docker-seeder:
 docker-push:
 	$(call header, Registering)
 	make docker-push-phoenix
-	make docker-push-seeder
 
 docker-push-phoenix:
 	docker tag phoenix $(DOCKER_REPO)/phoenix:$(DOCKER_TAG)
@@ -47,7 +51,7 @@ docker-push-seeder:
 	docker tag phoenix-seeder $(DOCKER_REPO)/phoenix-seeder:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/phoenix-seeder:$(DOCKER_TAG)
 
-update-app:	
+update-app:
 	cd ../tabernacle && ansible-playbook -v -i inventory/static/dev ansible/goldrush_update_app.yml --extra-vars "app_name=phoenix branch_name='$(GIT_BRANCH)' auto_build=y instance_ip=$(INSTANCE)"
 
-.PHONY: build test clean docker docker-push update-app
+.PHONY: build test clean docker docker-push update-app fmt-check fmt

@@ -9,7 +9,7 @@ import PaymentRow from 'components/payment-row/payment-row';
 import TableView from 'components/table/tableview';
 
 import OrderParagon from 'paragons/order';
-import type { Cart, Order, PaymentMethod } from 'paragons/order';
+import type { Cart, PaymentMethod } from 'paragons/order';
 
 type Props = {
   isAdding: boolean,
@@ -34,10 +34,6 @@ const viewColumns = [
   {field: 'status', text: 'Status'},
   {field: 'createdAt', text: 'Date/Time', type: 'datetime'},
 ];
-
-const editColumns = viewColumns.concat([
-  {field: 'edit'},
-]);
 
 export default class PaymentsPanel extends Component {
   static defaultProps: DefaultProps = {

@@ -8,7 +8,9 @@ from util.neo4j_utils import Neo4j_Client
 
 APP = Flask(__name__)
 NEO4J_CLIENT = Neo4j_Client()
-ES_CLIENT = ES_Client(os.getenv('ES_HOST'))
+ES_CLIENT = ES_Client(
+        os.getenv('ES_HOST', 'elasticsearch.service.consul'),
+        os.getenv('ES_PORT', '9200'))
 PP_MANAGER = Prod_Prod_Manager(NEO4J_CLIENT, ES_CLIENT)
 
 # Register Middleware

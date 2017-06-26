@@ -34,6 +34,7 @@ server {
       proxy_set_header Connection "";
   }
 
+  {% if is_appliance or is_staging %}
   location /top-drawer {
       proxy_pass http://storefront-top-drawer;
       proxy_http_version 1.1;
@@ -45,6 +46,7 @@ server {
       proxy_http_version 1.1;
       proxy_set_header Connection "";
   }
+  {% endif %}
 
   include /etc/nginx/service_locations.conf;
 }

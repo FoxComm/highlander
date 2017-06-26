@@ -3,11 +3,11 @@
   table-layout: fixed;
 
   &.fc-table tbody tr {
-    border: 1px solid @color-decor9;
+    border: 1px solid @color-border;
   }
 
   &.fc-table thead th:last-child {
-    border-right: 1px solid @color-decor9;
+    border-right: 1px solid @color-border;
   }
 
   .fc-table tbody tr&__drawer,
@@ -45,14 +45,14 @@
     padding: 0;
     padding-left: 20px;
     border: none;
-    border-top: 1px solid @color-decor9;
+    border-top: 1px solid @color-border;
   }
 
   .fc-table tbody tr&__drawer {
     background: none;
     padding: 0;
     border: none;
-    border-top: 1px solid @color-decor9;
+    border-top: 1px solid @color-border;
   }
 
   &__parent-row {
@@ -67,7 +67,7 @@
 
     .fc-table-td {
       position: relative;
-      background: #fff;
+      background: @bg-white;
       z-index: 1;
 
       transition: box-shadow 0.4s ease-out !important;
@@ -94,18 +94,18 @@
 // Children Element<*>default styles
 .fc-expandable-table__drawer {
   .fc-table thead th {
-    background: @color-decor60;
-    border: 1px solid @color-decor9;
+    background: @color-border;
+    border: 1px solid @color-border;
   }
 
   .fc-table tbody tr.even, .fc-table tbody tr:nth-child(2n) {
-    background: @color-decor60;
-    border: 1px solid @color-decor9;
+    background: @color-border;
+    border: 1px solid @color-border;
   }
 
   .fc-table tbody tr.odd, .fc-table tbody tr:nth-child(2n+1) {
-    background: @color-decor61;
-    border: 1px solid @color-decor9;
+    background: @bg-grey-headers;
+    border: 1px solid @color-border;
   }
 }
 

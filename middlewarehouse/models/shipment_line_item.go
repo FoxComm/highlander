@@ -2,9 +2,9 @@ package models
 
 import (
 	"database/sql/driver"
-	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-	"github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 	"strings"
+
+	"github.com/FoxComm/highlander/middlewarehouse/common/gormfox"
 )
 
 type StringsArray []string
@@ -19,29 +19,6 @@ type ShipmentLineItem struct {
 	Name             string
 	Price            uint
 	ImagePath        string
-}
-
-func NewShipmentLineItemFromPayload(payload *payloads.ShipmentLineItem) *ShipmentLineItem {
-	return &ShipmentLineItem{
-		Base: gormfox.Base{
-			ID: payload.ID,
-		},
-		ReferenceNumbers: payload.ReferenceNumbers,
-		SKU:              payload.SKU,
-		Name:             payload.Name,
-		Price:            payload.Price,
-		ImagePath:        payload.ImagePath,
-	}
-}
-
-func NewShipmentLineItemFromOrderPayload(payload *payloads.OrderLineItem) *ShipmentLineItem {
-	return &ShipmentLineItem{
-		ReferenceNumbers: payload.ReferenceNumbers,
-		SKU:              payload.SKU,
-		Name:             payload.Name,
-		Price:            payload.Price,
-		ImagePath:        payload.ImagePath,
-	}
 }
 
 // implement Scanner and Valuer interfaces to provide read/write for alias type

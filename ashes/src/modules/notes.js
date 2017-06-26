@@ -2,8 +2,7 @@ import _ from 'lodash';
 import Api from '../lib/api';
 import reduceReducers from 'reduce-reducers';
 import { createAction, createReducer } from 'redux-act';
-import { assoc, dissoc, update, get } from 'sprout-data';
-import { updateItems } from './state-helpers';
+import { assoc, dissoc, update } from 'sprout-data';
 import makeLiveSearch from './live-search';
 import processQuery from '../elastic/notes';
 
@@ -80,35 +79,54 @@ export function deleteNote(id) {
   };
 }
 
-const initialState = {};
+const initialState = {
+  isFetching: true,
+};
 
 const notesReducer = createReducer({
   [setCurrentEntity]: (state, entity) => {
     return assoc(state, 'currentEntity', entity);
   },
   [actions.searchSuccess]: state => {
-    return assoc(state, 'wasReceived', true);
+    return assoc(state,
+      ['isFetching'], false,
+      ['wasReceived'], true);
+  },
+  [actions.removeEntity]: state => {
+    return assoc(state, 'isFetching', false);
+  },
+  [actions.updateItems]: state => {
+    return assoc(state, 'isFetching', false);
+  },
+  [actions.addEntity]: state => {
+    return assoc(state, 'isFetching', false);
+  },
+  [actions.searchStart]: state => {
+    return assoc(state, 'isFetching', true);
   },
   [notesFailed]: (state, error) => {
     console.error(error);
-
     return assoc(state, 'error', error);
   },
   [startDeletingNote]: (state, id) => {
     return assoc(state, 'noteIdToDelete', id);
   },
   [stopDeletingNote]: state => {
-    return dissoc(state, 'noteIdToDelete');
+    const newState = assoc(state, 'isFetching', true);
+    return dissoc(newState, 'noteIdToDelete');
   },
   [startAddingNote]: state => {
     // -1 means that we adding note
-    return assoc(state, 'editingNoteId', -1);
+    return assoc(state,
+      ['isFetching'], false,
+      ['editingNoteId'], -1);
   },
   [startEditingNote]: (state, id) => {
     return assoc(state, 'editingNoteId', id);
   },
   [stopAddingOrEditingNote]: state => {
-    return dissoc(state, 'editingNoteId');
+    const newState = assoc(state, 'isFetching', true);
+    return dissoc(newState, 'editingNoteId');
   },
 }, initialState);
 

@@ -4,7 +4,9 @@ import argparse
 import itertools
 import json
 import os.path
+import logging
 import urllib.request
+import ssl
 from collections import defaultdict
 from urllib.error import HTTPError
 
@@ -87,9 +89,11 @@ class Elasticsearch:
         req = urllib.request.Request(endpoint, headers={"Content-Type": "application/json", "JWT": self.jwt})
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
-            print(repr(err))
+            logging.error(repr(err))
             raise
         return json.loads(response.read().decode('utf-8'))
 
@@ -104,7 +108,7 @@ class Elasticsearch:
 
         response = self.do_query('taxons_search_view')
         taxonomies = [read_item(item) for item in response["result"] if
-                      (item['context'] == 'default' and item['archivedAt'] is None)]
+                      ('context' in item and item['context'] == 'default' and item['archivedAt'] is None)]
         return taxonomies
 
     def get_products(self):
@@ -139,9 +143,11 @@ class Phoenix:
                                      method=method)
 
         try:
-            response = urllib.request.urlopen(req)
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            response = urllib.request.urlopen(req, context=context)
         except HTTPError as err:
-            print("HTTP error. code: {}. message: {}".format(err.code, err.read()))
+            logging.error("HTTP error. code: {}. message: {}".format(err.code, err.read()))
             raise
 
         code = response.getcode()
@@ -151,15 +157,22 @@ class Phoenix:
         return code, json.loads(response.read().decode('utf-8'))
 
     def do_login(self):
+        logging.info("logging in: host:{}, user:{}, organization: {}".format(self.login_endpoint(), self.user, self.org))
         payload = json.dumps({'email': self.user, 'password': self.password, 'org': self.org}).encode()
-        req = urllib.request.Request(self.login_endpoint(), payload)
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        req = urllib.request.Request(self.login_endpoint(), payload, method='POST')
         req.add_header('Content-Type', 'application/json')
 
-        response = urllib.request.urlopen(req)
+        try:
+            response = urllib.request.urlopen(req, context=context)
+        except urllib.error.URLError as err:
+            logging.error("Cannot connect to %s %s", self.login_endpoint(), err)
+            raise
 
         content = json.loads(response.read().decode('utf-8'))
         self.jwt = dict(response.info())['Jwt']
-        print("logged in: " + self.prefix + " name: " + content['name'] + " scope: " + content['scope'])
+        logging.info("logged in: " + self.prefix + " name: " + content['name'] + " scope: " + content['scope'])
         return True
 
     def create_taxonomy(self, taxonomy_json):
@@ -167,7 +180,7 @@ class Phoenix:
         data = {k: v for k, v in taxonomy_json.items() if k != "taxons"}
         code, response = self.do_query("/taxonomies/default", data, method="POST")
 
-        print("taxonomy created: id:%d, attributes: %r" % (response['id'], response['attributes']))
+        logging.info("taxonomy created: id:%d, attributes: %r" % (response['id'], response['attributes']))
         return Taxonomy(response['id'], response["attributes"]["name"]["v"], [])
 
     def create_taxon(self, taxon_json, taxonomy_id, parent_id):
@@ -176,22 +189,22 @@ class Phoenix:
             taxon_json = taxon_json.copy()
             taxon_json['location'] = {'parent': parent_id}
         code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id) + "/taxons", taxon_json, method="POST")
-        print("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
+        logging.info("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
         return Taxon(response['id'], parent_id, taxon_json["attributes"]["name"]["v"], taxonomy_id)
 
     def login_endpoint(self):
         return self.prefix + "/public/login"
 
     def upload_product(self, code, product):
-        print("uploading: " + code)
+        logging.info("uploading: " + code)
         self.ensure_logged_in()
         try:
             code, response = self.do_query("/products/default", product, method="POST")
             if code != 200:
-                print("error uploading: " + response)
+                logging.error("error uploading: " + response)
                 return False, None
         except HTTPError as err:
-            print("error uploading: " + repr(err))
+            logging.error("error uploading: " + repr(err))
             return False, None
         return True, response
 
@@ -200,7 +213,7 @@ class Phoenix:
         try:
             self.do_query("/taxons/default/{}/product/{}".format(taxon_id, product_id), data=None, method="PATCH")
         except HTTPError:
-            print("cannot assign taxon {} to product {}".format(taxon_id, product_id))
+            logging.error("cannot assign taxon {} to product {}".format(taxon_id, product_id))
 
 
 def load_taxonomies(file_name):
@@ -246,10 +259,10 @@ def assign_taxonomies(p: Phoenix, settings, taxonomies, data_product, product_id
             es_taxonomy, es_taxon = map_to_es_taxon(p, settings, data_product, taxon, taxonomies, taxonomy)
 
             if es_taxonomy is None or es_taxon is None:
-                print("Skipping taxon '{}' (Taxonomy: '{}')".format(taxon, taxonomy))
+                logging.info("Skipping taxon '{}' (Taxonomy: '{}')".format(taxon, taxonomy))
             else:
                 p.assign_taxon(product_id, es_taxon.taxon_id)
-                print("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
+                logging.info("taxon {} is assigned to product {}".format(es_taxon.taxon_id, product_id))
 
 
 def map_to_es_taxon(p: Phoenix, settings, data_product, taxon, taxonomies, taxonomy):
@@ -303,7 +316,7 @@ def import_taxons(p: Phoenix, taxons, existing_taxonomy, parent_id=None):
             t = p.create_taxon(taxon, existing_taxonomy.taxonomy_id, parent_id)
             taxon_id = t.taxon_id
         else:
-            print("skipping taxon '{}' as soon as it already exists. id: {}".format(taxon,
+            logging.info("skipping taxon '{}' as soon as it already exists. id: {}".format(taxon,
                                                                                     existing_taxon.taxon_id))
             taxon_id = existing_taxon.taxon_id
 
@@ -335,7 +348,7 @@ def import_taxonomies(p: Phoenix, input_dir, import_from_adidas):
                 existing_taxonomy = p.create_taxonomy(taxonomy)
             else:
                 msg = "skipping taxonomy '{}' as soon as it already exists. id: {}"
-                print(msg.format(taxonomy, existing_taxonomy.taxonomy_id))
+                logging.info(msg.format(taxonomy, existing_taxonomy.taxonomy_id))
 
             import_taxons(p, taxons, existing_taxonomy, )
 
@@ -390,14 +403,14 @@ def add_inventory_to_stock_item(phoenix, stock_item, amount):
     sku = itm['sku']
     old_amount = str(stock_item['onHand'])
 
-    print(sku + ' (' + item_id + ') ' + old_amount + ' => ' + str(amount))
+    logging.info(sku + ' (' + item_id + ') ' + old_amount + ' => ' + str(amount))
     increment = {"qty": amount, "type": "Sellable", "status": "onHand"}
     try:
         code, response = phoenix.do_query("/inventory/stock-items/" + item_id + "/increment", increment, method="PATCH")
         if code != 204:
-            print("error adding inventory: " + response)
+            logging.error("error adding inventory: " + response)
     except HTTPError as err:
-        print("error adding inventory: " + repr(err))
+        logging.error("error adding inventory: " + repr(err))
 
 
 def add_inventory(phoenix, amount):
@@ -406,8 +419,11 @@ def add_inventory(phoenix, amount):
     for itm in inventory:
         add_inventory_to_stock_item(phoenix, itm, amount)
 
+def config_logging():
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
 
 def main():
+    config_logging()
     options = read_cmd_line()
 
     print("HOST: ", options.host)

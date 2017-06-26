@@ -7,8 +7,8 @@ import React, { Component, Element } from 'react';
 import PropTypes from 'prop-types';
 
 // components
-import { Link, IndexLink } from '../link';
-import LocalNav from '../local-nav/local-nav';
+import { Link, IndexLink } from 'components/link';
+import PageNav from 'components/core/page-nav';
 
 type Props = {
   productId: string,
@@ -33,7 +33,7 @@ export default class SubNav extends Component<void, Props, void> {
     }
 
     return [
-      <Link to="product-images" params={this.props} key="images">Images</Link>,
+      <Link to="product-media" params={this.props} key="media">Media</Link>,
       <Link to="product-notes" params={this.props} key="notes">Notes</Link>,
       <Link to="product-analytics" params={this.props} key="analytics">Analytics</Link>,
       <Link to="product-activity-trail" params={this.props} key="activity-trail">Activity Trail</Link>,
@@ -42,10 +42,10 @@ export default class SubNav extends Component<void, Props, void> {
 
   render() {
     return (
-      <LocalNav>
+      <PageNav>
         <IndexLink to="product-details" params={this.props}>Details</IndexLink>
         {this.detailsLinks}
-      </LocalNav>
+      </PageNav>
     );
   }
 }

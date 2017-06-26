@@ -1,44 +1,25 @@
 /* @flow */
 
+// libs
 import React, { Element } from 'react';
-import styles from './counter.css';
 
-import Counter from '../../forms/counter';
+// components
+import Counter from 'components/core/counter';
 
+// types
 import type { Context, ItemDesc } from '../types';
 
 type Props = ItemDesc & {
-  context: Context;
-}
-
-function toNumber(value, def = 1) {
-  const asNumber = Number(value);
-  return isNaN(asNumber) ? def : asNumber;
-}
+  context: Context,
+};
 
 const CounterWidget = (props: Props): Element<*> => {
-  const value = toNumber(props.value);
+  const value = props.value;
   const setValue = value => {
     props.onChange(value);
   };
 
-  const actions = {
-    increaseAction() {
-      setValue(toNumber(value) + 1);
-    },
-    decreaseAction() {
-      setValue(Math.max(1, toNumber(value) - 1));
-    }
-  };
-
-  return (
-    <Counter
-      styleName="counter-input"
-      value={value}
-      onChange={event => setValue(event.target.value)}
-      {...actions}
-    />
-  );
+  return <Counter value={value} onChange={setValue} min={1} />;
 };
 
 export default CounterWidget;

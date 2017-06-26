@@ -1,4 +1,3 @@
-// @flow
 /*eslint max-len: ["error", 1000]*/
 
 // libs
@@ -9,8 +8,8 @@ import moment from 'moment';
 import _ from 'lodash';
 
 // components
-import ErrorAlerts from '../alerts/error-alerts';
-import WaitAnimation from '../common/wait-animation';
+import Spinner from 'components/core/spinner';
+import { ApiErrors } from 'components/utils/errors';
 import QuestionBoxList from './question-box-list';
 import type { Props as QuestionBoxType } from './question-box';
 import Currency from '../common/currency';
@@ -22,7 +21,7 @@ import TotalRevenueChart, { ChartSegmentType } from './charts/total-revenue-char
 import SegmentControlList from './segment-control-list';
 import type { Props as SegmentControlType } from './segment-control';
 
-const ActionBlock = (props) => {
+const ActionBlock = props => {
   const { onActionClick, style } = props;
 
   const xIconSvg = (
@@ -30,21 +29,17 @@ const ActionBlock = (props) => {
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g transform="translate(-485.000000, -557.000000)" fill="#000000">
           <g transform="translate(485.000000, 557.000000)">
-            <path d="M8.66317371,6.99940845 L13.6542723,2.00830986 C14.1137089,1.54887324 14.1137089,0.803981221 13.6542723,0.344610329 C13.1948357,-0.114826291 12.4500094,-0.114826291 11.9905728,0.344610329 L6.99940845,5.33577465 L2.00824413,0.344544601 C1.54880751,-0.114892019 0.803981221,-0.114892019 0.344544601,0.344544601 C-0.114826291,0.803981221 -0.114826291,1.54887324 0.344544601,2.00824413 L5.33570892,6.99934272 L0.344544601,11.990507 C-0.114826291,12.4499437 -0.114826291,13.1948357 0.344544601,13.6542066 C0.803981221,14.1136432 1.54880751,14.1136432 2.00824413,13.6542066 L6.99940845,8.66304225 L11.9905728,13.6542066 C12.4499437,14.1136432 13.1948357,14.1136432 13.6542723,13.6542066 C14.1137089,13.19477 14.1137089,12.4499437 13.6542723,11.990507 L8.66317371,6.99940845 Z" id="Shape"></path>
+            <path
+              d="M8.66317371,6.99940845 L13.6542723,2.00830986 C14.1137089,1.54887324 14.1137089,0.803981221 13.6542723,0.344610329 C13.1948357,-0.114826291 12.4500094,-0.114826291 11.9905728,0.344610329 L6.99940845,5.33577465 L2.00824413,0.344544601 C1.54880751,-0.114892019 0.803981221,-0.114892019 0.344544601,0.344544601 C-0.114826291,0.803981221 -0.114826291,1.54887324 0.344544601,2.00824413 L5.33570892,6.99934272 L0.344544601,11.990507 C-0.114826291,12.4499437 -0.114826291,13.1948357 0.344544601,13.6542066 C0.803981221,14.1136432 1.54880751,14.1136432 2.00824413,13.6542066 L6.99940845,8.66304225 L11.9905728,13.6542066 C12.4499437,14.1136432 13.1948357,14.1136432 13.6542723,13.6542066 C14.1137089,13.19477 14.1137089,12.4499437 13.6542723,11.990507 L8.66317371,6.99940845 Z"
+              id="Shape"
+            />
           </g>
         </g>
       </g>
     </svg>
   );
 
-  return (
-    <a
-      className='fc-modal-close'
-      onClick={onActionClick}
-    >
-      {xIconSvg}
-    </a>
-  );
+  return <a onClick={onActionClick}>{xIconSvg}</a>;
 };
 
 // styles
@@ -55,6 +50,7 @@ import * as AnalyticsActions from '../../modules/analytics';
 
 // types
 type State = {
+  dateSelectedIndex: number,
   dateRangeBegin: string, // Unix Timestamp
   dateRangeEnd: string, // Unix Timestamp
   dateDisplay: string,
@@ -67,11 +63,11 @@ type State = {
     dateRangeEnd: string,
     dataFetchTimeSize: number,
   },
-}
+};
 
 type Props = {
   entity: {
-    entityId: string|number,
+    entityId: string | number,
     entityType: string,
   },
   analytics: {
@@ -92,7 +88,7 @@ type Props = {
   },
   questionBoxes: Array<QuestionBoxType>,
   segments: Array<SegmentControlType>,
-}
+};
 
 // consts
 const sourceDropdownColumns = [
@@ -132,35 +128,33 @@ const datePickerType = {
   Range: 5, //TODO: Implement DatePicker for custom date ranges
 };
 const datePickerOptions = [
-  { id: datePickerType.Today, displayText: 'Today'},
-  { id: datePickerType.Yesterday, displayText: 'Yesterday'},
-  { id: datePickerType.LastWeek, displayText: 'Last Week'},
-  { id: datePickerType.Last30, displayText: 'Last 30 Days'},
-  { id: datePickerType.Last90, displayText: 'Last 90 Days'},
+  { id: datePickerType.Today, displayText: 'Today' },
+  { id: datePickerType.Yesterday, displayText: 'Yesterday' },
+  { id: datePickerType.LastWeek, displayText: 'Last Week' },
+  { id: datePickerType.Last30, displayText: 'Last 30 Days' },
+  { id: datePickerType.Last90, displayText: 'Last 90 Days' },
 ];
 const datePickerFormat = 'MM/DD/YYYY';
 
 const comparisonPeriodOptions = [
-  { id: datePickerType.Today, displayText: 'Today'},
-  { id: datePickerType.Yesterday, displayText: 'Yesterday'},
-  { id: datePickerType.LastWeek, displayText: 'Last Week'},
-  { id: datePickerType.Last30, displayText: 'Last 30 Days'},
-  { id: datePickerType.Last90, displayText: 'Last 90 Days'},
+  { id: datePickerType.Today, displayText: 'Today' },
+  { id: datePickerType.Yesterday, displayText: 'Yesterday' },
+  { id: datePickerType.LastWeek, displayText: 'Last Week' },
+  { id: datePickerType.Last30, displayText: 'Last 30 Days' },
+  { id: datePickerType.Last90, displayText: 'Last 90 Days' },
 ];
 
 // helpers
-export function
-percentDifferenceFromAvg(percentValue: number, avgPercentValue: number): number {
+export function percentDifferenceFromAvg(percentValue: number, avgPercentValue: number): number {
   if (avgPercentValue === 0) return 0;
-  return _.round(((percentValue - avgPercentValue) / avgPercentValue) * 100, 0);
+  return _.round((percentValue - avgPercentValue) / avgPercentValue * 100, 0);
 }
 
-@connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
-export default class Analytics extends React.Component {
-
+@connect((state, props) => ({ analytics: state.analytics }), AnalyticsActions)
+export class Analytics extends React.Component {
   static defaultProps: {
     questionBoxes: Array<QuestionBoxType>,
-    segments: Array<SegmentControlType>
+    segments: Array<SegmentControlType>,
   } = {
     questionBoxes: [
       {
@@ -205,7 +199,7 @@ export default class Analytics extends React.Component {
         id: 0,
         title: segmentTitles.day,
         onClick: _.noop,
-        isActive: true
+        isActive: true,
       },
       {
         id: 1,
@@ -221,6 +215,7 @@ export default class Analytics extends React.Component {
   };
 
   state: State = {
+    dateSelectedIndex: 0,
     dateRangeBegin: moment().startOf('day').unix(),
     dateRangeEnd: moment().unix(),
     dateDisplay: moment().format(datePickerFormat),
@@ -251,19 +246,14 @@ export default class Analytics extends React.Component {
   }
 
   @autobind
-  fetchData(
-    question: QuestionBoxType,
-    dateRangeBegin: string,
-    dateRangeEnd: string,
-    dataFetchTimeSize: number
-  ) {
+  fetchData(question: QuestionBoxType, dateRangeBegin: string, dateRangeEnd: string, dataFetchTimeSize: number) {
     if (_.isNil(question)) {
       return;
     }
 
-    const { segments, entity } = this.props;
+    const { entity } = this.props;
 
-    switch(question.title) {
+    switch (question.title) {
       case questionTitles.TotalRevenue:
         this.props.fetchProductTotalRevenue(dateRangeBegin, dateRangeEnd, entity.entityId, dataFetchTimeSize);
         break;
@@ -277,7 +267,7 @@ export default class Analytics extends React.Component {
         this.props.fetchProductTotalInCarts(dateRangeBegin, dateRangeEnd, entity.entityId, dataFetchTimeSize);
         break;
       case questionTitles.ProductConversionRate:
-        if(dataFetchTimeSize > 0) {
+        if (dataFetchTimeSize > 0) {
           this.props.fetchProductConversion(entity.entityId, dateRangeBegin, dateRangeEnd);
         } else {
           this.props.fetchProductConversion(entity.entityId);
@@ -308,7 +298,7 @@ export default class Analytics extends React.Component {
       displayText = `${beginDisplayText} - ${endDisplayText}`;
     };
 
-    switch(selectionIndex) {
+    switch (selectionIndex) {
       case datePickerType.Today:
         newDateRangeBegin = moment().startOf('day').unix();
         newDateRangeEnd = moment().unix();
@@ -358,17 +348,19 @@ export default class Analytics extends React.Component {
       displayText: displayText,
       newDateRangeBegin: newDateRangeBegin,
       newDateRangeEnd: newDateRangeEnd,
-      newDataFetchTimeSize: newDataFetchTimeSize
+      newDataFetchTimeSize: newDataFetchTimeSize,
     };
   }
 
   @autobind
   onDatePickerChange(selectionIndex: number) {
     const { question } = this.state;
-    const { displayText, newDateRangeBegin,
-      newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
+    const { displayText, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(
+      selectionIndex
+    );
 
     this.setState({
+      dateSelectedIndex: selectionIndex,
       dateDisplay: displayText,
       dateRangeBegin: newDateRangeBegin,
       dateRangeEnd: newDateRangeEnd,
@@ -383,17 +375,19 @@ export default class Analytics extends React.Component {
   @autobind
   onComparisonPeriodChange(selectionIndex: number) {
     const { question } = this.state;
-    const { displayText, newDateRangeBegin,
-      newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
+    const { displayText, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(
+      selectionIndex
+    );
 
-    this.setState({
-      comparisonPeriod: {
-        dateDisplay: displayText,
-        dateRangeBegin: newDateRangeBegin,
-        dateRangeEnd: newDateRangeEnd,
-        dataFetchTimeSize: newDataFetchTimeSize,
-      }
-    },
+    this.setState(
+      {
+        comparisonPeriod: {
+          dateDisplay: displayText,
+          dateRangeBegin: newDateRangeBegin,
+          dateRangeEnd: newDateRangeEnd,
+          dataFetchTimeSize: newDataFetchTimeSize,
+        },
+      },
       this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
     );
   }
@@ -406,14 +400,15 @@ export default class Analytics extends React.Component {
     const newDateRangeEnd = moment().unix();
     const newDataFetchTimeSize = 0;
 
-    this.setState({
-      comparisonPeriod: {
-        dateDisplay: 'Comparison Period',
-        dateRangeBegin: newDateRangeBegin,
-        dateRangeEnd: newDateRangeEnd,
-        dataFetchTimeSize: newDataFetchTimeSize,
-      }
-    },
+    this.setState(
+      {
+        comparisonPeriod: {
+          dateDisplay: 'Comparison Period',
+          dateRangeBegin: newDateRangeBegin,
+          dateRangeEnd: newDateRangeEnd,
+          dataFetchTimeSize: newDataFetchTimeSize,
+        },
+      },
       this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
     );
   }
@@ -422,17 +417,16 @@ export default class Analytics extends React.Component {
   onQuestionBoxSelect(question: QuestionBoxType) {
     const { dateRangeBegin, dateRangeEnd, dataFetchTimeSize, comparisonPeriod } = this.state;
 
-    switch(question.title) {
+    switch (question.title) {
       case questionTitles.TotalRevenue:
       case questionTitles.TotalOrders:
       case questionTitles.TotalPdPViews:
       case questionTitles.TotalInCarts:
-        this.setState({ question },
-          this.fetchData(question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize)
-        );
+        this.setState({ question }, this.fetchData(question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize));
         break;
       case questionTitles.ProductConversionRate:
-        this.setState({ question },
+        this.setState(
+          { question },
           this.fetchData(
             question,
             comparisonPeriod.dateRangeBegin,
@@ -451,11 +445,9 @@ export default class Analytics extends React.Component {
 
     let newDataFetchTimeSize = dataFetchTimeSize;
 
-    switch(segment.title) {
+    switch (segment.title) {
       case segmentTitles.day:
-        newDataFetchTimeSize = (dateRangeBegin === moment().startOf('day').unix())
-          ? unixTimes.twoHour
-          : unixTimes.day;
+        newDataFetchTimeSize = dateRangeBegin === moment().startOf('day').unix() ? unixTimes.twoHour : unixTimes.day;
         break;
       case segmentTitles.week:
         newDataFetchTimeSize = unixTimes.week;
@@ -465,17 +457,19 @@ export default class Analytics extends React.Component {
         break;
     }
 
-    this.setState({
-      segment: segment,
-      dataFetchTimeSize: newDataFetchTimeSize,
-    }, this.fetchData(question, dateRangeBegin, dateRangeEnd, newDataFetchTimeSize));
+    this.setState(
+      {
+        segment: segment,
+        dataFetchTimeSize: newDataFetchTimeSize,
+      },
+      this.fetchData(question, dateRangeBegin, dateRangeEnd, newDataFetchTimeSize)
+    );
   }
 
   @autobind
   setQuestionBoxesFromStats(questionBoxes: Array<QuestionBoxType>, stats: any) {
-
     if (!_.isEmpty(stats)) {
-      _.map(questionBoxes, (qb) => {
+      _.map(questionBoxes, qb => {
         const productValue = stats[qb.id];
         const avgValue = stats.Average[qb.id];
 
@@ -490,12 +484,7 @@ export default class Analytics extends React.Component {
           trend = TrendType.loss;
         }
 
-        qb.footer = (
-          <TrendButton
-            trendType={trend}
-            value={Math.abs(trendValue)}
-            />
-        );
+        qb.footer = <TrendButton trendType={trend} value={Math.abs(trendValue)} />;
 
         // set QuestionBox Content
         switch (qb.title) {
@@ -522,7 +511,7 @@ export default class Analytics extends React.Component {
   get chartSegmentType(): string {
     const { dataFetchTimeSize } = this.state;
 
-    switch(dataFetchTimeSize) {
+    switch (dataFetchTimeSize) {
       case unixTimes.twoHour:
         return ChartSegmentType.Hour;
       case unixTimes.day:
@@ -536,8 +525,17 @@ export default class Analytics extends React.Component {
     }
   }
 
+  isDisabledSegment(segment: SegmentControlType, dateSelectedIndex: number): boolean {
+    const isDaySegment = segment.title === segmentTitles.day;
+    const isTodayOrYesterdayDateSelected = _.includes(
+      [datePickerType.Today, datePickerType.Yesterday],
+      dateSelectedIndex
+    );
+    return !isDaySegment && isTodayOrYesterdayDateSelected;
+  }
+
   get chartFromQuestion() {
-    const { question, dataFetchTimeSize, segment, comparisonPeriod } = this.state;
+    const { question, segment, comparisonPeriod, dateSelectedIndex } = this.state;
 
     if (_.isNil(question)) {
       return false;
@@ -546,30 +544,32 @@ export default class Analytics extends React.Component {
     const { analytics, segments } = this.props;
 
     if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
+      const disabledItems = _.filter(segments, segment => this.isDisabledSegment(segment, dateSelectedIndex));
+      const activeSegment = this.isDisabledSegment(segment, dateSelectedIndex) ? segments[0] : segment;
+
       const segmentCtrlList = (
         <SegmentControlList
           items={segments}
+          disabledItems={disabledItems}
           onSelect={this.onSegmentControlSelect}
-          activeSegment={segment}
+          activeSegment={activeSegment}
         />
       );
-      const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0
-            ? 'visible'
-            : 'hidden';
+      const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0 ? 'visible' : 'hidden';
 
       let conversionComparison = {};
 
       switch (question.title) {
         case questionTitles.TotalRevenue:
-          return(
+          return (
             <div>
-              { segmentCtrlList }
+              {segmentCtrlList}
               <TotalRevenueChart
                 jsonData={analytics.chartValues}
                 queryKey={analytics.keys}
                 segmentType={this.chartSegmentType}
                 currencyCode="USD"
-                />
+              />
             </div>
           );
         case questionTitles.TotalOrders:
@@ -582,7 +582,7 @@ export default class Analytics extends React.Component {
                 jsonData={analytics.chartValues}
                 queryKey={analytics.keys}
                 segmentType={this.chartSegmentType}
-                />
+              />
             </div>
           );
         case questionTitles.ProductConversionRate:
@@ -596,7 +596,7 @@ export default class Analytics extends React.Component {
               <Dropdown
                 styleName="comparison-period-filter-date-picker"
                 name="dateControl"
-                items={_.map(comparisonPeriodOptions, ({id, displayText}) => [id, displayText])}
+                items={_.map(comparisonPeriodOptions, ({ id, displayText }) => [id, displayText])}
                 placeholder="Comparison Period"
                 changeable={true}
                 onChange={this.onComparisonPeriodChange}
@@ -607,12 +607,9 @@ export default class Analytics extends React.Component {
               />
               <ActionBlock
                 onActionClick={this.onRemoveComparison}
-                style={{marginLeft: '10px', visibility: comparisonCancelButtonVisibility}}
+                style={{ marginLeft: '10px', visibility: comparisonCancelButtonVisibility }}
               />
-              <ProductConversionChart
-                jsonData={analytics.chartValues}
-                comparisonJsonData={conversionComparison}
-              />
+              <ProductConversionChart jsonData={analytics.chartValues} comparisonJsonData={conversionComparison} />
             </div>
           );
         default:
@@ -635,7 +632,7 @@ export default class Analytics extends React.Component {
           <Dropdown
             styleName="analytics-filter-date-picker"
             name="dateControl"
-            items={_.map(datePickerOptions, ({id, displayText}) => [id, displayText])}
+            items={_.map(datePickerOptions, ({ id, displayText }) => [id, displayText])}
             placeholder={`${moment().format(datePickerFormat)}`}
             changeable={true}
             onChange={this.onDatePickerChange}
@@ -643,21 +640,17 @@ export default class Analytics extends React.Component {
             renderNullTitle={(value, placeholder) => {
               return _.isNull(value) ? placeholder : value;
             }}
-            />
+          />
           <StaticColumnSelector
             setColumns={null}
             columns={sourceDropdownColumns}
             actionButtonText="Apply"
             dropdownTitle="Sources"
             identifier={'analytics-source-filter'}
-            />
+          />
         </div>
         <div styleName="analytics-page-questions">
-          <QuestionBoxList
-            onSelect={this.onQuestionBoxSelect}
-            items={questionBoxes}
-            activeQuestion={question}
-            />
+          <QuestionBoxList onSelect={this.onQuestionBoxSelect} items={questionBoxes} activeQuestion={question} />
         </div>
       </div>
     );
@@ -667,22 +660,21 @@ export default class Analytics extends React.Component {
     const { analytics } = this.props;
     const { question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize } = this.state;
 
-
     if (!_.isNil(analytics.isFetchingStats) && !analytics.isFetchingStats) {
       if (!analytics.err) {
         const productStats = this.productStats;
 
         // Initial fetch to display the first Question
-        if(_.isNil(analytics.isFetching)) {
+        if (_.isNil(analytics.isFetching)) {
           this.fetchData(question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize);
         }
 
         return productStats;
       } else {
-        return <ErrorAlerts error={analytics.err} />;
+        return <ApiErrors response={analytics.err} />;
       }
     } else {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
   }
 
@@ -694,10 +686,10 @@ export default class Analytics extends React.Component {
       if (!analytics.err) {
         return this.chartFromQuestion;
       } else {
-        return <ErrorAlerts error={analytics.err} />;
+        return <ApiErrors response={analytics.err} />;
       }
     } else {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
   }
 
@@ -710,4 +702,3 @@ export default class Analytics extends React.Component {
     );
   }
 }
-

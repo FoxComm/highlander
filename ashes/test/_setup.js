@@ -1,6 +1,11 @@
+import 'babel-polyfill';
+import 'co-mocha';
+
 import path from 'path';
 import rewire from 'rewire';
 import register from 'ignore-styles';
+import chai from 'chai';
+import chaiEnzyme from 'chai-enzyme';
 
 process.env.API_URL = 'http://api.foxcommerce'; // mock
 process.env.STRIPE_PUBLISHABLE_KEY = 'key_mock'; // mock
@@ -8,8 +13,7 @@ process.env.STRIPE_PUBLISHABLE_KEY = 'key_mock'; // mock
 register(['.css']);
 
 const unexpected = require('unexpected');
-global.unexpected = unexpected
-  .use(require('./_unexpected_actions'));
+global.unexpected = unexpected.use(require('./_unexpected_actions'));
 
 global.TimeShift = require('./_timeshift');
 
@@ -21,8 +25,7 @@ global.expect = (function(expect) {
       return expect(target);
     }
   };
-})(require('chai').expect);
-
+})(chai.use(chaiEnzyme()).expect);
 
 global.later = function(func) {
   return function() {

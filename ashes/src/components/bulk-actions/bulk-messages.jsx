@@ -10,15 +10,15 @@ import { getStore } from 'lib/store-creator';
 // components
 import SuccessNotification from '../bulk-actions/success-notification';
 import ErrorNotification from '../bulk-actions/error-notification';
-import ErrorAlerts from '../alerts/error-alerts';
-
+import { ApiErrors } from 'components/utils/errors';
 
 type Props = {
   storePath: string,
   module: string,
   entity: string,
-  renderDetails: () => ReactElement,
+  renderDetail: () => ReactElement,
   hideAlertDetails?: boolean,
+  className?: string,
   bulk: {
     successes: ?Object,
     errors: ?Object,
@@ -30,7 +30,6 @@ type Props = {
   bulkActions: Object,
 };
 
-
 class BulkMessages extends Component {
   props: Props;
 
@@ -39,20 +38,28 @@ class BulkMessages extends Component {
     this.props.bulkActions.clearErrors();
   }
 
+  get className() {
+    const { className } = this.props;
+    if (className == null) return 'fc-bulk-messages';
+
+    return `fc-bulk-messages ${className}`;
+  }
+
   render() {
     const { bulk, bulkActions, entity, renderDetail, hideAlertDetails } = this.props;
     const { successes, errors, messages, error } = bulk;
     const { clearSuccesses, clearErrors, clearError } = bulkActions;
-
     const notifications = [];
 
     if (successes) {
       notifications.push(
-        <SuccessNotification key="successes"
-                             entity={entity}
-                             hideAlertDetails={hideAlertDetails}
-                             overviewMessage={messages.success}
-                             onHide={clearSuccesses}>
+        <SuccessNotification
+          key="successes"
+          entity={entity}
+          hideAlertDetails={hideAlertDetails}
+          overviewMessage={messages.success}
+          onHide={clearSuccesses}
+        >
           {map(successes, renderDetail)}
         </SuccessNotification>
       );
@@ -60,24 +67,24 @@ class BulkMessages extends Component {
 
     if (errors) {
       notifications.push(
-        <ErrorNotification key="errors"
-                           entity={entity}
-                           overviewMessage={messages.error}
-                           hideAlertDetails={hideAlertDetails}
-                           onHide={clearErrors}>
+        <ErrorNotification
+          key="errors"
+          entity={entity}
+          overviewMessage={messages.error}
+          hideAlertDetails={hideAlertDetails}
+          onHide={clearErrors}
+        >
           {map(errors, renderDetail)}
         </ErrorNotification>
       );
     }
 
     if (error) {
-      notifications.push(
-        <ErrorAlerts key="general-error" error={error} closeAction={clearError} />
-      );
+      notifications.push(<ApiErrors key="general-error" response={error} closeAction={clearError} />);
     }
 
     return (
-      <div className="fc-bulk-messages">
+      <div className={this.className}>
         {notifications}
       </div>
     );

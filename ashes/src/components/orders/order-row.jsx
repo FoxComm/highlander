@@ -11,7 +11,6 @@ const compileShippingStatus = order => {
 
   let canceledItemCount = 0;
   let pendingItemCount = 0; // Status equals cart, ordered, (fraud|remorse|manual)Hold
-  let fulfillmentStartedItemCount = 0;
   let partiallyShippedItemCount = 0;
   let shippedItemCount = 0;
   let deliveredItemCount = 0;
@@ -29,7 +28,6 @@ const compileShippingStatus = order => {
         pendingItemCount += 1;
         break;
       case 'fulfillmentStarted':
-        fulfillmentStartedItemCount += 1;
         break;
       case 'partiallyShipped':
         partiallyShippedItemCount += 1;

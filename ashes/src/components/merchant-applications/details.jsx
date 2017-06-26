@@ -11,7 +11,7 @@ import { Dropdown } from 'components/dropdown';
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 
 // redux
 import * as applicationActions from 'modules/merchant-applications/details';
@@ -50,8 +50,7 @@ type State = {
   newState: string,
 };
 
-const mapStateToProps = (state) => {
-
+const mapStateToProps = state => {
   return {
     details: state.applications.details,
     isFetching: false,
@@ -94,7 +93,6 @@ class MerchantApplicationDetails extends Component {
     return this.state.newState != application.state;
   }
 
-
   get isStateEditable(): boolean {
     const state = _.get(this.props, 'details.application.state', '');
     return state == 'new';
@@ -105,10 +103,7 @@ class MerchantApplicationDetails extends Component {
       const title = this.props.details.application.business_name;
       return (
         <PageTitle title={title}>
-          <PrimaryButton
-            type="button"
-            disabled={!this.isDirty}
-            onClick={this.handleSubmit}>
+          <PrimaryButton type="button" disabled={!this.isDirty} onClick={this.handleSubmit}>
             Save
           </PrimaryButton>
         </PageTitle>
@@ -125,7 +120,8 @@ class MerchantApplicationDetails extends Component {
             onChange={this.handleStateChange}
             disabled={!this.isStateEditable}
             items={SELECT_STATE}
-            changeable={false} />
+            changeable={false}
+          />
         </ContentBox>
       </div>
     );
@@ -150,11 +146,10 @@ class MerchantApplicationDetails extends Component {
     if (!application || !businessProfile || !socialProfile) {
       return (
         <div styleName="waiting">
-          <WaitAnimation />
+          <Spinner />
         </div>
       );
     }
-
 
     return (
       <div>
@@ -175,22 +170,6 @@ class MerchantApplicationDetails extends Component {
                   <li styleName="entry">
                     <div styleName="header">Email Address</div>
                     <div>{application.email_address}</div>
-                  </li>
-                  <li styleName="entry">
-                    <div styleName="header">Monthly Sales Volume</div>
-                    <div>{businessProfile.monthly_sales_volume}</div>
-                  </li>
-                  <li styleName="entry">
-                    <div styleName="header">Categories</div>
-                    <div>{businessProfile.categories.join(', ')}</div>
-                  </li>
-                  <li styleName="entry">
-                    <div styleName="header">Target Audience</div>
-                    <div>{businessProfile.target_audience.join(', ')}</div>
-                  </li>
-                  <li styleName="entry">
-                    <div styleName="header">Twitter Handle</div>
-                    <div>{socialProfile.twitter_handle}</div>
                   </li>
                 </ul>
               </div>

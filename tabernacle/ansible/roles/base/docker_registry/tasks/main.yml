@@ -17,15 +17,6 @@
 - name: Copy Service
   template: src=docker_registry.service dest="{{dest_services}}/docker_registry.service"
 
-- name: Make Certs Directory
-  file: path=/certs state=directory mode="600"
-
-- name: Copy Cert
-  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
-
-- name: Copy Key
-  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
-
 - name: Reload Systemd for Docker Registry
   command: systemctl daemon-reload
 

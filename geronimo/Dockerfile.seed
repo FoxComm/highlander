@@ -1,0 +1,30 @@
+FROM elixir:1.4.0-slim
+
+RUN apt-get update && apt-get install -y git build-essential
+
+RUN mkdir -p /geronimo
+WORKDIR /geronimo
+COPY . /geronimo
+
+ARG db_host="localhost"
+ARG db_name="geronimo"
+ARG db_user="geronimo"
+ARG db_password=""
+ARG start_wroker=false
+ARG geronimo_env=prod
+ARG geronimo_port=55555
+
+ENV GERONIMO_DB_NAME $db_name
+ENV GERONIMO_DB_USER $db_user
+ENV GERONIMO_DB_PASSWORD $db_password
+ENV GERONIMO_DB_HOST $db_host
+ENV START_WORKER $start_wroker
+ENV MIX_ENV $geronimo_env
+ENV GERONIMO_PORT $geronimo_port
+
+RUN mix local.hex --force
+RUN mix local.rebar --force
+RUN mix deps.get --only prod
+RUN MIX_ENV=prod mix compile
+
+CMD ["./priv/seeds/seed_db.sh"]

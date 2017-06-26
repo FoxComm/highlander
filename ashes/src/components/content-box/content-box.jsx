@@ -1,7 +1,11 @@
+// libs
 import _ from 'lodash';
 import classNames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
+
+// styles
+import s from './content-box.css';
 
 const ContextBox = props => {
   let body = props.children;
@@ -15,15 +19,16 @@ const ContextBox = props => {
   }
 
   const bodyClassName = classNames(
+    s.body,
     props.bodyClassName,
     {'fc-content-box-indent': props.indentContent}
   );
 
   return (
-    <div id={props.id} className={ classNames('fc-content-box', props.className) }>
-      <header className="fc-content-box-header">
-        <div className="fc-title">{ props.title }</div>
-        <div className="fc-controls">{ props.actionBlock }</div>
+    <div id={props.id} className={ classNames(s.box, 'fc-content-box', props.className) }>
+      <header className={s.header}>
+        <div className={s.title}>{ props.title }</div>
+        <div className={s.controls}>{ props.actionBlock }</div>
       </header>
       <div className={ bodyClassName }>
         { body }

@@ -8,16 +8,17 @@ import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
 // components
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import { FormField, Form } from 'components/forms';
-import SwatchInput from 'components/forms/swatch-input';
+import SwatchInput from 'components/core/swatch-input';
+import TextInput from 'components/core/text-input';
 
 // styles
 import styles from './option-list.css';
 
 type Props = {
   value: {
-    id: string|number,
+    id: string | number,
     value: OptionValue,
   },
   confirmAction: Function,
@@ -35,13 +36,6 @@ class ValueEditDialog extends Component {
     value: this.props.value.value,
   };
 
-  componentDidMount() {
-    const { nameInput } = this.refs;
-    if (nameInput) {
-      nameInput.focus();
-    }
-  }
-
   get title(): string {
     return this.props.value.id === 'new' ? 'New value' : 'Edit value';
   }
@@ -50,50 +44,12 @@ class ValueEditDialog extends Component {
   handleChange(newValue: string, field: string) {
     const value = assoc(this.state.value, field, newValue);
 
-    this.setState({value});
+    this.setState({ value });
   }
 
   @autobind
   handleSwatchChange(newValue: string) {
     this.handleChange(newValue, 'swatch');
-  }
-
-  save() {
-    this.props.confirmAction(this.state.value, this.props.value.id);
-  }
-
-  renderDialogContent() {
-    const name = _.get(this.state, 'value.name', '');
-    const swatch = _.get(this.state, 'value.swatch', '');
-
-    return (
-      <Form ref="form" styleName="option-edit-dialog">
-        <FormField
-          className="fc-object-form__field"
-          label="Name"
-          key={`object-form-attribute-name`}
-          required
-        >
-          <input
-            id="fct-value-name-fld"
-            type="text"
-            value={name}
-            ref="nameInput"
-            onChange={({target}) => this.handleChange(target.value, 'name')}
-          />
-        </FormField>
-        <FormField
-          className="fc-object-form__field"
-          label="Color Swatch"
-          key={`object-form-attribute-swatch`}
-        >
-          <SwatchInput
-            value={swatch}
-            onChange={this.handleSwatchChange}
-          />
-        </FormField>
-      </Form>
-    );
   }
 
   @autobind
@@ -103,17 +59,43 @@ class ValueEditDialog extends Component {
     }
   }
 
+  save() {
+    this.props.confirmAction(this.state.value, this.props.value.id);
+  }
+
+  get content() {
+    const name = _.get(this.state, 'value.name', '');
+    const swatch = _.get(this.state, 'value.swatch', '');
+
+    return (
+      <Form ref="form" styleName="option-edit-dialog">
+        <FormField className="fc-object-form__field" label="Name" key={`object-form-attribute-name`} required>
+          <TextInput
+            id="fct-value-name-fld"
+            value={name}
+            ref="nameInput"
+            onChange={value => this.handleChange(value, 'name')}
+            autoFocus
+          />
+        </FormField>
+        <FormField className="fc-object-form__field" label="Color Swatch" key={`object-form-attribute-swatch`}>
+          <SwatchInput value={swatch} onChange={this.handleSwatchChange} />
+        </FormField>
+      </Form>
+    );
+  }
+
   render() {
     return (
-      <ConfirmationDialog
-        isVisible={true}
-        header={this.title}
-        body={this.renderDialogContent()}
-        cancel="Cancel"
-        confirm="Save value"
+      <ConfirmationModal
+        isVisible
+        title={this.title}
+        confirmLabel="Save value"
         onCancel={this.props.cancelAction}
-        confirmAction={this.handleConfirm}
-      />
+        onConfirm={this.handleConfirm}
+      >
+        {this.content}
+      </ConfirmationModal>
     );
   }
 }

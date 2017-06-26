@@ -1,0 +1,108 @@
+####################################################################
+# Main parameters                                                  #
+####################################################################
+export GOOGLE_SSH_USERNAME={{google_ssh_user}}
+export GOOGLE_SSH_KEY={{google_ssh_key}}
+export GOOGLE_SERVICE_ACCOUNT_EMAIL={{google_service_account_email}}
+export GOOGLE_JSON_KEY_LOCATION={{google_json_key_location}}
+export GOOGLE_INSTANCE_NAME={{google_instance_name}}
+
+# Should we seed?
+export WITH_APPLIANCE_SEEDING={{with_seeding_value | bool | lower}}
+
+####################################################################
+# Docker Tags                                                      #
+####################################################################
+
+# Core
+export DOCKER_TAG_ASHES:=master
+export DOCKER_TAG_PEACOCK:=master
+export DOCKER_TAG_PHOENIX:=master
+export DOCKER_TAG_GREENRIVER:=master
+export DOCKER_TAG_MIDDLEWAREHOUSE:=master
+export DOCKER_TAG_MESSAGING:=master
+export DOCKER_TAG_ISAAC:=master
+export DOCKER_TAG_SOLOMON:=master
+export DOCKER_TAG_HYPERION:=master
+export DOCKER_TAG_GERONIMO:=master
+
+# Consumers
+export DOCKER_TAG_CAPTURE_CONSUMER:=master
+export DOCKER_TAG_GIFT_CARD_CONSUMER:=master
+export DOCKER_TAG_SHIPMENTS_CONSUMER:=master
+export DOCKER_TAG_SHIPSTATION_CONSUMER:=master
+export DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER:=master
+
+# Storefronts
+export DOCKER_TAG_STOREFRONT_TOPDRAWER:=master
+export DOCKER_TAG_STOREFRONT_TPG:=master
+
+# Intelligent Commerce
+export DOCKER_TAG_BERNARDO:=master
+export DOCKER_TAG_HENHOUSE:=master
+export DOCKER_TAG_EGGCRATE:=master
+export DOCKER_TAG_RIVER_ROCK:=master
+export DOCKER_TAG_DIGGER_SPHEX:=master
+export DOCKER_TAG_ORDERS_SPHEX:=master
+export DOCKER_TAG_ORDERS_ANTHILL:=master
+export DOCKER_TAG_ORDERS_REVIEWS:=master
+export DOCKER_TAG_ANTHILL:=master
+export DOCKER_TAG_NEO4J:=3.0
+export DOCKER_TAG_NEO4J_RESET:=master
+export DOCKER_TAG_SUGGESTER:=master
+
+# Onboarding
+export DOCKER_TAG_ONBOARING_SERVICE:=master
+export DOCKER_TAG_ONBOARING_UI:=master
+
+# Seeder
+export DOCKER_TAG_PHOENIX_SEEDER:=master
+
+# Data Import
+export DOCKER_TAG_DATA_IMPORT=master
+
+####################################################################
+# Marathon Restart Hooks                                           #
+####################################################################
+
+# Core
+export MARATHON_ASHES:=false
+export MARATHON_PEACOCK:=false
+export MARATHON_PHOENIX:=false
+export MARATHON_GREENRIVER:=false
+export MARATHON_MIDDLEWAREHOUSE:=false
+export MARATHON_MESSAGING:=false
+export MARATHON_ISAAC:=false
+export MARATHON_SOLOMON:=false
+export MARATHON_HYPERION:=false
+export MARATHON_GERONIMO:=false
+
+# Consumers
+export MARATHON_CAPTURE_CONSUMER:=false
+export MARATHON_GIFT_CARD_CONSUMER:=false
+export MARATHON_SHIPMENTS_CONSUMER:=false
+export MARATHON_SHIPSTATION_CONSUMER:=false
+export MARATHON_CUSTOMER_GROUPS_CONSUMER:=false
+
+# Storefronts
+export MARATHON_STOREFRONT_TOPDRAWER:=false
+export MARATHON_STOREFRONT_TPG:=false
+
+# Intelligent Commerce
+export MARATHON_BERNARDO:=false
+export MARATHON_HENHOUSE:=false
+export MARATHON_EGGCRATE:=false
+export MARATHON_RIVER_ROCK:=false
+export MARATHON_DIGGER_SPHEX:=false
+export MARATHON_ORDERS_SPHEX:=false
+export MARATHON_ORDERS_ANTHILL:=false
+export MARATHON_ORDERS_REVIEWS:=false
+export MARATHON_ANTHILL:=false
+export MARATHON_NEO4J:=false
+export MARATHON_NEO4J_RESET:=false
+export MARATHON_PRODUCT_ACTIVITY:=false
+export MARATHON_SUGGESTER:=false
+
+# Onboarding
+export MARATHON_ONBOARDING_SERVICE:=false
+export MARATHON_ONBOARDING_UI:=false

@@ -5,7 +5,6 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -46,15 +45,6 @@ func createNewDeclinedProductCypher(customerID string, productID string) string 
 	return matchCustomer + matchProduct + declinedRelation + returnRelation
 }
 
-func createNewPurchasedProductCypher(customerID string, productID string) string {
-	matchCustomer := fmt.Sprintf("MATCH (c:Customer {phoenix_id: %s})", customerID)
-	matchProduct := fmt.Sprintf("MATCH (p:Product {phoenix_id: %s})", productID)
-	purchasedRelation := "MERGE (c)-[r:PURCHASED]->(p)"
-	returnRelation := "RETURN r"
-
-	return matchCustomer + matchProduct + purchasedRelation + returnRelation
-}
-
 func querySuggestedProductForPurchaseCypher(customerID string) string {
 	matchCustomer := fmt.Sprintf("MATCH (c:Customer {phoenix_id: %s})-[r:SUGGEST]->(p)", customerID)
 	whereNotPurchased := "WHERE NOT (c)-[:PURCHASED]->(p:Product)"
@@ -80,6 +70,16 @@ func deleteSuggestedProductRelationCypher(customerID string, productID string) s
 	return match + deleteRelation
 }
 
+func queryFindAllProductsSuggestedForCustomer(customerID string) string {
+	matchCustomerSuggested := fmt.Sprintf("MATCH (c:Customer {phoenix_id: %s})-[r]->(p:Product)", customerID)
+	wherePurchased := "WHERE (c)-[r:PURCHASED]->(p:Product)"
+	whereDeclined := "OR (c)-[r:DECLINED]->(p:Product)"
+	whereSuggested := "OR (c)-[r:SUGGEST]->(p:Product)"
+	returnProducts := "RETURN p"
+
+	return matchCustomerSuggested + wherePurchased + whereDeclined + whereSuggested + returnProducts
+}
+
 func makeRestPayload(statementBody string) string {
 	return `{
 		"statements": [
@@ -96,34 +96,35 @@ func makeRestPayload(statementBody string) string {
 	}`
 }
 
-func neo4jPostRequest(requestPayload string) (string, error) {
+func neo4jPostRequest(requestPayload string) (responses.Neo4jResponse, error) {
 	neo4jURL := "http://" + neo4jUser + ":" + neo4jPass + "@" + neo4jHost + ":" + neo4jPort + "/db/data/transaction/commit"
 	var jsonStr = []byte(requestPayload)
-	resp, err := http.Post(neo4jURL, "application/json", bytes.NewBuffer(jsonStr))
-	if err != nil {
-		return "request failed", err
+	resp, postErr := http.Post(neo4jURL, "application/json", bytes.NewBuffer(jsonStr))
+	if postErr != nil {
+		return responses.Neo4jResponse{}, postErr
 	}
 	defer resp.Body.Close()
 
-	body, readErr := ioutil.ReadAll(resp.Body)
-	if readErr != nil {
-		return "parse response failed", readErr
+	var neo4jResponse responses.Neo4jResponse
+	jsonErr := json.NewDecoder(resp.Body).Decode(&neo4jResponse)
+	if jsonErr != nil {
+		return responses.Neo4jResponse{}, jsonErr
 	}
 
-	return string(body), nil
+	return neo4jResponse, nil
 }
 
-func CreateNewSuggestProductRelation(customerID string, productID string, phoneNumber string, productSKU string) (string, error) {
+func CreateNewSuggestProductRelation(customerID string, productID string, phoneNumber string, productSKU string) (responses.Neo4jResponse, error) {
 	phoneNumberHash := hashPhoneNumber(phoneNumber)
 	return neo4jPostRequest(makeRestPayload(createNewSuggestProductCypher(customerID, productID, phoneNumberHash, productSKU)))
 }
 
-func CreateNewDeclinedProductRelation(customerID string, productID string) (string, error) {
+func CreateNewDeclinedProductRelation(customerID string, productID string) (responses.Neo4jResponse, error) {
 	return neo4jPostRequest(makeRestPayload(createNewDeclinedProductCypher(customerID, productID)))
 }
 
-func CreateNewPurchasedProductRelation(customerID string, productID string) (string, error) {
-	return neo4jPostRequest(makeRestPayload(createNewPurchasedProductCypher(customerID, productID)))
+func FindAllProductsSuggestedForCustomer(customerID string) (responses.Neo4jResponse, error) {
+	return neo4jPostRequest(makeRestPayload(queryFindAllProductsSuggestedForCustomer(customerID)))
 }
 
 func FindCustomerAndProductFromPhoneNumber(phoneNumber string) (string, string, string, error) {

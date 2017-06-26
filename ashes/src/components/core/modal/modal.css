@@ -1,0 +1,71 @@
+@import 'colors.css';
+
+.modal {
+  min-width: 640px;
+  color: var(--color-text);
+}
+
+.modal.big {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  right: 40px;
+  bottom: 40px;
+
+  @media (max-width: 768px) {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-grey-headers);
+  border-bottom: 1px solid var(--color-border);
+  padding: 18px 20px 17px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.title {} /* stylelint-disable-line */
+
+.close {
+  font-size: 24px;
+  transition: opacity .2s;
+
+  &:hover {
+    opacity: .6;
+  }
+}
+
+.body {
+  width: 100%;
+  padding: 20px;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: left;
+
+  .modal.big & {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-grow: 1;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+
+  &:not(:empty) {
+    padding: 30px 20px 20px;
+  }
+}

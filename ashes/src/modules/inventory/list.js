@@ -59,7 +59,7 @@ const { reducer, actions } = makeLiveSearch(
   'inventoryScope',
   {
     initialState: { sortBy: '-createdAt' },
-    rawSorts: ['product']
+    rawSorts: ['product'],
   }
 );
 

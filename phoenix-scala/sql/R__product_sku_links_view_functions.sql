@@ -10,7 +10,15 @@ begin
       end into skus
     from product_sku_links as link
     inner join skus as sku on (sku.id = link.right_id)
-    where link.left_id = $1;
+    inner join object_forms as form on (form.id = sku.form_id)
+    inner join object_shadows as shadow on (shadow.id = sku.shadow_id)
+    where
+      link.left_id = $1
+      and ((sku.archived_at is null or (sku.archived_at)::timestamp > statement_timestamp()) and
+           ((form.attributes ->> (shadow.attributes -> 'activeFrom' ->> 'ref')) = '') is false and
+           (form.attributes->>(shadow.attributes->'activeFrom'->>'ref'))::timestamp < statement_timestamp() and
+           (((form.attributes->>(shadow.attributes->'activeTo'->>'ref')) = '') is not false or
+           ((form.attributes->>(shadow.attributes->'activeTo'->>'ref'))::timestamp >= statement_timestamp())));
   if (skus = '[]'::jsonb) then
     select
       case when count(sku) = 0
@@ -61,6 +69,8 @@ begin
       inner join product_sku_links as link on link.left_id = p.id
       inner join skus as sku on (sku.id = link.right_id)
       where sku.id = new.id;
+    when 'product_variant_links' then
+      product_ids := array_agg(new.left_id);
     when 'variant_value_sku_links' then
       select array_agg(p.id) into product_ids
       from products as p
@@ -86,3 +96,9 @@ begin
     return null;
 end;
 $$ language plpgsql;
+
+drop trigger if exists update_product_sku_links_view_on_product_variants on product_variant_links;
+create trigger update_product_sku_links_view_on_product_variants
+  after update or insert on product_variant_links
+  for each row
+  execute procedure update_product_sku_links_view_from_products_and_deps_fn();

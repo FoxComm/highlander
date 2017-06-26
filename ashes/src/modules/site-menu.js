@@ -1,5 +1,3 @@
-
-import Api from '../lib/api';
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';

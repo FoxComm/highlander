@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/FoxComm/highlander/intelligence/suggester/src/services"
+
 	"github.com/labstack/echo"
 )
 
@@ -21,9 +22,9 @@ func main() {
 		return c.String(http.StatusOK, string(pongResponseJSON))
 	})
 
-	e.GET("/customer/:id", services.GetSuggestion)
-	e.POST("/customer/:phone/decline", services.DeclineSuggestion)
-	e.POST("/customer/:phone/purchase", services.PurchaseSuggestion)
+	e.POST("/customer", services.GetSuggestion)
+	e.POST("/customer/:phoneNumber/decline", services.DeclineSuggestion)
+	e.POST("/customer/:phoneNumber/purchase", services.PurchaseSuggestion)
 
 	e.Logger.Fatal(e.Start(PORT))
 }

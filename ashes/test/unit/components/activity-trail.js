@@ -1,5 +1,4 @@
-
-import { injectTimeMarks } from '../../../src/components/activity-trail/activity-trail';
+import { injectTimeMarks } from '../../../src/components/activity-trail/inject-time';
 
 describe('Activity Trail component', function() {
   context('#injectTimeMarks', function() {
@@ -13,7 +12,7 @@ describe('Activity Trail component', function() {
       global.Date = TimeShift.OriginalDate;
     });
 
-    it('should insert `Today` for today _day_, and same for yesterday', function* () {
+    it('should insert `Today` for today _day_, and same for yesterday', function*() {
       const events = [
         { createdAt: '2015-12-08T06:43:10.319Z' },
         { createdAt: '2015-12-08T06:43:10.319Z' },
@@ -29,11 +28,10 @@ describe('Activity Trail component', function() {
       expect(withTimeMarks[3].kind).to.equal('mark');
       expect(withTimeMarks[3].title).to.equal('Yesterday');
 
-
       expect(withTimeMarks.length).to.equal(6);
     });
 
-    it('should insert only `yesterday` for yesterday events', function* () {
+    it('should insert only `yesterday` for yesterday events', function*() {
       const events = [
         { createdAt: '2015-12-07T06:43:10.319Z' },
         { createdAt: '2015-12-07T06:43:10.319Z' },
@@ -46,7 +44,7 @@ describe('Activity Trail component', function() {
       expect(withTimeMarks[0].title).to.equal('Yesterday');
     });
 
-    it('`today` and `yesterday` marks should depends of local timezone', function* () {
+    it('`today` and `yesterday` marks should depends of local timezone', function*() {
       TimeShift.setTimezoneOffset(-360);
 
       const events = [
@@ -69,7 +67,7 @@ describe('Activity Trail component', function() {
       TimeShift.setTimezoneOffset(0);
     });
 
-    it('should insert year mark between two years', function* () {
+    it('should insert year mark between two years', function*() {
       const events = [
         { createdAt: '2015-01-01T06:43:10.319Z' },
         { createdAt: '2015-01-01T06:43:10.319Z' },
@@ -89,7 +87,7 @@ describe('Activity Trail component', function() {
       expect(withTimeMarks[4].title).to.equal('Dec 31');
     });
 
-    it('inserting years should depends of timezone also', function* () {
+    it('inserting years should depends of timezone also', function*() {
       TimeShift.setTimezoneOffset(-360);
 
       const events = [
@@ -116,11 +114,8 @@ describe('Activity Trail component', function() {
       TimeShift.setTimezoneOffset(0);
     });
 
-    it(`should insert year mark if we don't have activities for current year`, function* () {
-      const events = [
-        { createdAt: '2014-12-31T12:44:55.319Z' },
-        { createdAt: '2014-12-31T12:42:55.319Z' },
-      ];
+    it(`should insert year mark if we don't have activities for current year`, function*() {
+      const events = [{ createdAt: '2014-12-31T12:44:55.319Z' }, { createdAt: '2014-12-31T12:42:55.319Z' }];
 
       const withTimeMarks = injectTimeMarks(events);
 

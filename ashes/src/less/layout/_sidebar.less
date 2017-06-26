@@ -1,18 +1,4 @@
-@color-sidebar-bg: @color-decor3;
-@color-sidebar-fg: @color-decor5;
-
-@color-sidebar-hover-bg: @color-decor2;
-@color-sidebar-hover-fg: @color-white;
-
-@color-sidebar-border: @color-decor2;
-@color-sidebar-active: @color-decor15;
-
 .fc-sidebar {
-  background-color: #263349;
-  overflow-x: hidden;
-  overflow-y: auto;
-  transition: flex 250ms ease-in-out;
-
   ~ header,
   ~ main {
     margin-left: 64px;
@@ -20,11 +6,11 @@
   }
 
   .logo {
-    .colors(@color-decor1, @color-decor13);
+    .colors(@color-text, @bg-grey-headers);
     .clearfix;
     height: 70px;
     padding: 11px 0 0 11px;
-    border-right: 1px solid @color-header-border;
+    border-right: 1px solid @color-border;
 
     img {
       .width(170px);

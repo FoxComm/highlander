@@ -1,35 +1,29 @@
 import _ from 'lodash';
 
-const { default: reducer, ...actions } = importSource('modules/reasons.js', [
-  'reasonsRequested',
-  'reasonsReceived',
-  'reasonsFailed'
-]);
+import reducer, { reasonsRequested, reasonsReceived, reasonsFailed } from 'modules/reasons';
 
 describe('reasons module', function() {
-
   const reasonsPayload = require('../../fixtures/reasons.json');
 
   context('reducers', function() {
-
     it('reasonsRequested should return proper state', function() {
       const initialState = {
         isFetching: false,
-        reasons: []
+        reasons: [],
       };
-      const newState = reducer(initialState, actions.reasonsRequested());
+      const newState = reducer(initialState, reasonsRequested());
       expect(newState.isFetching).to.be.equal(true);
     });
 
     it('reasonsReceived should return proper state', function() {
       const initialState = {
         isFetching: true,
-        reasons: []
+        reasons: [],
       };
       const payload = reasonsPayload;
       const reasonType = 'donkeyResons';
 
-      const newState = reducer(initialState, actions.reasonsReceived(payload, reasonType));
+      const newState = reducer(initialState, reasonsReceived(payload, reasonType));
       expect(newState.isFetching).to.be.equal(false);
       expect(newState.reasons[reasonType]).to.deep.equal(payload);
     });
@@ -37,15 +31,13 @@ describe('reasons module', function() {
     it('reasonsFailed should return proper state', function() {
       const initialState = {
         isFetching: true,
-        reasons: []
+        reasons: [],
       };
       const err = console.error;
       console.error = _.noop;
-      const newState = reducer(initialState, actions.reasonsFailed('error'));
+      const newState = reducer(initialState, reasonsFailed('error'));
       expect(newState.isFetching).to.be.equal(false);
       console.error = err;
     });
-
   });
-
 });

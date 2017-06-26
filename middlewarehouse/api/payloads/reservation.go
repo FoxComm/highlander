@@ -1,6 +1,10 @@
 package payloads
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+)
 
 type Reservation struct {
 	RefNum string            `json:"refNum" binding:"required"`
@@ -8,7 +12,6 @@ type Reservation struct {
 	Scopable
 }
 
-//TODO Do we really need this? Looks like it's not used at all
 type ItemReservation struct {
 	SKU string `json:"sku" binding:"required"`
 	Qty uint   `json:"qty" binding:"required"`
@@ -20,4 +23,11 @@ func (r Reservation) Validate() error {
 	}
 
 	return nil
+}
+
+func (r Reservation) Model() *models.Reservation {
+	return &models.Reservation{
+		RefNum: r.RefNum,
+		Scope:  r.Scope,
+	}
 }

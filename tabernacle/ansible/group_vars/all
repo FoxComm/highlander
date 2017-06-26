@@ -3,12 +3,26 @@ home: /home/{{user}}
 self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
+scala_version: scala-2.11
+logrotate_dir: /etc/logrotate.d
+foxcomm_domain: foxcommerce.com
+
+# Sinopia
+sinopia_base_dir: /sinopia
+sinopia_url: https://npm.foxcommerce.com:4873
+
+# Appliance-related things
+appliance_prefix: appliance
+appliance_hostname: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}.{{foxcomm_domain}}"
+dashboard_assets_location: /usr/local/dashboard
+
+# Keys
+cert_path: test/fox
+cert_type: docker
+install_private_keys: true
+install_public_keys: true
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
-scala_version: scala-2.11
-foxcomm_domain: foxcommerce.com
-logrotate_dir: /etc/logrotate.d
-appliance_prefix: appliance
 
 # Prompt answers
 prompt_yes:
@@ -29,8 +43,7 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170328-215629
-
+gce_image: appliance-base-170619-082441
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
@@ -41,6 +54,7 @@ docker_tags:
     firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master', true) }}"
     peacock: "{{ lookup('env', 'DOCKER_TAG_PEACOCK') | default('master', true) }}"
     phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master', true) }}"
+    phoenix_seeder: "{{ lookup('env', 'DOCKER_TAG_PHOENIX_SEEDER') | default('master', true) }}"
     greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
     middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
     messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') | default('master', true) }}"
@@ -50,11 +64,11 @@ docker_tags:
     gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master', true) }}"
     shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
     shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
-    stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
     customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master', true) }}"
     storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
     storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
     hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
+    geronimo: "{{ lookup('env', 'DOCKER_TAG_GERONIMO') | default('master', true) }}"
     bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARDO') | default('master', true) }}"
     henhouse: "{{ lookup('env', 'DOCKER_TAG_HENHOUSE') | default('master', true) }}"
     eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master', true) }}"
@@ -62,11 +76,15 @@ docker_tags:
     digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
     orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
     orders_anthill: "{{ lookup('env', 'DOCKER_TAG_ORDERS_ANTHILL') | default('master', true) }}"
+    orders_reviews: "{{ lookup('env', 'DOCKER_TAG_ORDERS_REVIEWS') | default('master', true) }}"
     product_activity: "{{ lookup('env', 'DOCKER_TAG_PRODUCT_ACTIVITY') | default('master', true) }}"
     anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
+    neo4j_reset: "{{ lookup('env', 'DOCKER_TAG_NEO4J_RESET') | default('master', true) }}"
     suggester: "{{ lookup('env', 'DOCKER_TAG_SUGGESTER') | default('master', true) }}"
     data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
+    onboarding_service: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_SERVICE') | default('master', true) }}"
+    onboarding_ui: "{{ lookup('env', 'DOCKER_TAG_ONBOARING_UI') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -83,12 +101,13 @@ marathon_restart:
     gift_card_consumer: "{{ lookup('env', 'MARATHON_GIFT_CARD_CONSUMER') | default(true, true) | bool }}"
     shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
-    stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
     customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
-    marketplace: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
-    storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
+    onboarding_service: "{{ lookup('env', 'MARATHON_ONBOARDING_SERVICE') | default(true, true) | bool }}"
+    onboarding_ui: "{{ lookup('env', 'MARATHON_ONBOARDING_UI') | default(true, true) | bool }}"
+    storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TOPDRAWER') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
     hyperion: "{{ lookup('env', 'MARATHON_HYPERION') | default(true, true) | bool }}"
+    geronimo: "{{ lookup('env', 'MARATHON_GERONIMO') | default(true, true) | bool }}"
     bernardo: "{{ lookup('env', 'MARATHON_BERNARDO') | default(true, true) | bool }}"
     henhouse: "{{ lookup('env', 'MARATHON_HENHOUSE') | default(true, true) | bool }}"
     eggcrate: "{{ lookup('env', 'MARATHON_EGGCRATE') | default(true, true) | bool }}"
@@ -96,15 +115,15 @@ marathon_restart:
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
     orders_anthill: "{{ lookup('env', 'MARATHON_ORDERS_ANTHILL') | default(true, true) | bool }}"
+    orders_reviews: "{{ lookup('env', 'MARATHON_ORDERS_REVIEWS') | default(true, true) | bool }}"
     product_activity: "{{ lookup('env', 'MARATHON_PRODUCT_ACTIVITY') | default(true, true) | bool }}"
     anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
+    neo4j_reset: "{{ lookup('env', 'MARATHON_NEO4J_RESET') | default(true, true) | bool }}"
     suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
 
-# Should we use Intelligent Commerce
-with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
-
 # Should we do seeding for appliance
+detach_seeders: "{{ lookup('env', 'DETACH_SEEDERS') | default(false, true) | bool }}"
 with_appliance_seeding: "{{ lookup('env', 'WITH_APPLIANCE_SEEDING') | default(true, true) | bool }}"
 
 # Consul Service Discovery
@@ -112,6 +131,7 @@ consul_data_dir: /var/consul
 consul_suffix: service.consul
 consul_port: 8500
 consul_server: "{{self_host}}:{{consul_port}}"
+join_type: join
 
 db_host: "db.{{consul_suffix}}"
 docker_db_host: "db.{{consul_suffix}}"
@@ -126,8 +146,9 @@ isaac_port: 9190
 isaac_server: "{{isaac_host}}:{{isaac_port}}"
 
 search_host: "elasticsearch.{{consul_suffix}}"
+es_5_host: "elasticsearch-5.{{consul_suffix}}"
 es_logs_port: 9201
-log_host: "{{search_host}}:{{es_logs_port}}"
+log_host: "{{es_5_host}}:{{es_logs_port}}"
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 
@@ -162,7 +183,8 @@ middlewarehouse_host: "middlewarehouse.{{consul_suffix}}"
 middlewarehouse_port: 9292
 middlewarehouse_server: "{{middlewarehouse_host}}:{{middlewarehouse_port}}"
 
-solomon_host: "solomon.{{consul_suffix}}"
+solomon_service_name: "solomon"
+solomon_host: "{{solomon_service_name}}.{{consul_suffix}}"
 solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 
@@ -174,13 +196,13 @@ marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
 marathon_server: "{{marathon_host}}:{{marathon_port}}"
 
-marketplace_host: "marketplace.{{consul_suffix}}"
-marketplace_port: 4003
-marketplace_server: "{{marketplace_host}}:{{marketplace_port}}"
+onboarding_service_host: "onboarding-service.{{consul_suffix}}"
+onboarding_service_port: 4003
+onboarding_service_server: "{{onboarding_service_host}}:{{onboarding_service_port}}"
 
-marketplace_ui_host: "marketplace_ui.{{consul_suffix}}"
-marketplace_ui_port: 4042
-marketplace_ui_server: "{{marketplace_ui_host}}:{{marketplace_ui_port}}"
+onboarding_ui_host: "onboarding_ui.{{consul_suffix}}"
+onboarding_ui_port: 4042
+onboarding_ui_server: "{{onboarding_ui_host}}:{{onboarding_ui_port}}"
 
 product_search_host: "product_search.{{consul_suffix}}"
 product_search_port: 5492
@@ -204,13 +226,17 @@ hyperion_host: "hyperion.{{consul_suffix}}"
 hyperion_port: 8880
 hyperion_server: "{{hyperion_host}}:{{hyperion_port}}"
 
+geronimo_host: "geronimo.{{consul_suffix}}"
+geronimo_port: 8881
+geronimo_server: "{{geronimo_host}}:{{geronimo_port}}"
+
 # Database & bottledwater
 db_user: phoenix
-db_name: phoenix_development
-db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
+db_name: phoenix
+db_connection_string: "postgresql://{{db_host}}/{{db_name}}?user={{db_user}}"
 bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
-bottledwater_slot_marketplace: bottledwater_marketplace
+bottledwater_slot_onboarding_service: bottledwater_onboarding_service
 
 # Flyway
 flyway_vers: 4.0.3
@@ -226,7 +252,7 @@ phoenix_src: ../../phoenix-scala/
 phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
 phoenix_seeder_jar: "{{phoenix_dir}}/phoenix-seeder.jar"
-phoenix_db_name: phoenix_development
+phoenix_db_name: phoenix
 phoenix_db_user: phoenix
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
@@ -248,13 +274,14 @@ greenriver_restart: "false"
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
 solomon_token_ttl: 365
+solomon_jwt: ""
 
 # Middlewarehouse
 middlewarehouse_env: staging
 middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
-middlewarehouse_db_name: middlewarehouse_development
+middlewarehouse_db_name: middlewarehouse
 middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
@@ -263,15 +290,26 @@ middlewarehouse_test_db_name: middlewarehouse_test
 hyperion_env: prod
 hyperion_src: ../../hyperion/
 hyperion_dir: /hyperion
-hyperion_db_name: hyperion_development
+hyperion_db_name: hyperion
 hyperion_db_test_name: hyperion_test
 hyperion_db_user: hyperion
 hyperion_db_password: hyperion
-hyperion_db_host: "{{db_host}}"
-hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
+hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{db_host}}/{{hyperion_db_name}}"
 hyperion_test_db_name: hyperion_test
 hyperion_push_check_interval: 5
 hyperion_create_plugin_in_ashes_on_start: true
+
+# Geronimo
+geronimo_env: prod
+geronimo_src: ../../geronimo/
+geronimo_dir: /geronimo
+geronimo_db_name: geronimo
+geronimo_db_test_name: geronimo_test
+geronimo_db_user: geronimo
+geronimo_db_connection_string: "postgresql://{{geronimo_db_user}}@{{db_host}}/{{geronimo_db_name}}"
+geronimo_db_password: ""
+geronimo_start_worker: true
+geronimo_kafka_consumer_group: geronimo
 
 # Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
@@ -282,7 +320,6 @@ bernardo_dir: /bernardo
 bernardo_src: ../../intelligence/bernardo/
 bernardo_db_name: ic
 bernardo_db_user: ic
-bernardo_db_host: "db.{{consul_suffix}}"
 bernardo_port: "9290"
 bernardo_host: bernardo.service.consul
 bernardo_server: "{{bernardo_host}}:{{bernardo_port}}"
@@ -311,6 +348,7 @@ neo4j_http_port: "7474"
 # suggester
 suggester_host: "suggester.{{consul_suffix}}"
 suggester_server: "{{suggester_host}}"
+dexter_base_url: "https://bots.rundexter.com/api/v2/bot/"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
@@ -342,10 +380,6 @@ shipstation_interval: "10s"
 # Product activity daemon
 product_activity_interval: 60
 
-# Firebrand variables
-firebrand_env: production
-firebrand_default_language: en
-
 # Storefront variables
 storefront_default_language: en
 storefront_fixed_language: false
@@ -362,7 +396,8 @@ messaging_jmx_port: 39012
 loyalty_jmx_port: 39013
 
 # Seeds
-seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1
+seeds_class: seeds.Seeds
+seeds_cmd: "{{seeds_class}} seed --seedAdmins --seedShippingRules"
 gatling_oneshot_seeds_cmd: gatling.seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: gatling.seeds.ContinuousSeeds
 
@@ -376,6 +411,15 @@ google_oauth_frontend_client_id: ""
 google_oauth_frontend_secret: ""
 google_oauth_frontend_redirect_uri: ""
 
+# FB OAuth
+fb_oauth_admin_client_id: ""
+fb_oauth_admin_secret: ""
+fb_oauth_admin_redirect_uri: ""
+
+fb_oauth_frontend_client_id: ""
+fb_oauth_frontend_secret: ""
+fb_oauth_frontend_redirect_uri: ""
+
 # VM swap size
 swap_file: /swap
 swap_size_mb: 2000
@@ -387,26 +431,20 @@ zipkin_collector: localhost
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
 stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 
-# Certificates path
-cert_path: test/fox
-
 # Mesos
 mesos_quorum: 1
 mesos_ip: "$(hostname -i)"
 
-# Marketplace
-marketplace_db_name: marketplace_development
-marketplace_db_user: marketplace
-marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
+# Onboarding
+onboarding_service_db_name: onboarding
+onboarding_service_db_user: onboarding
+onboarding_service_db_connection_string: "postgresql://{{onboarding_service_db_user}}@{{db_host}}/{{onboarding_service_db_name}}"
 
 # Messaging
 retailer_name: "FoxCommerce"
 contact_email: "pavel@foxcommerce.com"
 mailchimp_api_key: ""
-
-# Materialized views
-update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
-update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
+messaging_env: "production"
 
 # External analytics
 facebook_pixel_id: "433654337026546"
@@ -433,16 +471,13 @@ data_import_max_count: 100
 
 # Various flags
 first_run: false
-is_ci: false
+is_aws: false
+is_ci: "{{ lookup('env', 'CI') }}"
 is_amigo: false
 is_appliance: false
+is_staging: false
 is_redeploy: false
 jmx_enabled: false
 packing: false
-with_marketplace: false
+with_onboarding: false
 with_shipstation: false
-with_base_seeds: true
-with_gatling_seeder: false
-with_mwh_seeder: true
-with_hyperion_seeder: true
-with_data_import: true

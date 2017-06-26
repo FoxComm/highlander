@@ -73,15 +73,25 @@ export function request(method, uri, data, options = {}) {
   let error = null;
 
   const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
-    window.location.href = process.env.BEHIND_NGINX ? '/admin/login' : '/login';
+    window.location.href = `${process.env.URL_PREFIX}/login`;
   };
 
   const abort = _.bind(result.abort, result);
 
   const promise = result
     .then(
-      response => response.body,
-      err => {
+      (response) => {
+        const disposition = response.header['content-disposition'];
+        if (disposition && disposition.startsWith('attachment')) {
+          const name = disposition.split(';')[1].split('=')[1];
+          return {
+            fileName: name,
+            data: response.text,
+          };
+        }
+        return response.body;
+      },
+      (err) => {
         if (err.status == 401) {
           unauthorizedHandler(err.response);
         }
@@ -138,5 +148,3 @@ export default class Api {
     return this.request('PATCH', ...args);
   }
 }
-
-

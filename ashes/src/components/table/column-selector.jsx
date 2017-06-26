@@ -24,12 +24,13 @@ type Props = {
   onChange: Function,
   setColumns: Function,
   identifier: string,
-}
+  toggleColumnsBtn?: boolean,
+};
 
 type State = {
   selectedColumns: Array<Object>,
   hasDraggingItem: boolean,
-}
+};
 
 /*::`*/
 @DragDropContext(HTML5Backend) /*::`;*/
@@ -144,14 +145,16 @@ export default class ColumnSelector extends React.Component {
   render() {
     return (
       <div styleName="column-selector">
-        <Dropdown className={styles.dropdown}
-                  listClassName={classNames(styles.list, { [styles._hasDraggingItem]: this.state.hasDraggingItem })}
-                  placeholder="Toggle Columns"
-                  changeable={false}
-                  inputFirst={false}
-                  dropdownProps={{ icon: 'settings-col' }}
-                  renderAppend={this.renderActions}
-                  ref={d => this._dropdown = d}
+        <Dropdown
+          className={styles.dropdown}
+          listClassName={classNames(styles.list, { [styles._hasDraggingItem]: this.state.hasDraggingItem })}
+          changeable={false}
+          inputFirst={false}
+          dropdownProps={{ icon: 'settings-col' }}
+          renderAppend={this.renderActions}
+          ref={d => this._dropdown = d}
+          toggleColumnsBtn={this.props.toggleColumnsBtn}
+          buttonClassName={styles.button}
         >
           {this.renderSelectorItems()}
         </Dropdown>

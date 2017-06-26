@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 .header {
   display: flex;
   justify-content: flex-end;
@@ -5,22 +7,15 @@
 }
 
 .albumContent {
-  padding: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
 }
 
 .albumTitleText {
-  margin-right: 10px;
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.albumTitleCount {
-  display: inline-block;
-  width: 32px;
-  line-height: 30px;
-  font-size: 13px;
-  border: 1px solid #484848;
-  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-additional-text);
+  text-transform: uppercase;
 }
 
 .images {
@@ -28,6 +23,7 @@
     min-width: 720px;
 
     & :global(.fc-alert) {
+      margin-top: 0;
       margin-bottom: 20px;
     }
 
@@ -40,8 +36,21 @@
 .modal {
   & :global(.fc-modal-container) {
     min-width: 720px;
+
+    @media (max-width: 768px) {
+      min-width: 0;
+    }
   }
+
   & :global(.fc-alert) {
     margin-bottom: 20px;
   }
+}
+
+.alert {
+  margin: 10px 0 30px;
+}
+
+.confirmRemoveText {
+  margin-top: 20px;
 }

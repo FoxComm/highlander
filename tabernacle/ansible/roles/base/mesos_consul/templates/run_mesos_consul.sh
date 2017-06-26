@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-/usr/local/bin/mesos-consul \
+/usr/local/bin/mesos-consul --refresh=5s \
     --healthcheck \
-    --log-level=info \
-    --zk={{zookeepers}}/mesos
+    --healthcheck-ip=127.0.0.1 \
+    --healthcheck-port=24476 \
+    --log-level=WARN

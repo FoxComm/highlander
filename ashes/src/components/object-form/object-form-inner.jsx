@@ -2,6 +2,7 @@
  * @flow
  */
 
+// libs
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
@@ -9,14 +10,17 @@ import classNames from 'classnames';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
+// components
 import { FormField, FormFieldError } from '../forms';
-import { SliderCheckbox } from '../checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
-import SwatchInput from '../forms/swatch-input';
+import SwatchInput from 'components/core/swatch-input';
+import TextInput from 'components/core/text-input';
+import Icon from 'components/core/icon';
 
 import type { AttrSchema } from 'paragons/object';
 
@@ -32,7 +36,7 @@ type Props = {
 
 type State = {
   isAddingProperty: boolean,
-  errors: {[id:string]: any},
+  errors: { [id: string]: any },
 };
 
 type AttrOptions = {
@@ -64,18 +68,6 @@ export function renderFormField(name: string, content: any, options: AttrOptions
   );
 }
 
-function guessType(value: any): string {
-  const typeOf = typeof value;
-  switch (typeOf) {
-    case 'string':
-    case 'number':
-    case 'boolean':
-      return typeOf;
-    default:
-      return 'string';
-  }
-}
-
 export default class ObjectFormInner extends Component {
   props: Props;
   state: State = { isAddingProperty: false, errors: {} };
@@ -85,9 +77,12 @@ export default class ObjectFormInner extends Component {
       return (
         <div className="fc-object-form__add-custom-property">
           Custom Property
-          <a id="fct-add-btn__custom-property" className="fc-object-form__add-custom-property-icon"
-             onClick={this.handleAddProperty}>
-            <i className="icon-add" />
+          <a
+            id="fct-add-btn__custom-property"
+            className="fc-object-form__add-custom-property-icon"
+            onClick={this.handleAddProperty}
+          >
+            <Icon name="add" />
           </a>
         </div>
       );
@@ -95,15 +90,13 @@ export default class ObjectFormInner extends Component {
   }
 
   get customPropertyForm() {
-    if (this.state.isAddingProperty) {
-      return (
-        <CustomProperty
-          isVisible={true}
-          onSave={this.handleCreateProperty}
-          onCancel={() => this.setState({ isAddingProperty: false })}
-        />
-      );
-    }
+    return (
+      <CustomProperty
+        isVisible={this.state.isAddingProperty}
+        onSave={this.handleCreateProperty}
+        onCancel={() => this.setState({ isAddingProperty: false })}
+      />
+    );
   }
 
   @autobind
@@ -115,15 +108,21 @@ export default class ObjectFormInner extends Component {
   handleCreateProperty(property: { fieldLabel: string, propertyType: string }) {
     const { fieldLabel, propertyType } = property;
     const value = (() => {
-      switch(propertyType) {
-        case('date'): return new Date().toString();
-        case('bool'): return false;
-        default: return '';
+      switch (propertyType) {
+        case 'date':
+          return new Date().toString();
+        case 'bool':
+          return false;
+        default:
+          return '';
       }
     })();
-    this.setState({
-      isAddingProperty: false
-    }, () => this.handleChange(fieldLabel, propertyType, value));
+    this.setState(
+      {
+        isAddingProperty: false,
+      },
+      () => this.handleChange(fieldLabel, propertyType, value)
+    );
   }
 
   @autobind
@@ -134,7 +133,7 @@ export default class ObjectFormInner extends Component {
       [name]: {
         t: type,
         v: value,
-      }
+      },
     };
 
     if (['options', 'richText'].indexOf(type) >= 0) {
@@ -151,13 +150,7 @@ export default class ObjectFormInner extends Component {
 
   renderBoolean(name: string, value: boolean, options: AttrOptions) {
     const onChange = () => this.handleChange(name, 'bool', !value);
-    const sliderCheckbox = (
-      <SliderCheckbox
-        id={name}
-        checked={value}
-        onChange={onChange}
-      />
-    );
+    const sliderCheckbox = <SliderCheckbox id={name} checked={value} onChange={onChange} />;
 
     return renderFormField(name, sliderCheckbox, options);
   }
@@ -180,17 +173,13 @@ export default class ObjectFormInner extends Component {
   renderPrice(name: string, value: any, options: AttrOptions) {
     const priceValue: string = _.get(value, 'value', '');
     const priceCurrency: string = _.get(value, 'currency', 'USD');
-    const onChange = value => this.handleChange(name, 'price', {
-      currency: priceCurrency,
-      value: Number(value)
-    });
+    const onChange = value =>
+      this.handleChange(name, 'price', {
+        currency: priceCurrency,
+        value: Number(value),
+      });
     const currencyInput = (
-      <CurrencyInput
-        inputClass={inputClass}
-        inputName={name}
-        value={priceValue}
-        onChange={onChange}
-      />
+      <CurrencyInput inputClass={inputClass} inputName={name} value={priceValue} onChange={onChange} />
     );
 
     return renderFormField(name, currencyInput, options);
@@ -218,13 +207,12 @@ export default class ObjectFormInner extends Component {
   }
 
   renderString(name: string, value: string = '', options: AttrOptions) {
-    const onChange = ({target}) => {
-      return this.handleChange(name, 'string', target.value);
+    const onChange = value => {
+      return this.handleChange(name, 'string', value);
     };
     const stringInput = (
-      <input
+      <TextInput
         className={inputClass}
-        type="text"
         name={name}
         value={value || ''}
         onChange={onChange}
@@ -236,17 +224,11 @@ export default class ObjectFormInner extends Component {
   }
 
   renderNumber(name: string, value: ?number = null, options: AttrOptions) {
-    const onChange = ({target}) => {
+    const onChange = ({ target }) => {
       return this.handleChange(name, 'number', target.value == '' ? null : Number(target.value));
     };
     const stringInput = (
-      <input
-        className={inputClass}
-        type="number"
-        name={name}
-        value={value == null ? '' : value}
-        onChange={onChange}
-      />
+      <input className={inputClass} type="number" name={name} value={value == null ? '' : value} onChange={onChange} />
     );
 
     return renderFormField(name, stringInput, options);
@@ -262,28 +244,17 @@ export default class ObjectFormInner extends Component {
     return (
       <div className="fc-object-form_field">
         <div className="fc-object-form__field-label">{options.label}</div>
-        <Dropdown
-          value={value}
-          items={fieldOptions}
-          onChange={onChange}
-        />
+        <Dropdown value={value} items={fieldOptions} onChange={onChange} />
         {error && <FormFieldError error={error} />}
       </div>
     );
   }
 
   renderText(name: string, value: string = '', options: AttrOptions) {
-    const onChange = ({target}) => {
+    const onChange = ({ target }) => {
       return this.handleChange(name, 'text', target.value);
     };
-    const textInput = (
-      <textarea
-        className={inputClass}
-        name={name}
-        onChange={onChange}
-        value={value}
-      />
-    );
+    const textInput = <textarea className={inputClass} name={name} onChange={onChange} value={value} />;
 
     return renderFormField(name, textInput, options);
   }
@@ -295,10 +266,7 @@ export default class ObjectFormInner extends Component {
     return (
       <div>
         <label className="fc-object-form__field-label">{label}</label>
-        <SwatchInput
-          value={value}
-          onChange={onChange}
-        />
+        <SwatchInput value={value} onChange={onChange} />
       </div>
     );
   }
@@ -335,11 +303,10 @@ export default class ObjectFormInner extends Component {
     return renderName;
   }
 
-  getAttrOptions(name: string,
-                 schema: ?AttrSchema = this.props.schema && this.props.schema.properties[name]): Object {
+  getAttrOptions(name: string, schema: ?AttrSchema = this.props.schema && this.props.schema.properties[name]): Object {
     const options = {
       required: this.isRequired(name),
-      label: schema && schema.title || formatLabel(name),
+      label: (schema && schema.title) || formatLabel(name),
       isDefined: isDefined,
       disabled: schema && schema.disabled,
     };

@@ -7,6 +7,7 @@ DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
+	lein cljfmt fix
 	lein uberjar
 
 clean:
