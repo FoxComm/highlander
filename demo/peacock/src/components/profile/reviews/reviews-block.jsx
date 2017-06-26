@@ -44,7 +44,8 @@ class ReviewsBlock extends Component {
     return <ReviewRow {...review} key={`review-${review.id}`} />;
   }
 
-  get content() {
+  @autobind
+  content(reviews) {
     if (this.state.error) {
       return (
         <ErrorAlerts error={this.state.error} />
@@ -53,19 +54,38 @@ class ReviewsBlock extends Component {
 
     return (
       <div styleName="reviews">
-        {_.map(this.props.reviews, this.renderReview)}
+        {_.map(reviews, this.renderReview)}
+      </div>
+    );
+  }
+
+  @autobind
+  myReviews(reviews, pending) {
+    if (_.isEmpty(reviews)) return null;
+
+    const title = pending ? "Review products" : "My reviews";
+
+    return (
+      <div styleName="reviews-block">
+        <div styleName="title">{title}</div>
+        <div styleName="divider table" />
+        {this.content(reviews)}
       </div>
     );
   }
 
   get body() {
-    if (_.isEmpty(this.props.reviews)) return null;
+    const { reviews } = this.props;
+
+    if (_.isEmpty(reviews)) return null;
+
+    const notReviewed = _.filter(reviews, (review) => review.attributes.status.v == 'pending');
+    const reviewed = _.difference(reviews, notReviewed);
 
     return (
-      <div styleName="reviews-block">
-        <div styleName="title">My reviews</div>
-        <div styleName="divider table" />
-        {this.content}
+      <div>
+        {this.myReviews(reviewed, false)}
+        {this.myReviews(notReviewed, true)}
       </div>
     );
   }
