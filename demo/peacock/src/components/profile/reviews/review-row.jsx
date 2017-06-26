@@ -1,7 +1,9 @@
+/* @flow */
 
 import React from 'react';
 
-import { Link } from 'react-router';
+// components
+import ActionLink from 'ui/action-link/action-link';
 import ProductImage from '../../image/image';
 
 import styles from '../profile.css';
@@ -21,18 +23,34 @@ type Review = {
 const renderActions: (string, number) => Element<*> = (status, id) => {
   if (status == 'pending') {
     return (
-      <div styleName="actions-block">
-        <Link styleName="link" to={`/profile/reviews/${String(id)}`}>ADD</Link>
-        &nbsp;|&nbsp;
-        <Link styleName="link" to={'/profile'}>IGNORE</Link>
+      <div styleName="reviews-actions">
+        <ActionLink
+          action={() => { console.log('add a review');}}
+          title="Add review"
+          styleName="reviews-action-link"
+        />
+
+        <ActionLink
+          action={() => { console.log('ignore the review');}}
+          title="Ignore"
+          styleName="reviews-action-link"
+        />
       </div>
     );
   }
   return (
-    <div styleName="actions-block">
-      <Link styleName="link" to={`/profile/reviews/${String(id)}`}>EDIT</Link>
-      &nbsp;|&nbsp;
-      <Link styleName="link" to={'/profile'}>REMOVE</Link>
+    <div styleName="reviews-actions">
+      <ActionLink
+        action={() => { console.log('edit a review');}}
+        title="Edit review"
+        styleName="reviews-action-link"
+      />
+
+      <ActionLink
+        action={() => { console.log('remove the review');}}
+        title="Delete"
+        styleName="reviews-action-link"
+      />
     </div>
   );
 };

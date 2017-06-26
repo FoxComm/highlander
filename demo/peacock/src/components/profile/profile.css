@@ -144,6 +144,21 @@
   font-size: 16px;
 }
 
+.reviews-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.reviews-action-link {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 12px;
+
+  &:first-child {
+    margin-right: 25px;
+  }
+}
+
 @media (--medium-only) {
   .profile {
     padding: 16px;
