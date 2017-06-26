@@ -32,8 +32,13 @@ $$ language plpgsql;
 create or replace function update_skus_view_image_fn() returns trigger as $$
 declare sku_ids int[];
 begin
-
   case tg_table_name
+    when 'product_variant_links' then
+    select array_agg(vsku_link.right_id) into sku_ids
+      from variant_value_sku_links as vsku_link
+      inner join variant_variant_value_links as vvlink on (vsku_link.left_id = vvlink.right_id)
+      inner join product_variant_links as pvlink on (vvlink.left_id = pvlink.right_id)
+      where pvlink.id = new.id;
     when 'product_sku_links' then
     select array_agg(product_sku_links.right_id) into sku_ids
       from product_sku_links
@@ -77,3 +82,21 @@ begin
 end;
 $$ language plpgsql;
 
+
+drop trigger if exists update_skus_view_image on product_album_links_view;
+create trigger update_skus_view_image
+  after insert or update on product_album_links_view
+  for each row
+  execute procedure update_skus_view_image_fn();
+
+drop trigger if exists update_skus_view_image on product_sku_links;
+create trigger update_skus_view_image
+  after insert or update on product_sku_links
+  for each row
+  execute procedure update_skus_view_image_fn();
+
+drop trigger if exists update_skus_view_image on product_variant_links;
+create trigger update_skus_view_image
+  after insert or update on product_variant_links
+  for each row
+  execute procedure update_skus_view_image_fn();
