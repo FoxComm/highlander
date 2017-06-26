@@ -19,7 +19,6 @@ import TableCell from '../table/cell';
 import NoteForm from './form';
 import LiveSearchAdapter from '../live-search/live-search-adapter';
 import NoteRow from './note-row';
-import WaitAnimation from '../common/wait-animation';
 
 // redux
 import * as notesActions from '../../modules/notes';
