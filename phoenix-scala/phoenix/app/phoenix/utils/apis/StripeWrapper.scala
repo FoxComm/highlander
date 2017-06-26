@@ -7,9 +7,12 @@ import com.typesafe.scalalogging.LazyLogging
 import core.db._
 import core.failures._
 import java.util.concurrent.{Executors, ScheduledExecutorService}
+
+import com.stripe.Stripe
 import phoenix.failures.StripeFailures._
 import phoenix.utils._
 import phoenix.utils.apis.StripeMappings.cardExceptionMap
+
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -20,6 +23,9 @@ import scala.concurrent.{ExecutionContext, Future}
   * If you add new methods, be sure to provide default mock in `MockedApis` trait for testing!
   */
 class StripeWrapper(timeout: FiniteDuration) extends StripeApiWrapper with LazyLogging {
+  Stripe.setConnectTimeout((timeout.toMillis / 3).toInt)
+  Stripe.setReadTimeout(timeout.toMillis.toInt)
+
   def retrieveToken(t: String): Result[Token] = {
     logger.info(s"Retrieve token details: $t")
     inBlockingPool(Token.retrieve(t))
