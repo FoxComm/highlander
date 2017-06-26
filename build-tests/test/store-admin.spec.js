@@ -19,12 +19,12 @@ describe('[bvt] Store Admins', function() {
         expect(isArray(storeAdmins));
         expect(storeAdmins.length >= 1);
         for (const storeAdmin of storeAdmins) {
-            expect(isNumber(storeAdmin.id));
-            expect(isString(storeAdmin.name));
-            expect(isString(storeAdmin.email));
-            expect(isString(storeAdmin.state));
-            expect(isString(storeAdmin.scope));
-            expect(isDate(storeAdmin.createdAt));
+            expect(isNumber(storeAdmin.id)).to.be.true;
+            expect(isString(storeAdmin.name)).to.be.true;
+            expect(isString(storeAdmin.email)).to.be.true;
+            expect(isString(storeAdmin.state)).to.be.true;
+            expect(isString(storeAdmin.scope)).to.be.true;
+            expect(isDate(storeAdmin.createdAt)).to.be.true;
         }
     });
 
@@ -34,22 +34,22 @@ describe('[bvt] Store Admins', function() {
         const storeAdmins = await step.getStoreAdmins(api);
         const storeAdmin = await step.getStoreAdmin(api, storeAdmins);
 
-        expect(isNumber(storeAdmin.id));
-        expect(isString(storeAdmin.name));
-        expect(isString(storeAdmin.email));
-        expect(isString(storeAdmin.state));
+        expect(isNumber(storeAdmin.id)).to.be.true;
+        expect(isString(storeAdmin.name)).to.be.true;
+        expect(isString(storeAdmin.email)).to.be.true;
+        expect(isString(storeAdmin.state)).to.be.true;
     });
 
     it('[bvt] Can create a new store admin', async () => {
         const api = new AdminApi;
         await step.login(api, $.adminEmail, $.adminPassword, $.adminOrg);
         const payload = $.randomStoreAdminPayload();
-        const adminUser = await step.createAdminUser(api, $.randomStoreAdminPayload());
+        const adminUser = await step.createAdminUser(api, payload);
 
         expect(isNumber(adminUser.id));
-        expect(adminUser.state, 'invited');
-        expect(adminUser.name, payload.name);
-        expect(adminUser.email, payload.email);
+        expect(adminUser.state).to.equal('invited');
+        expect(adminUser.name).to.equal(payload.name);
+        expect(adminUser.email).to.equal(payload.email);
     });
 
     it('[bvt] Can update store admin details', async () => {
@@ -57,12 +57,12 @@ describe('[bvt] Store Admins', function() {
         await step.login(api, $.adminEmail, $.adminPassword, $.adminOrg);
         const adminUser = await step.createAdminUser(api, $.randomStoreAdminPayload());
         const updPayload = $.randomStoreAdminPayload();
-        const updatedAdminUser = await step.updateAdminUser(api, adminUser.id, $.randomStoreAdminPayload());
+        const updatedAdminUser = await step.updateAdminUser(api, adminUser.id, updPayload);
 
-        expect(updatedAdminUser.id, adminUser.id);
-        expect(updatedAdminUser.state, adminUser.state);
-        expect(updatedAdminUser.name, updPayload.name);
-        expect(updatedAdminUser.email, updPayload.email);
+        expect(updatedAdminUser.id).to.equal(adminUser.id);
+        expect(updatedAdminUser.state).to.equal(adminUser.state);
+        expect(updatedAdminUser.name).to.equal(updPayload.name);
+        expect(updatedAdminUser.email).to.equal(updPayload.email);
     });
 
 });
