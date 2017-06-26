@@ -28,19 +28,19 @@ object CustomerPayloads {
   case class ChangeCustomerPasswordPayload(oldPassword: String, newPassword: String)
       extends Validation[ChangeCustomerPasswordPayload] {
     def validate: ValidatedNel[Failure, ChangeCustomerPasswordPayload] =
-      notEmpty(newPassword, "new password").map { case _ ⇒ this }
+      notEmpty(newPassword, "new password").map(_ ⇒ this)
   }
 
   case class ActivateCustomerPayload(name: String) extends Validation[ActivateCustomerPayload] {
 
     def validate: ValidatedNel[Failure, ActivateCustomerPayload] =
-      notEmpty(name, "name").map { case _ ⇒ this }
+      notEmpty(name, "name").map(_ ⇒ this)
   }
 
   case class CustomerSearchForNewOrder(term: String) extends Validation[CustomerSearchForNewOrder] {
 
     def validate: ValidatedNel[Failure, CustomerSearchForNewOrder] =
-      greaterThan(term.length, 1, "term size").map { case _ ⇒ this }
+      greaterThan(term.length, 1, "term size").map(_ ⇒ this)
   }
 
 }

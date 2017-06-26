@@ -1,3 +1,4 @@
+// libs
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
@@ -8,9 +9,11 @@ import _ from 'lodash';
 import * as CartActions from 'modules/carts/details';
 import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
+// components
 import DebitCredit from 'components/payment-row/debit-credit';
 import { Form, FormField } from 'components/forms';
-import Alert from '../alerts/alert';
+import Alert from 'components/core/alert';
+import TextInput from 'components/core/text-input';
 
 function mapStateToProps(state) {
   return {
@@ -56,11 +59,12 @@ export default class NewGiftCard extends Component {
     const gcCode = _.get(gcResults, [0, 'code'], '');
     const gcState = _.get(gcResults, [0, 'state'], '');
 
-    if (!isSearchingGiftCards &&
+    if (
+      !isSearchingGiftCards &&
       gcResults.length == 1 &&
       gcState !== 'onHold' &&
-      _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())) {
-
+      _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())
+    ) {
       this.setState({
         giftCard: gcResults[0],
         giftCardCode: gcCode,
@@ -112,12 +116,12 @@ export default class NewGiftCard extends Component {
     const { giftCardCode } = this.state;
 
     if (!isSearchingGiftCards && this.codeIsValid && !giftCard) {
-      return <Alert type="warning">{`Gift Card ${giftCardCode} not found`}</Alert>;
+      return <Alert type={Alert.WARNING}>{`Gift Card ${giftCardCode} not found`}</Alert>;
     }
 
     if (this.codeIsValid && giftCard && giftCard.state === 'onHold') {
       return (
-        <Alert type="warning">
+        <Alert type={Alert.WARNING}>
           {`Gift Card ${giftCardCode} is on hold`}
         </Alert>
       );
@@ -127,31 +131,26 @@ export default class NewGiftCard extends Component {
   }
 
   @autobind
-  handleGiftCardChange({target}) {
-    this.setState({
-      giftCardCode: target.value,
-    }, () => this.props.actions.giftCardSearch(this.codeValue));
+  handleGiftCardChange(value) {
+    this.setState(
+      {
+        giftCardCode: value,
+      },
+      () => this.props.actions.giftCardSearch(this.codeValue)
+    );
   }
 
   @autobind
   handleGiftCardSubmit(amountToUse) {
-    this.props.actions.addGiftCardPayment(
-      this.props.order.referenceNumber,
-      this.codeValue,
-      amountToUse
-    );
+    this.props.actions.addGiftCardPayment(this.props.order.referenceNumber, this.codeValue, amountToUse);
   }
 
   render() {
     return (
       <div className="fc-order-apply-gift-card">
         <Form className="fc-form-vertical">
-          <FormField className="fc-order-apply-gift-card__card-number"
-                     label="Gift Card Number">
-            <input type="text"
-                   name="giftCardCode"
-                   onChange={this.handleGiftCardChange}
-                   value={this.state.giftCardCode} />
+          <FormField className="fc-order-apply-gift-card__card-number" label="Gift Card Number">
+            <TextInput name="giftCardCode" onChange={this.handleGiftCardChange} value={this.state.giftCardCode} />
           </FormField>
         </Form>
         {this.error}

@@ -7,7 +7,7 @@ import phoenix.models.account._
 import phoenix.models.cord._
 import phoenix.responses.TheResponse
 import phoenix.responses.cord.CartResponse
-import phoenix.services.{CordQueries, LineItemUpdater, LogActivity}
+import phoenix.services.{CordQueries, LogActivity}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
@@ -20,7 +20,7 @@ object CartQueries extends CordQueries {
                               au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ Carts.mustFindByRefNum(refNum)
-      resp ← * <~ LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+      resp ← * <~ CartLineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
     } yield resp
 
   def findOneByUser(refNum: String, customer: User, grouped: Boolean = true)(
@@ -33,7 +33,7 @@ object CartQueries extends CordQueries {
       cart ← * <~ Carts
               .findByRefNumAndAccountId(refNum, customer.accountId)
               .mustFindOneOr(NotFoundFailure404(Carts, refNum))
-      resp ← * <~ LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+      resp ← * <~ CartLineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
     } yield resp
 
   def findOrCreateCartByAccount(customer: User, context: ObjectContext, admin: Option[User] = None)(
@@ -75,6 +75,6 @@ object CartQueries extends CordQueries {
               fullCart ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
               _        ← * <~ LogActivity().cartCreated(admin, fullCart)
             } yield TheResponse(fullCart)
-            else LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+            else CartLineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
     } yield resp.result // FIXME: discarding warnings until we get rid of TheResponse completely @michalrus
 }

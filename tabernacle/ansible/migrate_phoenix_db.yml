@@ -21,5 +21,4 @@
       private: no
 
   roles:
-    - { role: base/flyway }
     - { role: prod/migrate_phoenix_db }

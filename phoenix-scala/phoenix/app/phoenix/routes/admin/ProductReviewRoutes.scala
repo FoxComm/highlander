@@ -24,22 +24,22 @@ object ProductReviewRoutes {
                 ProductReviewManager.getReview(reviewId)
               }
             } ~
-              (post & entity(as[CreateProductReviewByAdminPayload]) & pathEnd) { payload ⇒
-                mutateOrFailures {
-                  ProductReviewManager.createProductReview(payload.userId.getOrElse(auth.account.id), payload)
-                }
-              } ~
-              (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
-                (reviewId, payload) ⇒
-                  mutateOrFailures {
-                    ProductReviewManager.updateProductReview(reviewId, payload)
-                  }
-              } ~
-              (delete & path(IntNumber) & pathEnd) { id ⇒
-                deleteOrFailures {
-                  ProductReviewManager.archiveByContextAndId(id)
-                }
+            (post & entity(as[CreateProductReviewByAdminPayload]) & pathEnd) { payload ⇒
+              mutateOrFailures {
+                ProductReviewManager.createProductReview(payload.userId.getOrElse(auth.account.id), payload)
               }
+            } ~
+            (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
+              (reviewId, payload) ⇒
+                mutateOrFailures {
+                  ProductReviewManager.updateProductReview(reviewId, payload)
+                }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { id ⇒
+              deleteOrFailures {
+                ProductReviewManager.archiveByContextAndId(id)
+              }
+            }
           }
         }
       }

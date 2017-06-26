@@ -1,0 +1,5 @@
+@import 'colors.css';
+
+.link {
+  color: var(--color-link);
+}

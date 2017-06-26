@@ -1,4 +1,0 @@
----
-
-- name: Stop SSH Guard
-  service: name=sshguard state=stopped

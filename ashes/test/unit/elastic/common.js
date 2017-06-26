@@ -52,11 +52,13 @@ describe('elastic.common', () => {
     });
 
     it('should create a query with a single string term', () => {
-      const terms = [{
-        term: 'name',
-        operator: 'eq',
-        value: { type: 'string', value: 'Fox' },
-      }];
+      const terms = [
+        {
+          term: 'name',
+          operator: 'eq',
+          value: { type: 'string', value: 'Fox' },
+        },
+      ];
 
       const query = toQuery(terms);
       const expectedQuery = addQuery(terms[0]);
@@ -64,11 +66,13 @@ describe('elastic.common', () => {
     });
 
     it('should create a query with a single non-string term', () => {
-      const terms = [{
-        term: 'amount',
-        operator: 'eq',
-        value: { type: 'number', value: 1000 },
-      }];
+      const terms = [
+        {
+          term: 'amount',
+          operator: 'eq',
+          value: { type: 'number', value: 1000 },
+        },
+      ];
 
       const query = toQuery(terms);
       const expectedQuery = addFilter(terms[0]);
@@ -121,11 +125,13 @@ describe('elastic.common', () => {
     });
 
     it('should create a search with a nested filter', () => {
-      const terms = [{
-        term: 'orders.referenceNumber',
-        operator: 'eq',
-        value: { type: 'identifier', value: 'br10007' },
-      }];
+      const terms = [
+        {
+          term: 'orders.referenceNumber',
+          operator: 'eq',
+          value: { type: 'identifier', value: 'br10007' },
+        },
+      ];
 
       const query = toQuery(terms);
 
@@ -133,18 +139,20 @@ describe('elastic.common', () => {
         query: {
           bool: {
             must: void 0,
-            filter: [{
-              nested: {
-                path: 'orders',
-                query: {
-                  bool: {
-                    filter: {
-                      term: { 'orders.referenceNumber': 'BR10007' },
+            filter: [
+              {
+                nested: {
+                  path: 'orders',
+                  query: {
+                    bool: {
+                      filter: {
+                        term: { 'orders.referenceNumber': 'BR10007' },
+                      },
                     },
                   },
                 },
               },
-            }],
+            ],
           },
         },
       };
@@ -153,29 +161,33 @@ describe('elastic.common', () => {
     });
 
     it('should create a search with a nested query', () => {
-      const terms = [{
-        term: 'customer.name',
-        operator: 'eq',
-        value: { type: 'identifier', value: 'Adil Wali' },
-      }];
+      const terms = [
+        {
+          term: 'customer.name',
+          operator: 'eq',
+          value: { type: 'identifier', value: 'Adil Wali' },
+        },
+      ];
 
       const query = toQuery(terms);
 
       const expectedQuery = {
         query: {
           bool: {
-            filter: [{
-              nested: {
-                path: 'customer',
-                query: {
-                  bool: {
-                    filter: {
-                      term: { 'customer.name': 'ADIL WALI' },
+            filter: [
+              {
+                nested: {
+                  path: 'customer',
+                  query: {
+                    bool: {
+                      filter: {
+                        term: { 'customer.name': 'ADIL WALI' },
+                      },
                     },
                   },
                 },
               },
-            }],
+            ],
           },
         },
       };
@@ -190,14 +202,16 @@ describe('elastic.common', () => {
 
       const expectedQuery = {
         query: {
-          bool: {}
+          bool: {},
         },
-        sort: [{
-          'customer.name': {
-            order: 'desc',
-            nested_path: 'customer'
-          }
-        }]
+        sort: [
+          {
+            'customer.name': {
+              order: 'desc',
+              nested_path: 'customer',
+            },
+          },
+        ],
       };
 
       expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
@@ -210,34 +224,40 @@ describe('elastic.common', () => {
 
       const expectedQuery = {
         query: {
-          bool: {}
+          bool: {},
         },
-        sort: [{
-          'customer.name.raw': {
-            order: 'desc',
-            nested_path: 'customer'
-          }
-        }]
+        sort: [
+          {
+            'customer.name.raw': {
+              order: 'desc',
+              nested_path: 'customer',
+            },
+          },
+        ],
       };
 
       expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
     });
 
     it('should create a search with exists filter', () => {
-      const terms = [{
-        term: 'name',
-        operator: 'missing',
-        value: { type: 'exists' },
-      }];
+      const terms = [
+        {
+          term: 'name',
+          operator: 'missing',
+          value: { type: 'exists' },
+        },
+      ];
 
       const query = toQuery(terms);
 
       const expectedQuery = {
         query: {
           bool: {
-            filter: [{
-              missing: { field: 'name' },
-            }],
+            filter: [
+              {
+                missing: { field: 'name' },
+              },
+            ],
           },
         },
       };

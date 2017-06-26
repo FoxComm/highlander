@@ -32,48 +32,48 @@ object ImageRoutes {
           }
         }
       } ~
-        pathPrefix("albums") {
-          pathPrefix(Segment) { context ⇒
-            (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
-              mutateOrFailures {
-                ImageManager.createAlbum(payload, context)
+      pathPrefix("albums") {
+        pathPrefix(Segment) { context ⇒
+          (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+            mutateOrFailures {
+              ImageManager.createAlbum(payload, context)
+            }
+          } ~
+          pathPrefix(IntNumber) { albumId ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ImageManager.getAlbum(albumId, context)
               }
             } ~
-              pathPrefix(IntNumber) { albumId ⇒
-                (get & pathEnd) {
-                  getOrFailures {
-                    ImageManager.getAlbum(albumId, context)
+            (patch & pathEnd & entity(as[AlbumPayload])) { payload ⇒
+              mutateOrFailures {
+                ImageManager.updateAlbum(albumId, payload, context)
+              }
+            } ~
+            (delete & pathEnd) {
+              mutateOrFailures {
+                ImageManager.archiveByContextAndId(albumId, context)
+              }
+            } ~
+            pathPrefix("images") {
+              extractRequestContext { ctx ⇒
+                implicit val materializer = ctx.materializer
+                implicit val ec           = ctx.executionContext
+
+                (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
+                  mutateOrFailures {
+                    ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
                   }
                 } ~
-                  (patch & pathEnd & entity(as[AlbumPayload])) { payload ⇒
-                    mutateOrFailures {
-                      ImageManager.updateAlbum(albumId, payload, context)
-                    }
-                  } ~
-                  (delete & pathEnd) {
-                    mutateOrFailures {
-                      ImageManager.archiveByContextAndId(albumId, context)
-                    }
-                  } ~
-                  pathPrefix("images") {
-                    extractRequestContext { ctx ⇒
-                      implicit val materializer = ctx.materializer
-                      implicit val ec           = ctx.executionContext
-
-                      (post & pathEnd & entityOr(as[Multipart.FormData], ImageNotFoundInPayload)) { formData ⇒
-                        mutateOrFailures {
-                          ImageFacade.uploadImagesFromMultipartToAlbum(albumId, context, formData)
-                        }
-                      } ~
-                        (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
-                          mutateOrFailures {
-                            ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
-                          }
-                        }
-                    }
+                (path("byUrl") & post & entity(as[ImagePayload])) { payload ⇒
+                  mutateOrFailures {
+                    ImageFacade.uploadImagesFromPayloadToAlbum(albumId, context, payload)
                   }
+                }
               }
+            }
           }
         }
+      }
     }
 }

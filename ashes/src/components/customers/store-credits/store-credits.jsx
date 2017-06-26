@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 
 // libs
 import _ from 'lodash';
-import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { ReasonType } from 'lib/reason-utils';
@@ -26,7 +25,7 @@ import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { ChangeStateModal, CancelModal } from 'components/bulk-actions/modal';
 import Dropdown from 'components/dropdown/dropdown';
-import ConfirmationDialog from 'components/modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import StoreCreditRow from './storecredit-row';
 
@@ -38,7 +37,7 @@ type Props = {
   states: {
     storeCreditToChange: {
       state: string,
-    }
+    },
   },
   reasons: Object,
   storeCreditTotals: Object,
@@ -58,12 +57,14 @@ type Props = {
     cancelStoreCredits: (ids: Array<number>, reasonId: number) => Promise<*>,
     changeStoreCreditsState: (ids: Array<number>, state: string) => Promise<*>,
     exportByIds: (
-      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+      ids: Array<number>,
+      description: string,
+      fields: Array<Object>,
+      entity: string,
+      identifier: string
     ) => void,
   },
-  bulkExportAction: (
-    fields: Array<string>, entity: string, identifier: string, description: string
-  ) => Promise<*>,
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string, description: string) => Promise<*>,
 };
 
 class StoreCredits extends Component {
@@ -74,40 +75,40 @@ class StoreCredits extends Component {
       {
         field: 'createdAt',
         text: 'Date/Time Issued',
-        type: 'date'
+        type: 'date',
       },
       {
         field: 'id',
-        text: 'Store Credit Id'
+        text: 'Store Credit Id',
       },
       {
         field: 'originType',
-        text: 'Type'
+        text: 'Type',
       },
       {
         field: 'issuedBy',
-        text: 'Issued By'
+        text: 'Issued By',
       },
       {
         field: 'originalBalance',
         text: 'Original Balance',
-        type: 'currency'
+        type: 'currency',
       },
       {
         field: 'currentBalance',
         text: 'Current Balance',
-        type: 'currency'
+        type: 'currency',
       },
       {
         field: 'availableBalance',
         text: 'Available Balance',
-        type: 'currency'
+        type: 'currency',
       },
       {
         field: 'state',
         text: 'State',
-      }
-    ]
+      },
+    ],
   };
 
   get customerId() {
@@ -119,14 +120,11 @@ class StoreCredits extends Component {
   }
 
   componentDidMount() {
-    this.props.actions.setExtraFilters([
-      { term: { 'accountId': this.customerId } }
-    ]);
+    this.props.actions.setExtraFilters([{ term: { accountId: this.customerId } }]);
     this.props.reasonsActions.fetchReasons(this.reasonType);
     this.props.totalsActions.fetchTotals(this.customerId);
     this.props.actions.fetch();
   }
-
 
   @autobind
   renderRow(row: Object, index: number, columns: Columns, params: Object) {
@@ -167,7 +165,7 @@ class StoreCredits extends Component {
     return (
       <span>
         Are you sure you want to change the store credit state to
-        <strong className="fc-store-credit-new-state">{ this.confirmationState }</strong>
+        <strong className="fc-store-credit-new-state">{this.confirmationState}</strong>
         ?
       </span>
     );
@@ -179,15 +177,15 @@ class StoreCredits extends Component {
     const shouldDisplay = states && states.storeCreditToChange && states.storeCreditToChange.state !== 'canceled';
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
-        header="Change Store Credit State?"
-        body={this.confirmationMessage}
-        cancel="Cancel"
-        confirm="Yes, Change State"
-        onCancel={ () => stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => stateActions.saveStateChange(this.customerId) }
-      />
+        title="Change Store Credit State?"
+        confirmLabel="Yes, Change State"
+        onConfirm={() => stateActions.saveStateChange(this.customerId)}
+        onCancel={() => stateActions.cancelChange(this.customerId)}
+      >
+        {this.confirmationMessage}
+      </ConfirmationModal>
     );
   }
 
@@ -213,11 +211,13 @@ class StoreCredits extends Component {
             </label>
           </div>
           <div className="fc-store-credit-cancel-reason-selector">
-            <Dropdown name="cancellationReason"
-                      placeholder="- Select -"
-                      items={this.reasons}
-                      value={value}
-                      onChange={(value) => this.props.stateActions.reasonChange(this.customerId, value)} />
+            <Dropdown
+              name="cancellationReason"
+              placeholder="- Select -"
+              items={this.reasons}
+              value={value}
+              onChange={value => this.props.stateActions.reasonChange(this.customerId, value)}
+            />
           </div>
         </div>
       </div>
@@ -230,14 +230,15 @@ class StoreCredits extends Component {
     const shouldDisplay = _.isEqual(_.get(props, ['states', 'storeCreditToChange', 'state']), 'canceled');
 
     return (
-      <ConfirmationDialog
+      <ConfirmationModal
         isVisible={shouldDisplay}
-        header="Cancel Store Credit?"
-        body={this.confirmationBody}
-        cancel="Cancel"
-        confirm="Yes, Cancel"
-        onCancel={ () => props.stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => props.stateActions.saveStateChange(this.customerId) } />
+        title="Cancel Store Credit?"
+        confirmLabel="Yes, Cancel"
+        onConfirm={() => props.stateActions.saveStateChange(this.customerId)}
+        onCancel={() => props.stateActions.cancelChange(this.customerId)}
+      >
+        {this.confirmationBody}
+      </ConfirmationModal>
     );
   }
 
@@ -248,7 +249,7 @@ class StoreCredits extends Component {
     return (
       <CancelModal
         count={toggledIds.length}
-        onConfirm={(reasonId) => {
+        onConfirm={reasonId => {
           cancelStoreCredits(toggledIds, reasonId);
         }}
       />
@@ -283,12 +284,7 @@ class StoreCredits extends Component {
   }
 
   get cancelAction() {
-    return [
-      'Cancel Store Credits',
-      this.cancelStoreCredits,
-      'successfully canceled',
-      'could not be canceled',
-    ];
+    return ['Cancel Store Credits', this.cancelStoreCredits, 'successfully canceled', 'could not be canceled'];
   }
 
   @autobind
@@ -320,11 +316,7 @@ class StoreCredits extends Component {
 
     return (
       <div className="fc-store-credits">
-        <Summary
-          totals={totals}
-          params={props.params}
-          transactionsSelected={false}
-        >
+        <Summary totals={totals} params={props.params} transactionsSelected={false}>
           <BulkMessages
             storePath="customers.storeCreditBulk"
             module="customers.store-credits"
@@ -333,11 +325,7 @@ class StoreCredits extends Component {
           />
         </Summary>
         <div className="fc-store-credits__list">
-          <BulkActions
-            module="customers.store-credits"
-            entity="store credit"
-            actions={this.bulkActions}
-          >
+          <BulkActions module="customers.store-credits" entity="store credit" actions={this.bulkActions}>
             <SelectableSearchList
               exportEntity="storeCredits"
               exportTitle="Store Credits"
@@ -350,12 +338,12 @@ class StoreCredits extends Component {
               renderRow={this.renderRow}
               tableColumns={this.props.tableColumns}
               searchActions={this.props.actions}
-              searchOptions={{singleSearch: true}}
+              searchOptions={{ singleSearch: true }}
             />
           </BulkActions>
         </div>
-        { this.confirmStateChange }
-        { this.confirmCancellation }
+        {this.confirmStateChange}
+        {this.confirmCancellation}
       </div>
     );
   }
@@ -364,13 +352,13 @@ class StoreCredits extends Component {
 const mapStateToProps = (state, props) => {
   return {
     list: _.get(state.customers, 'storeCredits', {}),
-    storeCreditTotals: _.get(state.customers, 'storeCreditTotals[props.params.customerId]', {}),
+    storeCreditTotals: _.get(state.customers, `storeCreditTotals[${props.params.customerId}]`, {}),
     reasons: _.get(state, 'reasons', {}),
-    states: _.get(state.customers, 'storeCreditStates[props.params.customerId]', {}),
+    states: _.get(state.customers, `storeCreditStates[${props.params.customerId}]`, {}),
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     actions: bindActionCreators(StoreCreditsActions, dispatch),
     totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch),

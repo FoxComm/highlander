@@ -15,33 +15,33 @@ type Coords = [number, number];
 
 type MousePosition = { pageX: number, pageY: number };
 
-type MotionStyle = { x: number, y: number, style: Object};
+type MotionStyle = { x: number, y: number, style: Object };
 
 type Transform = { translateX: number, translateY: number, scale: number };
 
 type Props = {
-  itemWidth: number;
-  itemHeight: number;
-  gutterX: number;
-  gutterY: number;
-  spaceBetween: boolean;
-  onSort: (order: Array<number>) => void;
-  loading: boolean;
-  itemStyles?: Object;
-  children: Array<Element<*>>;
-}
+  itemWidth: number,
+  itemHeight: number,
+  gutterX: number,
+  gutterY: number,
+  spaceBetween: boolean,
+  onSort: (order: Array<number>) => void,
+  loading: boolean,
+  itemStyles?: Object,
+  children: Array<Element<*>>,
+};
 
 type State = {
-  order: Array<number>;
-  layout: Array<Coords>;
-  columns: number;
-  gutter: number;
-  mouse: Coords;
-  delta: Coords;
-  activeIndex: number;
-  isPressed: boolean;
-  isResizing: boolean;
-}
+  order: Array<number>,
+  layout: Array<Coords>,
+  columns: number,
+  gutter: number,
+  mouse: Coords,
+  delta: Coords,
+  activeIndex: number,
+  isPressed: boolean,
+  isResizing: boolean,
+};
 
 /** Calculate item column/row index fitted to bounds */
 const clamp = (n, min, max) => Math.max(Math.min(n, max), min);
@@ -51,7 +51,6 @@ const springSetting1 = { stiffness: 180, damping: 10 };
 const springSetting2 = { stiffness: 150, damping: 16 };
 
 class SortableTiles extends Component {
-
   props: Props;
 
   static defaultProps = {
@@ -183,8 +182,8 @@ class SortableTiles extends Component {
     if (isPressed) {
       const mouse = [pageX - dx, pageY - dy];
 
-      const colTo = clamp(Math.floor((mouse[0] + ((itemWidth + gutter) / 2)) / (itemWidth + gutter)), 0, columns);
-      const rowTo = clamp(Math.floor((mouse[1] + (itemHeight / 2)) / itemHeight), 0, 100);
+      const colTo = clamp(Math.floor((mouse[0] + (itemWidth + gutter) / 2) / (itemWidth + gutter)), 0, columns);
+      const rowTo = clamp(Math.floor((mouse[1] + itemHeight / 2) / itemHeight), 0, 100);
 
       const to = clamp(colTo + rowTo * columns, 0, this.state.order.length - 1);
 
@@ -215,7 +214,7 @@ class SortableTiles extends Component {
 
     this.setState({
       isPressed: false,
-      delta: [0, 0]
+      delta: [0, 0],
     });
   }
 
@@ -246,14 +245,14 @@ class SortableTiles extends Component {
       style = {
         translateX: x,
         translateY: y,
-        scale: spring(1.1, springSetting1)
+        scale: spring(1.1, springSetting1),
       };
     } else if (isResizing) {
       [x, y] = layout[index];
       style = {
         translateX: spring(x, springSetting2),
         translateY: spring(y, springSetting2),
-        scale: 1
+        scale: 1,
       };
     } else {
       [x, y] = layout[index];
@@ -262,14 +261,14 @@ class SortableTiles extends Component {
       style = {
         translateX: this.initialMount ? x : spring(x, springSetting2),
         translateY: this.initialMount ? y : spring(y, springSetting2),
-        scale: this.initialMount ? 1 : spring(1, springSetting1)
+        scale: this.initialMount ? 1 : spring(1, springSetting1),
       };
     }
 
     return {
       x,
       y,
-      style
+      style,
     };
   }
 
@@ -278,7 +277,7 @@ class SortableTiles extends Component {
     const { translateX, translateY, scale } = transform;
     const transformStyles = {
       transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-      zIndex: index === activeIndex ? 99 : 1,
+      zIndex: index === activeIndex ? 4 : 1,
     };
     const itemStyles = {
       ...transformStyles,
@@ -301,9 +300,9 @@ class SortableTiles extends Component {
     const { order, activeIndex, isPressed } = this.state;
 
     return (
-      <div className={styles.items} ref={element => this.container = element}>
+      <div className={styles.items} ref={element => (this.container = element)}>
         {order.map((item, index) => {
-          const isActive = (index === activeIndex && isPressed);
+          const isActive = index === activeIndex && isPressed;
           const style = this.getItemStyle(isActive, index);
 
           const key = this.props.children[item].key;

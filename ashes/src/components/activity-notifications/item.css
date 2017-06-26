@@ -1,0 +1,55 @@
+@import 'colors.css';
+
+.block {
+  padding: 10px;
+  border-bottom: 1px solid var(--color-border);
+  border-top: 1px solid @color-white;
+
+  &.notRead {
+    background: #eafeff;
+    border-top: 1px solid #eafeff;
+
+    &:hover {
+      background: #eafeff;
+      border-top: 1px solid #eafeff;
+    }
+  }
+}
+
+.body {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 19px;
+  color: var(--color-text);
+}
+
+.type {
+  width: 24px;
+  color: var(--color-additional-text);
+  font-size: 24px;
+  line-height: 30px;
+  text-align: center;
+  margin-right: 15px;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+}
+
+.time {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--color-additional-text);
+  margin: 5px 0;
+}
+
+.icon {
+  margin-right: 10px;
+  color: white;
+  width: 30px;
+  height: 30px;
+}

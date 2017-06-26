@@ -7,7 +7,6 @@ All of our DevOps tools for deploying the application to both development and pr
 ### Required
 
 - [Ansible](https://ansible.com) 2.2.x
-- [AWS CLI](https://aws.amazon.com/cli)
 - [Docker](https://docker.com) 1.13
 - [Go](https://golang.org) 1.6 or above
 - [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)
@@ -40,29 +39,29 @@ The order, in which `systemd` launches the services:
 |consul_agent|--------------|zookeeper|----------|mesos_master|
 +------------+              +---------+          |mesos_worker|
       |                      |                   +------------+
-      |                      |                    |
-+--------------------+       |  +-----+           |  +--------+
-|consul_template     |       +--|kafka|--+        +--|marathon|
-|demo_consul_template|          +-----+  |           +--------+
-|dashboard           |                   |                |
-+--------------------+                   |                |
-     |                                   |                |
-     |         +-----+     +---------------+  +---------------+
-     +---------|nginx|     |schema_registry|  |marathon_consul|
-               +-----+     +---------------+  +---------------+
-
+      |                      |                     |         | 
++--------------------+       |  +-----+            |         | 
+|consul_template     |       +--|kafka|--+       +--------+  | 
+|demo_consul_template|          +-----+  |       |marathon|  | 
+|dashboard           |                   |       +--------+  | 
++--------------------+                   |                   | 
+     |                                   |                   | 
+     |         +-----+     +---------------+  +------------+ | 
+     +---------|nginx|     |schema_registry|  |mesos_consul|-+ 
+               +-----+     +---------------+  +------------+   
+                                                               
 +----------+                                  +---------------+
 |postgresql|------+                 +---------|elasticsearch  |
 +----------+      |                 |         |elasticsearch_5|
                   |                 |         +---------------+
-                  |                 |
-+----------------------------+   +------+
-|bottledwater_phoenix        |   |kibana|
-|bottledwater_middlewarehouse|   +------+
-|bottledwater_onboarding     |
-|materialized_views          |
-|pgweb                       |
-+----------------------------+
+                  |                 |                          
++----------------------------+   +------+                      
+|bottledwater_phoenix        |   |kibana|                      
+|bottledwater_middlewarehouse|   +------+                      
+|bottledwater_onboarding     |                                 
+|materialized_views          |                                 
+|pgweb                       |                                 
++----------------------------+                                 
 ```
 
 ## Marathon Groups Hierarchy
@@ -92,6 +91,6 @@ The order, in which `highlander` subgroups are launched:
                 |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |
                 |* gift-card-consumer    |     |* orders-reviews    |          |* eggcrate    |
                 |* shipments-consumer    |     |* orders-sphex      |          |* river-rock  |
-                |* stock-items-consumer  |     |* product-activity  |          +--------------+
+                |                        |     |* product-activity  |          +--------------+
                 +------------------------+     +--------------------+
 ```

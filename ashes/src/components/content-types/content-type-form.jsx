@@ -11,7 +11,8 @@ import styles from '../object-page/object-details.css';
 
 import ObjectDetails from '../object-page/object-details';
 import { FormField } from '../forms';
-import RadioButton from '../forms/radio-button';
+import RadioButton from 'components/core/radio-button';
+import SelectCustomerGroups from '../customers-groups/select-groups';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';

@@ -1,22 +1,21 @@
-
 /* @flow */
 
 import React from 'react';
 import classNames from 'classnames';
 
-import styles from './overlay.css';
+import s from './overlay.css';
 
 type Props = {
-  shown: bool,
+  shown: boolean,
   onClick?: Function,
 };
 
 const Overlay = (props: Props) => {
-  const style = classNames({
-    'overlay_hidden': !props.shown,
-    'overlay_shown': props.shown,
+  const cls = classNames(s.overlay, {
+    [s.active]: props.shown,
   });
-  return <div styleName={style} onClick={props.onClick}></div>;
+
+  return <div className={cls} onClick={props.onClick} />;
 };
 
 export default Overlay;

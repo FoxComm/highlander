@@ -1,3 +1,4 @@
+import core.db._
 import core.failures._
 import phoenix.failures.StoreCreditFailures.StoreCreditConvertFailure
 import phoenix.failures.{EmptyCancellationReasonFailure, OpenTransactionsFailure}
@@ -10,15 +11,14 @@ import phoenix.models.payment.storecredit._
 import phoenix.models.payment.{giftcard, InStorePaymentStates, PaymentMethod}
 import phoenix.payloads.PaymentPayloads.CreateManualStoreCredit
 import phoenix.payloads.StoreCreditPayloads._
+import phoenix.responses.StoreCreditResponse
 import phoenix.responses.StoreCreditResponse.Root
-import phoenix.responses.{GiftCardResponse, StoreCreditResponse}
+import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import core.db._
-import core.utils.Money._
 
 class StoreCreditIntegrationTest
     extends IntegrationTestBase
@@ -182,7 +182,7 @@ class StoreCreditIntegrationTest
         val root = customersApi(customer.accountId).payments
           .storeCredit(scSecond.id)
           .convert()
-          .as[GiftCardResponse.Root]
+          .as[GiftCardResponse]
 
         root.originType must === (GiftCard.FromStoreCredit)
         root.state must === (giftcard.GiftCard.Active)

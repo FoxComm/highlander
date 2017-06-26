@@ -10,6 +10,7 @@ import com.pellucid.sealerate
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures._
+import core.utils.Money._
 import core.utils.Validation
 import core.utils.Validation._
 import phoenix.failures.EmptyCancellationReasonFailure
@@ -25,7 +26,6 @@ import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import core.utils.Money._
 
 case class GiftCard(id: Int = 0,
                     scope: LTree,
@@ -88,8 +88,6 @@ case class GiftCard(id: Int = 0,
   def isActive: Boolean = state == Active
   def isCart: Boolean   = state == Cart
 
-  def hasAvailable(amount: Long): Boolean = availableBalance >= amount
-
   def mustBeCart: Either[Failures, GiftCard] =
     if (isCart) Either.right(this) else Either.left(GiftCardMustBeCart(code).single)
 
@@ -97,10 +95,10 @@ case class GiftCard(id: Int = 0,
     if (!isCart) Either.right(this) else Either.left(GiftCardMustNotBeCart(code).single)
 
   def mustBeActive: Either[Failures, GiftCard] =
-    if (isActive) Either.right(this) else Either.left(GiftCardIsInactive(this).single)
+    if (isActive) Either.right(this) else Either.left(GiftCardIsInactive(this.code).single)
 
   def mustHaveEnoughBalance(amount: Long): Either[Failures, GiftCard] =
-    if (hasAvailable(amount)) Either.right(this)
+    if (availableBalance >= amount) Either.right(this)
     else Either.left(GiftCardNotEnoughBalance(this, amount).single)
 }
 

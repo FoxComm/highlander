@@ -60,10 +60,6 @@ shortcuts:
     alias: consul_alerts.yml
     target: ansible/ops_consul_alerts.yml
 
-  - name: Feature Branch Instance Setup
-    alias: ops_feature_branch.yml
-    target: ansible/ops_feature_branch.yml
-
   - name: Setup Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/ops_marathon_alerts.yml
@@ -158,6 +154,10 @@ shortcuts:
   - name: Run Data Import Seeder
     alias: seed_data_import.yml
     target: ansible/seed_data_import.yml
+
+  - name: Run Geronimo Seeder
+    alias: seed_geronimo.yml
+    target: ansible/seed_geronimo.yml
 
   # Tinystack
   - name: Deploy Atomic
@@ -260,7 +260,7 @@ shortcuts:
       branches: terraform/envs/gce_branches/terraform.tfstate
       dev: terraform/envs/gce_dev/terraform.tfstate
       demo: terraform/envs/gce_demo/terraform.tfstate
-      groups: terraform/envs/gce_groups/terraform.tfstate
+      stage: terraform/envs/gce_stage/terraform.tfstate
       test: terraform/envs/gce_test/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
@@ -272,7 +272,7 @@ shortcuts:
       branches: terraform/envs/gce_branches/branches.tfvars
       dev: terraform/envs/gce_dev/dev.tfvars
       demo: terraform/envs/gce_demo/demo.tfvars
-      groups: terraform/envs/gce_groups/groups.tfvars
+      stage: terraform/envs/gce_stage/stage.tfvars
       test: terraform/envs/gce_test/test.tfvars
       topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
@@ -290,9 +290,9 @@ shortcuts:
     alias: dev
     target: terraform/base/gce_dev
 
-  - name: FoxCommerce Stage Groups
-    alias: groups
-    target: terraform/base/gce_groups
+  - name: FoxCommerce Stage
+    alias: stage
+    target: terraform/base/gce_stage
 
   - name: FoxCommerce Test
     alias: test

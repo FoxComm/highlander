@@ -1,0 +1,108 @@
+@import 'colors.css';
+
+.block {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.color {
+  padding: 4px 12px;
+  flex-basis: 200px;
+}
+
+.sample {
+  font-size: 60px;
+  line-height: 1.4;
+  font-weight: 600;
+  font-family: '-apple-system', BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
+  text-shadow: 0 0 3px rgba(0, 0, 0, .1);
+}
+
+.color-1 {
+  color: var(--color-text);
+
+  & > .value::before {
+    content: '--color-text';
+  }
+
+  & > .desc::before {
+    content: 'Ordinary texts, titles, etc.';
+  }
+}
+
+.color-2 {
+  color: var(--color-additional-text);
+
+  & > .value::before {
+    content: '--color-additional-text';
+  }
+
+  & > .desc::before {
+    content: 'Placeholders, empty messages, instructions, disabled, etc.';
+  }
+}
+
+.color-3 {
+  color: var(--color-subtitle-text);
+
+  & > .value::before {
+    content: '--color-subtitle-text';
+  }
+
+  & > .desc::before {
+    content: 'Subtitles only (e.g. number after title).';
+  }
+}
+
+.color-4 {
+  color: var(--color-light-text);
+  background-color: var(--bg-nav-main);
+
+  & > .value::before {
+    content: '--color-light-text';
+  }
+
+  & > .desc::before {
+    content: 'Text-color for dark backgrounds.';
+  }
+}
+
+.color-5 {
+  color: var(--color-light-text-hover);
+  background-color: var(--bg-nav-main);
+
+  & > .value::before {
+    content: '--color-light-text-hover';
+  }
+
+  & > .desc::before {
+    content: '';
+  }
+}
+
+.color-6 {
+  color: var(--color-link);
+
+  & > .value::before {
+    content: '--color-link';
+  }
+
+  & > .desc::before {
+    content: 'Clickable text.';
+  }
+}
+
+.color-7 {
+  color: var(--color-error-text);
+
+  & > .value::before {
+    content: '--color-error-text';
+  }
+
+  & > .desc::before {
+    content: 'Error messages, validation messages, etc.';
+  }
+}

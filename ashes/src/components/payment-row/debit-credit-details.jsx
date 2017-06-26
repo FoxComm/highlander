@@ -8,30 +8,23 @@ type Props = {
   orderReferenceNumber: string,
   paymentMethod: {
     amount: number,
-    availableBalance: number;
-  };
-  saveAction: (orderRefNum: string, amount: number) => Promise<*>;
-  handleCancel: () => void;
-  isEditing: boolean;
-}
+    availableBalance: number,
+  },
+  saveAction: (orderRefNum: string, amount: number) => Promise<*>,
+  handleCancel: () => void,
+  isEditing: boolean,
+};
 
 const DebitCreditDetails = (props: Props) => {
   const orderRefNum = props.orderReferenceNumber;
   const { amount, availableBalance } = props.paymentMethod;
 
-  const handleSave = (amount) => {
-    props
-      .saveAction(orderRefNum, amount)
-      .then(props.handleCancel);
+  const handleSave = amount => {
+    props.saveAction(orderRefNum, amount).then(props.handleCancel);
   };
 
   if (!props.isEditing) {
-    return (
-      <DebitCreditInfo
-        availableBalance={availableBalance}
-        amount={amount}
-      />
-    );
+    return <DebitCreditInfo availableBalance={availableBalance} amount={amount} />;
   } else {
     return (
       <DebitCredit
@@ -39,7 +32,7 @@ const DebitCreditDetails = (props: Props) => {
         availableBalance={availableBalance}
         onCancel={props.handleCancel}
         onSubmit={handleSave}
-        saveText="Save"
+        saveLabel="Save"
       />
     );
   }

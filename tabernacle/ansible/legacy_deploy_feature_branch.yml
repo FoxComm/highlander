@@ -16,6 +16,7 @@
     hyperion_db_name: hyperion_development
     is_appliance: true
     is_redeploy: true
+    with_ic: false
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:

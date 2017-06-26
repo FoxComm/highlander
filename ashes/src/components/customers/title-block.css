@@ -1,4 +1,4 @@
-@import "colors.css";
+@import 'colors.css';
 
 :root {
   --header-height: 60px;
@@ -6,22 +6,24 @@
 }
 
 :root {
-  --avatar-margin-top: calc(- var(--circle-size) / 2);
+  --avatar-margin-top: calc(- var(--circle-size) / 3); /* stylelint-disable-line */
 }
 
 .block {
   margin: 40px 0;
-  background-color: var(--white);
+  background-color: var(--bg-white);
 }
 
 .header {
+  background: #263349;
+  height: 60px;
   text-align: center;
 }
 
 .head {
   height: 91px;
-  color: var(--decor0);
-  background-color: var(--decor3);
+  color: var(--color-light-text);
+  background-color: var(--bg-nav-main);
   border-radius: 3px 3px 0 0;
   margin: -1px -1px 0 -1px;
   border: 0;
@@ -31,7 +33,7 @@
   font-size: 14px;
   font-weight: 600;
   line-height: 19px;
-  color: #C7C9CB;
+  color: var(--color-additional-text);
 }
 
 .rank {
@@ -45,10 +47,9 @@
 
 .avatar {
   display: inline-block;
-  --image-size: 84px;
   width: var(--circle-size);
   height: var(--circle-size);
-  background-color: var(--white);
+  background-color: var(--bg-white);
   border-radius: 50%;
   text-align: center;
   vertical-align: top;
@@ -57,15 +58,15 @@
 
   & > i {
     display: inline-block;
-    width: var(--image-size);
-    height: var(--image-size);
-    background-color: var(--decor15);
+    width: 84px;
+    height: 84px;
+    background-color: var(--bg-green-buttons);
     overflow: hidden;
     border-radius: 50%;
-    margin-top: calc((var(--circle-size) - var(--image-size)) / 2);
-    font-size: 60px;
-    line-height: var(--image-size);
-    color: var(--decor0);
+    margin-top: calc((var(--circle-size) - 84px) / 2);
+    font-size: 50px;
+    line-height: 84px;
+    color: var(--color-light-text);
   }
 }
 
@@ -73,23 +74,30 @@
   font-size: 30px;
   font-weight: 700;
   line-height: 41px;
-  color: var(--decor1);
-  padding-bottom: 7px;
+  color: var(--color-text);
+  padding: 0 10px 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .email {
   font-size: 17px;
   font-weight: 400;
   line-height: 23px;
-  color: var(--decor1);
+  color: var(--color-text);
+  padding: 0 20px 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .body {
   font-size: 14px;
   font-weight: 600;
   line-height: 19px;
-  color: var(--decor1);
-  padding: 9px 10px 20px 10px;
+  color: var(--color-text);
+  padding: 9px 10px 20px;
 }
 
 .fields {
@@ -107,7 +115,7 @@
       font-size: 22px;
       line-height: 24px;
       text-align: center;
-      color: var(--decor6);
+      color: var(--color-additional-text);
     }
 
     &.fc-customer-info-days > i {
@@ -126,13 +134,13 @@
   vertical-align: top;
   font-size: 14px;
   line-height: 19px;
-  color: var(--decor0);
-  background-color: var(--decor3);
-  box-shadow: inset 0 -2px 3px 0 rgba(0, 0, 0, 0.50), inset 1px 1px 1px 0 rgba(255, 255, 255, 0.89);
+  color: var(--color-light-text);
+  background-color: var(--bg-nav-main);
+  box-shadow: inset 0 -2px 3px 0 rgba(0, 0, 0, .5), inset 1px 1px 1px 0 rgba(255, 255, 255, .89);
   border-radius: 3px;
 }
 
 .guest {
-  color: var(--decor8);
+  color: var(--color-additional-text);
   padding-top: 5px;
 }

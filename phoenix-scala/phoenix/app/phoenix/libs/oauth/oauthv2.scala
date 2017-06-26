@@ -1,17 +1,32 @@
 package phoenix.libs.oauth
 
 import cats.data.EitherT
+import cats.implicits._
 import dispatch.{Http, as, url ⇒ request}
+import akka.http.scaladsl.model.Uri
+
 import org.json4s._
 import phoenix.utils.aliases._
-
 import scala.concurrent.Future
 
-case class UserInfo(name: String, email: String)
+import core.failures.Failures
+import phoenix.failures.OauthFailures._
+
+case class UserInfo(name: String, email: String) {
+  def emailDomain: Either[Failures, String] = {
+    val userAtDomain = email.split("@")
+    if (userAtDomain.size == 2)
+      Either.right(userAtDomain(1))
+    else
+      Either.left(InvalidEmailInUserInfo.single)
+  }
+}
 
 trait OauthProvider {
   val oauthAuthorizationUrl: String
   val oauthAccessTokenUrl: String
+
+  def mkScopes(scopes: Set[String]): String
 
   def userInfo(accessToken: String)(implicit ec: EC): EitherT[Future, Throwable, UserInfo]
 }
@@ -20,10 +35,12 @@ trait OauthClientOptions {
   val clientId: String
   val clientSecret: String
   val redirectUri: String
+  val scopes: Seq[String]
 
   def buildExtraAuthParams: Map[String, String] = Map.empty
 }
 
+/* implements required standard flows of Oauth used by phoenix */
 abstract class Oauth(oauthOptions: OauthClientOptions) extends OauthProvider {
 
   val authorizationParams = Map(
@@ -33,12 +50,14 @@ abstract class Oauth(oauthOptions: OauthClientOptions) extends OauthProvider {
   )
 
   /* "Returns the OAuth authorization url." */
-  def authorizationUri(scope: Seq[String]): String =
-    // TODO: add state
-    request(oauthAuthorizationUrl)
-      .<<?(authorizationParams + ("scope" → scope.mkString(" ")))
-      .<<?(oauthOptions.buildExtraAuthParams)
-      .url
+  // TODO: add state support
+  lazy val authorizationUri: Uri = {
+    val params = authorizationParams ++
+      Map[String, String]("scope" → mkScopes(oauthOptions.scopes.toSet)) ++
+      oauthOptions.buildExtraAuthParams
+
+    Uri(oauthAuthorizationUrl).withQuery(Uri.Query(params))
+  }
 
   def accessToken(code: String)(implicit ec: EC): EitherT[Future, Throwable, AccessTokenResponse] =
     eitherTryFuture {

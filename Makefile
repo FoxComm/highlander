@@ -1,7 +1,7 @@
 # Development environment Makefile
 include makelib
 -include goldrush.cfg
-header = $(call baseheader, $(1), root)
+header = $(call baseheader, $(1), highlander)
 
 prepare:
 	sudo pip install -r tabernacle/requirements.txt
@@ -25,4 +25,7 @@ provision:
 	ansible-playbook -v --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) tabernacle/ansible/goldrush_appliance.yml
 	@cat goldrush.log
 
-.PHONY: prepare config up destroy provision
+publish:
+	cd developer-portal && make publish
+
+.PHONY: prepare config up destroy provision publish

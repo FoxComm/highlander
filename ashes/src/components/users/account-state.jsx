@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 // components
 import { Dropdown } from '../dropdown';
 import ContentBox from '../content-box/content-box';
-import ConfirmationDialog from '../modal/confirmation-dialog';
+import ConfirmationModal from 'components/core/confirmation-modal';
 
 // actions
 import * as UserActions from '../../modules/users/details';
@@ -25,7 +25,7 @@ type Props = {
   onChange: Function,
   currentValue: string,
   updateAccountState: Function,
-  userId: number|string,
+  userId: number | string,
 };
 
 type State = {
@@ -83,15 +83,15 @@ class AccountState extends Component {
                     changeable={false}
           />
         </ContentBox>
-        <ConfirmationDialog
-          isVisible={this.state.newState != null}
-          header="Change Account State ?"
-          body={confirmation}
-          cancel="Cancel"
-          confirm="Yes, Change"
+        <ConfirmationModal
+          isVisible={this.state.newState !== null}
+          title="Change Account State ?"
+          confirmLabel="Yes, Change"
           onCancel={this.restoreState}
-          confirmAction={this.confirmStateChange}
-        />
+          onConfirm={this.confirmStateChange}
+        >
+          {confirmation}
+        </ConfirmationModal>
       </div>
     );
   }

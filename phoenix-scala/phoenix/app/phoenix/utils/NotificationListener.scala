@@ -1,76 +1,17 @@
 package phoenix.utils
 
 import akka.actor._
-import akka.stream.actor.ActorPublisherMessage.Cancel
+
 import com.github.mauricio.async.db.Configuration
 import com.github.mauricio.async.db.postgresql.PostgreSQLConnection
 import com.typesafe.scalalogging.LazyLogging
-import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
+import de.heikoseeberger.akkasse.scaladsl.model.{ServerSentEvent ⇒ SSE}
 import org.postgresql.Driver
 import phoenix.models.Notification._
 import phoenix.utils.aliases._
+import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 
-object NotificationListener {
-
-  class SSEPublisher extends akka.stream.actor.ActorPublisher[SSE] {
-
-    override def receive: Receive = {
-      case msg: SSE ⇒
-        onNext(msg)
-      case Cancel ⇒ context.stop(self)
-      case _      ⇒ ()
-    }
-  }
-
-  case object NewClientConnected
-
-  protected case class NotifyClients(payload: String)
-}
-
-class NotificationListener(adminId: Int, action: (String, ActorRef) ⇒ Unit)(implicit ec: EC)
-    extends Actor
-    with LazyLogging {
-
-  import NotificationListener._
-
-  override def receive: Receive = {
-    case NewClientConnected ⇒
-      val child = context.actorOf(akka.actor.Props[SSEPublisher])
-      sender() ! child
-      context.watch(child)
-
-    case NotifyClients(msg) ⇒
-      context.children.foreach { childrenRef ⇒
-        action(msg, childrenRef)
-      }
-
-    case Terminated(child) ⇒
-      context.unwatch(child)
-      if (context.children.isEmpty) {
-        connection.disconnect
-        context.stop(self)
-      }
-  }
-
-  override def preStart() {
-    val myself = self
-
-    connection.connect.map { _ ⇒
-      if (connection.isConnected) {
-        connection.sendQuery(s"LISTEN ${notificationChannel(adminId)}")
-        connection.registerNotifyListener { message ⇒
-          myself ! NotifyClients(message.payload)
-        }
-      } else {
-        logger.error("Invalid attempt to start publisher, connection is not active!")
-      }
-    }
-  }
-
-  implicit val formats = JsonFormatters.phoenixFormats
-
-  private lazy val connection = createConnection()
-
+object NotificationListener extends LazyLogging {
   private def parseUrl(url: String): Configuration = {
     import scala.collection.JavaConverters._
 
@@ -84,8 +25,54 @@ class NotificationListener(adminId: Int, action: (String, ActorRef) ⇒ Unit)(im
                   database = Some(props("PGDBNAME")))
   }
 
-  private def createConnection() = {
-    val configuration = parseUrl(FoxConfig.config.db.url)
+  private def getDbUrl()(implicit db: DB): String =
+    db.source match {
+      case source: HikariCPJdbcDataSource ⇒ source.hconf.getJdbcUrl
+      case _                              ⇒ FoxConfig.config.db.url
+    }
+
+  private def createConnection()(implicit db: DB): PostgreSQLConnection = {
+    val configuration = parseUrl(getDbUrl)
     new PostgreSQLConnection(configuration)
   }
+
+  def props(accountId: Int, actorSource: ActorRef)(implicit ec: EC, db: DB): Props =
+    Props(new NotificationListener(accountId, actorSource))
+
+}
+
+class NotificationListener(adminId: Int, actorSource: ActorRef)(implicit ec: EC, db: DB)
+    extends Actor
+    with LazyLogging {
+  import NotificationListener._
+
+  implicit val formats = JsonFormatters.phoenixFormats
+
+  private lazy val connection = createConnection()
+
+  override def receive: Receive = {
+    case Terminated(child) ⇒
+      context.unwatch(child)
+      connection.disconnect
+      context.stop(self)
+  }
+
+  override def preStart(): Unit = {
+    context.watch(actorSource)
+
+    connection.connect.map { _ ⇒
+      if (connection.isConnected) {
+        connection.sendQuery(s"LISTEN ${notificationChannel(adminId)}")
+        connection.registerNotifyListener { message ⇒
+          actorSource ! SSE(message.payload)
+        }
+      } else {
+        actorSource ! akka.actor.Status
+          .Failure(new RuntimeException("Invalid attempt to start publisher, connection is not active!"))
+        logger.error("Invalid attempt to start publisher, connection is not active!")
+      }
+    }
+  }
+
+  override def postStop(): Unit = connection.disconnect
 }

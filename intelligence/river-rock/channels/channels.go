@@ -58,15 +58,10 @@ func (c *Channels) LookupHost(host string) (*HostMapping, error) {
 		return v.(*HostMapping), nil
 	}
 
-	// Get from database
-	stmt, err := c.Db.Prepare(sqlHostMapping)
-	if err != nil {
-		return nil, err
-	}
-
 	hostMap := HostMapping{}
 
-	row := stmt.QueryRow(host)
+	// Get from database
+	row := c.Db.QueryRow(sqlHostMapping, host)
 	if err := row.Scan(&hostMap.ChannelId, &hostMap.Scope); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

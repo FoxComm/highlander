@@ -11,36 +11,24 @@ import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 
 const InventoryItemDetailsBase = (props, context) => {
-  const transactionsTabActive = context.router.isActive({name: 'sku-inventory-transactions', params: props.params});
+  const transactionsTabActive = context.router.isActive({ name: 'sku-inventory-transactions', params: props.params });
 
   return (
     <div className="fc-inventory-item-details">
       <div className="fc-inventory-item-details__summary">
-        <div className="fc-grid">
-          <div className="fc-col-md-1-1">
-            <SectionTitle title="Inventory" />
-          </div>
-        </div>
-        <div className="fc-grid">
-          <div className="fc-col-md-1-1">
-            <TabListView>
-              <TabView draggable={false} selected={!transactionsTabActive}>
-                <IndexLink to="sku-inventory-details"
-                           params={props.params}
-                           className="fc-inventory-item-details__tab-link">
-                  Inventory
-                </IndexLink>
-              </TabView>
-              <TabView draggable={false} selected={transactionsTabActive}>
-                <Link to="sku-inventory-transactions"
-                      params={props.params}
-                      className="fc-inventory-item-details__tab-link">
-                  Transactions
-                </Link>
-              </TabView>
-            </TabListView>
-          </div>
-        </div>
+        <SectionTitle title="Inventory" />
+        <TabListView>
+          <TabView draggable={false} selected={!transactionsTabActive}>
+            <IndexLink to="sku-inventory-details" params={props.params} className="fc-inventory-item-details__tab-link">
+              Inventory
+            </IndexLink>
+          </TabView>
+          <TabView draggable={false} selected={transactionsTabActive}>
+            <Link to="sku-inventory-transactions" params={props.params} className="fc-inventory-item-details__tab-link">
+              Transactions
+            </Link>
+          </TabView>
+        </TabListView>
       </div>
 
       {props.children}

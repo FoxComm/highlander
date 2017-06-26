@@ -13,7 +13,7 @@
     - { role: base/consul_server }
     - { role: base/zookeeper }
     - { role: base/mesos_master }
-    - { role: base/marathon_consul }
+    - { role: base/mesos_consul }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }
   post_tasks:
@@ -24,6 +24,7 @@
         - zookeeper
         - mesos_master
         - marathon
+        - mesos_consul
         - elasticsearch_5
         - kibana
 

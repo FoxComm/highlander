@@ -5,7 +5,7 @@ const ordersSearchOptions = [
     options: [
       {
         term: 'ID',
-        type: 'string'
+        type: 'string',
       },
       {
         term: 'State',
@@ -18,37 +18,38 @@ const ordersSearchOptions = [
           'Fulfillment Started',
           'Shipped',
           'Partially Shipped',
-          'Canceled'
-        ]
+          'Canceled',
+        ],
       },
       {
         term: 'Date Placed',
-        type: 'date'
-      }
-    ]
-  }, {
+        type: 'date',
+      },
+    ],
+  },
+  {
     term: 'Shipment',
     type: 'object',
     options: [
       {
         term: 'State',
         type: 'enum',
-        suggestions: ['Shipped', 'Partially Shipped', 'Delivered']
+        suggestions: ['Shipped', 'Partially Shipped', 'Delivered'],
       },
       {
         term: 'Method',
-        type: 'string'
+        type: 'string',
       },
       {
         term: 'Cost',
-        type: 'number'
+        type: 'number',
       },
       {
         term: 'Total Number',
-        type: 'number'
-      }
-    ]
-  }
+        type: 'number',
+      },
+    ],
+  },
 ];
 
 export default ordersSearchOptions;

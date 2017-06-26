@@ -44,6 +44,7 @@ export default class GroupsTypeahead extends Component {
     }
   }
 
+  @autobind
   setTerm(term: string) {
     this.setState({
       term,
@@ -61,15 +62,12 @@ export default class GroupsTypeahead extends Component {
 
   @autobind
   handleSelectItem(item: TCustomerGroupShort, event: Object) {
-    if (_.find(this.state.selected, {id: item.id})) {
+    if (_.find(this.state.selected, { id: item.id })) {
       event.preventHiding();
     } else {
       this.setState({
         term: '',
-        selected: [
-          ...this.state.selected,
-          item,
-        ],
+        selected: [...this.state.selected, item],
       });
     }
   }
@@ -88,7 +86,7 @@ export default class GroupsTypeahead extends Component {
         autoFocus={true}
         value={state.term}
         disabled={state.selected.length >= props.maxUsers}
-        onChange={({target}) => this.setTerm(target.value)}
+        onChange={this.setTerm}
         pills={pills}
         icon={null}
         onPillClose={(name, index) => this.deselectItem(index)}

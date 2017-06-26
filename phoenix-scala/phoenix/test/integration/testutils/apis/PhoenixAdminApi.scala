@@ -9,6 +9,7 @@ import phoenix.payloads.ActivityTrailPayloads._
 import phoenix.payloads.AddressPayloads._
 import phoenix.payloads.AssignmentPayloads._
 import phoenix.payloads.CartPayloads._
+import phoenix.payloads.CatalogPayloads._
 import phoenix.payloads.CategoryPayloads._
 import phoenix.payloads.CouponPayloads._
 import phoenix.payloads.CustomerGroupPayloads._
@@ -877,6 +878,29 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def updateLastSeen(activityId: Int)(implicit aa: TestAdminAuth): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId", aa.jwtCookie.some)
+  }
+
+  object catalogsApi {
+    val catalogsPrefix = s"$rootPrefix/catalogs"
+
+    def create(payload: CreateCatalogPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(catalogsPrefix, payload, aa.jwtCookie.some)
+  }
+
+  case class catalogsApi(catalogId: Int) {
+    val catalogPath = s"${catalogsApi.catalogsPrefix}/$catalogId"
+
+    def get()(implicit aa: TestAdminAuth): HttpResponse =
+      GET(catalogPath, aa.jwtCookie.some)
+
+    def update(payload: UpdateCatalogPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(catalogPath, payload, aa.jwtCookie.some)
+
+    def addProducts(payload: AddProductsPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$catalogPath/products", payload, aa.jwtCookie.some)
+
+    def deleteProduct(productId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"$catalogPath/products/$productId", aa.jwtCookie.some)
   }
 
   object captureApi {

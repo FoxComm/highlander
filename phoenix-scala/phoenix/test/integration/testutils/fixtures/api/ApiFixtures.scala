@@ -9,11 +9,14 @@ import faker.Lorem
 import org.json4s.JsonAST.JNull
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
+import phoenix.models.catalog.Catalog
 import phoenix.models.promotion.Promotion
 import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
 import phoenix.payloads.ProductReviewPayloads.{CreateProductReviewByCustomerPayload, CreateProductReviewPayload}
 import phoenix.payloads.SkuPayloads.SkuPayload
+import phoenix.payloads.CatalogPayloads._
+import phoenix.responses.CatalogResponse
 import phoenix.responses.CouponResponses.CouponResponse
 import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import phoenix.responses.ProductReviewResponses.ProductReviewResponse
@@ -55,26 +58,38 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     Map("activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
         "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))
 
-  trait ProductSku_ApiFixture {
-    val productCode: String = s"testprod_${Lorem.numerify("####")}"
-    val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
-    def skuPrice: Long      = Random.nextInt(20000).toLong + 100
+  trait Catalog_ApiFixture {
+    private val createPayload = CreateCatalogPayload(name = "default",
+                                                     site = Some("stage.foxcommerce.com"),
+                                                     countryId = 234,
+                                                     defaultLanguage = "en")
 
-    private val skuPayload = SkuPayload(
+    val catalog: CatalogResponse.Root =
+      catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse.Root]
+  }
+
+  def randomProductName: String = s"testprod_${Lorem.numerify("####")}"
+  def randomSkuCode: String     = s"sku_${Lorem.letterify("????").toUpperCase}"
+  def randomSkuPrice: Long      = Random.nextInt(20000).toLong + 100
+
+  case class ProductSku_ApiFixture(productName: String = randomProductName,
+                                   skuCode: String = randomSkuCode,
+                                   skuPrice: Long = randomSkuPrice) {
+    val skuPayload = SkuPayload(
       attributes = Map("code"        → tv(skuCode),
                        "title"       → tv(skuCode.capitalize),
                        "salePrice"   → usdPrice(skuPrice),
                        "retailPrice" → usdPrice(skuPrice)) ++ eternalActivity())
 
     val productPayload =
-      CreateProductPayload(
-        attributes =
-          Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)) ++ eternalActivity(),
-        skus = Seq(skuPayload),
-        variants = None)
+      CreateProductPayload(attributes =
+                             Map("name" → tv(productName), "title" → tv(productName)) ++ eternalActivity(),
+                           skus = Seq(skuPayload),
+                           variants = None)
 
     val product: ProductRoot =
       productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]
+
     val sku: SkuResponse.Root = product.skus.onlyElement
   }
 
@@ -168,9 +183,9 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
 
     protected def couponAttrs(activeFrom: Instant, activeTo: Option[Instant]): Map[String, Json] = {
       val usageRules = {
-        ("isExclusive"              → true) ~
-          ("isUnlimitedPerCode"     → true) ~
-          ("isUnlimitedPerCustomer" → true)
+        ("isExclusive"            → true) ~
+        ("isUnlimitedPerCode"     → true) ~
+        ("isUnlimitedPerCustomer" → true)
       }.asShadowVal(t = "usageRules")
 
       val commonAttrs = Map[String, Any](

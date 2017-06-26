@@ -13,6 +13,9 @@ class AccountOrganizations(tag: Tag) extends FoxTable[AccountOrganization](tag, 
   def organizationId = column[Int]("organization_id")
   def * =
     (id, accountId, organizationId) <> ((AccountOrganization.apply _).tupled, AccountOrganization.unapply)
+
+  def account      = foreignKey(Accounts.tableName, accountId, Accounts)(_.id)
+  def organization = foreignKey(Organizations.tableName, organizationId, Organizations)(_.id)
 }
 
 object AccountOrganizations
@@ -21,6 +24,6 @@ object AccountOrganizations
 
   val returningLens: Lens[AccountOrganization, Int] = lens[AccountOrganization].id
 
-  def findByAccountId(accountId: Int): QuerySeq =
+  def filterByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId)
 }

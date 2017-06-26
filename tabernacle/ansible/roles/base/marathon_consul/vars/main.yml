@@ -1,3 +1,0 @@
-marathon_consul_apt_url: http://dl.bintray.com/v1/content/allegro/deb
-marathon_consul_apt_key_url: https://bintray.com/user/downloadSubjectPublicKey?username=allegro
-marathon_consul_config_path: /etc/marathon-consul.d/config.json

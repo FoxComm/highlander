@@ -1,12 +1,13 @@
-@import "common.css";
+@import 'common.css';
+@import 'colors.css';
 
-.waiting {
+.spinner {
   margin: 10px auto;
 }
 
 .taxonomies {
-  border: 1px solid #d9d9d9;
-  background-color: #f7f7f7;
+  border: 1px solid var(--color-border);
+  background-color: var(--bg-grey-headers);
   margin-bottom: 20px;
   padding: 20px;
   position: relative;
@@ -22,6 +23,7 @@
     left: 0;
     bottom: 0;
     right: 0;
+
     @apply --loading-caramel;
   }
 }
@@ -66,11 +68,6 @@
  * Transitions
  ********************************************************/
 
-/* required for transitionName to work as it's used as `transitionName={styles.dropdown}` */
-.dropdown {
-
-}
-
 .dropdownEnter,
 .dropdownLeave.dropdownLeaveActive {
   display: flex;
@@ -88,7 +85,7 @@
 .pillEnter,
 .pillAppear,
 .pillLeave.pillLeaveActive {
-  opacity: 0.1;
+  opacity: .1;
   transform: scale(.8);
 }
 
