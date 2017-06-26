@@ -36,7 +36,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
     }
 
     "Evaluates rule: shipped to Canada" - {
-      pending // FIXME @aafa
+      pending // FIXME @aafa here json4s fails with `unknown error` while parsing conditions, investigate!
       "Is true when the order is shipped to Canada" in new CountryFixture {
         val canada = (for {
           canada ← * <~ Addresses

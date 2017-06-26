@@ -86,9 +86,6 @@ class CheckoutIntegrationTest
           'type (PaymentMethod.CreditCard)
         )
 
-        // FIXME: Add Address#id to OrderShippingAddress? @michalrus
-        // FIXME: And, afterwards, check just IDs. @michalrus
-        // todo check if fixme has been addressed @aafa
         val orderShippingAddress = Addresses.findOneById(order.shippingAddress.id).gimme.value
         val expectedAddressResponse = AddressResponse.build(
           orderShippingAddress,

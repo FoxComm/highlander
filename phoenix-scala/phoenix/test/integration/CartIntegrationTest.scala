@@ -281,7 +281,10 @@ class CartIntegrationTest
         cartsApi(cart.refNum).shippingAddress.updateFromAddress(address.id).mustBeOk()
 
         val shippingAddressUpd = Addresses.findByCordRef(cart.refNum).one.gimme.value
-//        shippingAddressUpd.cordRef.value must === (cart.refNum)
+        shippingAddressUpd.name must === (address.name)
+        shippingAddressUpd.address1 must === (address.address1)
+        shippingAddressUpd.city must === (address.city)
+        shippingAddressUpd.regionId must === (address.regionId)
       }
 
       "removes an existing shipping address before copying new address" in new EmptyCartWithShipAddress_Baked {
@@ -303,8 +306,7 @@ class CartIntegrationTest
       }
     }
 
-    // FIXME shipping address IS customer's address now @aafa
-    "editing a shipping address by copying from a customer's address book" - {
+    "editing a shipping address by attaching from a customer's address book" - {
 
       "succeeds when the address exists" in new EmptyCartWithShipAddress_Baked {
         val newAddress = Addresses
@@ -320,7 +322,10 @@ class CartIntegrationTest
         cartsApi(cart.refNum).shippingAddress.updateFromAddress(newAddress.id).mustBeOk()
 
         val shippingAddressUpd = Addresses.findByCordRef(cart.refNum).one.gimme.value
-//        shippingAddressUpd.cordRef.value must === (cart.refNum)
+        shippingAddressUpd.name must === (newAddress.name)
+        shippingAddressUpd.address1 must === (newAddress.address1)
+        shippingAddressUpd.city must === (newAddress.city)
+        shippingAddressUpd.regionId must === (newAddress.regionId)
       }
 
       "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
@@ -329,13 +334,6 @@ class CartIntegrationTest
           .mustFailWith404(NotFoundFailure404(Address, 99))
       }
 
-      "does not change the current shipping address if the edit fails" in new EmptyCartWithShipAddress_Baked {
-        cartsApi(cart.refNum).shippingAddress
-          .updateFromAddress(101)
-          .mustFailWith404(NotFoundFailure404(Address, 101))
-
-//        Addresses.findByCordRef(cart.refNum).one.gimme.value.cordRef.value must === (cart.refNum)
-      }
     }
   }
 
