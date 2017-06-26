@@ -138,6 +138,7 @@ module.exports = {
               components: () => ([
                 path.resolve(__dirname, '../src/components/utils/change/change.jsx'),
                 path.resolve(__dirname, '../src/components/utils/currency/currency.jsx'),
+                path.resolve(__dirname, '../src/components/utils/datetime/datetime.jsx'),
               ]),
             },
           ],

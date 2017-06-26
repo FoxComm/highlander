@@ -7,7 +7,7 @@ import classNames from 'classnames';
 
 // components
 import { Button } from 'components/core/button';
-import { Time } from '../../../common/datetime';
+import { Time } from 'components/utils/datetime';
 import AuthorTitle from './author-title';
 import AuthorIcon from './author-icon';
 
