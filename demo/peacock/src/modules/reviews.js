@@ -3,6 +3,7 @@
 // libs
 import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
+import _ from 'lodash';
 
 // actions - private
 const _fetchReviewsForUser = createAsyncActions(
@@ -52,12 +53,14 @@ export const fetchReviewsForUser = _fetchReviewsForUser.perform;
 export const fetchReviewsForSku = _fetchReviewsForSku.perform;
 export const updateReview = _updateReview.perform;
 export const clearReviews = createAction('REVIEWS_CLEAR');
+export const toggleReviewsModal = createAction('TOGGLE_REVIEWS_MODAL');
 
 // redux
 const initialState = {
   current: null,
   list: [],
   paginationTotal: 0,
+  reviewsModalVisible: false,
 };
 
 const reducer = createReducer({
@@ -88,6 +91,13 @@ const reducer = createReducer({
       current: initialState.current,
       list: initialState.list,
       paginationTotal: initialState.paginationTotal,
+    };
+  },
+  [toggleReviewsModal]: (state) => {
+    const current = _.get(state, 'reviewsModalVisible', false);
+    return {
+      ...state,
+      reviewsModalVisible: !current,
     };
   },
 }, initialState);
