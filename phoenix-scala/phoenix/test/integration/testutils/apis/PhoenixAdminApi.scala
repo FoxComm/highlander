@@ -653,6 +653,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def delete()(implicit aa: TestAdminAuth): HttpResponse =
       DELETE(albumPath, aa.jwtCookie.some)
+
+    def uploadImageByUrl(payload: ImagePayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(s"$albumPath/images/by-url", payload, aa.jwtCookie.some)
   }
 
   object saveForLaterApi {

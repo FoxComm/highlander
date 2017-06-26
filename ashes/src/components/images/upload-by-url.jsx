@@ -1,55 +1,53 @@
 /* @flow */
 
+/**
+ * Upload From Link   x
+ * Media URL
+ * <input>
+ * cancel | upload
+ */
+
 // libs
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
 // components
-import { FormField } from 'components/forms';
 import Modal from 'components/core/modal';
+import { FormField } from 'components/forms';
 import SaveCancel from 'components/core/save-cancel';
 import Form from 'components/forms/form';
 import TextInput from 'components/core/text-input';
 import Errors from 'components/utils/errors';
 
-// types
-import type { NewAlbum } from '../../modules/images';
-
 // styles
 import s from './edit-image.css';
 
-type Props = {
-  isVisible: boolean;
-  isNew?: boolean;
-  inProgress: boolean;
-  album: NewAlbum;
+type Props = {|
   onSave: (name: string) => void;
   onCancel: () => void;
+  inProgress?: boolean;
   error?: any;
-};
+  isVisible: boolean;
+|};
 
 type State = {
-  name: string;
+  url: string;
 };
 
-export default class EditAlbum extends Component {
+class UploadByUrl extends Component {
 
   props: Props;
 
   state: State = {
-    name: this.props.album.name,
+    url: '',
   };
 
-  static defaultProps = {
-    isNew: false,
-  };
-
-  _input: TextInput;
+  input: TextInput;
 
   componentDidMount() {
-    if (this._input) {
-      this._input.focus();
+    if (this.input) {
+      this.input.focus();
     }
   }
 
@@ -58,57 +56,53 @@ export default class EditAlbum extends Component {
   }
 
   get saveDisabled(): boolean {
-    return _.isEmpty(this.state.name) || this.state.name === this.props.album.name;
+    return _.isEmpty(this.state.url) || !!this.props.inProgress;
   }
 
   @autobind
-  handleUpdateName(name: string) {
-    this.setState({ name });
+  handleUpdateName(url: string) {
+    this.setState({ url });
   }
 
   @autobind
   handleSave(event: Event) {
-    const { inProgress, onSave } = this.props;
-
     event.preventDefault();
-
-    if (!inProgress && !this.saveDisabled) {
-      onSave(this.state.name);
-    }
+    this.props.onSave(this.state.url);
   }
 
   render() {
     const { error, inProgress, onCancel, isVisible } = this.props;
-    const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (
-      <Modal title={title} onClose={onCancel} isVisible={isVisible}>
+      <Modal title="Upload From Link" onClose={onCancel} isVisible={isVisible}>
+        <Errors error={error} />
         <Form onSubmit={this.handleSave}>
           <FormField
-            label="Album Name"
+            label="Media URL"
             className="fc-product-details__field"
             labelClassName="fc-product-details__field-label">
             <TextInput
-              name="name"
+              name="url"
               className="fc-product-details__field-value"
-              value={this.state.name}
+              value={this.state.url}
               onChange={this.handleUpdateName}
-              ref={r => this._input = r}
+              ref={r => this.input = r}
               autoComplete="off"
             />
           </FormField>
-          <Errors error={error} />
           <SaveCancel
-            className={s.editAlbumFooter}
+            className={s.uploadByUrl}
             onCancel={onCancel}
             onSave={this.handleSave}
-            saveDisabled={this.saveDisabled || inProgress}
-            cancelDisabled={inProgress}
             isLoading={inProgress}
-            saveText="Save and Apply"
+            cancelDisabled={inProgress}
+            saveDisabled={this.saveDisabled}
+            saveText="Upload"
           />
         </Form>
       </Modal>
     );
   }
 }
+
+export default UploadByUrl;

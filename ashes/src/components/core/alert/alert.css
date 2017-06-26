@@ -10,22 +10,20 @@
 }
 
 .message {
-  display: flex;
-  align-items: center;
   font-size: 13px;
   line-height: 18px;
+  flex: 1 1 auto;
+}
 
-  & > i {
-    display: inline-flex; /* fixes extra pixel in height */
-    margin-right: 5px;
-    font-size: 22px;
-  }
+.icon {
+  display: inline-flex; /* fixes extra pixel in height */
+  align-items: center;
+  margin-right: 8px;
 }
 
 .close {
   margin-left: 10px;
-  font-size: 30px;
-  line-height: 18px;
+  margin-top: -6px;
   cursor: pointer;
   transition: opacity .2s;
 
