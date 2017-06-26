@@ -41,19 +41,17 @@ const ReviewRow = (props: Review) => {
   const { id } = props;
   const { imageUrl, productName, status } = props.attributes;
   return (
-    <div styleName="line-item">
-      <div styleName="content">
+    <div styleName="reviews-content">
+      <div styleName="product-data">
         <div styleName="product-image">
           <ProductImage src={imageUrl.v} width={50} height={50} />
         </div>
-        <div styleName="product-data">
-          <div styleName="product-info">
-            <div styleName="product-name">{productName.v}</div>
-            <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
-          </div>
+        <div styleName="product-info">
+          <div styleName="product-name">{productName.v}</div>
+          <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
         </div>
-        {renderActions(status.v, id)}
       </div>
+      {renderActions(status.v, id)}
     </div>
   );
 };

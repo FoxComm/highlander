@@ -1,29 +1,29 @@
-// @flow
+/* @flow */
+
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
-// import Block from '../common/block';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 import ReviewRow from './review-row';
 
 import styles from '../profile.css';
 
 import * as actions from 'modules/reviews';
 
-function mapStateToProps(state) {
-  return {
-    reviews: _.get(state.reviews, 'list', []),
-    auth: state.auth,
-  };
-}
+type Props = {
+  auth: Object,
+  reviews: Array<Object>,
+};
 
 type State = {
   error: ?string;
 };
 
-class MyReviews extends Component {
+class ReviewsBlock extends Component {
+  props: Props;
+
   state: State = {
     error: null,
   };
@@ -58,14 +58,24 @@ class MyReviews extends Component {
     );
   }
 
-/* TODO: implement the reviews on profile page according to the new design
-  <Block title="My Reviews">
-    {this.content}
-  </Block>
-  */
   render() {
-    return <div />;
+    return (
+      <div styleName="reviews-block">
+        <div styleName="title">My reviews</div>
+        <div styleName="divider table" />
+        {this.content}
+      </div>
+    );
   }
 }
 
-export default connect(mapStateToProps, actions)(MyReviews);
+const mapState = (state) => {
+  return {
+    reviews: _.get(state.reviews, 'list', []),
+    auth: _.get(state, 'auth', {}),
+  };
+};
+
+export default connect(mapState, {
+  ...actions,
+})(ReviewsBlock);
