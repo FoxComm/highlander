@@ -49,22 +49,23 @@ create or replace function update_store_credit_transactions_view_update_fn() ret
   end;
 $$ language plpgsql;
 
-create or replace function update_sc_txn_view_from_order_payment_fn() returns trigger as $$
+create or replace function update_sc_txn_view_from_orders_fn() returns trigger as $$
   begin
     update store_credit_transactions_search_view set
       order_payment = q.order_payment
       from (select
-            new.id,
-            case when op is not null then
-              to_json((
-                o.reference_number,
-                to_json_timestamp(o.placed_at),
-                to_json_timestamp(op.created_at)
-              )::export_order_payments)
-            else '{}' end as order_payment
-        from order_payments as op
-        inner join orders as o on (o.reference_number = op.cord_ref)
-        where op.id = new.order_payment_id) as q
+            sca.id,
+                 case when op is null then '{}'
+                 else to_json((
+                   o.reference_number,
+                   to_json_timestamp(o.placed_at),
+                   to_json_timestamp(op.created_at)
+                 )::export_order_payments)::jsonb
+                 end as order_payment
+             from store_credit_adjustments sca
+             inner join order_payments op on op.id = sca.order_payment_id
+             inner join orders o on o.reference_number = op.cord_ref
+             where op.cord_ref = new.reference_number) as q
       where store_credit_transactions_search_view.id = q.id;
 
     return null;
@@ -73,7 +74,7 @@ $$ language plpgsql;
 
 drop trigger if exists update_store_credit_transactions_view_insert on store_credit_adjustments;
 drop trigger if exists update_store_credit_transactions_view_update on store_credit_adjustments;
-drop trigger if exists update_sc_txn_from_orders_payment on store_credit_adjustments;
+drop trigger if exists update_store_credit_transactions_view_from_orders on orders;
 
 create trigger update_store_credit_transactions_view_insert
     after insert on store_credit_adjustments
@@ -85,9 +86,7 @@ create trigger update_store_credit_transactions_view_update
     for each row
     execute procedure update_store_credit_transactions_view_update_fn();
 
-create trigger update_sc_txn_from_orders_payment
-    after update on store_credit_adjustments
+create trigger update_store_credit_transactions_view_from_orders
+    after insert on orders
     for each row
-    when (new.order_payment_id is not null and
-      new.order_payment_id is distinct from old.order_payment_id)
-    execute procedure update_sc_txn_view_from_order_payment_fn();
+    execute procedure update_sc_txn_view_from_orders_fn();
