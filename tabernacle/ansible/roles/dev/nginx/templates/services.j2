@@ -66,6 +66,7 @@ upstream hyperion {
 upstream geronimo {
   << range service "geronimo" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{geronimo_server}} fail_timeout=30s max_fails=10; << end >>
+}
 
 # We use port 9000 for agni
 upstream agni {

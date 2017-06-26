@@ -11,7 +11,7 @@ config:
 
 up:
 	$(call header, Creating Appliance)
-	ansible-playbook -vvvv --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) --extra-vars '{"FIRST_RUN": false}' tabernacle/ansible/goldrush_appliance.yml
+	ansible-playbook -vvvv --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) --extra-vars '{"FIRST_RUN": true}' tabernacle/ansible/goldrush_appliance.yml
 	@cat goldrush.log
 
 destroy:
