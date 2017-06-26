@@ -1,0 +1,105 @@
+## ContentType [/v1/admin/content_types{id}]
+
+This object represents ContentTypes in CMS.
+Each ContentType describes specific Entity.
+
++ Parameters
+    + id: `1` (required, number) - ContentType ID.
+
++ Model (application/json)
+    + Attributes (ContentTypeResponse)
+
+
+### Retrieve ContentType [GET]
+
+Allows an administrator to retrieve a content_type record, which includes all
+information about the content_type.
+
++ Response 200 (application/json)
+    + Attributes (ContentTypeResponse)
+
+### Create New ContentType [POST /v1/admin/content_types]
+
+Allows an administrator to create a new content_types.
+
++ Request (application/json)
+    + Attributes (ContentTypePayload)
++ Response 200 (application/json)
+    + Attributes (ContentTypeResponse)
+
+### Update Existing ContentType [PUT]
+
++ Request (application/json)
+    + Attributes(ContentTypeUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (ContentTypeResponse)
+
+### Get specific version of ContentType [GET /v1/admin/content_types/{id}/versions?ver={version}]
+
++ Parameters
+    + id: `1` (required, number) - ContentType ID.
+    + ver: `2017-06-13T16:14:51.974673Z` (required, string) - Version of a ContentType
+
++ Response 200 (application/json)
+    + Attributes (ContentTypeResponse)
+
+### Restore specific version of ContentType [PUT /v1/admin/content_types/{id}/restore?ver={version}]
+
++ Parameters
+    + id: `1` (required, number) - ContentType ID.
+    + ver: `2017-06-13T16:14:51.974673Z` (required, string) - Version of a ContentType
+
++ Response 200 (application/json)
+    + Attributes (ContentTypeResponse)
+
+## Entity [/v1/admin/entities{id}]
+
+This object describes an actual entity of CMS: Blog posts, testimonials, etc.
+Each Entity validates against corresponding ContentType's schema before creation.
+
++ Parameters
+    + id: `1` (required, number) - Entity ID.
+
++ Model (application/json)
+    + Attributes (EntityAdminResponse)
+
+### Retrieve Entity [GET]
+
+Allows an administrator to retrieve a single Entity record.
+
++ Response 200 (application/json)
+    + Attributes (EntityAdminResponse)
+
+### Create New Entity [POST /v1/admin/entities]
+
+Allows an administrator to create a new Entity.
+
++ Request (application/json)
+    + Attributes (EntityPayload)
++ Response 200 (application/json)
+    + Attributes (EntityAdminResponse)
+
+### Update Existing Entity [PUT]
+
++ Request (application/json)
+    + Attributes(EntityUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (EntityAdminResponse)
+
+### Get specific version of Entity [GET /v1/admin/entities/{id}/versions?ver={version}]
+
++ Parameters
+    + id: `1` (required, number) - Entity ID.
+    + ver: `2017-06-13T16:14:51.974673Z` (required, string) - Version of a Entity
+
++ Response 200 (application/json)
+    + Attributes (EntityAdminResponse)
+
+### Restore specific version of Entity [PUT /v1/admin/entities/{id}/restore?ver={version}]
+
++ Parameters
+    + id: `1` (required, number) - Entity ID.
+    + ver: `2017-06-13T16:14:51.974673Z` (required, string) - Version of a Entity
+
++ Response 200 (application/json)
+    + Attributes (EntityAdminResponse)

@@ -1,0 +1,41 @@
+# Data Structures
+
+## ContentTypeBase
++ schema: `{ "title": {"type": ["string"], "required": true }}` (required, string) - JSON schema of a content_type
++ name: `BlogPost` (required, string) - Name of a content_type
+
+## ContentTypePayload
+- Include ContentTypeBase
+
+## ContentTypeUpdatePayload
++ schema: `{ "another_title": {"type": ["string"], "required": true }}` (optional, string) - JSON schema of a content_type
++ name: `BlogPost` (optional, string) - Name of a content_type
+
+## ContentTypeResponse
+- Include ContentTypeBase
++ scope: `1` (required, string) - Scope of an admin who created a given ContentType
++ id: `1` (required, number) - ID of a created ContentType
++ created_by: `4` (required, number) - ID of a user who created a given ContentType
++ versions: `["2017-06-12T03:13:46Z", "2017-06-13T03:12:46Z"]` (optional, string) - Previous versions of ContentType
+
+## EntityBase
++ content_type_id: 1 (required, number) - id of a corresponding content_type
++ storefront: `theperfectgourmet.com` (required, string) - Name of a store on which given Entity has been created
++ content: ` { "title": "foo" } ` (required, string) - JSON content of a Entity
+
+## EntityPayload
+- Include EntityBase
+
+## EntityUpdatePayload
++ content_type_id: 1 (optional, number) - id of a corresponding content_type
++ content: ` { "title": "bar" } ` (optional, string) - JSON content of a Entity
+
+## EntityAdminResponse
+- Include EntityBase
++ schema_version: `2017-06-12T03:13:46Z` (required, string) - Version of schema Entity was validated against
++ storefront: `theperfectgourmet.com` (required, string) - Name of a store on which given Entity has been created
++ kind: `BlogPost` (required, string) - Type of a created Entity
++ id: `3` (required, number) - ID of a created Entity
++ created_by: `4` (required, number) - ID of a user who created a given Entity
++ versions: `["2017-06-12T03:13:46Z", "2017-06-13T03:12:46Z"]` (optional, string) - Previous versions of Entity
+
