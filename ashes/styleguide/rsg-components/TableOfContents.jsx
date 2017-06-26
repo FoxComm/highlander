@@ -1,10 +1,13 @@
 import { pick } from 'lodash';
-import { autobind } from 'core-decorators';
+import { assoc } from 'sprout-data';
+import { autobind, debounce } from 'core-decorators';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { filterSectionsByName } from 'react-styleguidist/lib/utils/utils';
 import ComponentsList from 'rsg-components/ComponentsList';
 import TableOfContentsRenderer from 'react-styleguidist/lib/rsg-components/TableOfContents/TableOfContentsRenderer';
+
+require('smoothscroll-polyfill').polyfill();
 
 function isElementWithSlugInViewport(slug) {
   const el = document.getElementById(slug);
@@ -58,8 +61,6 @@ export default class TableOfContents extends Component {
 
     const sections = this.props.sections.reduce(buildItems(0), []);
 
-    console.log(sections);
-
     this.setState({ sections });
   }
 
@@ -69,7 +70,7 @@ export default class TableOfContents extends Component {
 
   getExpandedState(slug, expand = true) {
     return {
-      ...this.state.expandedItems,
+      ...Object.keys(this.state.expandedItems).reduce((res, item) => assoc(res, item, false), {}),
       [slug]: expand,
     };
   }
@@ -110,8 +111,19 @@ export default class TableOfContents extends Component {
   }
 
   @autobind
+  @debounce(150)
+  handleSmoothScroll() {
+    window.addEventListener('scroll', this.handleScroll);
+    // trigger scroll function manually to get active element
+    this.handleScroll();
+  }
+
+  @autobind
   handleClick(slug, e) {
     e.preventDefault();
+
+    window.removeEventListener('scroll', this.handleScroll);
+    window.addEventListener('scroll', this.handleSmoothScroll);
 
     document.querySelector(e.target.hash).scrollIntoView({
       behavior: 'smooth',

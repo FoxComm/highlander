@@ -1,13 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { trim } from 'lodash';
 import cx from 'classnames';
-import { autobind } from 'core-decorators';
 import Link from 'rsg-components/Link';
 import Styled from 'rsg-components/Styled';
 import ListItem from './ComponentsListItem';
-
-require('smoothscroll-polyfill').polyfill();
 
 const styles = ({ font, small }) => ({
   list: {
@@ -42,24 +38,10 @@ const styles = ({ font, small }) => ({
   },
 });
 
-function isElementWithSlugInViewport(slug) {
-  const el = document.getElementById(slug);
-  if (!el) {
-    console.warn(`element "${slug}" not found`);
-
-    return false;
-  }
-  const elementTop = el.offsetTop;
-  const elementBottom = elementTop + el.offsetHeight;
-  const pageTop = window.scrollY;
-
-  return elementTop + 50 <= pageTop + 200 && elementBottom >= pageTop;
-}
-
 export class ComponentsListRenderer extends React.Component {
   static defaultProps = {
     expanded: false,
-  }
+  };
 
   isActiveSlug(slug) {
     return slug === window.location.hash.substr(2);

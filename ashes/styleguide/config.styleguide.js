@@ -9,6 +9,7 @@ module.exports = {
   ignore: [path.join(__dirname, '../src/components/core/**/*.spec.jsx')],
   webpackConfig: require('./webpack.styleguide.js'),
   styleguideDir: path.resolve('build/admin/styleguide'),
+  highlightTheme: 'railscasts',
   getComponentPathLine: componentPath => {
     const dirname = path.dirname(componentPath, '.jsx');
     const name = dirname.split('/').slice(-1)[0];
