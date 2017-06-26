@@ -6,58 +6,60 @@ import React from 'react';
 import ActionLink from 'ui/action-link/action-link';
 import ProductImage from '../../image/image';
 
+import type Review from 'types/review';
+
 import styles from '../profile.css';
 
-type ReviewAttributes = {
-  imageUrl: {t: 'string', v: string},
-  productName: {t: 'string', v: string},
-  status: {t: 'string', v: string},
-}
-
-type Review = {
-  sku: string,
-  id: number,
-  attributes: ReviewAttributes,
+type Props = {
+  review: Review,
+  handleReviewForm: Function, // signature
 };
 
-const renderActions: (string, number) => Element<*> = (status, id) => {
-  if (status == 'pending') {
+const ReviewRow = (props: Props) => {
+  const { review } = props;
+  const { id, attributes } = review;
+
+  const {
+    imageUrl,
+    productName,
+    status
+  } = attributes;
+
+  const renderActions = () => {
+    if (status.v == 'pending') {
+      return (
+        <div styleName="reviews-actions">
+          <ActionLink
+            action={() => { props.handleReviewForm(review); }}
+            title="Add review"
+            styleName="reviews-action-link"
+          />
+
+          <ActionLink
+            action={() => { console.log('ignore the review');}}
+            title="Ignore"
+            styleName="reviews-action-link"
+          />
+        </div>
+      );
+    }
     return (
       <div styleName="reviews-actions">
         <ActionLink
-          action={() => { console.log('add a review');}}
-          title="Add review"
+          action={() => { props.handleReviewForm(review); }}
+          title="Edit review"
           styleName="reviews-action-link"
         />
 
         <ActionLink
-          action={() => { console.log('ignore the review');}}
-          title="Ignore"
+          action={() => { console.log('remove the review');}}
+          title="Delete"
           styleName="reviews-action-link"
         />
       </div>
     );
-  }
-  return (
-    <div styleName="reviews-actions">
-      <ActionLink
-        action={() => { console.log('edit a review');}}
-        title="Edit review"
-        styleName="reviews-action-link"
-      />
+  };
 
-      <ActionLink
-        action={() => { console.log('remove the review');}}
-        title="Delete"
-        styleName="reviews-action-link"
-      />
-    </div>
-  );
-};
-
-const ReviewRow = (props: Review) => {
-  const { id } = props;
-  const { imageUrl, productName, status } = props.attributes;
   return (
     <div styleName="reviews-content">
       <div styleName="product-data">
@@ -69,7 +71,7 @@ const ReviewRow = (props: Review) => {
           <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
         </div>
       </div>
-      {renderActions(status.v, id)}
+      {renderActions()}
     </div>
   );
 };

@@ -1,24 +1,32 @@
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
+// components
 import ErrorAlerts from 'ui/alerts/error-alerts';
 import ReviewRow from './review-row';
-
-import styles from '../profile.css';
+import Modal from 'ui/modal/modal';
+import ReviewForm from './review-form';
 
 import * as actions from 'modules/reviews';
 
+import type Review from 'types/review';
+
+import styles from '../profile.css';
+
 type Props = {
   auth: Object,
-  reviews: Array<Object>,
+  reviews: Array<Review>,
+  reviewsModalVisible: boolean,
 };
 
 type State = {
-  error: ?string;
+  error: ?string,
+  currentReviewId: ?number,
 };
 
 class ReviewsBlock extends Component {
@@ -26,29 +34,68 @@ class ReviewsBlock extends Component {
 
   state: State = {
     error: null,
+    currentReviewId: null,
   };
 
   componentWillMount() {
+    this.fetchReviews().catch((error) => {
+      this.setState({ error })
+    });
+  }
+
+  @autobind
+  fetchReviews() {
     if (_.get(this.props.auth, 'jwt')) {
       const userId = this.props.auth.user.id;
-      this.props.fetchReviewsForUser(userId).catch((ex) => {
-        this.setState({
-          error: ex.toString(),
-        });
-      });
+      return this.props.fetchReviewsForUser(userId);
+    } else {
+      return Promise.reject("Not authorized");
     }
+  }
+
+  get modal() {
+    const { reviewsModalVisible } = this.props;
+
+    return (
+      <Modal
+        show={reviewsModalVisible}
+        toggle={this.props.toggleReviewsModal}
+      >
+        <ReviewForm
+          reviewId={this.state.currentReviewId}
+          closeModal={this.props.toggleReviewsModal}
+          updateReview={this.props.updateReview}
+          fetchReviews={this.fetchReviews}
+          fetchState={this.props.reviewsState}
+        />
+      </Modal>
+    );
+  }
+
+  @autobind
+  handleReviewForm(review) {
+    this.props.toggleReviewsModal();
+    this.setState({ currentReviewId: review.id });
   }
 
   @autobind
   renderReview(review) {
-    return <ReviewRow {...review} key={`review-${review.id}`} />;
+    return (
+      <ReviewRow
+        review={review}
+        key={`review-${review.id}`}
+        handleReviewForm={this.handleReviewForm}
+      />
+    );
   }
 
   @autobind
   content(reviews) {
-    if (this.state.error) {
+    const { reviewsState } = this.props;
+
+    if (reviewsState.err || this.state.error) {
       return (
-        <ErrorAlerts error={this.state.error} />
+        <ErrorAlerts error={reviewsState.err || this.state.error} />
       );
     }
 
@@ -86,6 +133,7 @@ class ReviewsBlock extends Component {
       <div>
         {this.myReviews(reviewed, false)}
         {this.myReviews(notReviewed, true)}
+        {this.modal}
       </div>
     );
   }
@@ -99,6 +147,8 @@ const mapState = (state) => {
   return {
     reviews: _.get(state.reviews, 'list', []),
     auth: _.get(state, 'auth', {}),
+    reviewsModalVisible: _.get(state.reviews, 'reviewsModalVisible', false),
+    reviewsState: _.get(state.asyncActions, 'fetchReviews', {}),
   };
 };
 

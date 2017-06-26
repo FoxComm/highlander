@@ -159,6 +159,10 @@
   }
 }
 
+.review-error {
+  margin-left: 15px;
+}
+
 @media (--medium-only) {
   .profile {
     padding: 16px;

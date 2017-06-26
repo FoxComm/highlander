@@ -1,60 +1,58 @@
 // @flow
 
+// libs
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
-// import Block from '../common/block';
-// import Button from 'ui/buttons';
-// import { FormField, Form } from 'ui/forms';
-// import { TextInput } from 'ui/text-input';
-// import { TextArea } from 'ui/textarea';
-// import { Link } from 'react-router';
-import * as actions from 'modules/reviews';
+// components
+import CheckoutForm from 'pages/checkout/checkout-form';
+import { FormField } from 'ui/forms';
+import { TextInput } from 'ui/text-input';
+import { TextArea } from 'ui/textarea';
+import ErrorAlerts from 'ui/alerts/error-alerts';
+import Loader from 'ui/loader';
+
+import type Review from 'types/review';
 
 import styles from '../profile.css';
-
-type ReviewAttributes = {
-  imageUrl: {t: 'string', v: string},
-  productName: {t: 'string', v: string},
-  status: {t: 'string', v: string},
-  title: {t: 'string', v: string},
-  body: {t: 'string', v: string},
-}
-
-type Review = {
-  sku: string,
-  id: number,
-  attributes: ReviewAttributes,
-};
 
 type State = {
   title: string,
   body: string,
   isHappy: boolean,
+  currentReview: ?Review,
 };
 
-type ReviewFormProps = {
-  review: Review,
-  updateReview: Function,
+type Props = {
+  reviewId: ?number,
+  updateReview: Function, // signature
+  closeModal: Function, // signature
+  updateReviewState: Object, // AsyncActions type
 };
-
-function mapStateToProps(state, props) {
-  const reviewList = _.get(state, 'reviews.list', []);
-  return {
-    review: _.find(reviewList, review => review.id == props.routeParams.reviewId),
-  };
-}
 
 class ReviewForm extends Component {
-  static title = 'Edit Review';
+  props: Props;
 
-  props: ReviewFormProps;
   state: State = {
-    title: _.get(this.props.review, 'attributes.title.v', ''),
-    body: _.get(this.props.review, 'attributes.body.v', ''),
+    title: '',
+    body: '',
     isHappy: true,
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.reviewId != this.props.reviewId) {
+      this.props.fetchReviews().then((resp) => {
+        const currentReview = _.find(resp.result, { id: nextProps.reviewId });
+        this.setState({
+          title: _.get(currentReview, 'attributes.title.v', ''),
+          body: _.get(currentReview, 'attributes.body.v', ''),
+          isHappy: true,
+          currentReview: _.isEmpty(currentReview) ? null : currentReview,
+        });
+      });
+    }
   }
 
   @autobind
@@ -80,10 +78,12 @@ class ReviewForm extends Component {
 
   @autobind
   submitForm() {
+    const { currentReview } = this.state;
+
     const payload = {
-      sku: this.props.review.sku,
+      sku: currentReview.sku,
       attributes: {
-        ...this.props.review.attributes,
+        ...currentReview.attributes,
         title: {
           t: 'string',
           v: this.state.title,
@@ -98,39 +98,71 @@ class ReviewForm extends Component {
         },
       },
     };
-    return this.props.updateReview(this.props.review.id, payload);
+    return this.props.updateReview(currentReview.id, payload).then(() => {
+      this.props.closeModal();
+    });
   }
 
-/* TODO: implement the reviews on profile page according to the new design
-<Block title={ReviewForm.title}>
-  <Form onSubmit={this.submitForm}>
-    <div styleName="section">Submit your review of {this.props.review.attributes.productName.v}</div>
-    <FormField styleName="form-field">
-      <TextInput
-        required
-        placeholder="Title of Review"
-        value={this.state.title}
-        onChange={this.handleTitleChange}
-      />
-    </FormField>
-    <FormField>
-      <TextArea
-        required
-        placeholder="Please add your product review here."
-        value={this.state.body}
-        onChange={this.handleBodyChange}
-      />
-    </FormField>
-    <div styleName="buttons-footer">
-      <Button type="submit" styleName="save-button" children="Save" />
-      <Link styleName="link" to="/profile">Cancel</Link>
-    </div>
-  </Form>
-</Block>
-*/
+  get content() {
+    const { fetchState } = this.props;
+
+    if (fetchState.inProgress) {
+      return (
+        <Loader />
+      );
+    }
+
+    return (
+      <div>
+        <div styleName="section">Submit your review of</div>
+        <FormField styleName="form-field">
+          <TextInput
+            required
+            placeholder="Title of Review"
+            value={this.state.title}
+            onChange={this.handleTitleChange}
+          />
+        </FormField>
+        <FormField>
+          <TextArea
+            required
+            placeholder="Please add your product review here."
+            value={this.state.body}
+            onChange={this.handleBodyChange}
+          />
+        </FormField>
+      </div>
+    );
+  }
+
   render() {
-    return <div />;
+    const action = {
+      handler: this.props.closeModal,
+      title: 'Close',
+    };
+
+    const disabled = !this.state.title && !this.state.body;
+
+    return (
+      <CheckoutForm
+        error={this.props.updateReviewState.err || this.props.fetchState.err}
+        inProgress={this.props.updateReviewState.inProgress}
+        submit={this.submitForm}
+        buttonLabel="Save"
+        title="Review title"
+        action={action}
+        buttonDisabled={disabled}
+      >
+        {this.content}
+      </CheckoutForm>
+    );
   }
 }
 
-export default connect(mapStateToProps, actions)(ReviewForm);
+const mapState = (state) => {
+  return {
+    updateReviewState: _.get(state.asyncActions, 'updateReview', {}),
+  }
+};
+
+export default connect(mapState)(ReviewForm);
