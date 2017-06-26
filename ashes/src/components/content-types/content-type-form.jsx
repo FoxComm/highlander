@@ -10,16 +10,14 @@ import classNames from 'classnames';
 import styles from '../object-page/object-details.css';
 
 import ObjectDetails from '../object-page/object-details';
+import Modal from './modal';
 import { FormField } from '../forms';
 import RadioButton from 'components/core/radio-button';
-import SelectCustomerGroups from '../customers-groups/select-groups';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
 
-import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/core/save-cancel';
 import { Button } from 'components/core/button';
 
 import { setDiscountAttr } from 'paragons/promotion';
@@ -32,10 +30,10 @@ export default class ContentTypeForm extends ObjectDetails {
   layout = layout;
 
   state = {
-    tab: {},
-    section: {},
+    tabs: {},
+    sections: {},
     properties: {},
-    'property settings': {}
+    'property-settings': {}
   }
 
   renderApplyType() {
@@ -185,12 +183,8 @@ export default class ContentTypeForm extends ObjectDetails {
   }
 
   @autobind
-  setIsVisible(title, value) {
-    return e => {
-      e.preventDefault();
-
-      const key = title.toLowerCase();
-
+  setIsVisible(key, value) {
+    return () => {
       this.setState({
         [key]: {
           ...this.state[key],
@@ -200,42 +194,63 @@ export default class ContentTypeForm extends ObjectDetails {
     };
   }
 
-  modal(title: string): Element<*> {
-    const onCancel = this.setIsVisible(title, false);
+  @autobind
+  onSave(key) {
+    return object => {
+      this.props.onUpdateObject({
+        ...this.props.object,
+        [key]: [
+          ...this.props.object[key],
+          {
+            attributes: object
+          }
+        ]
+      });
+    };
+  }
 
-    const modalActionBlock = (
-      <a className='fc-modal-close' onClick={onCancel}>
-        <i className='icon-close'></i>
-      </a>
-    );
+  @autobind
+  onCancel(key) {
+    return this.setIsVisible(key, false);
+  }
 
-    const modalFooter =  (
-      <SaveCancel
-        className="fc-modal-footer fc-add-watcher-modal__footer"
-        onCancel={onCancel}
-        onSave={this.handleSave}
-        saveDisabled={this.isSaveDisabled}
-      />
-    );
+  modal(key: string, title: string): Element<*> {
+    const schema = {
+      "type": "object",
+      "required": [
+        "title"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1
+        },
+        "custom-properties": {
+          "title": "Custom Properties can be added to this section",
+          "type": "boolean"
+        }
+      }
+    };
 
     return (
-      <ModalContainer isVisible={this.state[title.toLowerCase()].showModal}>
-        <ContentBox
-          title={`New ${title}`}
-          actionBlock={modalActionBlock}
-          footer={modalFooter}
-          className="fc-add-watcher-modal"
-        >
-          <div className="fc-modal-body fc-add-watcher-modal__content">
-            test
-          </div>
-        </ContentBox>
-      </ModalContainer>
+      <Modal
+        title={`New ${title}`}
+        schema={schema}
+        object={this.props.object[key][0] || {}}
+        fieldsToRender={['title', 'slug', 'custom-properties']}
+        isVisible={this.state[key].showModal}
+        onCancel={this.onCancel(key)}
+        onSave={this.onSave(key)}
+      />
     );
   }
 
-  column(title: string, children): Element<*> {
-    const onAdd = this.setIsVisible(title, true);
+  column(key: string, title: string, children): Element<*> {
+    const onAdd = this.setIsVisible(key, true);
 
     const footer = (
       <div styleName="column-footer">
@@ -272,24 +287,18 @@ export default class ContentTypeForm extends ObjectDetails {
       >
         {children}
         {emptyBody}
-        {this.modal(title)}
+        {this.modal(key, title)}
       </ContentBox>
     );
   }
 
   renderColumns(): Element<*> {
-    const details = (
-      <Button>
-        Details
-      </Button>
-    );
-
     return (
       <div styleName="columns">
-        {this.column('Tab', details)}
-        {this.column('Section')}
-        {this.column('Properties')}
-        {this.column('Property Settings')}
+        {this.column('tabs', 'Tab', _.map(this.props.object.tabs, (tab) => <Button>{tab.attributes.title.v}</Button>))}
+        {this.column('sections', 'Section', _.map(this.props.object.sections, (section) => <Button>{section.attributes.title.v}</Button>))}
+        {this.column('properties', 'Properties')}
+        {this.column('property-settings', 'Property Settings')}
       </div>
     );
   }

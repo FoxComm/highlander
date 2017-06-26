@@ -1,50 +1,38 @@
 
 import { assoc } from 'sprout-data';
 
-function addEmptyDiscount(contentType) {
-  const discount = {
+function addEmptyTab(contentType) {
+  const tab = {
     id: null,
     createdAt: null,
     attributes: {
-      qualifier: {
-        t: 'qualifier',
-        v: {
-          orderAny: {}
-        }
+      title: {
+        t: 'string',
+        v: 'Details',
       },
-      offer: {
-        t: 'offer',
-        v: {
-          orderPercentOff: {}
-        }
-      }
-    },
+    }
   };
 
-  contentType.discounts.push(discount);
+  contentType.tabs.push(tab);
   return contentType;
 }
 
 export function createEmptyContentType() {
   const contentType = {
     id: null,
-    applyType: 'auto',
-    isExclusive: true,
     createdAt: null,
     attributes: {
-      storefrontName: {
-        t: 'richText',
-        v: 'Storefront name'
-      },
-      customerGroupIds: {
-        t: 'tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v',
-        v: null,
-      },
+      title: null,
+      description: null,
+      slug: null
     },
-    discounts: [],
+    tabs: [],
+    sections: [],
+    properties: [],
+    'property-settings': []
   };
 
-  return addEmptyDiscount(contentType);
+  return addEmptyTab(contentType);
 }
 
 export function setDiscountAttr(contentType, label, value) {
