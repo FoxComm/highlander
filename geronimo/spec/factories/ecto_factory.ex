@@ -7,9 +7,10 @@ defmodule Geronimo.EctoFactory do
       def content_type_factory do
         %ContentType{
           name: "FooBar",
-          schema: %{foo: %{type: ["string"], requred: true},
-                    bar: %{type: ["string"], requred: false},
-                    baz: %{type: ["array", []], requred: true}},
+          schema:  %{"author" => %{"required" => true, "type" => ["string"]},
+                     "body" => %{"required" => true, "type" => ["string"], "widget" => "richText"},
+                     "tags" => %{"required" => false, "type" => ["array", []]},
+                     "title" => %{"required" => true, "type" => ["string"]}},
           scope: "1",
           created_by: 1
         }
@@ -18,10 +19,11 @@ defmodule Geronimo.EctoFactory do
       def valid_entity_factory do
         %Entity{
           kind: "Foo",
-          content: %{foo: "foo", bar: "bar", baz: [1, 2, 3]},
+          content: %{"author" => "foo", "body" => "bar", "tags" => [1, 2, 3], "title" => "quuux"},
           schema_version: "",
           content_type_id: 1,
           created_by: 1,
+          storefront: "foo",
           scope: "1"
         }
       end
@@ -33,6 +35,7 @@ defmodule Geronimo.EctoFactory do
           schema_version: "",
           content_type_id: 1,
           created_by: 1,
+          storefront: "foo",
           scope: "1"
         }
       end

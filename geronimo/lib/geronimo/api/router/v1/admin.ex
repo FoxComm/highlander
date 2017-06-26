@@ -105,6 +105,7 @@ defmodule Geronimo.Router.V1.Admin do
     params do
       requires :content_type_id, type: Integer
       requires :content, type: Any
+      requires :storefront, type: String
     end
 
     post do
@@ -112,7 +113,7 @@ defmodule Geronimo.Router.V1.Admin do
         {:ok, content_type} = ContentType.get(params[:content_type_id], conn.assigns[:current_user].scope)
         validated = Validation.validate!(params[:content], content_type.schema)
 
-        case Entity.create(validated, content_type, conn.assigns[:current_user]) do
+        case Entity.create(validated, content_type, params[:storefront], conn.assigns[:current_user]) do
           {:ok, record} -> respond_with(conn, record)
           {:error, err} -> respond_with(conn, err, 400)
         end

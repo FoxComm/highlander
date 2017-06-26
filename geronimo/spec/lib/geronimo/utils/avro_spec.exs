@@ -52,6 +52,7 @@ defmodule AvroSpec do
                               %{"name" => "kind", "type" => ["string", "null"]},
                               %{"name" => "schema_version", "type" => ["string", "null"]},
                               %{"name" => "scope", "type" => ["string", "null"]},
+                              %{"name" => "storefront", "type" => ["string", "null"]},
                               %{"name" => "updated_at", "type" => ["string", "null"]}], name: "entities",
                      namespace: "com.foxcommerce.geronimo", type: "record"}
 
@@ -63,7 +64,7 @@ defmodule AvroSpec do
     context "when returns schema as a string" do
       it "returns avro schema value as a string" do
         ct_schema_st = "{\"type\":\"record\",\"namespace\":\"com.foxcommerce.geronimo\",\"name\":\"content_types\",\"fields\":[{\"type\":[\"int\",\"null\"],\"name\":\"created_by\"},{\"type\":[\"int\",\"null\"],\"name\":\"id\"},{\"type\":[\"string\",\"null\"],\"name\":\"inserted_at\"},{\"type\":[\"string\",\"null\"],\"name\":\"name\"},{\"type\":[\"string\",\"null\"],\"name\":\"schema\"},{\"type\":[\"string\",\"null\"],\"name\":\"scope\"},{\"type\":[\"string\",\"null\"],\"name\":\"updated_at\"}]}"
-        e_schema_st = "{\"type\":\"record\",\"namespace\":\"com.foxcommerce.geronimo\",\"name\":\"entities\",\"fields\":[{\"type\":[\"string\",\"null\"],\"name\":\"content\"},{\"type\":[\"int\",\"null\"],\"name\":\"content_type_id\"},{\"type\":[\"int\",\"null\"],\"name\":\"created_by\"},{\"type\":[\"int\",\"null\"],\"name\":\"id\"},{\"type\":[\"string\",\"null\"],\"name\":\"inserted_at\"},{\"type\":[\"string\",\"null\"],\"name\":\"kind\"},{\"type\":[\"string\",\"null\"],\"name\":\"schema_version\"},{\"type\":[\"string\",\"null\"],\"name\":\"scope\"},{\"type\":[\"string\",\"null\"],\"name\":\"updated_at\"}]}"
+        e_schema_st = "{\"type\":\"record\",\"namespace\":\"com.foxcommerce.geronimo\",\"name\":\"entities\",\"fields\":[{\"type\":[\"string\",\"null\"],\"name\":\"content\"},{\"type\":[\"int\",\"null\"],\"name\":\"content_type_id\"},{\"type\":[\"int\",\"null\"],\"name\":\"created_by\"},{\"type\":[\"int\",\"null\"],\"name\":\"id\"},{\"type\":[\"string\",\"null\"],\"name\":\"inserted_at\"},{\"type\":[\"string\",\"null\"],\"name\":\"kind\"},{\"type\":[\"string\",\"null\"],\"name\":\"schema_version\"},{\"type\":[\"string\",\"null\"],\"name\":\"scope\"},{\"type\":[\"string\",\"null\"],\"name\":\"storefront\"},{\"type\":[\"string\",\"null\"],\"name\":\"updated_at\"}]}"
 
         expect(Geronimo.ContentType.avro_schema_value).to eq(ct_schema_st)
         expect(Geronimo.Entity.avro_schema_value).to eq(e_schema_st)

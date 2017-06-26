@@ -1,0 +1,1 @@
+alter table entities add column storefront varchar;
