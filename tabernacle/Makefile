@@ -1,8 +1,6 @@
 include ../makelib
 header = $(call baseheader, $(1), tabernacle)
 
-TEST_VAR = false
-
 GO ?= go
 GOPATH := $(CURDIR)/_vendor:$(GOPATH)
 
