@@ -22,9 +22,13 @@ import scala.concurrent.{ExecutionContext, Future}
   * All calls should be executed in blocking pool.
   * If you add new methods, be sure to provide default mock in `MockedApis` trait for testing!
   */
-class StripeWrapper(timeout: FiniteDuration) extends StripeApiWrapper with LazyLogging {
-  Stripe.setConnectTimeout((timeout.toMillis / 3).toInt)
-  Stripe.setReadTimeout(timeout.toMillis.toInt)
+class StripeWrapper(processingTimeout: FiniteDuration,
+                    connectTimeout: FiniteDuration,
+                    readTimeout: FiniteDuration)
+    extends StripeApiWrapper
+    with LazyLogging {
+  Stripe.setConnectTimeout(connectTimeout.toMillis.toInt)
+  Stripe.setReadTimeout(readTimeout.toMillis.toInt)
 
   def retrieveToken(t: String): Result[Token] = {
     logger.info(s"Retrieve token details: $t")
@@ -132,7 +136,7 @@ class StripeWrapper(timeout: FiniteDuration) extends StripeApiWrapper with LazyL
         case t: StripeException ⇒
           Either.left(StripeFailure(t).single)
       }
-      .timeoutAfter(timeout, logger)(
+      .timeoutAfter(processingTimeout, logger)(
         Either.left(StripeProcessingFailure("Request to Stripe timed out").single))
     Result.fromFEither(apiCall)
   }
