@@ -44,7 +44,7 @@ object CreditCardManager {
                        .take(1)
                        .map(_.gatewayCustomerId)
                        .one
-      address = Address.fromPayload(payload.billingAddress, customer.accountId, None)
+      address = Address.fromPayload(payload.billingAddress, customer.accountId)
       _ ← * <~ doOrMeh(payload.addressIsNew, Addresses.create(address))
       stripes ← * <~ apis.stripe.createCardFromToken(email = customer.email,
                                                      token = payload.token,
@@ -215,7 +215,7 @@ object CreditCardManager {
         Addresses.findById(addressId).extract.one
 
       case (_, Some(createAddress)) ⇒
-        DBIO.successful(Address.fromPayload(createAddress, accountId, None).some)
+        DBIO.successful(Address.fromPayload(createAddress, accountId).some)
 
       case _ ⇒
         DBIO.successful(None)

@@ -142,10 +142,11 @@ class CustomerIntegrationTest
         val defaultAddress = Factories.address.copy(isDefaultShipping = true, phoneNumber = None)
 
         def shippingAddresses(orders: Seq[(Order, String)]): Seq[Address] = orders.map {
-          case (order, phone) ⇒
-            defaultAddress.copy(cordRef = order.refNum.some,
-                                phoneNumber = phone.some,
-                                isDefaultShipping = false)
+          case (order, phone) ⇒ {
+            val address = defaultAddress.copy(phoneNumber = phone.some, isDefaultShipping = false)
+            address.bindToCart(order.refNum)
+            address
+          }
         }
 
         val (customer, region, shipments) = (for {

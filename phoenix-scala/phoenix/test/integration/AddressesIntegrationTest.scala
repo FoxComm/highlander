@@ -244,9 +244,7 @@ class AddressesIntegrationTest
 
   trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked
 
-  trait NoDefaultAddressFixture extends CustomerAddress_Baked with EmptyCustomerCart_Baked {
-    val shippingAddress = address.bindToCart(cart.refNum)
-  }
+  trait NoDefaultAddressFixture extends CustomerAddress_Baked with EmptyCustomerCart_Baked
 
   trait AddressFixture {
     val addressPayload = CreateAddressPayload(name = "Home Office",

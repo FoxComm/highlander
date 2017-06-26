@@ -31,7 +31,7 @@ object AddressManager {
              accountId: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[AddressResponse] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      address  ← * <~ Addresses.create(Address.fromPayload(payload, accountId, None))
+      address  ← * <~ Addresses.create(Address.fromPayload(payload, accountId))
       response ← * <~ AddressResponse.fromAddress(address)
       _        ← * <~ LogActivity().addressCreated(originator, customer, response)
     } yield response
@@ -45,7 +45,7 @@ object AddressManager {
       oldAddress ← * <~ Addresses
                     .findActiveByIdAndAccount(addressId, accountId)
                     .mustFindOneOr(addressNotFound(addressId))
-      address     ← * <~ Address.fromPayload(payload, accountId, None).copy(id = addressId).validate
+      address     ← * <~ Address.fromPayload(payload, accountId).copy(id = addressId).validate
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
       oldResponse ← * <~ AddressResponse.fromAddress(oldAddress)

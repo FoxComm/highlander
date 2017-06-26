@@ -6,7 +6,6 @@ import cats.implicits._
 import core.db._
 import core.failures.{Failures, NotFoundFailure404}
 import core.utils.Validation
-import phoenix.models.cord.Cords
 import phoenix.models.location.Addresses.scope
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.models.traits.Addressable
@@ -23,8 +22,6 @@ case class Address(id: Int = 0,
                    city: String,
                    zip: String,
                    isDefaultShipping: Boolean = false,
-                   cordRef: Option[String] = None,
-                   parentId: Option[Int] = None,
                    phoneNumber: Option[String] = None,
                    deletedAt: Option[Instant] = None)
     extends FoxModel[Address]
@@ -41,21 +38,22 @@ case class Address(id: Int = 0,
     else Either.left(NotFoundFailure404(Address, this.id).single)
 
   // we gonna have only one address bound to an order for now
-  def bindToCart(cartRef: String)(implicit ec: EC): DbResultT[Address] =
+  def bindToCart(cartRef: String)(implicit ec: EC): DbResultT[AddressCord] =
     for {
-      _       ← * <~ Addresses.findByCordRef(cartRef).deleteAll
-      address ← * <~ Addresses.create(this.copy(cordRef = cartRef.some, parentId = this.id.some))
-    } yield address
+      _           ← * <~ AddressCords.findByCordRef(cartRef).deleteAll
+      addressCord ← * <~ AddressCords.create(AddressCord(cordRef = cartRef, addressId = this.id))
+    } yield addressCord
 
   def unbindFromCart()(implicit ec: EC): DbResultT[Unit] =
-    Addresses.filter(_.id === this.id).deleteAll.void
+    AddressCords.findByAddressId(this.id).deleteAll.void
+
 }
 
 object Address {
   val zipPattern   = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
   val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
 
-  def fromPayload(p: CreateAddressPayload, accountId: Int, cordRef: Option[String]) =
+  def fromPayload(p: CreateAddressPayload, accountId: Int) =
     Address(
       accountId = accountId,
       regionId = p.regionId,
@@ -64,8 +62,7 @@ object Address {
       address2 = p.address2,
       city = p.city,
       zip = p.zip,
-      phoneNumber = p.phoneNumber,
-      cordRef = cordRef
+      phoneNumber = p.phoneNumber
     )
 
   def fromPatchPayload(existingAddress: Address, incomingPayload: UpdateAddressPayload): Address =
@@ -78,7 +75,6 @@ object Address {
       address2 = incomingPayload.address2.fold(existingAddress.address2)(Some(_)),
       city = incomingPayload.city.getOrElse(existingAddress.city),
       zip = incomingPayload.zip.getOrElse(existingAddress.zip),
-      cordRef = existingAddress.cordRef,
       phoneNumber = incomingPayload.phoneNumber.fold(existingAddress.phoneNumber)(Some(_))
     )
 
@@ -91,8 +87,7 @@ object Address {
       address2 = cc.address.address2,
       city = cc.address.city,
       zip = cc.address.zip,
-      phoneNumber = cc.address.phoneNumber,
-      cordRef = None
+      phoneNumber = cc.address.phoneNumber
     )
 
   import scope._
@@ -101,7 +96,7 @@ object Address {
 
   def mustFindByCordRef(cordRef: String)(implicit ec: EC): DbResultT[(Address, Region)] =
     Addresses
-      .filter(_.cordRef === cordRef)
+      .findByCordRef(cordRef)
       .withRegions
       .mustFindOneOr(NotFoundFailure404(Address, cordRef))
 }
@@ -116,28 +111,13 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
   def city              = column[String]("city")
   def zip               = column[String]("zip")
   def isDefaultShipping = column[Boolean]("is_default_shipping")
-  def cordRef           = column[Option[String]]("cord_ref")
-  def parentId          = column[Option[Int]]("parent_id")
   def phoneNumber       = column[Option[String]]("phone_number")
   def deletedAt         = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id,
-     accountId,
-     regionId,
-     name,
-     address1,
-     address2,
-     city,
-     zip,
-     isDefaultShipping,
-     cordRef,
-     parentId,
-     phoneNumber,
-     deletedAt) <> ((Address.apply _).tupled, Address.unapply)
+    (id, accountId, regionId, name, address1, address2, city, zip, isDefaultShipping, phoneNumber, deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
-  def cord   = foreignKey(Cords.tableName, cordRef, Cords)(_.referenceNumber.?)
 }
 
 object Addresses
@@ -162,7 +142,10 @@ object Addresses
     findAllActiveByAccountId(accountId).withRegions
 
   def findByCordRef(cordRef: String): QuerySeq =
-    filter(_.cordRef === cordRef)
+    for {
+      addressCord ← AddressCords.filter(_.cordRef === cordRef)
+      address     ← Addresses if address.id === addressCord.addressId
+    } yield address
 
   def findByCordRefWithRegions(cordRef: String): AddressesWithRegionsQuery =
     findByCordRef(cordRef).withRegions

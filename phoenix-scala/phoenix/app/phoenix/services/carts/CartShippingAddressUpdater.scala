@@ -40,8 +40,8 @@ object CartShippingAddressUpdater {
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart       ← * <~ getCartByOriginator(originator, refNum)
-      _          ← * <~ Addresses.findByCordRef(cart.refNum).deleteAll
-      newAddress ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId, cart.refNum.some))
+      newAddress ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
+      _          ← * <~ newAddress.bindToCart(cart.refNum)
       region     ← * <~ Regions.mustFindById404(payload.regionId)
       validated  ← * <~ CartValidator(cart).validate()
       response   ← * <~ CartResponse.buildRefreshed(cart)
