@@ -19,11 +19,19 @@ private[es] object ESQueryInterpreter
     Kleisli[Id, BoolQueryBuilder, BoolQueryBuilder]
 
   private implicit class RichBoolQueryBuilder(val b: BoolQueryBuilder) extends AnyVal {
-    def inContext(qf: QueryFunction.WithContext)(qb: QueryBuilder): BoolQueryBuilder = qf.ctx match {
-      case QueryContext.filter ⇒ b.filter(qb)
-      case QueryContext.must   ⇒ b.must(qb)
-      case QueryContext.should ⇒ b.should(qb)
-      case QueryContext.not    ⇒ b.mustNot(qb)
+    def inContext(qf: QueryFunction.WithContext)(qb: QueryBuilder): Unit = qf.ctx match {
+      case QueryContext.must(None)        ⇒ b.filter(qb)
+      case QueryContext.must(Some(boost)) ⇒ b.must(qb).boost(boost)
+      case QueryContext.should(boost)     ⇒ b.should(qb).boost(boost.getOrElse(Boostable.default))
+      case QueryContext.not(None)         ⇒ b.mustNot(qb)
+      case QueryContext.not(Some(boost)) ⇒
+        val boosting = QueryBuilders
+          .boostingQuery()
+          .negativeBoost(boost)
+          .negative(qb)
+          .boost(Boostable.default)
+          .positive(QueryBuilders.matchAllQuery())
+        b.must(boosting)
     }
   }
 
@@ -103,10 +111,12 @@ private[es] object ESQueryInterpreter
         builder
       }
     }
+    b
   }
 
   def rawF(qf: QueryFunction.raw): State = State { b ⇒
     b.inContext(qf)(RawQueryBuilder(qf.value))
+    b
   }
 
   def boolF(qf: QueryFunction.bool): State = State { b ⇒

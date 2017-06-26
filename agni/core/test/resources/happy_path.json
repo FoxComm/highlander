@@ -1,11 +1,13 @@
 [
   {
     "type": "equals",
+    "context": "must^",
     "in": "slug",
     "value": [ "awesome", "whatever" ]
   },
   {
     "type": "matches",
+    "context": "should^.5",
     "in": [ "title", "description", "skus.code" ],
     "value": [ "food", "drink" ]
   },
