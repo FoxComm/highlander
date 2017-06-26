@@ -58,7 +58,9 @@ class ReviewsBlock extends Component {
     );
   }
 
-  render() {
+  get body() {
+    if (_.isEmpty(this.props.reviews)) return null;
+
     return (
       <div styleName="reviews-block">
         <div styleName="title">My reviews</div>
@@ -66,6 +68,10 @@ class ReviewsBlock extends Component {
         {this.content}
       </div>
     );
+  }
+
+  render() {
+    return this.body;
   }
 }
 
