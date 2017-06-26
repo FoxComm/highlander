@@ -55,6 +55,7 @@ const qualifiers = [
   {
     type: 'itemsAny',
     title: 'Items - No qualifier',
+    default: {search: []},
     validate: {
       search: {
         validate: (v) => v.length > 0,
@@ -75,7 +76,7 @@ const qualifiers = [
   {
     type: 'itemsTotalAmount',
     title: 'Items - Total amount of order',
-    default: {totalAmount: 0},
+    default: {totalAmount: 0, search: []},
     validate: {
       totalAmount: {
         validate: (v) => v > 0,
@@ -107,7 +108,7 @@ const qualifiers = [
   {
     type: 'itemsNumUnits',
     title: 'Items - Number of units in order',
-    default: {numUnits: 0},
+    default: {numUnits: 0, search: []},
     validate: {
       numUnits: {
         validate: (v) => v > 0,

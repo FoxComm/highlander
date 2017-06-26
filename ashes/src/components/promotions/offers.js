@@ -50,7 +50,7 @@ const offers = [
   {
     type: 'itemPercentOff',
     title: 'Percent off single item',
-    default: defaultDiscount,
+    default: { discount: 0, search: []},
     validate: {
       discount: {
         validate: (v) => v > 0,
@@ -82,7 +82,7 @@ const offers = [
   {
     type: 'itemAmountOff',
     title: 'Amount off single item',
-    default: defaultDiscount,
+    default: { discount: 0, search: []},
     validate: {
       discount: {
         validate: (v) => v > 0,
@@ -114,7 +114,7 @@ const offers = [
   {
     type: 'itemsPercentOff',
     title: 'Percent off select items',
-    default: defaultDiscount,
+    default: { discount: 0, search: []},
     validate: {
       discount: {
         validate: (v) => v > 0,
@@ -146,7 +146,7 @@ const offers = [
   {
     type: 'itemsAmountOff',
     title: 'Amount off select items',
-    default: defaultDiscount,
+    default: { discount: 0, search: []},
     validate: {
       discount: {
         validate: (v) => v > 0,

@@ -26,7 +26,6 @@ class PromotionPage extends ObjectPage {
 
       const { validate } = _.find(discountChildTypes, (dc) => dc.type == key);
       const validator = _.get(validate, `${k}.validate`, (v) => true);
-
       if (!validator(v)) errors.push(validate[k].error);
 
     });
@@ -39,13 +38,28 @@ class PromotionPage extends ObjectPage {
     });
   }
 
+  clearClientSideErrors() {
+    this.setState({
+      clientSideErrors: {
+        qualifierErrors: [],
+        offerErrors: [],
+      },
+    });
+  }
+
   save(): ?Promise<*> {
     this.clearClientSideErrors();
-    const errors = [
+    const qualifierErrors = [
       ...this.getDiscountChildErrors('qualifier', qualifiers),
+    ];
+    const offerErrors = [
       ...this.getDiscountChildErrors('offer', offers),
     ];
-    if (errors.length) {
+    const errors = {
+      qualifierErrors,
+      offerErrors,
+    };
+    if (errors.qualifierErrors.length || errors.offerErrors.length) {
       this.setClientSideErrors(errors);
       return;
     }

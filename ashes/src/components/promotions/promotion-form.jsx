@@ -23,6 +23,7 @@ const layout = require('./layout.json');
 export default class PromotionForm extends ObjectDetails {
 
   layout = layout;
+  state = {};
 
   renderApplyType() {
     const promotion = this.props.object;
@@ -87,7 +88,10 @@ export default class PromotionForm extends ObjectDetails {
     const newPromotion = setDiscountAttr(this.props.object,
       'qualifier', qualifier
     );
-
+    const validationErrors = this.getDiscountChildErrors(qualifier, qualifiers);
+    this.setState({
+      qualifierErrors: validationErrors,
+    })
     this.props.onUpdateObject(newPromotion);
   }
 
@@ -96,8 +100,26 @@ export default class PromotionForm extends ObjectDetails {
     const newPromotion = setDiscountAttr(this.props.object,
       'offer', offer
     );
-
+    const validationErrors = this.getDiscountChildErrors(offer, offers);
+    this.setState({
+      offerErrors: validationErrors,
+    })
     this.props.onUpdateObject(newPromotion);
+  }
+
+  getDiscountChildErrors(discountChildValue, discountChildTypes) {
+    const errors = [];
+    const key = _.keys(discountChildValue)[0];
+
+    _.forEach(discountChildValue[key], (v,k) => {
+
+      const { validate } = _.find(discountChildTypes, (dc) => dc.type == key);
+      const validator = _.get(validate, `${k}.validate`, (v) => true);
+
+      if (!validator(v)) errors.push(validate[k].error);
+
+    });
+    return errors;
   }
 
   @autobind
@@ -133,6 +155,7 @@ export default class PromotionForm extends ObjectDetails {
         ...acc,
         <div key={makeKey('qualifier')} styleName="sub-title">Qualifier</div>,
         <DiscountAttrs
+          errors={this.state.qualifierErrors}
           key={makeKey('qualifier-attrs')}
           blockId={'promo-qualifier-block-'+index}
           dropdownId={'promo-qualifier-dd-'+index}
@@ -143,6 +166,7 @@ export default class PromotionForm extends ObjectDetails {
         />,
         <div key={makeKey('offer')} styleName="sub-title">Offer</div>,
         <DiscountAttrs
+          errors={this.state.offerErrors}
           key={makeKey('offer-attrs')}
           blockId={'promo-offer-block-'+index}
           dropdownId={'promo-offer-dd-'+index}

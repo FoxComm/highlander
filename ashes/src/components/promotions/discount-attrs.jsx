@@ -6,6 +6,7 @@ import styles from './attrs-edit.css';
 
 import * as widgets from './widgets';
 import { Dropdown } from '../dropdown';
+import { FormFieldError } from '../forms';
 
 import type { ItemDesc, DiscountRow, DescriptionType, Context } from './types';
 
@@ -95,6 +96,7 @@ const DiscountAttrs = (props: Props) => {
             </div>
           );
         })}
+        { props.errors ? <FormFieldError error={props.errors[i]} /> : null }
       </div>
     );
   };
