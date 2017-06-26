@@ -36,18 +36,22 @@ class AmazonS3 extends AmazonApi with LazyLogging {
   private[this] val client      = new AmazonS3Client(credentials)
 
   @tailrec
-  private def getAvailableObjectName(fileName: String, counter: Int = 0): String =
-    if (client.doesObjectExist(s3Bucket, fileName)) {
-      val newCounter = counter + 1
-      val newFileName = fileName.lastIndexOf('.') match {
-        case -1 ⇒ s"${fileName}_$newCounter"
-        case dotIdx ⇒
-          val ext = fileName.substring(dotIdx)
-          s"${fileName.slice(0, dotIdx)}_$newCounter$ext"
-      }
-      getAvailableObjectName(newFileName, newCounter)
+  private def getAvailableObjectName(fileName: String, counter: Int = 0): String = {
+    val newFileName = counter match {
+      case 0 ⇒ fileName
+      case _ ⇒
+        fileName.lastIndexOf('.') match {
+          case -1 ⇒ s"${fileName}_$counter"
+          case dotIdx ⇒
+            val ext = fileName.substring(dotIdx)
+            s"${fileName.slice(0, dotIdx)}_$counter$ext"
+        }
+    }
+    if (client.doesObjectExist(s3Bucket, newFileName)) {
+      getAvailableObjectName(fileName, counter + 1)
     } else
-      fileName
+      newFileName
+  }
 
   def uploadFileF(fileName: String, file: File, overwrite: Boolean)(implicit ec: EC): Future[String] =
     Future {
