@@ -73,43 +73,56 @@ class CouponPage extends ObjectPage {
     };
   }
 
+  get unsaved(): boolean {
+    return false;
+  }
+
   get selectedPromotions(): Array<any> {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
+  @autobind
+  updateObjectWithCodes() {
+    const { bulk, singleCode, codesQuantity, codesPrefix, codesLength } = this.props.details.codeGeneration;
+    const generateCodes = {
+      prefix: codesPrefix,
+      quantity: codesQuantity,
+      length: Number(codesLength) + codesPrefix.length,
+    };
+    if (!bulk) return { ..._.omit(this.state.object,'generateCodes'), singleCode };
+    return { ..._.omit(this.state.object,'singleCode'), generateCodes };
+  }
+
   save(): ?Promise<*> {
-    let willBeCoupon = super.save();
-
-    if (willBeCoupon) {
+    this.setState({
+      object: this.updateObjectWithCodes(),
+    }, () => {
       const { bulk, singleCode } = this.props.details.codeGeneration;
-
       if (bulk === false && singleCode != void 0) {
-        willBeCoupon
-          .then(data => {
-            const newId = _.get(data, 'id');
-            return this.props.actions.generateCode(newId, singleCode);
-          })
-          .then(() => {
-            this.props.actions.couponsGenerationReset();
-          })
-          .then(() => {
-            this.props.actions.refresh();
-            transitionTo('promotion-coupons', { promotionId: this.props.params.promotionId });
-          });
+        const willBeCoupon = super.save();
+        willBeCoupon.then((data) => {
+          this.props.actions.couponsGenerationReset();
+        }).then(() => {
+          this.props.actions.refresh();
+          transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
+        });
       }
 
       if (bulk === true && this.props.actions.codeIsOfValidLength()) {
-        willBeCoupon.then(() => {
-          return this.props.actions.couponsGenerationShowDialog();
-        });
+        this.props.actions.couponsGenerationShowDialog();
       }
-    }
+    });
+  }
 
+  @autobind
+  saveBulk(): Promise<*> {
+    const willBeCoupon = super.save();
     return willBeCoupon;
   }
 
   @autobind
   receiveNewObject(nextObject) {
+    if (_.isArray(nextObject)) return;
     nextObject.promotion = Number(this.props.params.promotionId);
     nextObject.attributes.name = {
       // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
@@ -194,6 +207,7 @@ class CouponPage extends ObjectPage {
       createCoupon: this.createCoupon,
       selectedPromotions: this.selectedPromotions,
       refresh: this.props.actions.refresh,
+      saveBulk: this.saveBulk,
     };
   }
 

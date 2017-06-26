@@ -432,12 +432,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def archive()(implicit aa: TestAdminAuth): HttpResponse =
       DELETE(couponPath, aa.jwtCookie.some)
-
-    object codes {
-
-      def generate(code: String)(implicit aa: TestAdminAuth): HttpResponse =
-        POST(s"$rootPrefix/coupons/codes/generate/$formId/$code", aa.jwtCookie.some)
-    }
   }
 
   object customerGroupsApi {
