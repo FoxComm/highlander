@@ -193,9 +193,9 @@ export default class Order extends React.Component {
     const order = this.order;
     const claims = getClaims();
     const shippingState = isPermitted(shippingClaims, claims)
-      ? <PanelListItem title="Shipping State">
+      ? (<PanelListItem title="Shipping State">
           <StateComponent stateId="order-shipping-state-value" value={order.shippingState} model="shipment" />
-        </PanelListItem>
+        </PanelListItem>)
       : null;
 
     return (

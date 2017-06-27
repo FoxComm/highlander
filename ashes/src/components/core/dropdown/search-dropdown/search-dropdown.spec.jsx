@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 
 import SearchDropdown from './search-dropdown';
 
-describe.only('SearchDropdown', function() {
+describe('SearchDropdown', function() {
   // @todo sinon and promises
   // it.skip('should set list only for corresponding token', function() {
   //   const clock = sinon.useFakeTimers();

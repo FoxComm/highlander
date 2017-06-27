@@ -274,7 +274,7 @@ export default class NewStoreCredit extends React.Component {
       case 'Open transactions should be canceled/completed':
         message = 'Gift card is already used in order and cannot be transfered to store credits.';
         break;
-      case "cannot convert a gift card with state 'FullyRedeemed'":
+      case 'cannot convert a gift card with state \'FullyRedeemed\'':
         message = 'Gift card is fully redeemed.';
         break;
       default:

@@ -16,7 +16,6 @@ import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draf
 import FontDropdown from './font-dropdown';
 import ToggleButton from './toggle-button';
 import s from './rich-text-editor.css';
-import Icon from 'components/core/icon';
 
 type Props = {
   label?: string,

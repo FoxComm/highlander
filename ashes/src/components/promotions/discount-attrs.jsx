@@ -11,7 +11,7 @@ import { TextDropdown } from 'components/core/dropdown';
 import type { ItemDesc, DiscountRow, DescriptionType, Context } from './types';
 
 const renderers = {
-  type(item: ItemDesc, context: Context, dropdownId: Props) {
+  type(item: ItemDesc, context: Context, dropdownId: string) {
     const typeItems = _.map(context.root, entry => [entry.type, entry.title]);
 
     return (

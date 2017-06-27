@@ -138,11 +138,11 @@ export default class TextDropdown extends Component {
 
   renderItems() {
     const { detached, emptyMessage } = this.props;
-    let list = this.items.map(item =>
+    let list = this.items.map(item => (
       <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
         {item.displayText || item.value}
       </div>
-    );
+    ));
 
     if (!this.items.length) {
       list = <div className={s.item}>{emptyMessage}</div>;

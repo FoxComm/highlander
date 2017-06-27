@@ -49,7 +49,7 @@ export default class TextDropdown extends Component {
   static defaultProps = {
     value: '',
     disabled: false,
-    onChange: () => {},
+    onChange: (value: string) => {},
     items: [],
   };
 
@@ -118,11 +118,11 @@ export default class TextDropdown extends Component {
   }
 
   renderItems() {
-    let list = this.items.map(item =>
+    let list = this.items.map(item => (
       <div key={item.value} className={s.item} onClick={() => this.handleItemClick(item)}>
         {item.displayText || item.value}
       </div>
-    );
+    ));
 
     return (
       <SmartList className={s.menu} onEsc={() => this.toggleMenu(false)} pivot={this._pivot}>
