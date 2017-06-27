@@ -19,6 +19,7 @@ type ReservationError struct {
 
 type InvalidSKUItemError struct {
 	Sku   string `json:"sku"`
+	Afs   int    `json:"afs"`
 	Debug string `json:"debug"`
 }
 

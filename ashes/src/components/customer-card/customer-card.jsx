@@ -7,6 +7,7 @@ import React, { Component } from 'react';
 import { Link } from 'components/link';
 import Icon from 'components/core/icon';
 
+// @todo refactor this component, it almost identical to ../customers/title-block.jsx
 import styles from 'components/customers/title-block.css';
 
 type Props = {
@@ -26,7 +27,7 @@ type Props = {
 export default class CustomerInfo extends Component {
   props: Props;
 
-  ensureNotEmpty(val: number|string) {
+  ensureNotEmpty(val: number | string) {
     return val ? <span>{val}</span> : <span>&nbsp;</span>;
   }
 
@@ -44,7 +45,7 @@ export default class CustomerInfo extends Component {
     } else if (customer.groups) {
       return (
         <div>
-          {customer.groups.map((customer) => {
+          {customer.groups.map(customer => {
             return <div styleName="group">{customer}</div>;
           })}
         </div>

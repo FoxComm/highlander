@@ -7,7 +7,6 @@ import React from 'react';
 import { VictoryTooltip } from 'victory';
 
 export default class TotalRevenueToolTip extends React.Component {
-
   static defaultEvents = VictoryTooltip.defaultEvents;
 
   render() {
@@ -20,7 +19,7 @@ export default class TotalRevenueToolTip extends React.Component {
     };
     const toolTipStyle = {
       fill: '#ffffff',
-      fontSize: 6
+      fontSize: 6,
     };
 
     return (
@@ -36,7 +35,7 @@ export default class TotalRevenueToolTip extends React.Component {
           dx={4}
           dy={-10}
           renderInPortal={false}
-          />
+        />
       </g>
     );
   }

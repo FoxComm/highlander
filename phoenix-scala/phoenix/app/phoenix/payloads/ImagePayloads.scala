@@ -1,12 +1,16 @@
 package phoenix.payloads
 
+import akka.http.scaladsl.model.Uri
+
 import cats.data.{Validated, ValidatedNel}
+import cats.implicits._
 import core.failures.Failure
 import core.utils.Validation
 import core.utils.Validation._
 import objectframework.ObjectUtils._
 import objectframework.models._
 import objectframework.payloads.ObjectPayloads._
+import phoenix.facades.ImageFacade.validateImageUrl
 import phoenix.models.image._
 
 object ImagePayloads {
@@ -18,7 +22,8 @@ object ImagePayloads {
                           baseUrl: Option[String] = None,
                           title: Option[String] = None,
                           alt: Option[String] = None,
-                          scope: Option[String] = None) {
+                          scope: Option[String] = None)
+      extends Validation[ImagePayload] {
 
     def formAndShadow: FormAndShadow = {
       val jsonBuilder: AttributesBuilder = optionalAttributes(Some(StringField("src", src)),
@@ -29,6 +34,12 @@ object ImagePayloads {
       (ObjectForm(kind = Image.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))
     }
+
+    private def validateImageSrc(): ValidatedNel[Failure, Uri] =
+      validateImageUrl(src).leftMap(_.head).toValidatedNel
+
+    override def validate: ValidatedNel[Failure, ImagePayload] =
+      validateImageSrc().map(_ ⇒ this)
   }
 
   case class AlbumPayload(scope: Option[String] = None,

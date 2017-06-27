@@ -26,10 +26,9 @@ type Props = {
 };
 
 type Value = {
-  id: string|number,
+  id: string | number,
   value: OptionValue,
 };
-
 
 type State = {
   editValue: ?Value,
@@ -65,7 +64,7 @@ class OptionEntry extends Component {
     return (
       <table className="fc-table">
         <tbody id={`product-option-${optionId}-values`}>
-        {entries}
+          {entries}
         </tbody>
       </table>
     );
@@ -82,22 +81,17 @@ class OptionEntry extends Component {
   get titleBarActions(): Element<*> {
     return (
       <div className="fc-option-entry__actions">
-        <a
-          className="option-add-btn"
-          onClick={() => this.editValue('new')}
-          styleName="action-icon">
+        <a className="option-add-btn" onClick={() => this.editValue('new')} styleName="action-icon">
           <Icon name="add" />
         </a>
         <a
           className="fct-edit-btn__option"
           onClick={() => this.props.editOption(this.props.id)}
-          styleName="action-icon">
+          styleName="action-icon"
+        >
           <Icon name="edit" />
         </a>
-        <a
-          className="option-delete-btn"
-          onClick={() => this.props.deleteOption(this.props.id)}
-          styleName="action-icon">
+        <a className="option-delete-btn" onClick={() => this.props.deleteOption(this.props.id)} styleName="action-icon">
           <Icon name="trash" />
         </a>
       </div>
@@ -105,10 +99,10 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  editValue(id: string|number, value?: OptionValue = {name: '', swatch: '', image: '', skuCodes: []}): void {
+  editValue(id: string | number, value?: OptionValue = { name: '', swatch: '', image: '', skuCodes: [] }): void {
     const editValue = { id, value };
 
-    this.setState({editValue});
+    this.setState({ editValue });
   }
 
   @autobind
@@ -141,12 +135,8 @@ class OptionEntry extends Component {
   get valueDialog() {
     if (!this.state.editValue) return;
 
-    return(
-      <ValueEditDialog
-        value={this.state.editValue}
-        cancelAction={this.cancelEdit}
-        confirmAction={this.updateValue}
-      />
+    return (
+      <ValueEditDialog value={this.state.editValue} cancelAction={this.cancelEdit} confirmAction={this.updateValue} />
     );
   }
 
@@ -162,7 +152,8 @@ class OptionEntry extends Component {
         title={name}
         actionBlock={this.titleBarActions}
         indentContent={false}
-        className="fc-option-entry">
+        className="fc-option-entry"
+      >
         {content}
         {this.valueDialog}
       </ContentBox>

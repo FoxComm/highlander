@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 /usr/bin/marathon --master {{zookeepers}}/mesos \
     --zk {{zookeepers}}/marathon \

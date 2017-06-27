@@ -59,3 +59,12 @@ In order to Stripe.js to work (used for creating credit cards in Stripe) you nee
 You can set Stripe key by exporting `STRIPE_PUBLISHABLE_KEY` variable, or setting it in your `.env`:
 
   `STRIPE_PUBLISHABLE_KEY=pk_test_r6t0niqmG9OOZhhaSkacUUU1`
+
+## Building docker image
+
+1. Install [Docker CE for Mac](https://store.docker.com/editions/community/docker-ce-desktop-mac)
+2. Build your app with `make build`
+3. Build docker with `NPM_TOKEN=token make docker` where `token` is your private token from `~/.npmrc`
+
+Thats it! You can run it locally: `docker run -it -p 4000:4000 -image_id-`
+Or push it with `make docker-push`.

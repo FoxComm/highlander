@@ -9,7 +9,7 @@ import phoenix.payloads.ActivityTrailPayloads._
 import phoenix.payloads.AddressPayloads._
 import phoenix.payloads.AssignmentPayloads._
 import phoenix.payloads.CartPayloads._
-import phoenix.payloads.CatalogPayloads.{CreateCatalogPayload, UpdateCatalogPayload}
+import phoenix.payloads.CatalogPayloads._
 import phoenix.payloads.CategoryPayloads._
 import phoenix.payloads.CouponPayloads._
 import phoenix.payloads.CustomerGroupPayloads._
@@ -432,12 +432,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def archive()(implicit aa: TestAdminAuth): HttpResponse =
       DELETE(couponPath, aa.jwtCookie.some)
-
-    object codes {
-
-      def generate(code: String)(implicit aa: TestAdminAuth): HttpResponse =
-        POST(s"$rootPrefix/coupons/codes/generate/$formId/$code", aa.jwtCookie.some)
-    }
   }
 
   object customerGroupsApi {
@@ -659,6 +653,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def delete()(implicit aa: TestAdminAuth): HttpResponse =
       DELETE(albumPath, aa.jwtCookie.some)
+
+    def uploadImageByUrl(payload: ImagePayload)(implicit ctx: OC, aa: TestAdminAuth): HttpResponse =
+      POST(s"$albumPath/images/by-url", payload, aa.jwtCookie.some)
   }
 
   object saveForLaterApi {
@@ -895,6 +892,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def update(payload: UpdateCatalogPayload)(implicit aa: TestAdminAuth): HttpResponse =
       PATCH(catalogPath, payload, aa.jwtCookie.some)
+
+    def addProducts(payload: AddProductsPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(s"$catalogPath/products", payload, aa.jwtCookie.some)
+
+    def deleteProduct(productId: Int)(implicit aa: TestAdminAuth): HttpResponse =
+      DELETE(s"$catalogPath/products/$productId", aa.jwtCookie.some)
   }
 
   object captureApi {

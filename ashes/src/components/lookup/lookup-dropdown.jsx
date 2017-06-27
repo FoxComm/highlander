@@ -19,7 +19,6 @@ const prefixed = prefix('fc-lookup');
  * Used for looking up in given
  */
 export default class LookupDropdown extends Component {
-
   static propTypes = {
     className: PropTypes.string,
   };
@@ -36,9 +35,7 @@ export default class LookupDropdown extends Component {
     const icon = this.state.showMenu ? 'chevron-up' : 'chevron-down';
 
     return (
-      <div className="fc-btn fc-dock fc-dock-right"
-           onClick={this.toggleMenu}
-           onBlur={this.hideMenu}>
+      <div className="fc-btn fc-dock fc-dock-right" onClick={this.toggleMenu} onBlur={this.hideMenu}>
         <Icon name={icon} />
       </div>
     );
@@ -61,14 +58,16 @@ export default class LookupDropdown extends Component {
   }
 
   render() {
-    const {className, ...rest} = this.props;
+    const { className, ...rest } = this.props;
 
     return (
       <div className={classNames(prefixed('dropdown'), className)}>
-        <Lookup inputClassName="fc-dock fc-dock-left"
-                showMenu={this.state.showMenu}
-                onToggleMenu={showMenu => this.setState({showMenu})}
-                {...rest} />
+        <Lookup
+          inputClassName="fc-dock fc-dock-left"
+          showMenu={this.state.showMenu}
+          onToggleMenu={showMenu => this.setState({ showMenu })}
+          {...rest}
+        />
         {this.button}
       </div>
     );

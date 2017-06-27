@@ -15,7 +15,7 @@ defmodule Geronimo do
 
     case Application.fetch_env(:geronimo, :start_kafka_worker) do
       {:ok, "true"} ->
-        Geronimo.KafkaWorker.start()
+        Geronimo.Kafka.Worker.start()
       _ -> nil
     end
 

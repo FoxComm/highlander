@@ -21,17 +21,13 @@ import { customerGroups } from 'paragons/object-types';
 const layout = require('./layout.json');
 
 export default class PromotionForm extends ObjectDetails {
-
   layout = layout;
   state = {};
 
   renderApplyType() {
     const promotion = this.props.object;
     return (
-      <FormField
-        ref="applyTypeField"
-        className="fc-object-form__field"
-      >
+      <FormField ref="applyTypeField" className="fc-object-form__field">
         <div>
           <RadioButton
             id="autoApplyRadio"
@@ -52,7 +48,6 @@ export default class PromotionForm extends ObjectDetails {
     );
   }
 
-
   get usageRules() {
     return _.get(this.props, 'object.attributes.usageRules.v', {});
   }
@@ -60,9 +55,7 @@ export default class PromotionForm extends ObjectDetails {
   renderUsageRules() {
     const isExclusive = _.get(this.usageRules, 'isExclusive');
     return (
-      <FormField
-        className="fc-object-form__field"
-      >
+      <FormField className="fc-object-form__field">
         <div>
           <RadioButton
             id="isExlusiveRadio"
@@ -111,12 +104,12 @@ export default class PromotionForm extends ObjectDetails {
 
   @autobind
   handleUsageRulesChange({ target }: Object) {
-    const value = (target.getAttribute('name') === 'true');
+    const value = target.getAttribute('name') === 'true';
     const newPromotion = setObjectAttr(this.props.object, 'usageRules', {
       t: 'PromoUsageRules',
       v: {
-        'isExclusive': value
-      }
+        isExclusive: value,
+      },
     });
 
     this.props.onUpdateObject(newPromotion);

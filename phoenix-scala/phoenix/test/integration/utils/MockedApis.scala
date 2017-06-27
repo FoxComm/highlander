@@ -117,10 +117,10 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
 
   lazy val amazonApiMock: AmazonApi = {
     val mocked = mock[AmazonApi]
-    when(mocked.uploadFile(any[String], any[File])(any[EC]))
-      .thenReturn(Result.good("amazon-image-url"))
-    when(mocked.uploadFileF(any[String], any[File])(any[EC]))
-      .thenReturn(Future.successful("amazon-image-url"))
+    when(mocked.uploadFile(any[String], any[File], any[Boolean])(any[EC]))
+      .thenReturn(Result.good("http://amazon-image.url/1"))
+    when(mocked.uploadFileF(any[String], any[File], any[Boolean])(any[EC]))
+      .thenReturn(Future.successful("http://amazon-image.url/1"))
     mocked
   }
 

@@ -8,12 +8,12 @@ import { MenuItem } from './menu';
 import s from './live-search.css';
 
 type Props = {
-  clickAction: Function;
+  clickAction: Function,
   option: {
-    selectionValue: any;
-    displayTerm: string;
-    displayAction: string;
-  };
+    selectionValue: any,
+    displayTerm: string,
+    displayAction: string,
+  },
 };
 
 const SearchOption = (props: Props) => {

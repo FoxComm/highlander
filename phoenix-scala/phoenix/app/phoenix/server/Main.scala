@@ -66,10 +66,14 @@ object Setup extends LazyLogging {
     Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch(), setupKafka())
 
   def setupStripe(): FoxStripe = {
+    val stripeConfig = config.apis.stripe
     logger.info("Loading Stripe API key")
-    Stripe.apiKey = config.apis.stripe.key
+    Stripe.apiKey = stripeConfig.key
     logger.info("Successfully set Stripe key")
-    new FoxStripe(new StripeWrapper())
+    new FoxStripe(
+      new StripeWrapper(stripeConfig.processingTimeout,
+                        stripeConfig.connectTimeout,
+                        stripeConfig.readTimeout))
   }
 
   def setupMiddlewarehouse(): Middlewarehouse = {

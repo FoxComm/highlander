@@ -5,11 +5,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	commonErrors "github.com/FoxComm/highlander/middlewarehouse/common/errors"
 	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
 
 	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
@@ -41,7 +43,16 @@ func (suite *reservationControllerTestSuite) TearDownTest() {
 }
 
 func reserveItemTest(suite *reservationControllerTestSuite, holdItemsResult interface{}) *httptest.ResponseRecorder {
-	suite.service.On("HoldItems", "BR10001", map[string]int{"SKU": 2}).Return(holdItemsResult).Once()
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: "SKU", Qty: 2},
+		},
+		Scopable: payloads.Scopable{
+			Scope: "1",
+		},
+	}
+	suite.service.On("HoldItems", payload).Return(holdItemsResult).Once()
 
 	jsonStr := `{"refNum":"BR10001","items":[{ "sku": "SKU", "qty": 2 }]}`
 
@@ -67,7 +78,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_AggregateError() 
 
 	res := reserveItemTest(suite, &aggregateErr)
 
-	reserveItemBadRequestExpected(suite, res, `"sku":"SKU","debug":"boom"`)
+	reserveItemBadRequestExpected(suite, res, `"sku":"SKU","afs":0,"debug":"boom"`)
 }
 
 func (suite *reservationControllerTestSuite) Test_ReserveItems_OutOfStock() {

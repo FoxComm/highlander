@@ -5,7 +5,7 @@ import React from 'react';
 
 import s from './rounded-pill.css';
 
-export type Value = string|number;
+export type Value = string | number;
 
 type Props = {
   text?: string,
@@ -23,16 +23,18 @@ export const RoundedPill = (props: Props) => {
 
   let closeButton = null;
   if (onClose && value != null) {
-    closeButton = (
-      <button className={s.button} onClick={() => onClose(value)}>&times;</button>
-    );
+    closeButton = <button className={s.button} onClick={() => onClose(value)}>&times;</button>;
   }
 
-  const cls = classNames(s.main, {
-    [s.clickable]: onClick,
-    [s.closable]: onClose,
-    [s.loading]: inProgress,
-  }, className);
+  const cls = classNames(
+    s.main,
+    {
+      [s.clickable]: onClick,
+      [s.closable]: onClose,
+      [s.loading]: inProgress,
+    },
+    className
+  );
 
   function handleClick() {
     if (onClick && value != null) {

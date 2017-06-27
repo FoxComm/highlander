@@ -36,6 +36,6 @@ export default function makeRoutes(jwtToken) {
       </Route>
       <Route path="*" component={NotFound} />
     </Route>,
-    <Redirect from="*" to={indexRedirect} />
+    <Redirect from="*" to={indexRedirect} />,
   ];
 }

@@ -1,4 +1,3 @@
-
 /* @flow */
 
 // libs
@@ -38,6 +37,7 @@ type Props = {
   couponsGenerationChange: Function,
   couponsGenerationReset: Function,
   codeIsOfValidLength: Function,
+  save: () => Promise<*>,
 };
 
 class CouponCodes extends Component {
@@ -95,9 +95,8 @@ class CouponCodes extends Component {
 
   @autobind
   handleConfirmOfCodeGeneration(): void {
-    const { codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
-
-    this.props.generateCodes(codesPrefix, codesLength, codesQuantity).then(() => {
+    this.props.couponsGenerationHideDialog();
+    this.props.save().then(() => {
       this.props.couponsGenerationReset();
     }).then(() => {
       this.props.refresh();
@@ -117,7 +116,7 @@ class CouponCodes extends Component {
     const quantity = this.props.codeGeneration.codesQuantity;
     const length = this.props.codeGeneration.codesLength;
     const numberOfVariants = Math.pow(10, length);
-    return Math.round((quantity / numberOfVariants) * 100);
+    return Math.round(quantity / numberOfVariants * 100);
   }
 
   get codeLengthValidationError() {
@@ -143,7 +142,7 @@ class CouponCodes extends Component {
                 id="codesQuantity"
                 name="codesQuantity"
                 value={codesQuantity}
-                onChange={(value) => this.handleCounterChange('codesQuantity', value)}
+                onChange={value => this.handleCounterChange('codesQuantity', value)}
                 min={1}
               />
             </div>
@@ -162,14 +161,14 @@ class CouponCodes extends Component {
           </FormField>
         </div>
         <div styleName="form-group" className="fc-coupon-inline-row">
-          <FormField label="Code Character Length" >
+          <FormField label="Code Character Length">
             <div>
               <Counter
                 counterId="fct-code-length-counter"
                 id="codesLength"
                 name="codesLength"
                 value={this.props.codeGeneration.codesLength}
-                onChange={(value) => this.handleCounterChange('codesLength', value)}
+                onChange={value => this.handleCounterChange('codesLength', value)}
                 min={1}
               />
             </div>
@@ -228,7 +227,7 @@ class CouponCodes extends Component {
 const mergeProps = (stateProps, dispatchProps, ownProps) => {
   return {
     ...dispatchProps,
-    ...ownProps
+    ...ownProps,
   };
 };
 

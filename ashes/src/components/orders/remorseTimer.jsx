@@ -21,7 +21,7 @@ export default class RemorseTimer extends Component {
   props: Props;
 
   state: State = {
-    frozen: false
+    frozen: false,
   };
 
   extendButton(): Element<*> {
@@ -29,7 +29,7 @@ export default class RemorseTimer extends Component {
       <AddButton
         id="fct-remorse-timer-extend-btn"
         className="fc-remorse-timer-extend"
-        onClick={ this.props.onIncreaseClick }
+        onClick={this.props.onIncreaseClick}
       >
         15 min
       </AddButton>

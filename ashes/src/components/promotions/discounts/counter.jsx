@@ -10,7 +10,7 @@ import Counter from 'components/core/counter';
 import type { Context, ItemDesc } from '../types';
 
 type Props = ItemDesc & {
-  context: Context;
+  context: Context,
 };
 
 const CounterWidget = (props: Props): Element<*> => {
@@ -19,13 +19,7 @@ const CounterWidget = (props: Props): Element<*> => {
     props.onChange(value);
   };
 
-  return (
-    <Counter
-      value={value}
-      onChange={setValue}
-      min={1}
-    />
-  );
+  return <Counter value={value} onChange={setValue} min={1} />;
 };
 
 export default CounterWidget;

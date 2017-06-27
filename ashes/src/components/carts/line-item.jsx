@@ -33,9 +33,9 @@ type Props = {
 };
 
 type State = {
-  isDeleting: boolean;
-  lastSyncedQuantity: number;
-  quantity: number;
+  isDeleting: boolean,
+  lastSyncedQuantity: number,
+  quantity: number,
 };
 
 export class CartLineItem extends Component {
@@ -60,10 +60,12 @@ export class CartLineItem extends Component {
 
     const quantityDiff = quantity - lastSyncedQuantity;
 
-    this.setState({
-      lastSyncedQuantity: quantity,
-    }, () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff, attributes));
-
+    this.setState(
+      {
+        lastSyncedQuantity: quantity,
+      },
+      () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff, attributes)
+    );
   }
 
   @autobind
@@ -73,10 +75,13 @@ export class CartLineItem extends Component {
 
   @autobind
   confirmDelete() {
-    this.setState({
-      isDeleting: false,
-      quantity: 0,
-    }, this.performUpdate());
+    this.setState(
+      {
+        isDeleting: false,
+        quantity: 0,
+      },
+      this.performUpdate()
+    );
   }
 
   @autobind

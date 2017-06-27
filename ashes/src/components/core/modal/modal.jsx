@@ -24,6 +24,8 @@ type Props = {
   children?: Element<any>,
   /** Additional className */
   className?: string,
+  /** Size modifier. 'big': will occupy all window and stretch its content */
+  size?: 'big',
 };
 
 /**
@@ -34,9 +36,9 @@ type Props = {
  *
  * @function Modal
  */
-export default ({ isVisible, title, footer, children, className, onClose = noop }: Props) => (
+export default ({ isVisible, title, footer, children, className, onClose = noop, size }: Props) => (
   <ModalContainer
-    className={classNames(s.modal, className)}
+    className={classNames(s.modal, className, { [s.big]: size === 'big' })}
     isVisible={isVisible}
     onClose={onClose}
   >

@@ -26,9 +26,14 @@ type Props = {
 };
 
 const Alert = (props: Props) => {
-  const className = classNames(s.alert, s[props.type], {
-    [s.closable]: props.closeAction,
-  }, props.className);
+  const className = classNames(
+    s.alert,
+    s[props.type],
+    {
+      [s.closable]: props.closeAction,
+    },
+    props.className
+  );
 
   let closeButton = null;
   if (props.closeAction) {
@@ -37,8 +42,8 @@ const Alert = (props: Props) => {
 
   return (
     <div className={className}>
+      <Icon name={props.type} className={s.icon} />
       <div className={s.message}>
-        <Icon name={props.type} />
         {props.children}
       </div>
       {closeButton}

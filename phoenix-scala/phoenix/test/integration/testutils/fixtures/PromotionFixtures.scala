@@ -63,10 +63,13 @@ trait PromotionFixtures extends TestFixtureBase {
     implicit def au: AuthData[User]
 
     def promotion: Promotion
-    val coupon = CouponManager.create(couponPayload(promotion.formId), ctx.name, None).gimme
+    val coupon = CouponManager.create(couponPayload(promotion.formId), ctx.name, None).gimme.headOption.value
 
     def couponPayload(promoId: Int, attributes: Map[String, Json] = Map()): CreateCoupon =
-      CreateCoupon(attributes = attributes + ("name" → tv("donkey coupon")), promoId)
+      CreateCoupon(attributes = attributes + ("name" → tv("donkey coupon")),
+                   promoId,
+                   singleCode = Some(faker.Lorem.letterify("???????")),
+                   generateCodes = None)
   }
 
 }

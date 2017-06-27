@@ -1,0 +1,75 @@
+@import "colors.css";
+
+.list {
+  padding: 15px 10px 15px 15px;
+}
+
+.item {
+  padding: 5px 10px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 2;
+}
+
+.profile-item {
+  composes: item;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.chosen {
+  background: var(--select-active-background);
+  border-color: transparent;
+}
+
+.deleted-content {
+  opacity: 0.5;
+}
+
+.actions-block {
+  color: var(--link-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.separator {
+  margin: 0 5px;
+}
+
+.item-content {
+  flex-grow: 1;
+  line-height: 1.33;
+}
+
+.edit-form {
+  padding: 10px 10px 0 15px;
+}
+
+.action-link-add {
+  composes: action-link from "ui/action-link/action-link.css";
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  font-size: 14px;
+}
+
+.link {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--link-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--link-hover-color);
+  }
+}
+
+.plus-icon {
+  composes: plus-icon from "ui/css/plus-icon.css";
+}

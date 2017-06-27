@@ -14,9 +14,8 @@ import Currency from '../common/currency';
 import { DateTime } from 'components/common/datetime';
 
 export default class Customer extends React.Component {
-
   static propTypes = {
-    customer: PropTypes.object.isRequired
+    customer: PropTypes.object.isRequired,
   };
 
   get customerName() {
@@ -53,6 +52,7 @@ export default class Customer extends React.Component {
     return (
       <div styleName="block" className="fc-content-box">
         <div styleName="header">
+          <div styleName="head" />
         </div>
         <article styleName="body">
           <div className="fc-grid">
@@ -72,21 +72,21 @@ export default class Customer extends React.Component {
                 <ul styleName="fields">
                   <li>
                     <Icon name="customer" />
-                    <span>{ customer.id }</span>
+                    <span>{customer.id}</span>
                   </li>
                   <li>
                     <Icon name="phone" />
-                    <span>{ customer.phoneNumber }</span>
+                    <span>{customer.phoneNumber}</span>
                   </li>
                   <li>
                     <Icon name="location" />
-                    <span>{ customer.location }</span>
+                    <span>{customer.location}</span>
                   </li>
                 </ul>
                 <ul styleName="fields">
                   <li>
                     <Icon name="calendar" />
-                    <span>{ joinedAt }</span>
+                    <span>{joinedAt}</span>
                     <span styleName="comment">&nbsp;Date joined</span>
                   </li>
                   <li>

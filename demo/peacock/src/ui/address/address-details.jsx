@@ -26,10 +26,11 @@ const AddressDetails = (props: Props) => {
 
   const nameField = !props.hideName && address.name ? <li>{address.name}</li> : null;
   const className = props.className || styles['address-details'];
+  const isDefault = address.isDefault && !props.hideName ? <span styleName="default-address">(Default)</span> : '';
 
   return (
     <ul className={className}>
-      {nameField}
+      <span styleName="name-line">{nameField} {isDefault}</span>
       <li>{address.address1}</li>
       {address.address2 && <li>{address.address2}</li>}
       <li>
