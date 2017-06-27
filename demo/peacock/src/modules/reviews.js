@@ -78,7 +78,7 @@ const initialState = {
 
 const reducer = createReducer({
   [_fetchReviewsForUser.succeeded]: (state, response) => {
-    const filteredList = _.filter(response.result, (review) => review.archivedAt == null);
+    const filteredList = _.filter(response.result, review => review.archivedAt == null);
 
     return {
       ...state,
@@ -89,7 +89,7 @@ const reducer = createReducer({
     const currentList = state.list;
     const mergedList = _.isEmpty(response.result) ? currentList : _.concat(currentList, response.result);
 
-    const filteredList = _.filter(mergedList, (review) => review.archivedAt == null);
+    const filteredList = _.filter(mergedList, review => review.archivedAt == null);
 
     return {
       ...state,
