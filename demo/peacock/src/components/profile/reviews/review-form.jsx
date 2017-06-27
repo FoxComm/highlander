@@ -105,6 +105,7 @@ class ReviewForm extends Component {
     };
     return this.props.updateReview(currentReview.id, payload).then(() => {
       this.props.closeModal();
+      this.props.fetchReviews();
     });
   }
 
