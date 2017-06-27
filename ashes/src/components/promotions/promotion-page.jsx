@@ -39,7 +39,7 @@ type DiscountChildType = {
   title: string,
   default: ?Object,
   validate: ?Object,
-  content: Array,
+  content: Array<*>,
 };
 
 class PromotionPage extends ObjectPage {

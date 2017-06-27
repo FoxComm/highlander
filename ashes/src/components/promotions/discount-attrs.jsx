@@ -41,7 +41,7 @@ const renderers = {
 };
 
 type Props = {
-  onChange: (attrs: Object) => any;
+  onChange: (attrs: Object, errorParams: Object) => any;
   attr: string;
   descriptions: Array<DescriptionType>;
   discount: Object;
