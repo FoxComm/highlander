@@ -3,7 +3,6 @@
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // components
@@ -13,7 +12,7 @@ import { TextInput } from 'ui/text-input';
 import { TextArea } from 'ui/textarea';
 import Loader from 'ui/loader';
 import ProductImage from 'components/image/image';
-import RadioButton from 'ui/radiobutton/radiobutton';
+// import RadioButton from 'ui/radiobutton/radiobutton';
 
 // types
 import type Review from 'types/review';
@@ -54,7 +53,7 @@ class ReviewForm extends Component {
           title: _.get(currentReview, 'attributes.title.v', ''),
           body: _.get(currentReview, 'attributes.body.v', ''),
           isHappy: true, // not implemented yet on backend
-          currentReview: currentReview ? currentReview : null,
+          currentReview: currentReview || null,
         });
       });
     }
@@ -202,9 +201,9 @@ class ReviewForm extends Component {
 
     if (fetchState.inProgress) return '';
 
-    if (currentReview && currentReview.attributes.status.v === 'pending') return "New review";
+    if (currentReview && currentReview.attributes.status.v === 'pending') return 'New review';
 
-    return "Edit review";
+    return 'Edit review';
   }
 
   render() {

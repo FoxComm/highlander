@@ -23,7 +23,7 @@ const ReviewRow = (props: Props) => {
   const {
     imageUrl,
     productName,
-    status
+    status,
   } = attributes;
 
   const renderActions = () => {
@@ -31,13 +31,13 @@ const ReviewRow = (props: Props) => {
       return (
         <div styleName="reviews-actions">
           <ActionLink
-            action={() => { props.handleReviewForm(review.id); }}
+            action={() => { props.handleReviewForm(id); }}
             title="Add review"
             styleName="reviews-action-link"
           />
 
           <ActionLink
-            action={() => { props.removeReview(review.id); }}
+            action={() => { props.removeReview(id); }}
             title="Ignore"
             styleName="reviews-action-link"
           />
@@ -47,13 +47,13 @@ const ReviewRow = (props: Props) => {
     return (
       <div styleName="reviews-actions">
         <ActionLink
-          action={() => { props.handleReviewForm(review.id); }}
+          action={() => { props.handleReviewForm(id); }}
           title="Edit review"
           styleName="reviews-action-link"
         />
 
         <ActionLink
-          action={() => { props.removeReview(review.id); }}
+          action={() => { props.removeReview(id); }}
           title="Delete"
           styleName="reviews-action-link"
         />

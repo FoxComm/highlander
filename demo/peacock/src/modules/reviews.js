@@ -6,6 +6,8 @@ import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
 // actions - private
+const cleanUpReviews = createAction('CLEAN_UP_REVIEWS');
+
 const _fetchReviewsForUser = createAsyncActions(
   'fetchReviews',
   function(userId: number) {
@@ -52,19 +54,17 @@ const _removeReview = createAsyncActions(
   'removeReview',
   function(reviewId: number) {
     const { dispatch } = this;
-    return this.api.reviews.delete(reviewId).then((resp) => {
+    return this.api.reviews.delete(reviewId).then(() => {
       dispatch(cleanUpReviews(reviewId));
     });
   }
 );
 
-const cleanUpReviews = createAction('CLEAN_UP_REVIEWS');
-
 // actions - public
 export const fetchReviewsForUser = _fetchReviewsForUser.perform;
 export const fetchReviewsForSku = _fetchReviewsForSku.perform;
 export const updateReview = _updateReview.perform;
-export const removeReview =  _removeReview.perform;
+export const removeReview = _removeReview.perform;
 export const clearReviews = createAction('REVIEWS_CLEAR');
 export const toggleReviewsModal = createAction('TOGGLE_REVIEWS_MODAL');
 
@@ -114,14 +114,13 @@ const reducer = createReducer({
     };
   },
   [cleanUpReviews]: (state, reviewId) => {
-    const newList = _.filter(state.list, (review) => review.id !== reviewId);
-    console.log('newList -> ', newList);
+    const newList = _.filter(state.list, review => review.id !== reviewId);
 
     return {
       ...state,
       list: newList,
     };
-  }
+  },
 }, initialState);
 
 export default reducer;

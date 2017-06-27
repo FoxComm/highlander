@@ -46,7 +46,7 @@ class ReviewsBlock extends Component {
 
   componentWillMount() {
     this.fetchReviews().catch((error) => {
-      this.setState({ error })
+      this.setState({ error });
     });
   }
 
@@ -55,9 +55,8 @@ class ReviewsBlock extends Component {
     if (_.get(this.props.auth, 'jwt')) {
       const userId = this.props.auth.user.id;
       return this.props.fetchReviewsForUser(userId);
-    } else {
-      return Promise.reject("Not authorized");
     }
+    return Promise.reject('Not authorized');
   }
 
   get modal() {
@@ -119,7 +118,7 @@ class ReviewsBlock extends Component {
   myReviews(reviews, pending) {
     if (_.isEmpty(reviews)) return null;
 
-    const title = pending ? "Review products" : "My reviews";
+    const title = pending ? 'Review products' : 'My reviews';
 
     return (
       <div styleName="reviews-block">
@@ -135,7 +134,7 @@ class ReviewsBlock extends Component {
 
     if (_.isEmpty(reviews)) return null;
 
-    const notReviewed = _.filter(reviews, (review) => review.attributes.status.v == 'pending');
+    const notReviewed = _.filter(reviews, review => review.attributes.status.v == 'pending');
     const reviewed = _.difference(reviews, notReviewed);
 
     return (
