@@ -102,6 +102,10 @@
 .title {
   font-size: 16px;
   font-weight: 900;
+
+  &.reviews {
+    margin-bottom: 6px;
+  }
 }
 
 .content {
@@ -131,6 +135,7 @@
 .product-data {
   display: flex;
   align-items: flex-start;
+  width: 100%;
 }
 
 .product-image {
@@ -154,7 +159,7 @@
 
 .reviews-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: baseline;
 }
 
@@ -176,6 +181,8 @@
 }
 
 .product-info {
+  width: 100%;
+
   &.modal {
     display: flex;
     padding-top: 11px;
@@ -197,6 +204,10 @@
 }
 
 .rating-button {
+  margin-bottom: 12px;
+}
+
+.reviews-block {
   margin-bottom: 12px;
 }
 
@@ -238,6 +249,7 @@
   .orders, .reviews-block {
     lost-column: 7/11;
     margin-top: 50px;
+    margin-bottom: 0;
   }
 
   .order-row {
@@ -269,5 +281,15 @@
       margin-top: 13px;
       margin-bottom: 16px;
     }
+  }
+
+  .title {
+    &.reviews {
+      margin-bottom: 0;
+    }
+  }
+
+  .reviews-actions {
+    justify-content: flex-end;
   }
 }

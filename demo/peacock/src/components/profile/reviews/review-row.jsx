@@ -70,9 +70,9 @@ const ReviewRow = (props: Props) => {
         <div styleName="product-info">
           <div styleName="product-name">{productName.v}</div>
           <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
+          {renderActions()}
         </div>
       </div>
-      {renderActions()}
     </div>
   );
 };

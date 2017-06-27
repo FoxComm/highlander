@@ -116,7 +116,7 @@ class ReviewsBlock extends Component {
 
     return (
       <div styleName="reviews-block">
-        <div styleName="title">{title}</div>
+        <div styleName="title reviews">{title}</div>
         <div styleName="divider table" />
         {this.content(reviews)}
       </div>
