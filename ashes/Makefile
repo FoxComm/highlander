@@ -52,12 +52,13 @@ tag:
 clean:
 	rm -rf ./build/admin
 
+# Do we actually need tests (not checks) on built aplication inside Ashes?
 .PHONY: test
 test: MSG=Testing
-test: notify flow lint mocha
+test: notify
 
-.PHONY: t
-t: flow lint mocha
+.PHONY: check t
+check t: flow lint mocha
 
 .PHONY: mocha-spec
 mocha-spec:
@@ -141,4 +142,4 @@ prod p: clean build-prod
 
 .PHONY: build
 build: MSG=Building
-build: notify clean install build-styleguide build-prod
+build: notify clean install check build-styleguide build-prod
