@@ -55,23 +55,28 @@ create or replace function update_gc_txn_view_from_order_payment_fn() returns tr
     update gift_card_transactions_view set
       order_payment = q.order_payment
       from (select
-            new.id,
-            case when op is not null then
-              to_json((
-                o.reference_number,
-                to_json_timestamp(o.placed_at),
-                to_json_timestamp(op.created_at)
-              )::export_order_payments)
-            else '{}' end as order_payment
-        from order_payments as op
-        inner join orders as o on (o.reference_number = op.cord_ref)
-        where op.id = new.order_payment_id) as q
+            gca.id,
+            case when op is not null 
+              then to_json((
+                    o.reference_number, 
+                    to_json_timestamp(o.placed_at),
+                    to_json_timestamp(op.created_at)
+                )::export_order_payments)
+              else null
+            end as order_payment
+            from gift_card_adjustments gca
+            inner join order_payments op on op.id = gca.order_payment_id
+            inner join orders o on o.reference_number = op.cord_ref
+            where op.cord_ref = new.reference_number
+            group by gca.id, o.reference_number, o.placed_at, op.id) as q
       where gift_card_transactions_view.id = q.id;
-
     return null;
   end;
 $$ language plpgsql;
 
+drop trigger if exists update_gc_txn_insert_fn on gift_card_adjustments;
+drop trigger if exists update_gc_txn_update on gift_card_adjustments;
+drop trigger if exists update_gc_txn_from_orders_payment on orders;
 
 create trigger update_gc_txn_insert_fn
     after insert on gift_card_adjustments
@@ -84,8 +89,6 @@ create trigger update_gc_txn_update
     execute procedure update_gc_txn_update_fn();
 
 create trigger update_gc_txn_from_orders_payment
-    after update on gift_card_adjustments
+    after update on orders
     for each row
-    when (new.order_payment_id is not null and
-      new.order_payment_id is distinct from old.order_payment_id)
     execute procedure update_gc_txn_view_from_order_payment_fn();
