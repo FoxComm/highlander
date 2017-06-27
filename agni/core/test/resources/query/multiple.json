@@ -23,5 +23,22 @@
     "type": "exists",
     "context": "not",
     "value": "archivedAt"
+  },
+  {
+    "type": "bool",
+    "value": [
+      {
+        "type": "equals",
+        "in": "context",
+        "value": "default"
+      },
+      {
+        "type": "bool",
+        "value": {
+          "type": "exists",
+          "value": "context"
+        }
+      }
+    ]
   }
 ]

@@ -4,12 +4,12 @@ import scala.language.higherKinds
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.implicits._
 import cats.instances.either._
-import io.circe.Decoder.Result
 import io.circe._
 import io.circe.generic.extras.semiauto._
 import scala.util.Try
 import shapeless._
 
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 object query {
   type QueryValueF[F[_], T] = T :+: F[T] :+: CNil
   type QueryValue[T]        = QueryValueF[NonEmptyList, T]
@@ -93,8 +93,7 @@ object query {
     }
 
     implicit val decodeQueryField: Decoder[QueryField] =
-      Decoder[Single].map(identity[QueryField]) or
-        Decoder[Multiple].map(identity[QueryField])
+      Decoder[Single].map(identity) or Decoder[Multiple].map(identity)
   }
 
   sealed trait QueryContext
@@ -103,15 +102,14 @@ object query {
     final case class should(boost: Option[Float]) extends QueryContext
     final case class not(boost: Option[Float])    extends QueryContext
 
-    implicit val decodeQueryContext: Decoder[QueryContext] = new Decoder[QueryContext] {
-      def apply(c: HCursor): Result[QueryContext] = c.as[String].flatMap {
+    implicit val decodeQueryContext: Decoder[QueryContext] = Decoder.instance[QueryContext](c ⇒
+      c.as[String].flatMap {
         case Boostable("must", b)         ⇒ Either.right(must(b))
         case Boostable("should", b)       ⇒ Either.right(should(b))
         case Boostable.explicit("not", b) ⇒ Either.right(not(Some(b)))
         case "not"                        ⇒ Either.right(not(None))
-        case _                            ⇒ Either.left(DecodingFailure("invalid query context", c.history))
-      }
-    }
+        case _                            ⇒ Either.left(DecodingFailure("Invalid query context", c.history))
+    })
   }
 
   sealed trait RangeFunction
@@ -158,26 +156,29 @@ object query {
           case (ub: UpperBound, v) ⇒ ub → v
         }.toList
 
-        if (lbs.size > 1) Either.left("only single lower bound can be specified")
-        else if (ubs.size > 1) Either.left("only single upper bound can be specified")
+        if (lbs.size > 1) Either.left("Only single lower bound can be specified")
+        else if (ubs.size > 1) Either.left("Only single upper bound can be specified")
         else Either.right(RangeBound(lbs.headOption, ubs.headOption))
       }
   }
 
   sealed trait QueryFunction
   object QueryFunction {
-    sealed trait WithField { this: QueryFunction ⇒
+    sealed trait Basic extends QueryFunction
+
+    sealed trait WithField extends Basic { this: QueryFunction ⇒
       def field: QueryField
     }
-    sealed trait WithContext { this: QueryFunction ⇒
+    sealed trait WithContext extends Basic { this: QueryFunction ⇒
       def ctx: QueryContext
     }
-    sealed trait TermLevel extends WithContext { this: QueryFunction ⇒
+
+    sealed trait TermLevel extends Basic with WithContext { this: QueryFunction ⇒
       def context: Option[QueryContext]
 
       final def ctx: QueryContext = context.getOrElse(QueryContext.must(None))
     }
-    sealed trait FullText extends WithContext with WithField { this: QueryFunction ⇒
+    sealed trait FullText extends Basic with WithContext with WithField { this: QueryFunction ⇒
       def context: Option[QueryContext]
       def in: Option[QueryField]
 
@@ -190,30 +191,60 @@ object query {
                                       context: Option[QueryContext])
         extends QueryFunction
         with FullText
+
     final case class equals private (in: QueryField, value: CompoundValue, context: Option[QueryContext])
         extends QueryFunction
         with TermLevel
         with WithField {
       def field: QueryField = in
     }
+
     final case class exists private (value: QueryField, context: Option[QueryContext])
         extends QueryFunction
         with TermLevel
+
     final case class range private (in: QueryField.Single, value: RangeValue, context: Option[QueryContext])
         extends QueryFunction
         with TermLevel
         with WithField {
       def field: QueryField.Single = in
     }
+
     final case class raw private (value: JsonObject, context: QueryContext)
         extends QueryFunction
         with WithContext {
       def ctx: QueryContext = context
     }
-    final case class bool private (in: QueryField.Single, value: QueryValue[QueryFunction])
-        extends QueryFunction
 
-    implicit val decodeQueryFunction: Decoder[QueryFunction] = deriveDecoder[QueryFunction]
+    final case class bool private (value: QueryValue[QueryFunction]) extends QueryFunction
+    object bool {
+      // TODO: make it configurable (?)
+      val MaxDepth = 25
+
+      implicit val decodeBool: Decoder[bool] = {
+        val decoder    = deriveDecoder[bool]
+        val depthField = "_depth"
+
+        Decoder.instance { c ⇒
+          val depth = (for {
+            parent ← c.up.focus
+            parent ← parent.asObject
+            depth  ← parent(depthField)
+            depth  ← depth.as[Int].toOption
+          } yield depth).getOrElse(1)
+
+          // we start counting from 0,
+          // which denotes implicit top-level bool query
+          if (depth >= MaxDepth)
+            Either.left(DecodingFailure(s"Max depth of $MaxDepth exceeded for a bool query", c.history))
+          else
+            decoder.tryDecode(c.withFocus(_.mapObject(_.add(depthField, Json.fromInt(depth + 1)))))
+        }
+      }
+    }
+
+    implicit val decodeQueryFunction: Decoder[QueryFunction] =
+      deriveDecoder[QueryFunction.Basic].map(identity) or Decoder[bool].map(identity)
   }
 
   final case class FCQuery(query: Option[NonEmptyList[QueryFunction]])
@@ -221,9 +252,8 @@ object query {
     implicit val decodeFCQuery: Decoder[FCQuery] = {
       Decoder
         .decodeOption(
-          Decoder
-            .decodeNonEmptyList[QueryFunction]
-            .or(Decoder[QueryFunction].map(NonEmptyList.of(_))))
+          Decoder.decodeNonEmptyList[QueryFunction] or
+            Decoder[QueryFunction].map(NonEmptyList.of(_)))
         .map(FCQuery(_))
     }
   }

@@ -2,10 +2,11 @@ package foxcomm.agni.dsl
 
 import cats.data.NonEmptyVector
 import foxcomm.agni.dsl.query._
+import io.circe.{Json, JsonObject}
 import io.circe.parser._
 import org.scalatest.EitherValues._
-import org.scalatest.OptionValues._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
+import scala.annotation.tailrec
 import scala.io.Source
 import shapeless._
 import shapeless.syntax.typeable._
@@ -17,13 +18,14 @@ class QueryDslSpec extends FlatSpec with Matchers {
 
   def assertQueryFunction[T <: QueryFunction: Typeable](qf: QueryFunction)(
       assertion: T ⇒ Assertion): Assertion =
-    assertion(qf.cast[T].value)
+    qf.cast[T]
+      .fold(fail(s"Cannot cast query function ${qf.getClass.getName} to ${Typeable[T].describe}"))(assertion)
 
   "DSL" should "parse multiple queries" in {
     val json =
       parse(
         Source
-          .fromInputStream(getClass.getResourceAsStream("/happy_path.json"))
+          .fromInputStream(getClass.getResourceAsStream("/query/multiple.json"))
           .mkString).right.value
     val queries =
       json.as[FCQuery].right.value.query.map(_.toList).getOrElse(Nil)
@@ -57,5 +59,39 @@ class QueryDslSpec extends FlatSpec with Matchers {
       exists.ctx should === (QueryContext.not(None))
       exists.context should be('defined)
     }
+    assertQueryFunction[QueryFunction.bool](queries(4)) { bool ⇒
+      val qfs = bool.value.toNEL
+      assertQueryFunction[QueryFunction.equals](qfs.head) { equals ⇒
+        equals.field.toList should === (List(Coproduct[Field]("context")))
+        equals.value.toList should === (List("default"))
+      }
+      assertQueryFunction[QueryFunction.bool](qfs.tail.head) { bool ⇒
+        assertQueryFunction[QueryFunction.exists](bool.value.toNEL.head) { exists ⇒
+          exists.value.toList should === (List(Coproduct[Field]("context")))
+        }
+      }
+    }
+  }
+
+  it should "limit max depth for bool query" in {
+    val leaf = JsonObject.fromMap(
+      Map(
+        "type"  → Json.fromString("exists"),
+        "value" → Json.arr(Json.fromString("answer"), Json.fromString("to"), Json.fromString("everything"))
+      ))
+
+    @tailrec
+    def deepBool(boolDepth: Int, embed: JsonObject): Json =
+      if (boolDepth > 0)
+        deepBool(boolDepth - 1,
+                 JsonObject.fromMap(
+                   Map(
+                     "type"  → Json.fromString("bool"),
+                     "value" → Json.fromJsonObject(embed)
+                   )))
+      else Json.fromJsonObject(embed)
+
+    deepBool(boolDepth = QueryFunction.bool.MaxDepth - 1, embed = leaf).as[FCQuery].isLeft should === (false)
+    deepBool(boolDepth = QueryFunction.bool.MaxDepth, embed = leaf).as[FCQuery].isLeft should === (true)
   }
 }
