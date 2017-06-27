@@ -30,7 +30,7 @@ const ReviewRow = (props: Props) => {
       return (
         <div styleName="reviews-actions">
           <ActionLink
-            action={() => { props.handleReviewForm(review); }}
+            action={() => { props.handleReviewForm(review.id); }}
             title="Add review"
             styleName="reviews-action-link"
           />
@@ -46,7 +46,7 @@ const ReviewRow = (props: Props) => {
     return (
       <div styleName="reviews-actions">
         <ActionLink
-          action={() => { props.handleReviewForm(review); }}
+          action={() => { props.handleReviewForm(review.id); }}
           title="Edit review"
           styleName="reviews-action-link"
         />

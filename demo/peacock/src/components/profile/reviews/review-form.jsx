@@ -14,6 +14,7 @@ import { TextArea } from 'ui/textarea';
 import ErrorAlerts from 'ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 
+// types
 import type Review from 'types/review';
 
 import styles from '../profile.css';
@@ -30,6 +31,9 @@ type Props = {
   updateReview: Function, // signature
   closeModal: Function, // signature
   updateReviewState: Object, // AsyncActions type
+  fetchState: Object, // AsyncActions type
+  fetchReviews: Function, // signature
+  updateReviewState: Object, // AsyncActions type
 };
 
 class ReviewForm extends Component {
@@ -39,6 +43,7 @@ class ReviewForm extends Component {
     title: '',
     body: '',
     isHappy: true,
+    currentReview: null,
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -114,11 +119,10 @@ class ReviewForm extends Component {
 
     return (
       <div>
-        <div styleName="section">Submit your review of</div>
         <FormField styleName="form-field">
           <TextInput
             required
-            placeholder="Title of Review"
+            placeholder="Review title"
             value={this.state.title}
             onChange={this.handleTitleChange}
           />
@@ -126,13 +130,24 @@ class ReviewForm extends Component {
         <FormField>
           <TextArea
             required
-            placeholder="Please add your product review here."
+            placeholder="Product review"
             value={this.state.body}
             onChange={this.handleBodyChange}
           />
         </FormField>
       </div>
     );
+  }
+
+  get modalTitle() {
+    const { currentReview } = this.state;
+    const { fetchState } = this.props;
+
+    if (fetchState.inProgress) return null;
+
+    if (currentReview && currentReview.attributes.status.v === 'pending') return "New review";
+
+    return "Edit review";
   }
 
   render() {
@@ -149,7 +164,7 @@ class ReviewForm extends Component {
         inProgress={this.props.updateReviewState.inProgress}
         submit={this.submitForm}
         buttonLabel="Save"
-        title="Review title"
+        title={this.modalTitle}
         action={action}
         buttonDisabled={disabled}
       >
@@ -159,10 +174,5 @@ class ReviewForm extends Component {
   }
 }
 
-const mapState = (state) => {
-  return {
-    updateReviewState: _.get(state.asyncActions, 'updateReview', {}),
-  }
-};
 
-export default connect(mapState)(ReviewForm);
+export default ReviewForm;

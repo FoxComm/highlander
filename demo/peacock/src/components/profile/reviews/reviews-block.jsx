@@ -67,15 +67,16 @@ class ReviewsBlock extends Component {
           updateReview={this.props.updateReview}
           fetchReviews={this.fetchReviews}
           fetchState={this.props.reviewsState}
+          updateReviewState={this.props.updateReviewState}
         />
       </Modal>
     );
   }
 
   @autobind
-  handleReviewForm(review) {
+  handleReviewForm(reviewId) {
     this.props.toggleReviewsModal();
-    this.setState({ currentReviewId: review.id });
+    this.setState({ currentReviewId: reviewId });
   }
 
   @autobind
@@ -149,6 +150,7 @@ const mapState = (state) => {
     auth: _.get(state, 'auth', {}),
     reviewsModalVisible: _.get(state.reviews, 'reviewsModalVisible', false),
     reviewsState: _.get(state.asyncActions, 'fetchReviews', {}),
+    updateReviewState: _.get(state.asyncActions, 'updateReview', {}),
   };
 };
 
