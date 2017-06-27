@@ -9,9 +9,13 @@ object ProductReviewFailures {
     override def description: String = s"Cannot update deleted review: $id"
   }
 
-  case class ProductReviewUserMismatch(id: ProductReview#Id) extends Failure {
+  case class UpdateProductReviewUserMismatch(id: ProductReview#Id) extends Failure {
     override def description: String =
-      s"Cannot update review $id: Only user who created the review can modify it."
+      s"Cannot update review $id: Only the user who created the review can modify it."
   }
 
+  case class FetchProductReviewUserMismatch(id: ProductReview#Id) extends Failure {
+    override def description: String =
+      s"Cannot fetch review $id: You can only fetch your own reviews."
+  }
 }
