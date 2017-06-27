@@ -14,7 +14,7 @@ type SubNavProps = {
   applyType: string,
 };
 
-const SubNav = (props: SubNavProps) => {
+const SubNav = (props: string) => {
   const params = {
     promotionId: props.promotionId,
   };
