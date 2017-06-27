@@ -15,7 +15,8 @@ import phoenix.responses.GenericTreeResponses._
 
 object TreeManager {
 
-  def getFullTree(treeName: String, contextName: String)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def getFullTree(treeName: String, contextName: String)(implicit ec: EC,
+                                                         db: DB): DbResultT[FullTreeResponse] =
     for {
       context  ← * <~ ObjectManager.mustFindByName404(contextName)
       response ← * <~ getFullTree(treeName, context)
@@ -23,7 +24,7 @@ object TreeManager {
 
   def updateTree(treeName: String, contextName: String, newTree: NodePayload, path: Option[String] = None)(
       implicit ec: EC,
-      db: DB): DbResultT[Root] =
+      db: DB): DbResultT[FullTreeResponse] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context, path.isEmpty)
@@ -41,8 +42,9 @@ object TreeManager {
       resultTree ← * <~ getFullTree(treeName, context)
     } yield resultTree
 
-  def moveNode(treeName: String, contextName: String, moveSpec: MoveNodePayload)(implicit ec: EC,
-                                                                                 db: DB): DbResultT[Root] =
+  def moveNode(treeName: String, contextName: String, moveSpec: MoveNodePayload)(
+      implicit ec: EC,
+      db: DB): DbResultT[FullTreeResponse] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context)
@@ -63,7 +65,7 @@ object TreeManager {
 
   def editNode(treeName: String, contextName: String, path: String, newValues: NodeValuesPayload)(
       implicit ec: EC,
-      db: DB): DbResultT[Root] =
+      db: DB): DbResultT[FullTreeResponse] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getByNameAndContext(treeName, context)
@@ -81,7 +83,7 @@ object TreeManager {
       .mustFindOneOr(TreeNotFound(name, context.name))
 
   private def getFullTree(treeName: String, context: ObjectContext)(implicit ec: EC,
-                                                                    db: DB): DbResultT[Root] =
+                                                                    db: DB): DbResultT[FullTreeResponse] =
     for {
       tree          ← * <~ getByNameAndContext(treeName, context)
       nodes         ← * <~ GenericTreeNodes.findNodes(tree.id).result

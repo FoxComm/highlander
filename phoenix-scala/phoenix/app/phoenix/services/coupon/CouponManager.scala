@@ -29,10 +29,9 @@ object CouponManager {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def create(
-      payload: CreateCoupon,
-      contextName: String,
-      admin: Option[User])(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Seq[CouponResponse.Root]] =
+  def create(payload: CreateCoupon,
+             contextName: String,
+             admin: Option[User])(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Seq[CouponResponse]] =
     for {
       _ ← * <~ failIf(payload.singleCode.isEmpty && (payload.generateCodes.isEmpty || payload.generateCodes
                         .exists(_.quantity < 1)),
@@ -92,7 +91,7 @@ object CouponManager {
       .updated("activeFrom", ("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString))
       .updated("activeTo", ("t" → "datetime") ~ ("v" → JNull))
 
-  def getIlluminated(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[CouponResponse.Root] =
+  def getIlluminated(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[CouponResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -101,7 +100,7 @@ object CouponManager {
     } yield result
 
   def getIlluminatedByCode(code: String, contextName: String)(implicit ec: EC,
-                                                              db: DB): DbResultT[CouponResponse.Root] =
+                                                              db: DB): DbResultT[CouponResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -113,7 +112,7 @@ object CouponManager {
     } yield result
 
   private def getIlluminatedIntern(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                                    db: DB): DbResultT[CouponResponse.Root] =
+                                                                    db: DB): DbResultT[CouponResponse] =
     for {
       coupon ← * <~ Coupons
                 .filter(_.contextId === context.id)
@@ -127,7 +126,7 @@ object CouponManager {
     } yield CouponResponse.build(context, code.code, coupon, form, shadow)
 
   def archiveByContextAndId(contextName: String, formId: Int)(implicit ec: EC,
-                                                              db: DB): DbResultT[CouponResponse.Root] =
+                                                              db: DB): DbResultT[CouponResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -144,7 +143,7 @@ object CouponManager {
     } yield CouponResponse.build(context, code.code, archiveResult, form, shadow)
 
   // FIXME: should be unused @michalrus @bagratinho
-  def getCodes(id: Int)(implicit ec: EC, db: DB): DbResultT[Seq[CouponCodesResponse.Root]] =
+  def getCodes(id: Int)(implicit ec: EC, db: DB): DbResultT[Seq[CouponCodesResponse]] =
     for {
       _     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
       codes ← * <~ CouponCodes.filter(_.couponFormId === id).result

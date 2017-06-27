@@ -78,7 +78,7 @@ class CouponsSearchViewIntegrationTest
     val promo = promotionsApi
       .create(PromotionPayloadBuilder
         .build(Promotion.Coupon, PromoOfferBuilder.CartPercentOff(percentOff), PromoQualifierBuilder.CartAny))
-      .as[PromotionResponse.Root]
+      .as[PromotionResponse]
 
     val coupons = {
       val couponPayload = {
@@ -101,7 +101,7 @@ class CouponsSearchViewIntegrationTest
                      generateCodes =
                        Some(GenerateCouponCodes(prefix, quantity = quantity, length = prefix.length + 3)))
       }
-      couponsApi.create(couponPayload).as[Seq[CouponResponse.Root]]
+      couponsApi.create(couponPayload).as[Seq[CouponResponse]]
     }
 
     // one Coupon is created for each CouponCode

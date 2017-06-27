@@ -23,7 +23,7 @@ class AllOrdersIntegrationTest
     "bulk update states" in new StoreAdmin_Seed with StateUpdateFixture {
       val payload = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
 
-      val all = ordersApi.update(payload).as[BatchResponse[AllOrders.Root]]
+      val all = ordersApi.update(payload).as[BatchResponse[AllOrders]]
 
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
       allOrders must contain allOf (
@@ -36,7 +36,7 @@ class AllOrdersIntegrationTest
     "refuses invalid status transition" in new Order_Baked {
       val all = ordersApi
         .update(BulkUpdateOrdersPayload(Seq(order.refNum), Shipped))
-        .as[BatchResponse[AllOrders.Root]]
+        .as[BatchResponse[AllOrders]]
 
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
       allOrders must === (Seq((order.refNum, order.state)))

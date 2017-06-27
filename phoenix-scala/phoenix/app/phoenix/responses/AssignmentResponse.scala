@@ -6,13 +6,15 @@ import phoenix.models.Assignment
 import phoenix.models.account.User
 import phoenix.responses.users.UserResponse
 
+case class AssignmentResponse(assignee: UserResponse,
+                              assignmentType: Assignment.AssignmentType,
+                              createdAt: Instant)
+    extends ResponseItem
+
 object AssignmentResponse {
 
-  case class Root(assignee: UserResponse, assignmentType: Assignment.AssignmentType, createdAt: Instant)
-      extends ResponseItem
-
-  def build(assignment: Assignment, admin: User): Root =
-    Root(assignee = UserResponse.build(admin),
-         assignmentType = assignment.assignmentType,
-         createdAt = assignment.createdAt)
+  def build(assignment: Assignment, admin: User): AssignmentResponse =
+    AssignmentResponse(assignee = UserResponse.build(admin),
+                       assignmentType = assignment.assignmentType,
+                       createdAt = assignment.createdAt)
 }

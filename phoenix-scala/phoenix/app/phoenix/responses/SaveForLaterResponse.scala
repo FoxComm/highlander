@@ -11,20 +11,20 @@ import phoenix.models.{SaveForLater, SaveForLaters}
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money._
 
+case class SaveForLaterResponse(
+    id: Int,
+    name: Option[String],
+    sku: String,
+    price: Long,
+    createdAt: Instant,
+    imageUrl: String =
+      "https://s-media-cache-ak0.pinimg.com/originals/37/0b/05/370b05c49ec83cae065c36fa0b3e5ada.jpg",
+    favorite: Boolean = false
+)
+
 object SaveForLaterResponse {
 
-  case class Root(
-      id: Int,
-      name: Option[String],
-      sku: String,
-      price: Long,
-      createdAt: Instant,
-      imageUrl: String =
-        "https://s-media-cache-ak0.pinimg.com/originals/37/0b/05/370b05c49ec83cae065c36fa0b3e5ada.jpg",
-      favorite: Boolean = false
-  )
-
-  def forSkuId(skuId: Int, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def forSkuId(skuId: Int, contextId: Int)(implicit ec: EC, db: DB): DbResultT[SaveForLaterResponse] =
     for {
       sfl ← * <~ SaveForLaters
              .filter(_.skuId === skuId)
@@ -34,8 +34,8 @@ object SaveForLaterResponse {
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield build(sfl, sku, form, shadow)
 
-  def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root =
-    Root(
+  def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): SaveForLaterResponse =
+    SaveForLaterResponse(
       id = sfl.id,
       name = FormShadowGet.title(form, shadow),
       sku = sku.code,

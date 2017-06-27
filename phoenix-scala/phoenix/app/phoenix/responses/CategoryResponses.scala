@@ -10,41 +10,43 @@ import phoenix.utils.aliases._
 
 object CategoryResponses {
 
+  case class CategoryHeadResponse(id: Int) extends ResponseItem
+
   object CategoryHeadResponse {
-
-    case class Root(id: Int) extends ResponseItem
-
-    def build(c: Category): Root = Root(c.formId)
+    def build(c: Category): CategoryHeadResponse = CategoryHeadResponse(c.formId)
   }
+
+  case class CategoryFormResponse(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
 
   object CategoryFormResponse {
-
-    case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
-
-    def build(c: Category, f: ObjectForm): Root = Root(f.id, f.attributes, c.createdAt)
+    def build(c: Category, f: ObjectForm): CategoryFormResponse =
+      CategoryFormResponse(f.id, f.attributes, c.createdAt)
   }
+
+  case class CategoryShadowResponse(id: Int, formId: Int, attributes: Json, createdAt: Instant)
+      extends ResponseItem
 
   object CategoryShadowResponse {
-
-    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant) extends ResponseItem
-
-    def build(c: ObjectShadow): Root = Root(c.id, c.formId, c.attributes, c.createdAt)
+    def build(c: ObjectShadow): CategoryShadowResponse =
+      CategoryShadowResponse(c.id, c.formId, c.attributes, c.createdAt)
   }
+
+  case class IlluminatedCategoryResponse(id: Int, context: Option[ObjectContextResponse], attributes: Json)
+      extends ResponseItem
 
   object IlluminatedCategoryResponse {
-
-    case class Root(id: Int, context: Option[ObjectContextResponse.Root], attributes: Json)
-        extends ResponseItem
-
-    def build(c: IlluminatedCategory): Root =
-      Root(c.id, ObjectContextResponse.build(c.context).some, c.attributes)
+    def build(c: IlluminatedCategory): IlluminatedCategoryResponse =
+      IlluminatedCategoryResponse(c.id, ObjectContextResponse.build(c.context).some, c.attributes)
   }
 
+  case class FullCategoryResponse(form: CategoryFormResponse, shadow: CategoryShadowResponse)
+      extends ResponseItem
+
   object FullCategoryResponse {
-
-    case class Root(form: CategoryFormResponse.Root, shadow: CategoryShadowResponse.Root) extends ResponseItem
-
-    def build(category: Category, categoryForm: ObjectForm, categoryShadow: ObjectShadow): Root =
-      Root(CategoryFormResponse.build(category, categoryForm), CategoryShadowResponse.build(categoryShadow))
+    def build(category: Category,
+              categoryForm: ObjectForm,
+              categoryShadow: ObjectShadow): FullCategoryResponse =
+      FullCategoryResponse(CategoryFormResponse.build(category, categoryForm),
+                           CategoryShadowResponse.build(categoryShadow))
   }
 }

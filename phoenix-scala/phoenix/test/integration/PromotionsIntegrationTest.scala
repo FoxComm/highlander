@@ -48,13 +48,13 @@ class PromotionsIntegrationTest
 
   "DELETE /v1/promotions/:context/:id" - {
     "archive existing promotion with attached coupons" in new Fixture {
-      val promotionResponse = promotionsApi(promotion.formId).delete().as[PromotionResponse.Root]
+      val promotionResponse = promotionsApi(promotion.formId).delete().as[PromotionResponse]
 
       withClue(promotionResponse.archivedAt.value → Instant.now) {
         promotionResponse.archivedAt.value.isBeforeNow mustBe true
       }
 
-      val couponRoot = couponsApi(coupon.id).get().as[CouponResponse.Root]
+      val couponRoot = couponsApi(coupon.id).get().as[CouponResponse]
       withClue(couponRoot.archivedAt.value → Instant.now) {
         couponRoot.archivedAt.value.isBeforeNow mustBe true
       }
@@ -82,7 +82,7 @@ class PromotionsIntegrationTest
                         attributes = promoAttributes,
                         discounts = Seq(UpdatePromoDiscount(formDiscount.id, attributes = newDiscountAttrs)))
 
-      promotionsApi(promotion.formId).update(disablePromoPayload).as[PromotionResponse.Root]
+      promotionsApi(promotion.formId).update(disablePromoPayload).as[PromotionResponse]
     }
   }
 
@@ -123,7 +123,7 @@ class PromotionsIntegrationTest
 
     // Yields (CouponResponse.Root, coupon code)
     def setupPromoAndCoupon(extraPromoAttrs: Map[String, Json] = Map.empty)(implicit sl: SL,
-                                                                            sf: SF): CouponResponse.Root = {
+                                                                            sf: SF): CouponResponse = {
       // TODO: try to reuse PromotionPayloadBuilder? @michalrus
       val promoId = {
         val promotionPayload = {
@@ -146,7 +146,7 @@ class PromotionsIntegrationTest
                           attributes = promoAttrs ++ extraPromoAttrs)
         }
 
-        promotionsApi.create(promotionPayload).as[PromotionResponse.Root].id
+        promotionsApi.create(promotionPayload).as[PromotionResponse].id
       }
 
       val coupon = {
@@ -169,7 +169,7 @@ class PromotionsIntegrationTest
                        singleCode = Some(faker.Lorem.letterify("???????")),
                        generateCodes = None)
         }
-        couponsApi.create(couponPayload).as[Seq[CouponResponse.Root]].headOption.value
+        couponsApi.create(couponPayload).as[Seq[CouponResponse]].headOption.value
       }
       coupon
     }
@@ -290,13 +290,13 @@ class PromotionsIntegrationTest
       val autoPromo = promotionsApi
         .create(PromotionPayloadBuilder
           .build(Promotion.Auto, PromoOfferBuilder.CartPercentOff(percentOff), PromoQualifierBuilder.CartAny))
-        .as[PromotionResponse.Root]
+        .as[PromotionResponse]
 
       val coupon = setupPromoAndCoupon()
 
       val refNum = api_newGuestCart.referenceNumber
 
-      def getPercentOff(p: PromotionResponse.Root): Int =
+      def getPercentOff(p: PromotionResponse): Int =
         (p.discounts.head.attributes \ "offer" \ "v" \ "orderPercentOff" \ "discount").extract[Int]
 
       val skuCode = ProductSku_ApiFixture().skuCode

@@ -6,7 +6,7 @@ import objectframework.models.{ObjectForm, ObjectForms}
 import phoenix.models.activity.Dimension
 import phoenix.models.promotion.Promotion
 import phoenix.models.{Assignment, NotificationSubscription}
-import phoenix.responses.PromotionResponses.PromotionFormResponse._
+import phoenix.responses.PromotionResponses.PromotionFormResponse
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
@@ -17,7 +17,7 @@ object PromotionAssignmentsManager extends AssignmentsManager[Int, ObjectForm] {
   val notifyDimension = Dimension.promotion
   val notifyReason    = NotificationSubscription.Assigned
 
-  def buildResponse(model: ObjectForm): Root = build(model)
+  def buildResponse(model: ObjectForm): PromotionFormResponse = PromotionFormResponse.build(model)
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[ObjectForm] =
     ObjectForms

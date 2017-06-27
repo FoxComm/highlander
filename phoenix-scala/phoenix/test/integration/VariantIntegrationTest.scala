@@ -7,8 +7,8 @@ import phoenix.models.account.Scope
 import phoenix.models.inventory.Skus
 import phoenix.models.product._
 import phoenix.payloads.VariantPayloads._
-import phoenix.responses.VariantResponses.IlluminatedVariantResponse.{Root ⇒ VariantRoot}
-import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse.{Root ⇒ ValueRoot}
+import phoenix.responses.VariantResponses.IlluminatedVariantResponse
+import phoenix.responses.VariantValueResponses.IlluminatedVariantValueResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -23,7 +23,7 @@ class VariantIntegrationTest
 
   "POST v1/variants/:context" - {
     "Creates a variant successfully" in new Fixture {
-      val variantResponse = variantsApi.create(createVariantPayload).as[VariantRoot]
+      val variantResponse = variantsApi.create(createVariantPayload).as[IlluminatedVariantResponse]
       variantResponse.values.length must === (0)
 
       (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Color")
@@ -31,7 +31,7 @@ class VariantIntegrationTest
 
     "Creates a variant with a value successfully" in new Fixture {
       val payload         = createVariantPayload.copy(values = Some(Seq(createVariantValuePayload)))
-      val variantResponse = variantsApi.create(payload).as[VariantRoot]
+      val variantResponse = variantsApi.create(payload).as[IlluminatedVariantResponse]
       variantResponse.values.length must === (1)
       private val value = variantResponse.values.head
       value.name must === ("Red")
@@ -50,7 +50,7 @@ class VariantIntegrationTest
 
   "GET v1/variants/:context/:id" - {
     "Gets a created variant successfully" in new VariantFixture {
-      val variantResponse = variantsApi(variant.variant.variantFormId).get().as[VariantRoot]
+      val variantResponse = variantsApi(variant.variant.variantFormId).get().as[IlluminatedVariantResponse]
       variantResponse.values.length must === (2)
 
       (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Size")
@@ -70,7 +70,7 @@ class VariantIntegrationTest
     "Updates the name of the variant successfully" in new VariantFixture {
       val payload =
         VariantPayload(values = None, attributes = Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
-      val response = variantsApi(variant.variant.variantFormId).update(payload).as[VariantRoot]
+      val response = variantsApi(variant.variant.variantFormId).update(payload).as[IlluminatedVariantResponse]
       response.values.length must === (2)
 
       (response.attributes \ "name" \ "v").extract[String] must === ("New Size")
@@ -90,17 +90,19 @@ class VariantIntegrationTest
 
   "POST v1/variants/:context/:id/values" - {
     "Creates a variant value successfully" in new Fixture {
-      val variantResponse = variantsApi.create(createVariantPayload).as[VariantRoot]
+      val variantResponse = variantsApi.create(createVariantPayload).as[IlluminatedVariantResponse]
 
       val valueResponse =
-        variantsApi(variantResponse.id).createValues(createVariantValuePayload).as[ValueRoot]
+        variantsApi(variantResponse.id)
+          .createValues(createVariantValuePayload)
+          .as[IlluminatedVariantValueResponse]
 
       valueResponse.swatch must === (Some("ff0000"))
       valueResponse.skuCodes must === (Seq(skus.head.code))
     }
 
     "Fails when attaching archived SKU to variant as variant value" in new ArchivedSkusFixture {
-      val variantResponse = variantsApi.create(createVariantPayload).as[VariantRoot]
+      val variantResponse = variantsApi.create(createVariantPayload).as[IlluminatedVariantResponse]
 
       variantsApi(variantResponse.id)
         .createValues(archivedSkuVariantValuePayload)

@@ -20,14 +20,14 @@ object CategoryManager {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[CategoryFormResponse.Root] =
+  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[CategoryFormResponse] =
     for {
       category ← * <~ Categories.filterByFormId(id).mustFindOneOr(CategoryFormNotFound(id))
       form     ← * <~ ObjectForms.mustFindById404(id)
     } yield CategoryFormResponse.build(category, form)
 
   def getShadow(formId: Int, contextName: String)(implicit ec: EC,
-                                                  db: DB): DbResultT[CategoryShadowResponse.Root] =
+                                                  db: DB): DbResultT[CategoryShadowResponse] =
     for {
       context ← * <~ contextByName(contextName)
       category ← * <~ Categories
@@ -37,13 +37,13 @@ object CategoryManager {
     } yield CategoryShadowResponse.build(shadow)
 
   def getCategory(categoryId: Int, contextName: String)(implicit ec: EC,
-                                                        db: DB): DbResultT[FullCategoryResponse.Root] =
+                                                        db: DB): DbResultT[FullCategoryResponse] =
     getCategoryFull(categoryId, contextName).map(c ⇒ FullCategoryResponse.build(c.category, c.form, c.shadow))
 
   def createCategory(
       admin: User,
       payload: CreateFullCategory,
-      contextName: String)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[FullCategoryResponse.Root] =
+      contextName: String)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[FullCategoryResponse] =
     for {
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       context  ← * <~ contextByName(contextName)
@@ -60,7 +60,7 @@ object CategoryManager {
   def updateCategory(admin: User, categoryId: Int, payload: UpdateFullCategory, contextName: String)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[FullCategoryResponse.Root] =
+      ac: AC): DbResultT[FullCategoryResponse] =
     for {
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
@@ -77,7 +77,7 @@ object CategoryManager {
 
   def getIlluminatedCategory(categoryId: Int, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[IlluminatedCategoryResponse.Root] =
+      db: DB): DbResultT[IlluminatedCategoryResponse] =
     getCategoryFull(categoryId, contextName).map { full ⇒
       val cat = IlluminatedCategory.illuminate(full.context, full.category, full.form, full.shadow)
       IlluminatedCategoryResponse.build(cat)
@@ -85,7 +85,7 @@ object CategoryManager {
 
   def getIlluminatedCategoryAtCommit(categoryId: Int, contextName: String, commitId: Int)(
       implicit ec: EC,
-      db: DB): DbResultT[IlluminatedCategoryResponse.Root] =
+      db: DB): DbResultT[IlluminatedCategoryResponse] =
     for {
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)

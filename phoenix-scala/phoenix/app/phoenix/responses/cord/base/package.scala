@@ -7,7 +7,7 @@ import phoenix.responses.PromotionResponses.PromotionResponse
 
 package object base {
 
-  type CordResponsePromoDetails = (PromotionResponse.Root, Option[CordResponseCouponPair])
+  type CordResponsePromoDetails = (PromotionResponse, Option[CordResponseCouponPair])
 
   type CordResponseCcPayment = (OrderPayment, CreditCard, Region)
 
