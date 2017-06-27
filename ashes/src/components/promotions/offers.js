@@ -12,7 +12,7 @@ const offers = [
     validate: {
       discount: {
         validate: (v) => v > 0,
-        error: 'Percent off order shall be greater than 0.',
+        error: 'percent input is 0.',
       },
     },
     content: [
@@ -33,7 +33,7 @@ const offers = [
     validate: {
       discount: {
         validate: (v) => v > 0,
-        error: 'Amount off order shall be greater than 0.',
+        error: 'amount input is 0.',
       },
     },
     content: [
@@ -54,11 +54,11 @@ const offers = [
     validate: {
       discount: {
         validate: (v) => v > 0,
-        error: 'Percent off single item shall be greater than 0.',
+        error: 'percent input is 0.',
       },
       search: {
         validate: (v) => v.length > 0,
-        error: 'Percent off single item search is not specified.',
+        error: 'select product dropdown is empty.',
       },
     },
     content: [
@@ -86,11 +86,11 @@ const offers = [
     validate: {
       discount: {
         validate: (v) => v > 0,
-        error: 'Amount off single item shall be greater than 0.',
+        error: 'amount input is 0.',
       },
       search: {
         validate: (v) => v.length > 0,
-        error: 'Amount off single item search is not specified.',
+        error: 'select product dropdown is empty.',
       },
     },
     content: [
@@ -118,11 +118,11 @@ const offers = [
     validate: {
       discount: {
         validate: (v) => v > 0,
-        error: 'Percent off select items shall be greater than 0.',
+        error: 'percent input is 0.',
       },
       search: {
         validate: (v) => v.length > 0,
-        error: 'Percent off select items search is not specified.',
+        error: 'select products saved search is empty.',
       },
     },
     content: [
@@ -150,11 +150,11 @@ const offers = [
     validate: {
       discount: {
         validate: (v) => v > 0,
-        error: 'Amount off select items shall be greater than 0.',
+        error: 'amount input is 0.',
       },
       search: {
         validate: (v) => v.length > 0,
-        error: 'Amount off select items search is not specified.',
+        error: 'select products saved search is empty.',
       },
     },
     content: [
@@ -189,7 +189,7 @@ const offers = [
     validate: {
       discount: {
         validate: (v) => v > 0,
-        error: 'Discounted shipping value shall be greater than 0.',
+        error: 'amount input is 0.',
       },
     },
     content: [
@@ -210,7 +210,7 @@ const offers = [
     validate: {
       setPrice: {
         validate: (v) => v > 0,
-        error: 'Set price value shall be greater than 0.',
+        error: 'amount input is 0.',
       },
     },
     content: [

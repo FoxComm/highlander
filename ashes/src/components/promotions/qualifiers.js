@@ -17,7 +17,7 @@ const qualifiers = [
     validate: {
       totalAmount: {
         validate: (v) => v > 0,
-        error: 'Total amount of order shall be greater than 0.',
+        error: 'amount input is 0.',
       },
     },
     content: [
@@ -38,7 +38,7 @@ const qualifiers = [
     validate: {
       numUnits: {
         validate: (v) => v > 0,
-        error: 'Number of units in order shall be greater than 0.',
+        error: 'number of units input is 0.',
       },
     },
     content: [
@@ -59,7 +59,7 @@ const qualifiers = [
     validate: {
       search: {
         validate: (v) => v.length > 0,
-        error: 'Qualifying items search is not specified.',
+        error: 'select products saved search is empty.',
       },
     },
     content: [
@@ -80,11 +80,11 @@ const qualifiers = [
     validate: {
       totalAmount: {
         validate: (v) => v > 0,
-        error: 'Total amount of order shall be greater than 0.',
+        error: 'amount input is 0.',
       },
       search: {
         validate: (v) => v.length > 0,
-        error: 'Qualifying items search is not specified.',
+        error: 'select products saved search is empty.',
       },
     },
     content: [
@@ -112,11 +112,11 @@ const qualifiers = [
     validate: {
       numUnits: {
         validate: (v) => v > 0,
-        error: 'Number of units in order shall be greater than 0.',
+        error: 'number of units input is 0.',
       },
       search: {
         validate: (v) => v.length > 0,
-        error: 'Qualifying items search is not specified.',
+        error: 'select products saved search is empty.',
       },
     },
     content: [

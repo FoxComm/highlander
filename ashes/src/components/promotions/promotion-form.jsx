@@ -84,42 +84,23 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   @autobind
-  handleQualifierChange(qualifier: Object) {
+  handleQualifierChange(qualifier: Object, params = {}) {
     const newPromotion = setDiscountAttr(this.props.object,
       'qualifier', qualifier
     );
-    const validationErrors = this.getDiscountChildErrors(qualifier, qualifiers);
-    this.setState({
-      qualifierErrors: validationErrors,
-    })
     this.props.onUpdateObject(newPromotion);
+    if (!_.isEmpty(params)) this.props.updateClientSideErrors('qualifierErrors',
+      params, qualifiers);
   }
 
   @autobind
-  handleOfferChange(offer: Object) {
+  handleOfferChange(offer: Object, params = {}) {
     const newPromotion = setDiscountAttr(this.props.object,
       'offer', offer
     );
-    const validationErrors = this.getDiscountChildErrors(offer, offers);
-    this.setState({
-      offerErrors: validationErrors,
-    })
     this.props.onUpdateObject(newPromotion);
-  }
-
-  getDiscountChildErrors(discountChildValue, discountChildTypes) {
-    const errors = [];
-    const key = _.keys(discountChildValue)[0];
-
-    _.forEach(discountChildValue[key], (v,k) => {
-
-      const { validate } = _.find(discountChildTypes, (dc) => dc.type == key);
-      const validator = _.get(validate, `${k}.validate`, (v) => true);
-
-      if (!validator(v)) errors.push(validate[k].error);
-
-    });
-    return errors;
+    if (!_.isEmpty(params)) this.props.updateClientSideErrors('offerErrors',
+      params, offers);
   }
 
   @autobind
@@ -155,7 +136,7 @@ export default class PromotionForm extends ObjectDetails {
         ...acc,
         <div key={makeKey('qualifier')} styleName="sub-title">Qualifier</div>,
         <DiscountAttrs
-          errors={this.state.qualifierErrors}
+          errors={this.props.clientSideErrors.qualifierErrors}
           key={makeKey('qualifier-attrs')}
           blockId={'promo-qualifier-block-'+index}
           dropdownId={'promo-qualifier-dd-'+index}
@@ -166,7 +147,7 @@ export default class PromotionForm extends ObjectDetails {
         />,
         <div key={makeKey('offer')} styleName="sub-title">Offer</div>,
         <DiscountAttrs
-          errors={this.state.offerErrors}
+          errors={this.props.clientSideErrors.offerErrors}
           key={makeKey('offer-attrs')}
           blockId={'promo-offer-block-'+index}
           dropdownId={'promo-offer-dd-'+index}
