@@ -13,6 +13,7 @@ import { TextInput } from 'ui/text-input';
 import { TextArea } from 'ui/textarea';
 import Loader from 'ui/loader';
 import ProductImage from 'components/image/image';
+import RadioButton from 'ui/radiobutton/radiobutton';
 
 // types
 import type Review from 'types/review';
@@ -53,7 +54,7 @@ class ReviewForm extends Component {
         this.setState({
           title: _.get(currentReview, 'attributes.title.v', ''),
           body: _.get(currentReview, 'attributes.body.v', ''),
-          isHappy: true,
+          isHappy: true, // not implemented yet on backend
           currentReview: _.isEmpty(currentReview) ? null : currentReview,
         });
       });
@@ -74,12 +75,16 @@ class ReviewForm extends Component {
     });
   }
 
+/* Ratings are not implemented yet on backend
   @autobind
-  handleHappyClick(isHappy: boolean) {
+  handleRatingChange() {
+    const currentRating = this.state.isHappy;
+
     this.setState({
-      isHappy,
+      isHappy: !currentRating,
     });
   }
+*/
 
   @autobind
   submitForm() {
@@ -128,6 +133,33 @@ class ReviewForm extends Component {
     );
   }
 
+/* Ratings are not implemented yet on backend
+  get rating() {
+    return (
+      <div styleName="rating">
+        <RadioButton
+          name="rating"
+          checked={this.state.isHappy}
+          onChange={this.handleRatingChange}
+          id="rating-happy"
+          styleName="rating-button"
+        >
+          Happy with my purchase
+        </RadioButton>
+        <RadioButton
+          name="rating"
+          checked={!this.state.isHappy}
+          onChange={this.handleRatingChange}
+          id="rating-disappointed"
+          styleName="rating-button"
+        >
+          Dissappointed with my purchase
+        </RadioButton>
+      </div>
+    );
+  }
+  */
+
   get content() {
     const { fetchState } = this.props;
 
@@ -157,6 +189,7 @@ class ReviewForm extends Component {
             styleName="review-body"
           />
         </FormField>
+        {/* this.rating */}
       </div>
     );
   }
