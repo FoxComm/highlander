@@ -78,20 +78,22 @@ const initialState = {
 
 const reducer = createReducer({
   [_fetchReviewsForUser.succeeded]: (state, response) => {
+    const filteredList = _.filter(response.result, (review) => review.archivedAt == null);
+
     return {
       ...state,
-      list: response.result,
+      list: filteredList,
     };
   },
   [_fetchReviewsForSku.succeeded]: (state, response) => {
     const currentList = state.list;
-    const mergedList = (Object.getOwnPropertyNames(response.result).length === 0)
-      ? currentList
-      : currentList.concat(response.result);
+    const mergedList = _.isEmpty(response.result) ? currentList : _.concat(currentList, response.result);
+
+    const filteredList = _.filter(mergedList, (review) => review.archivedAt == null);
 
     return {
       ...state,
-      list: mergedList,
+      list: filteredList,
       paginationTotal: response.pagination.total,
     };
   },
