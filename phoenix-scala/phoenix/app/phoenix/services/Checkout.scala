@@ -304,8 +304,8 @@ case class Checkout(
   private def updateCouponCountersForPromotion(customer: User)(implicit ctx: OC): DbResultT[Unit] =
     for {
       maybePromo ← * <~ OrderPromotions.filterByCordRef(cart.refNum).one
-      _ ← * <~ maybePromo.map { promo ⇒
-           CouponUsageService.updateUsageCounts(promo.couponCodeId, customer)
+      _ ← maybePromo.flatMap(_.couponCodeId).traverse { codeId ⇒
+           CouponUsageService.incrementUsageCounts(codeId, customer, incrementBy = 1)
          }
     } yield {}
 

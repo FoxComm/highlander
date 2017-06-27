@@ -10,6 +10,7 @@ import org.json4s.JsonAST.JNull
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import phoenix.models.catalog.Catalog
+import phoenix.models.coupon.CouponUsageRules
 import phoenix.models.promotion.Promotion
 import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
@@ -27,8 +28,8 @@ import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
-import scala.util.Random
 
+import scala.util.Random
 import phoenix.payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth { self: FoxSuite ⇒
@@ -170,30 +171,31 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
   trait CouponFixtureBase {
     def couponActiveFrom: Instant       = Instant.now.minus(1, DAYS)
     def couponActiveTo: Option[Instant] = None
+    def couponUsageRules: CouponUsageRules =
+      CouponUsageRules(isUnlimitedPerCode = true, isUnlimitedPerCustomer = true)
 
     def promotion: PromotionResponse.Root
 
     lazy val coupon = couponsApi
-      .create(CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo), promotion.id))(implicitly,
-                                                                                         defaultAdminAuth)
+      .create(CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo, couponUsageRules), promotion.id))(
+        implicitly,
+        defaultAdminAuth)
       .as[CouponResponse.Root]
 
     lazy val couponCode =
       couponsApi(coupon.id).codes.generate(Lorem.letterify("?????"))(defaultAdminAuth).as[String]
 
-    protected def couponAttrs(activeFrom: Instant, activeTo: Option[Instant]): Map[String, Json] = {
-      val usageRules = {
-        ("isExclusive"            → true) ~
-        ("isUnlimitedPerCode"     → true) ~
-        ("isUnlimitedPerCustomer" → true)
-      }.asShadowVal(t = "usageRules")
+    protected def couponAttrs(activeFrom: Instant,
+                              activeTo: Option[Instant],
+                              usageRules: CouponUsageRules): Map[String, Json] = {
+      import org.json4s.Extraction.decompose
 
       val commonAttrs = Map[String, Any](
         "name"           → "Order coupon",
         "storefrontName" → "Order coupon",
         "description"    → "Order coupon description",
         "details"        → "Order coupon details".richText,
-        "usageRules"     → usageRules,
+        "usageRules"     → decompose(usageRules).asShadowVal(t = "usageRules"),
         "activeFrom"     → activeFrom
       )
 

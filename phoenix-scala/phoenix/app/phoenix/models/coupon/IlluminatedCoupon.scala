@@ -41,6 +41,7 @@ case class IlluminatedCoupon(id: Int, context: IlluminatedContext, attributes: J
     val usageRules = (attributes \ "usageRules" \ "v").extractOpt[CouponUsageRules]
 
     val validation = usageRules match {
+      // FIXME: why split the cases to later join them in CouponUsageService? @michalrus
       case Some(rules) if !rules.isUnlimitedPerCode && !rules.isUnlimitedPerCustomer ⇒
         CouponUsageService.mustBeUsableByCustomer(id,
                                                   code.id,
