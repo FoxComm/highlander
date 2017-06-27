@@ -39,11 +39,11 @@ type Props = {
   onPrimaryClick?: Function;
   /** Callback called on menu item click */
   onSelect?: (value: any, title: string | Element<any>) => any;
-}
+};
 
 type State = {
   open: boolean;
-}
+};
 
 const transitionProps = {
   component: 'div',
@@ -143,7 +143,7 @@ export default class ButtonWithMenu extends Component {
 
     const { open } = this.state;
 
-    const cls = classNames(s.button, {
+    const cls = classNames(s.button, this.props.className, {
       [s.opened]: open,
     }, className);
 

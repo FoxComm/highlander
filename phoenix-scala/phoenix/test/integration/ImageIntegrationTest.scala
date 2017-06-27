@@ -59,7 +59,7 @@ class ImageIntegrationTest
       }
 
       "Retrieves multiple images in correct order" in new Fixture {
-        val imageSources = Seq("1", "2")
+        val imageSources = Seq("http://a1.org/1", "https://a2.org/2")
 
         albumsApi(album.formId)
           .update(
@@ -126,7 +126,8 @@ class ImageIntegrationTest
 
     "PATCH v1/albums/:context/:id" - {
       "Update the album to have another image" in new Fixture {
-        val payload = AlbumPayload(images = Seq(testPayload, ImagePayload(src = "foo")).some)
+        val payload =
+          AlbumPayload(images = Seq(testPayload, ImagePayload(src = "http://foo.org/1")).some)
 
         val albumResponse = albumsApi(album.formId).update(payload).as[AlbumRoot]
 
@@ -167,6 +168,16 @@ class ImageIntegrationTest
         val payload = AlbumPayload(name = "Name 2.0".some, images = Seq(testPayload).some)
         checkAlbum(albumsApi(album.formId).update(payload).as[AlbumRoot])
         checkAlbum(albumsApi(album.formId).get().as[AlbumRoot])
+      }
+    }
+
+    "POST /v1/albums/:context/images/by-url" - {
+
+      "fail when try to upload image with invalid url" in new Fixture {
+        val payload = ImagePayload(src = "data:image/gif;base64,R0l//", title = "fox.jpg".some)
+        albumsApi(album.formId)
+          .uploadImageByUrl(payload)
+          .mustFailWith400(InvalidImageUrl(payload.src))
       }
     }
 
@@ -324,12 +335,12 @@ class ImageIntegrationTest
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
           .gimme
 
-        val responseAlbum = uploadImage(album).as[AlbumRoot]
+        val responseAlbum = uploadImages(album, List("foxy.jpg")).as[AlbumRoot]
         responseAlbum.images.size must === (updatedAlbumImages.size + 1)
 
         val uploadedImage = responseAlbum.images.last
 
-        uploadedImage.src must === ("amazon-image-url")
+        uploadedImage.src must === ("http://amazon-image.url/1")
         uploadedImage.title must === ("foxy.jpg".some)
         uploadedImage.alt must === ("foxy.jpg".some)
       }
@@ -342,14 +353,28 @@ class ImageIntegrationTest
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
           .gimme
 
-        val responseAlbum = uploadImage(album, 2).as[AlbumRoot]
-        responseAlbum.images.size must === (updatedAlbumImages.size + 2)
+        val images          = List("foxy.jpg", "fo xy.jpg", "withoutext")
+        val resultFileNames = List("foxy.jpg", "fo xy.jpg", "withoutext.jpg").sorted
+        val responseAlbum   = uploadImages(album, images).as[AlbumRoot]
+        responseAlbum.images.size must === (updatedAlbumImages.size + 3)
 
-        val uploadedImage = responseAlbum.images.last
+        val uploadedImages = responseAlbum.images.takeRight(3).sortBy(_.title)
+        resultFileNames.zip(uploadedImages).foreach {
+          case (imgFileName, uploadedImage) ⇒
+            uploadedImage.src must === ("http://amazon-image.url/1")
+            uploadedImage.title must === (imgFileName.some)
+            uploadedImage.alt must === (imgFileName.some)
+        }
+      }
 
-        uploadedImage.src must === ("amazon-image-url")
-        uploadedImage.title must === ("foxy.jpg".some)
-        uploadedImage.alt must === ("foxy.jpg".some)
+      "fails if it's not image" in new Fixture {
+        val response = POST(s"/v1/albums/ru/${ctx.name}/images", defaultAdminAuth.jwtCookie.some)
+        val updatedAlbumImages = ImageManager
+          .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
+          .gimme
+
+        val responseAlbum = uploadImages(album, List("invalid_image.jpg"))
+        responseAlbum.error must === (UnknownImageType.description)
       }
 
       "fails if uploading no images" in new Fixture {
@@ -360,25 +385,25 @@ class ImageIntegrationTest
           .createOrUpdateImagesForAlbum(album, Seq(testPayload, testPayload), ctx)
           .gimme
 
-        val responseAlbum = uploadImage(album, 0)
+        val responseAlbum = uploadImages(album, List.empty[String])
         responseAlbum.error must === (ImageNotFoundInPayload.description)
       }
 
       "fail when uploading to archived album" in new ArchivedAlbumFixture {
-        uploadImage(archivedAlbum).mustFailWith400(AddImagesToArchivedAlbumFailure(archivedAlbum.id))
+        uploadImages(archivedAlbum, List("foxy.jpg"))
+          .mustFailWith400(AddImagesToArchivedAlbumFailure(archivedAlbum.id))
       }
 
-      def uploadImage(album: Album, count: Int = 1): HttpResponse = {
-        val url   = getClass.getResource("foxy.jpg")
-        val image = Paths.get(url.toURI)
-        image.toFile.exists mustBe true
+      def uploadImages(album: Album, images: List[String]): HttpResponse = {
+        val paths = images.map(img ⇒ Paths.get(s"phoenix/test/resources/images_tests/$img"))
+        paths.foreach(image ⇒ image.toFile.exists mustBe true)
 
-        val entity = if (count == 0) {
+        val entity = if (paths.isEmpty) {
           Marshal(Multipart.FormData(Multipart.FormData.BodyPart.apply("test", HttpEntity.Empty)))
             .to[RequestEntity]
             .futureValue
         } else {
-          val bodyParts = 1 to count map { _ ⇒
+          val bodyParts = paths.map { image ⇒
             Multipart.FormData.BodyPart.fromPath(name = "upload-file",
                                                  contentType = MediaTypes.`application/octet-stream`,
                                                  file = image)

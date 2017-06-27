@@ -1,12 +1,10 @@
 /* @flow */
 
 // styles
-import styles from './image-card.css';
+import s from './image-card.css';
 
-//libs
-import _ from 'lodash';
+// libs
 import classNames from 'classnames';
-import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
@@ -22,90 +20,60 @@ type Props = {
   id: number,
   src: string,
   actions: Array<Action>,
-  title: string,
   loading: boolean,
-  secondaryTitle?: string,
+  disabled?: boolean,
+  failed?: boolean,
   className?: string,
-};
-
-type State = {
-  actionsVisible: boolean,
+  onImageClick?: Function,
 };
 
 export default class ImageCard extends Component {
   props: Props;
 
-  state: State = {
-    actionsVisible: false,
-  };
-
   static defaultProps = {
     actions: [],
+    onImageClick: () => {},
   };
 
-  overTimeout: ?number = null;
+  shouldComponentUpdate({ src: nextSrc, disabled: nextDisabled, failed: nextFailed, loading: nextLoading }: Props) {
+    const { src, disabled, failed, loading } = this.props;
 
-  @autobind
-  showActions(): void {
-    clearTimeout(this.overTimeout);
-
-    this.setState({
-      actionsVisible: true,
-    });
-  }
-
-  @autobind
-  hideActions(): void {
-    this.overTimeout = setTimeout(() => {
-      this.setState({
-        actionsVisible: false,
-      });
-    }, 100);
+    return src !== nextSrc || disabled !== nextDisabled || failed !== nextFailed || loading !== nextLoading;
   }
 
   get actions(): ?Element<*> {
     const { actions } = this.props;
 
-    if (_.isEmpty(actions)) {
+    if (!actions.length) {
       return null;
     }
 
-    const cls = classNames(styles.actions, {
-      [styles.actionsVisible]: this.state.actionsVisible,
-    });
-
     return (
-      <div className={cls} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
-        {actions.map(({ name, handler }) => <Icon name={name} onMouseDown={handler} key={name} />)}
+      <div className={s.actions}>
+        {actions.map(({ name, handler }) =>
+          <Icon name={name} onClick={handler} onClick={handler} onMouseDown={this.prevent} key={name} />
+        )}
       </div>
     );
   }
 
-  get description(): ?Element<*> {
-    let { title, secondaryTitle, src, loading } = this.props;
-
-    if (!title) {
-      title = src;
-    }
-
-    return (
-      <div className={classNames(styles.description, { [styles._loading]: loading })}>
-        <div className={styles.title}>{title}</div>
-        <div className={styles.secondaryTitle}>{secondaryTitle}</div>
-      </div>
-    );
+  prevent(e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   render() {
-    const { id, src, className } = this.props;
+    const { id, src, className, disabled, loading, failed } = this.props;
+    const cls = classNames(s.card, s.image, className, {
+      [s.disabled]: disabled,
+      [s.loading]: loading,
+      [s.failed]: failed,
+    });
 
     return (
-      <div className={classNames(styles.card, className)}>
-        <div className={styles.image} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
-          <Image id={id} src={src} />
-        </div>
+      <div className={cls} onClick={this.props.onImageClick}>
+        <Image id={id} src={src} size="cover" />
         {this.actions}
-        {this.description}
       </div>
     );
   }

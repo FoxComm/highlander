@@ -44,9 +44,17 @@ export default class TextInput extends Component {
     value: this.props.value || this.props.defaultValue || '',
   };
 
+  _input: HTMLElement;
+
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.value !== this.props.value) {
       this.setState({ value: nextProps.value });
+    }
+  }
+
+  focus() {
+    if (this._input) {
+      this._input.focus();
     }
   }
 
@@ -68,6 +76,7 @@ export default class TextInput extends Component {
 
     return (
       <input
+        ref={r => this._input = r}
         type="text"
         className={inputClass}
         placeholder={placeholder}

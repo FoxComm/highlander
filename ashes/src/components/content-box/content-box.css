@@ -1,0 +1,33 @@
+.box {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex: 0 0 auto;
+  color: #484848;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #d9d9d9;
+  font-weight: 600;
+  line-height: 24px;
+  font-size: 16px;
+  height: 60px;
+  align-items: center;
+}
+
+.title {
+  padding-left: 20px;
+  flex: 1;
+}
+
+.controls {
+  padding-right: 15px;
+  text-align: right;
+  font-size: 22px;
+}
+
+.body {
+  flex: 1 1 auto;
+}

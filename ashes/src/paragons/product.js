@@ -25,6 +25,7 @@ export function createEmptyProduct(): Product {
     skus: [],
     context: { name: 'default' },
     variants: [],
+    albums: [],
   };
 
   return configureProduct(addEmptySku(product));
@@ -52,6 +53,7 @@ export function createEmptySku(): Object {
       retailPrice: emptyPrice,
       salePrice: emptyPrice,
     },
+    albums: [],
   };
 
   return emptySku;

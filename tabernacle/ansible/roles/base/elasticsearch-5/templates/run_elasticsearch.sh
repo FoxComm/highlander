@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 ELASTIC_ROOT=$1
 unset ES_HEAP_SIZE

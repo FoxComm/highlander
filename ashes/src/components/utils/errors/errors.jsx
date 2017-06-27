@@ -37,7 +37,7 @@ const renderError = (closeAction: CloseAction) => (error: string, index: number)
 /**
  * Component to render a list of alerts for errors array
  */
-export default ({ errors, closeAction, sanitizeError = identity, className = '' }: Props) => {
+const Errors = ({ errors, closeAction, sanitizeError = identity, className = '' }: Props) => {
   if (isEmpty(errors)) {
     return null;
   }
@@ -53,3 +53,5 @@ export default ({ errors, closeAction, sanitizeError = identity, className = '' 
     </div>
   );
 };
+
+export default Errors;

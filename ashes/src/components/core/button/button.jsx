@@ -19,6 +19,8 @@ type Props = {
   className?: string,
   /** Button content (label) */
   children?: Element<any>,
+  /** Returns a react reference to <button> html node */
+  returnRef?: Function,
   /** If true — sets `width` style to 100% */
   fullWidth?: boolean,
   /** Small theme for button */
@@ -33,7 +35,7 @@ type Props = {
  *
  * @function Button
  */
-export const Button = ({ icon, children, isLoading, className, fullWidth, small, ...restProps }: Props) => {
+export const Button = ({ icon, children, isLoading, className, fullWidth, returnRef, small, ...restProps }: Props) => {
   const hasIcon = !!icon;
   const content = children ? <span>{children}</span> : null;
   const disabled = restProps.disabled || isLoading;
@@ -55,7 +57,7 @@ export const Button = ({ icon, children, isLoading, className, fullWidth, small,
   });
 
   return (
-    <button {...restProps} className={cls} disabled={disabled}>
+    <button {...restProps} className={cls} ref={returnRef} disabled={disabled}>
       {hasIcon && <Icon name={iconCls} />}
       {content}
     </button>
