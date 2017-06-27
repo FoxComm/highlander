@@ -9,7 +9,7 @@ import Transition from 'react-transition-group/CSSTransitionGroup';
 
 // components
 import { PrimaryButton } from 'components/core/button';
-import { DropdownItem } from 'components/dropdown';
+import DropdownItem from 'components/dropdown/dropdownItem';
 
 // styles
 import s from './button-with-menu.css';

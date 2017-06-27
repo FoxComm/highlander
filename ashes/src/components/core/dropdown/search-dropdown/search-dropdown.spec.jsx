@@ -89,7 +89,7 @@ describe('SearchDropdown', function() {
 
   it('should not be spinner if loading and there is non-empty result', function() {
     const fetch = sinon.spy(() => Promise.resolve([]));
-    const searchDropdown = mount(<SearchDropdown fetch={fetch} items={['one']} />);
+    const searchDropdown = mount(<SearchDropdown fetch={fetch} initialItems={['one']} />);
 
     searchDropdown.find('.pivot').simulate('click'); // open dropdown
     searchDropdown.find('.searchBarInput').simulate('change', { target: { value: 'foo' } }); // type `foo`
@@ -100,7 +100,7 @@ describe('SearchDropdown', function() {
 
   it('should render value as displayText if no items with that value and no displayText', function() {
     const value = 'arfglauefah';
-    const searchDropdown = mount(<SearchDropdown value={value} />);
+    const searchDropdown = mount(<SearchDropdown initialValue={value} />);
 
     expect(searchDropdown.find('.pivot').text()).to.equal(value);
   });
@@ -109,14 +109,14 @@ describe('SearchDropdown', function() {
     const value = 'val2';
     const displayText = 'displayText2';
     const items = [['val1', 'displayText1'], ['val2', displayText]];
-    const searchDropdown = mount(<SearchDropdown items={items} value={value} />);
+    const searchDropdown = mount(<SearchDropdown initialItems={items} initialValue={value} />);
 
     expect(searchDropdown.find('.pivot').text()).to.equal(displayText);
   });
 
   it('should use renderItem to display value if passed and value exists', function() {
     const displayText = 'bfkyrgfoaui';
-    const searchDropdown = mount(<SearchDropdown value="value" renderItem={() => displayText} />);
+    const searchDropdown = mount(<SearchDropdown initialValue="value" renderItem={() => displayText} />);
 
     expect(searchDropdown.find('.pivot').text()).to.equal(displayText);
   });
@@ -131,7 +131,7 @@ describe('SearchDropdown', function() {
 
   it('should close dropdown after clicking the same item second time', function() {
     const items = ['val1', 'val2'];
-    const searchDropdown = mount(<SearchDropdown items={items} />);
+    const searchDropdown = mount(<SearchDropdown initialItems={items} />);
 
     searchDropdown.find('.pivot').simulate('click'); // open
     expect(searchDropdown.state('open')).to.be.true;
