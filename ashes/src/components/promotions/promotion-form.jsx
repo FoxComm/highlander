@@ -85,9 +85,7 @@ export default class PromotionForm extends ObjectDetails {
 
   @autobind
   handleQualifierChange(qualifier: Object, params = {}) {
-    const newPromotion = setDiscountAttr(this.props.object,
-      'qualifier', qualifier
-    );
+    const newPromotion = setDiscountAttr(this.props.object, 'qualifier', qualifier);
     this.props.onUpdateObject(newPromotion);
     if (!_.isEmpty(params)) {
       this.props.updateClientSideErrors('qualifierErrors', params, qualifiers);
@@ -96,9 +94,7 @@ export default class PromotionForm extends ObjectDetails {
 
   @autobind
   handleOfferChange(offer: Object, params = {}) {
-    const newPromotion = setDiscountAttr(this.props.object,
-      'offer', offer
-    );
+    const newPromotion = setDiscountAttr(this.props.object, 'offer', offer);
     this.props.onUpdateObject(newPromotion);
     if (!_.isEmpty(params)) {
       this.props.updateClientSideErrors('offerErrors', params, offers);
