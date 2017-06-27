@@ -191,7 +191,7 @@ export default class GenericDropdown extends Component {
   get dropdownClassName(): string {
     const { primary, editable, disabled, className } = this.props;
 
-    return classNames(className, 'fc-dropdown', {
+    return classNames(s.block, className, 'fc-dropdown', {
       _primary: primary,
       _editable: editable,
       _disabled: disabled,

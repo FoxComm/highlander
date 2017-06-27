@@ -1,0 +1,88 @@
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  overflow: auto;
+  display: flex;
+  flex: 1 1 auto;
+
+  @media (orientation: portrait) {
+    flex-direction: column;
+  }
+}
+
+.image {
+  overflow: hidden;
+  min-width: 50%;
+  min-height: 100px;
+  width: 70%;
+  flex: 1 1 auto;
+  margin-right: 20px;
+  border: 1px solid #d9d9d9;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  @media (min-resolution: 120dpi) {
+    border-width: .5px;
+  }
+
+  @media (orientation: portrait) {
+    width: auto;
+    margin-right: 0;
+  }
+}
+
+.sidebar {
+  min-width: 300px;
+  min-height: 300px;
+  width: 30%;
+  flex: 0 0 auto;
+  padding: 10px;
+  background-color: #f7f7f7;
+  font-size: 13px;
+  line-height: 16px;
+
+  @media (orientation: portrait) {
+    width: auto;
+  }
+}
+
+.stat {
+  color: #363636;
+}
+
+.statItem {
+  margin-bottom: 4px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 0;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.footer {
+  margin-top: 52px;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: space-between;
+}
+
+.uploadByUrl {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.editAlbumFooter {
+  display: flex;
+  justify-content: flex-end;
+}

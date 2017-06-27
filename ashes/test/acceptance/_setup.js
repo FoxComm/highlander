@@ -10,9 +10,7 @@ hook({
   generateScopedName: '[local]',
 });
 
-const unexpectedReactShallow = require('unexpected-react-shallow');
-
-global.unexpected = global.unexpected.clone().installPlugin(unexpectedReactShallow);
+global.unexpected = require('unexpected').clone().installPlugin(require('unexpected-react-shallow'));
 
 global.requireComponent = function(componentPath, returnDefault = true) {
   const result = require(path.resolve('src/components/' + componentPath));

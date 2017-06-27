@@ -6,6 +6,9 @@ import { autobind, debounce } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
+// styles
+import s from './upload.css';
+
 import type { FileInfo } from '../../modules/images';
 
 // components
@@ -15,18 +18,19 @@ import Icon from 'components/core/icon';
 import styles from './upload.css';
 
 type Props = {
-  children?: Element<*>,
-  onDrop: Function,
-  className: ?string,
-  empty: boolean,
+  children?: Element<*>;
+  onDrop: Function;
+  className: ?string;
+  empty: boolean;
 };
 
 type State = {
-  dragActive: boolean,
-  dragPossible: boolean,
+  dragOverArea: boolean;
+  dragOverWindow: boolean;
 };
 
 export default class Upload extends Component {
+
   props: Props;
 
   static defaultProps = {
@@ -34,13 +38,15 @@ export default class Upload extends Component {
   };
 
   state: State = {
-    dragActive: false,
-    dragPossible: false,
+    dragOverArea: false,
+    dragOverWindow: false,
   };
 
   dragCounter: number;
 
   files: Array<FileInfo> = [];
+
+  _fileInput: HTMLElement;
 
   componentDidMount() {
     this.dragCounter = 0;
@@ -57,8 +63,8 @@ export default class Upload extends Component {
 
   resetDragging() {
     this.setState({
-      dragPossible: false,
-      dragActive: false,
+      dragOverWindow: false,
+      dragOverArea: false
     });
   }
 
@@ -76,21 +82,21 @@ export default class Upload extends Component {
 
   updateDragPossibility() {
     this.setState({
-      dragPossible: this.dragCounter > 0,
+      dragOverWindow: this.dragCounter > 0
     });
   }
 
   @autobind
   handleDragEnter() {
     this.setState({
-      dragActive: true,
+      dragOverArea: true,
     });
   }
 
   @autobind
   handleDragLeave() {
     this.setState({
-      dragActive: false,
+      dragOverArea: false,
     });
   }
 
@@ -148,48 +154,46 @@ export default class Upload extends Component {
   }
 
   openUploadDialog() {
-    this.refs.fileInput.click();
+    if (this._fileInput) {
+      this._fileInput.click();
+    }
   }
 
   get emptyContent() {
     return (
-      <div className={styles.empty}>
-        <Icon name="upload" /> Drag & Drop to upload
+      <div className={s.empty}>
+        <Icon name="upload" className={s.icon} /> Drag & Drop to upload
       </div>
     );
   }
 
-  get container() {
+  get container(): ?Element<*> {
     const { children, empty } = this.props;
 
-    const content = empty ? this.emptyContent : children;
+    return empty ? this.emptyContent : children;
+  }
+
+  render() {
+    const { onDrop, empty } = this.props;
+    const className = classNames(s.block, this.props.className, {
+      [s.disabled]: !onDrop,
+      [s.dragOverArea]: this.state.dragOverArea,
+      [s.dragOverWindow]: this.state.dragOverWindow,
+      [s.emptyMod]: empty,
+    });
 
     return (
       <div
-        styleName="container"
+        className={className}
         onDragOver={this.handleDragOver}
         onDragEnter={this.handleDragEnter}
         onDragLeave={this.handleDragLeave}
         onDrop={this.onDrop}
       >
-        {content}
-      </div>
-    );
-  }
-
-  render() {
-    const { onDrop, empty } = this.props;
-    const className = classNames(this.props.className, {
-      _disabled: !onDrop,
-      _dragActive: this.state.dragActive,
-      _dragPossible: this.state.dragPossible,
-      _empty: empty,
-    });
-
-    return (
-      <div styleName="upload" className={className}>
-        <input className={styles.input} type="file" onChange={this.onDrop} value="" ref="fileInput" />
-        {this.container}
+        <div className={s.container}>
+          <input className={s.input} type="file" onChange={this.onDrop} value="" ref={r => this._fileInput = r} />
+          {this.container}
+        </div>
       </div>
     );
   }

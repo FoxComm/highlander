@@ -61,7 +61,7 @@ class SkuPage extends ObjectPage {
     const { params } = this.props;
 
     return [
-      <Link to="sku-images" params={params} key="images">Images</Link>,
+      <Link to="sku-media" params={params} key="media">Media</Link>,
       <Link to="sku-inventory-details" params={params} key="inventory">Inventory</Link>,
       <Link to="sku-notes" params={params} key="notes">Notes</Link>,
       <Link to="sku-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,

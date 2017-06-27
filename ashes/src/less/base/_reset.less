@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+  &:focus { outline: none }
+  &:before, &:after { box-sizing: border-box; }
+}
+
+html {
+  font-size: 62.5%;
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  .colors(@color-default-fg, @color-default-bg);
+  font-family: 'Open Sans', sans-serif;
+  .font-spec(@site_font-size);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#foxcom {
+  height: 100%;
+}
+
+hr {
+  border: none;
+  height: 0;
+  background: none;
+}
+
+img {
+  max-width: 100%;
+}

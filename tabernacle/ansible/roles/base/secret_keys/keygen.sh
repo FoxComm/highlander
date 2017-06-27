@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ue
+set -euo pipefail
 
 DIR=ansible/roles/base/secret_keys/files/secret_keys/$1
 if [[ ! -d $DIR ]]; then

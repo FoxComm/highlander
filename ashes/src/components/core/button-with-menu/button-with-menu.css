@@ -8,6 +8,10 @@
   & :global .fc-button-with-menu__right-button i {
     transform: rotateX(180deg);
   }
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .actionButton {} /* stylelint-disable-line */
@@ -36,7 +40,6 @@
   position: relative;
 
   & > :global(.fc-button-with-menu__right-button) {
-    border-left: 1px solid var(--bg-white);
     z-index: 20;
 
     & i {

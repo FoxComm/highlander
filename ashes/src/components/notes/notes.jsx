@@ -130,7 +130,6 @@ export default class Notes extends React.Component {
   render() {
     const props = this.props;
     const cls = classNames('fc-notes', this.sectionClassName);
-
     return (
       <div className={cls}>
         <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
@@ -141,6 +140,7 @@ export default class Notes extends React.Component {
           placeholder="keyword search"
         >
           <TableView
+            isLoading={props.isFetching}
             emptyMessage="No notes found."
             data={props.list.currentSearch().results}
             renderRow={this.renderNoteRow}
