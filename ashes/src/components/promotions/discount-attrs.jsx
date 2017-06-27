@@ -6,6 +6,7 @@ import styles from './attrs-edit.css';
 
 import * as widgets from './widgets';
 import { Dropdown } from '../dropdown';
+import { FormFieldError } from '../forms';
 
 import type { ItemDesc, DiscountRow, DescriptionType, Context } from './types';
 
@@ -40,7 +41,7 @@ const renderers = {
 };
 
 type Props = {
-  onChange: (attrs: Object) => any;
+  onChange: (attrs: Object, errorParams: ?Object) => any;
   attr: string;
   descriptions: Array<DescriptionType>;
   discount: Object;
@@ -59,11 +60,17 @@ const DiscountAttrs = (props: Props) => {
     _.find(props.descriptions, entity => entity.type === discountType) || props.descriptions[0];
 
   const setParams = (params: Object) => {
+    const key = _.keys(params)[0];
+    const value = params[key];
     props.onChange({
       [discountType]: {
         ...discountParams,
         ...params,
       },
+    }, {
+      discountType,
+      key,
+      value,
     });
   };
   const setType = (type: any) => {
@@ -85,6 +92,7 @@ const DiscountAttrs = (props: Props) => {
     return (
       <div styleName="form-row" key={`form-row-${i}`}>
         {_.map(row, (item: ItemDesc, i) => {
+          const error = _.get(props, `errors[${discountType}][${item.name}]`, false);
           const type: string = item.type || 'widget';
           const renderer = renderers[type];
           if (!renderer) return null;
@@ -92,6 +100,7 @@ const DiscountAttrs = (props: Props) => {
           return (
             <div key={i}>
               {renderer(item, context, props.dropdownId)}
+              {error && <FormFieldError error={error} />}
             </div>
           );
         })}

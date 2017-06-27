@@ -76,17 +76,21 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   @autobind
-  handleQualifierChange(qualifier: Object) {
+  handleQualifierChange(qualifier: Object, params = {}) {
     const newPromotion = setDiscountAttr(this.props.object, 'qualifier', qualifier);
-
     this.props.onUpdateObject(newPromotion);
+    if (!_.isEmpty(params)) {
+      this.props.updateClientSideErrors('qualifierErrors', params, qualifiers);
+    }
   }
 
   @autobind
-  handleOfferChange(offer: Object) {
+  handleOfferChange(offer: Object, params = {}) {
     const newPromotion = setDiscountAttr(this.props.object, 'offer', offer);
-
     this.props.onUpdateObject(newPromotion);
+    if (!_.isEmpty(params)) {
+      this.props.updateClientSideErrors('offerErrors', params, offers);
+    }
   }
 
   @autobind
@@ -122,6 +126,7 @@ export default class PromotionForm extends ObjectDetails {
         ...acc,
         <div key={makeKey('qualifier')} styleName="sub-title">Qualifier</div>,
         <DiscountAttrs
+          errors={this.props.clientSideErrors.qualifierErrors}
           key={makeKey('qualifier-attrs')}
           blockId={'promo-qualifier-block-'+index}
           dropdownId={'promo-qualifier-dd-'+index}
@@ -132,6 +137,7 @@ export default class PromotionForm extends ObjectDetails {
         />,
         <div key={makeKey('offer')} styleName="sub-title">Offer</div>,
         <DiscountAttrs
+          errors={this.props.clientSideErrors.offerErrors}
           key={makeKey('offer-attrs')}
           blockId={'promo-offer-block-'+index}
           dropdownId={'promo-offer-dd-'+index}

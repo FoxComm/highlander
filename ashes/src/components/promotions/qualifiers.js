@@ -7,13 +7,19 @@ const qualifiers = [
     type: 'orderAny',
     title: 'Order - No qualifier',
     content: [
-      [{type: 'type'}]
+      [{type: 'type'}],
     ]
   },
   {
     type: 'orderTotalAmount',
     title: 'Order - Total amount of order',
     default: {totalAmount: 0},
+    validate: {
+      totalAmount: {
+        validate: (v) => v > 0,
+        error: 'amount input is 0',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -29,6 +35,12 @@ const qualifiers = [
     type: 'orderNumUnits',
     title: 'Order - Number of units in order',
     default: {numUnits: 0},
+    validate: {
+      numUnits: {
+        validate: (v) => v > 0,
+        error: 'number of units input is 0',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -43,6 +55,13 @@ const qualifiers = [
   {
     type: 'itemsAny',
     title: 'Items - No qualifier',
+    default: {search: []},
+    validate: {
+      search: {
+        validate: (v) => v.length > 0,
+        error: 'select products saved search is empty',
+      },
+    },
     content: [
       [{type: 'type'}],
       [
@@ -57,7 +76,17 @@ const qualifiers = [
   {
     type: 'itemsTotalAmount',
     title: 'Items - Total amount of order',
-    default: {totalAmount: 0},
+    default: {totalAmount: 0, search: []},
+    validate: {
+      totalAmount: {
+        validate: (v) => v > 0,
+        error: 'amount input is 0',
+      },
+      search: {
+        validate: (v) => v.length > 0,
+        error: 'select products saved search is empty',
+      },
+    },
     content: [
       [
         {type: 'type'},
@@ -79,7 +108,17 @@ const qualifiers = [
   {
     type: 'itemsNumUnits',
     title: 'Items - Number of units in order',
-    default: {numUnits: 0},
+    default: {numUnits: 0, search: []},
+    validate: {
+      numUnits: {
+        validate: (v) => v > 0,
+        error: 'number of units input is 0',
+      },
+      search: {
+        validate: (v) => v.length > 0,
+        error: 'select products saved search is empty',
+      },
+    },
     content: [
       [
         {type: 'type'},
