@@ -89,8 +89,9 @@ export default class PromotionForm extends ObjectDetails {
       'qualifier', qualifier
     );
     this.props.onUpdateObject(newPromotion);
-    if (!_.isEmpty(params)) this.props.updateClientSideErrors('qualifierErrors',
-      params, qualifiers);
+    if (!_.isEmpty(params)) {
+      this.props.updateClientSideErrors('qualifierErrors', params, qualifiers);
+    }
   }
 
   @autobind
@@ -99,8 +100,9 @@ export default class PromotionForm extends ObjectDetails {
       'offer', offer
     );
     this.props.onUpdateObject(newPromotion);
-    if (!_.isEmpty(params)) this.props.updateClientSideErrors('offerErrors',
-      params, offers);
+    if (!_.isEmpty(params)) {
+      this.props.updateClientSideErrors('offerErrors', params, offers);
+    }
   }
 
   @autobind

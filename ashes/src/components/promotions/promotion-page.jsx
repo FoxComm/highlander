@@ -37,9 +37,9 @@ class PromotionPage extends ObjectPage {
       const { validate } = _.find(discountChildTypes, (dc) => dc.type == key);
       const validator = _.get(validate, `${k}.validate`, (v) => true);
       if (!validator(v)) {
-        if (_.isEmpty(errors)) { errors[key] = {} }
+        if (_.isEmpty(errors)) errors[key] = {};
         errors[key][k] = validate[k].error;
-      };
+      }
     });
     return errors;
   }
@@ -89,7 +89,7 @@ class PromotionPage extends ObjectPage {
       this.validateForm();
       this.validate();
       return;
-    };
+    }
     let isNew = this.isNew;
     let willBePromo = super.save();
 
