@@ -24,13 +24,15 @@ import styles from './payment-row.css';
 // redux
 import { deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment } from 'modules/carts/details';
 
-import type { PaymentMethod } from 'paragons/order';
+import type Order from 'paragons/order';
+import type { Cart, PaymentMethod } from 'paragons/order';
 
 type Props = {
   customerId: number,
   editMode: boolean,
   orderReferenceNumber: string,
   paymentMethod: PaymentMethod,
+  order: Cart | Order,
   deleteCreditCardPayment: (refNum: string) => Promise<*>,
   deleteGiftCardPayment: (refNum: string, code: string) => Promise<*>,
   deleteStoreCreditPayment: (refNum: string) => Promise<*>,
@@ -40,8 +42,6 @@ type State = {
   isEditing: boolean,
   showDetails: boolean,
 };
-
-const availablePaymentMethods = ['creditCard', 'giftCard', 'storeCredit'];
 
 class PaymentRow extends Component {
   props: Props;
@@ -73,6 +73,10 @@ class PaymentRow extends Component {
   }
 
   get details(): ?Element<*> {
+    if (this.props.order.channel === 'Amazon.com') {
+      return null;
+    }
+
     if (this.state.showDetails) {
       const { customerId, orderReferenceNumber, paymentMethod } = this.props;
       const detailsProps = {
@@ -126,13 +130,12 @@ class PaymentRow extends Component {
   }
 
   get summary(): Element<*> {
-    const { paymentMethod } = this.props;
+    const { order, paymentMethod } = this.props;
     const dir = this.state.showDetails ? 'up' : 'down';
     const iconClass = `chevron-${dir}`;
 
     const toggler =
-      availablePaymentMethods.indexOf(paymentMethod.type) > -1 &&
-      <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />;
+      order.channel !== 'Amazon.com' && <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />;
 
     return (
       <TableRow key="summary" styleName="payment-row">

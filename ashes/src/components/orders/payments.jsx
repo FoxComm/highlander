@@ -3,7 +3,6 @@
 import React, { Element } from 'react';
 
 import ContentBox from 'components/content-box/content-box';
-import PanelHeader from 'components/panel-header/panel-header';
 import PaymentsPanel from 'components/payments-panel/payments-panel';
 
 import OrderParagon from 'paragons/order';

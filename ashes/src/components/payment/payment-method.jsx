@@ -18,11 +18,11 @@ type Props = {
 };
 
 function getIconType(type, paymentMethod) {
-  switch (type && paymentMethod.brand) {
+  switch (type) {
     case 'creditCard':
-      return paymentMethod.brand.toLowerCase().replace(/ /g, '');
+      return paymentMethod.brand ? paymentMethod.brand.toLowerCase().replace(/ /g, '') : null;
     default:
-      return null;
+      return _.snakeCase(type);
   }
 }
 

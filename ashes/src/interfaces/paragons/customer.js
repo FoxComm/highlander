@@ -5,7 +5,7 @@ type Customer = {
 
   phoneNumber?: string,
   isGuest?: boolean,
-  groups?: Array<string>,
+  groups?: Array<TCustomerGroupShort>,
   avatarUrl?: string,
   rank?: number,
   location?: string,

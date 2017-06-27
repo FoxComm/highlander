@@ -154,7 +154,7 @@ defmodule Hyperion.Amazon do
           currentBalance: 0,
           availableBalance: 0,
           createdAt: order["PurchaseDate"],
-          type: order["PaymentMethodDetails"]["PaymentMethodDetail"]
+          type: lower_first(order["PaymentMethodDetails"]["PaymentMethodDetail"])
         }],
         orderState: order["OrderStatus"],
         shippingState: "---",
@@ -417,5 +417,12 @@ defmodule Hyperion.Amazon do
     |> String.downcase
     |> String.replace(~r/\s+/, "")
     |> String.to_atom
+  end
+
+  defp lower_first(str) do
+    str
+    |> String.first
+    |> String.downcase
+    |> Kernel.<>(String.slice(str, 1, String.length(str)))
   end
 end

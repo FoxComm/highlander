@@ -14,7 +14,7 @@ import type { Cart, PaymentMethod } from 'paragons/order';
 type Props = {
   isAdding: boolean,
   isEditing: boolean,
-  order: Cart|OrderParagon,
+  order: Cart | OrderParagon,
   paymentMethods: Array<PaymentMethod>,
   cancelAdding?: () => void,
 };
@@ -25,14 +25,14 @@ type DefaultProps = {
 };
 
 type State = {
-  showDetails: { [key:number|string]: boolean },
+  showDetails: { [key: number | string]: boolean },
 };
 
 const viewColumns = [
-  {field: 'name', text: 'Method'},
-  {field: 'amount', text: 'Amount', type: 'currency'},
-  {field: 'status', text: 'Status'},
-  {field: 'createdAt', text: 'Date/Time', type: 'datetime'},
+  { field: 'name', text: 'Method' },
+  { field: 'amount', text: 'Amount', type: 'currency' },
+  { field: 'status', text: 'Status' },
+  { field: 'createdAt', text: 'Date/Time', type: 'datetime' },
 ];
 
 export default class PaymentsPanel extends Component {
@@ -50,11 +50,7 @@ export default class PaymentsPanel extends Component {
 
     return (
       <tbody key="new-payment">
-        <NewPayment
-          order={order}
-          customerId={customerId}
-          cancelAction={this.props.cancelAdding}
-        />
+        <NewPayment order={order} customerId={customerId} cancelAction={this.props.cancelAdding} />
       </tbody>
     );
   }
@@ -62,10 +58,7 @@ export default class PaymentsPanel extends Component {
   @autobind
   processRows(rows: Array<Object>): Array<Object> {
     if (this.props.isAdding) {
-      return [
-        this.newPayment,
-        ...rows,
-      ];
+      return [this.newPayment, ...rows];
     }
 
     return rows;
@@ -85,12 +78,13 @@ export default class PaymentsPanel extends Component {
         editMode={this.props.isEditing}
         orderReferenceNumber={referenceNumber}
         paymentMethod={row}
+        order={order}
       />
     );
   }
 
   @autobind
-  toggleDetails(id: number|string) {
+  toggleDetails(id: number | string) {
     this.setState({
       showDetails: {
         [id]: !this.state.showDetails[id],
@@ -98,7 +92,7 @@ export default class PaymentsPanel extends Component {
     });
   }
 
-  get viewContent(){
+  get viewContent() {
     const { isEditing, paymentMethods } = this.props;
     const editColumns = isEditing ? [{ field: 'edit' }] : [];
 
@@ -117,7 +111,7 @@ export default class PaymentsPanel extends Component {
           wrapToTbody={false}
           renderRow={this.renderRow}
           processRows={this.processRows}
-          data={{rows: paymentMethods}}
+          data={{ rows: paymentMethods }}
           emptyMessage="No payment method applied"
         />
       );
