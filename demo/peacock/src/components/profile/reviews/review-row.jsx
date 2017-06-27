@@ -12,8 +12,8 @@ import styles from '../profile.css';
 
 type Props = {
   review: Review,
-  handleReviewForm: Function, // signature
-  removeReview: Function, // signature
+  handleReviewForm: (reviewId: number) => void,
+  removeReview: (reviewId: number) => Promise<*>,
 };
 
 const ReviewRow = (props: Props) => {

@@ -29,12 +29,11 @@ type State = {
 
 type Props = {
   reviewId: ?number,
-  updateReview: Function, // signature
-  closeModal: Function, // signature
-  updateReviewState: Object, // AsyncActions type
-  fetchState: Object, // AsyncActions type
-  fetchReviews: Function, // signature
-  updateReviewState: Object, // AsyncActions type
+  updateReview: (reviewId: number, payload: Object) => Promise<*>,
+  closeModal: () => void,
+  updateReviewState: AsyncState,
+  fetchState: AsyncState,
+  fetchReviews: () => Promise<*>,
 };
 
 class ReviewForm extends Component {
@@ -55,23 +54,23 @@ class ReviewForm extends Component {
           title: _.get(currentReview, 'attributes.title.v', ''),
           body: _.get(currentReview, 'attributes.body.v', ''),
           isHappy: true, // not implemented yet on backend
-          currentReview: _.isEmpty(currentReview) ? null : currentReview,
+          currentReview: currentReview ? currentReview : null,
         });
       });
     }
   }
 
   @autobind
-  handleTitleChange(event) {
+  handleTitleChange({ target }: SyntheticInputEvent) {
     this.setState({
-      title: event.target.value,
+      title: target.value,
     });
   }
 
   @autobind
-  handleBodyChange(event) {
+  handleBodyChange({ target }: SyntheticInputEvent) {
     this.setState({
-      body: event.target.value,
+      body: target.value,
     });
   }
 
@@ -89,6 +88,8 @@ class ReviewForm extends Component {
   @autobind
   submitForm() {
     const { currentReview } = this.state;
+
+    if (currentReview == null) return null;
 
     const payload = {
       sku: currentReview.sku,
@@ -108,6 +109,7 @@ class ReviewForm extends Component {
         },
       },
     };
+
     return this.props.updateReview(currentReview.id, payload).then(() => {
       this.props.closeModal();
       this.props.fetchReviews();
@@ -117,7 +119,7 @@ class ReviewForm extends Component {
   get productImage() {
     const { currentReview } = this.state;
 
-    if (_.isEmpty(currentReview)) return null;
+    if (currentReview == null) return null;
 
     const { imageUrl, productName } = currentReview.attributes;
 
@@ -194,11 +196,11 @@ class ReviewForm extends Component {
     );
   }
 
-  get modalTitle() {
+  get modalTitle(): string {
     const { currentReview } = this.state;
     const { fetchState } = this.props;
 
-    if (fetchState.inProgress) return null;
+    if (fetchState.inProgress) return '';
 
     if (currentReview && currentReview.attributes.status.v === 'pending') return "New review";
 

@@ -22,6 +22,13 @@ type Props = {
   auth: Object,
   reviews: Array<Review>,
   reviewsModalVisible: boolean,
+  reviewsState: AsyncState,
+  updateReviewState: AsyncState,
+  fetchReviewsForUser: (userId: number) => Promise<*>,
+  updateReview: (reviewId: number, payload: Object) => Promise<*>,
+  toggleReviewsModal: () => void,
+  removeReview: (reviewId: number) => Promise<*>,
+
 };
 
 type State = {
