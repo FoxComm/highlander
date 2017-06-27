@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 // components
 import { Link } from 'components/link';
 import columnPropType from './column-prop-type';
-import { Moment, Date, DateTime, Time } from '../common/datetime';
+import { Date, DateTime, Time } from 'components/utils/datetime';
 import Currency from 'components/utils/currency';
 import State from '../common/state';
 import Change from 'components/utils/change';
@@ -31,8 +31,6 @@ function getCell(column, children, row) {
       return <Currency value={children} currency={getCurrency(column, row)} />;
     case 'transaction':
       return <Currency value={children} currency={getCurrency(column, row)} isTransaction={true} />;
-    case 'moment':
-      return <Moment value={children} />;
     case 'date':
       return <Date value={children} />;
     case 'datetime':

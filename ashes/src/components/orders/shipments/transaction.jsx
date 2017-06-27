@@ -9,7 +9,7 @@ import styles from './transaction.css';
 // components
 import Currency from 'components/utils/currency';
 import PaymentMethod from 'components/payment/payment-method';
-import { DateTime } from 'components/common/datetime';
+import { DateTime } from 'components/utils/datetime';
 
 //types
 type Props = {

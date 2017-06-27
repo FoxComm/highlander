@@ -6,7 +6,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 // components
-import { DateTime } from '../common/datetime';
+import { DateTime } from 'components/utils/datetime';
 import AuthorTitle from '../activity-trail/activities/base/author-title';
 import AuthorIcon from '../activity-trail/activities/base/author-icon';
 import { representatives } from '../activity-trail/activities/index';

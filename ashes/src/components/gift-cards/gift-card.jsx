@@ -10,7 +10,7 @@ import { ReasonType } from '../../lib/reason-utils';
 import { IndexLink, Link } from 'components/link';
 import { Errors } from 'components/utils/errors';
 import GiftCardCode from './gift-card-code';
-import { DateTime } from '../common/datetime';
+import { DateTime } from 'components/utils/datetime';
 import Currency from 'components/utils/currency';
 import Spinner from 'components/core/spinner';
 import { PageTitle } from '../section-title';

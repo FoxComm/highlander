@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 // components
 import Icon from 'components/core/icon';
-import { DateTime } from 'components/common/datetime';
+import { DateTime } from 'components/utils/datetime';
 import Currency from 'components/utils/currency';
 
 //styles

@@ -14,7 +14,7 @@ import StoreCreditDetails from './store-credit';
 import PaymentMethodDetails from 'components/payment/payment-method';
 import TableCell from 'components/table/cell';
 import TableRow from 'components/table/row';
-import { DateTime } from 'components/common/datetime';
+import { DateTime } from 'components/utils/datetime';
 import { EditButton, DeleteButton } from 'components/core/button';
 import Icon from 'components/core/icon';
 
