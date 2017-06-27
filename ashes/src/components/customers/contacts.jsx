@@ -12,9 +12,10 @@ import * as CustomerContactActions from '../../modules/customers/contacts';
 import ContentBox from '../content-box/content-box';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
-import ErrorAlerts from '../alerts/error-alerts';
+import { ApiErrors } from 'components/utils/errors';
 import { EditButton } from 'components/core/button';
 import SaveCancel from 'components/core/save-cancel';
+import TextInput from 'components/core/text-input';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerContactActions, (result, action, key) => {
@@ -24,11 +25,13 @@ function mapDispatchToProps(dispatch, props) {
   });
 }
 
-@connect((state, props) => ({
-  ...state.customers.details[props.customerId]
-}), mapDispatchToProps)
+@connect(
+  (state, props) => ({
+    ...state.customers.details[props.customerId],
+  }),
+  mapDispatchToProps
+)
 export default class CustomerContacts extends React.Component {
-
   static propTypes = {
     customerId: PropTypes.number.isRequired,
     toggleEditCustomer: PropTypes.func.isRequired,
@@ -44,7 +47,7 @@ export default class CustomerContacts extends React.Component {
     this.state = {
       name: props.details.name,
       email: props.details.email,
-      phoneNumber: props.details.phoneNumber
+      phoneNumber: props.details.phoneNumber,
     };
   }
 
@@ -74,97 +77,94 @@ export default class CustomerContacts extends React.Component {
 
   get nameField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-name">{ this.props.details.name }</dd>;
+      return <dd id="customer-contacts-name">{this.props.details.name}</dd>;
     }
 
     return (
-      <FormField validator={ CustomerContacts.validateName }>
-        <input id='nameField'
-               className='fc-customer-form-input'
-               name='Name'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({name: target.value}) }
-               value={ this.state.name } />
+      <FormField validator={CustomerContacts.validateName}>
+        <TextInput
+          id="nameField"
+          className="fc-customer-form-input"
+          name="Name"
+          maxLength="255"
+          required
+          onChange={value => this.setState({ name: value })}
+          value={this.state.name}
+        />
       </FormField>
     );
   }
 
   get emailField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-email">{ this.props.details.email }</dd>;
+      return <dd id="customer-contacts-email">{this.props.details.email}</dd>;
     }
 
     return (
-      <FormField validator={ CustomerContacts.validateEmail }>
-        <input id='emailField'
-               className='fc-customer-form-input'
-               name='Email'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({email: target.value}) }
-               value={ this.state.email } />
+      <FormField validator={CustomerContacts.validateEmail}>
+        <TextInput
+          id="emailField"
+          className="fc-customer-form-input"
+          name="Email"
+          maxLength="255"
+          required
+          onChange={value => this.setState({ email: value })}
+          value={this.state.email}
+        />
       </FormField>
     );
   }
 
   get phoneField() {
     if (!this.props.isContactsEditing) {
-      return <dd id="customer-contacts-phone">{ this.props.details.phoneNumber }</dd>;
+      return <dd id="customer-contacts-phone">{this.props.details.phoneNumber}</dd>;
     }
 
     return (
-      <FormField validator='ascii'>
-        <input id='phoneField'
-               className='fc-customer-form-input'
-               name='Phone'
-               maxLength='255'
-               type='text'
-               required
-               onChange={ ({target}) => this.setState({phoneNumber: target.value}) }
-               value={ this.state.phoneNumber } />
+      <FormField validator="ascii">
+        <TextInput
+          id="phoneField"
+          className="fc-customer-form-input"
+          name="Phone"
+          maxLength="255"
+          required
+          onChange={value => this.setState({ phoneNumber: value })}
+          value={this.state.phoneNumber}
+        />
       </FormField>
     );
   }
 
   get formActions() {
     if (this.props.isContactsEditing) {
-      return <SaveCancel onCancel={ this.props.toggleEditCustomer } />;
+      return <SaveCancel onCancel={this.props.toggleEditCustomer} />;
     }
   }
 
   get actionBlock() {
     if (!this.props.isContactsEditing) {
-      return (
-        <EditButton id="fct-edit-btn__customer-contacts" onClick={ this.onEditClick } />
-      );
+      return <EditButton id="fct-edit-btn__customer-contacts" onClick={this.onEditClick} />;
     }
   }
 
   render() {
     return (
-      <ContentBox title='Contact Information'
-                  className='fc-customer-contacts'
-                  actionBlock={ this.actionBlock }>
-        <ErrorAlerts error={this.props.err} closeAction={this.props.cleanErrors} />
-        <Form className='fc-customer-contacts-form fc-form-vertical'
-              onChange={ this.onChange }
-              onSubmit={ this.onSubmit }>
+      <ContentBox title="Contact Information" className="fc-customer-contacts" actionBlock={this.actionBlock}>
+        <ApiErrors response={this.props.err} closeAction={this.props.cleanErrors} />
+        <Form className="fc-customer-contacts-form fc-form-vertical" onChange={this.onChange} onSubmit={this.onSubmit}>
           <dl>
             <dt>First & Last Name</dt>
-            { this.nameField }
+            {this.nameField}
           </dl>
           <dl>
             <dt>Email Address</dt>
-            { this.emailField }
+            {this.emailField}
           </dl>
           <dl>
             <dt>Phone Number</dt>
-            { this.phoneField }
+            {this.phoneField}
           </dl>
-          { this.formActions }
+          {this.formActions}
         </Form>
       </ContentBox>
     );

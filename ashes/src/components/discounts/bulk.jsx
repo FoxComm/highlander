@@ -60,7 +60,7 @@ const deleteHandler = function(props: Props): Function {
     return (
       <DeleteModal
         count={toggledIds.length}
-        stateTitle={'Delete'}
+        stateTitle={'Archive'}
         onConfirm={() => deleteEntity(toggledIds, props.entity, props.onDelete)}
       />
     );
@@ -105,7 +105,7 @@ const BulkWrapper = (props: Props) => {
     [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
   ];
   const extras = _.isEmpty(extraActions) ? [] : extraActions;
-  const deleteAction = ['Delete', deleteHandler(props), 'successfully deleted', 'could not be deleted'];
+  const deleteAction = ['Archive', deleteHandler(props), 'successfully archived', 'could not be archived'];
 
   const bulkActions = [
     ...extras,

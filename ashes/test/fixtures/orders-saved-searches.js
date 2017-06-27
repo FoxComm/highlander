@@ -8,9 +8,9 @@ module.exports = [
         operator: 'eq',
         value: {
           type: 'enum',
-          value: 'remorseHold'
-        }
-      }
-    ]
-  }
+          value: 'remorseHold',
+        },
+      },
+    ],
+  },
 ];

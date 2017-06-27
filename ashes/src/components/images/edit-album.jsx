@@ -6,28 +6,34 @@ import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
 // components
-import { FormField } from '../forms';
-import ContentBox from '../content-box/content-box';
+import { FormField } from 'components/forms';
+import Modal from 'components/core/modal';
 import SaveCancel from 'components/core/save-cancel';
-import wrapModal from '../modal/wrapper';
+import Form from 'components/forms/form';
+import TextInput from 'components/core/text-input';
+import Errors from 'components/utils/errors';
 
 // types
 import type { NewAlbum } from '../../modules/images';
 
+// styles
+import s from './edit-image.css';
+
 type Props = {
   isVisible: boolean;
   isNew?: boolean;
-  loading: boolean;
+  inProgress: boolean;
   album: NewAlbum;
   onSave: (name: string) => void;
   onCancel: () => void;
+  error?: any;
 };
 
 type State = {
   name: string;
 };
 
-class EditAlbum extends Component {
+export default class EditAlbum extends Component {
 
   props: Props;
 
@@ -39,10 +45,12 @@ class EditAlbum extends Component {
     isNew: false,
   };
 
-  _input: HTMLInputElement;
+  _input: TextInput;
 
   componentDidMount() {
-    this._input ? this._input.focus() : _.noop();
+    if (this._input) {
+      this._input.focus();
+    }
   }
 
   get closeAction() {
@@ -54,51 +62,53 @@ class EditAlbum extends Component {
   }
 
   @autobind
-  handleUpdateField({ target }: { target: HTMLInputElement }) {
-    this.setState({ [target.name]: target.value });
+  handleUpdateName(name: string) {
+    this.setState({ name });
   }
 
   @autobind
   handleSave(event: Event) {
-    event.preventDefault();
-    this.props.onSave(this.state.name);
-  }
+    const { inProgress, onSave } = this.props;
 
-  @autobind
-  handleKeyPress(event) {
-    if (!this.saveDisabled && event.keyCode === 13 /*enter*/) {
-      event.preventDefault();
-      this.props.onSave(this.state.name);
+    event.preventDefault();
+
+    if (!inProgress && !this.saveDisabled) {
+      onSave(this.state.name);
     }
   }
 
   render() {
+    const { error, inProgress, onCancel, isVisible } = this.props;
     const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (
-        <div onKeyDown={this.handleKeyPress}>
-          <ContentBox title={title} actionBlock={this.closeAction}>
-            <FormField label="Album Name"
-                       className="fc-product-details__field"
-                       labelClassName="fc-product-details__field-label">
-              <input type="text"
-                     name="name"
-                     className="fc-product-details__field-value"
-                     value={this.state.name}
-                     onChange={this.handleUpdateField}
-                     ref={(i) => this._input = i} />
-            </FormField>
-            <SaveCancel onCancel={this.props.onCancel}
-                        onSave={this.handleSave}
-                        saveDisabled={this.saveDisabled}
-                        isLoading={this.props.loading}
-                        saveText="Save and Apply" />
-          </ContentBox>
-        </div>
+      <Modal title={title} onClose={onCancel} isVisible={isVisible}>
+        <Form onSubmit={this.handleSave}>
+          <FormField
+            label="Album Name"
+            className="fc-product-details__field"
+            labelClassName="fc-product-details__field-label">
+            <TextInput
+              name="name"
+              className="fc-product-details__field-value"
+              value={this.state.name}
+              onChange={this.handleUpdateName}
+              ref={r => this._input = r}
+              autoComplete="off"
+            />
+          </FormField>
+          <Errors error={error} />
+          <SaveCancel
+            className={s.editAlbumFooter}
+            onCancel={onCancel}
+            onSave={this.handleSave}
+            saveDisabled={this.saveDisabled || inProgress}
+            cancelDisabled={inProgress}
+            isLoading={inProgress}
+            saveText="Save and Apply"
+          />
+        </Form>
+      </Modal>
     );
   }
 }
-
-const Wrapped: Class<Component<void, Props, State>> = wrapModal(EditAlbum);
-
-export default Wrapped;

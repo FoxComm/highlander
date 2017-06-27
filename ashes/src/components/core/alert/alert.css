@@ -1,0 +1,45 @@
+@import 'colors.css';
+
+.alert {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 10px;
+  color: var(--color-text);
+  border-radius: 3px;
+}
+
+.message {
+  font-size: 13px;
+  line-height: 18px;
+  flex: 1 1 auto;
+}
+
+.icon {
+  display: inline-flex; /* fixes extra pixel in height */
+  align-items: center;
+  margin-right: 8px;
+}
+
+.close {
+  margin-left: 10px;
+  margin-top: -6px;
+  cursor: pointer;
+  transition: opacity .2s;
+
+  &:hover {
+    opacity: .7;
+  }
+}
+
+.success {
+  background: var(--bg-message-success);
+}
+
+.warning {
+  background: var(--bg-message-warning);
+}
+
+.error {
+  background: var(--bg-message-error);
+}

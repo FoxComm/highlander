@@ -16,6 +16,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.seeds.generators.SimpleCoupon._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 object SimpleCoupon {
   type Percent = Int
@@ -73,12 +74,21 @@ trait CouponGenerator {
                    (ObjectForm(kind = Coupon.kind, attributes = couponForm.form),
                     ObjectShadow(attributes = couponShadow.shadow))
 
-                 val payload =
-                   CreateCoupon(attributes = couponFS.toPayload, promotion = source.promotionId)
+                 val payload = CreateCoupon(
+                   attributes = couponFS.toPayload,
+                   promotion = source.promotionId,
+                   singleCode = None,
+                   generateCodes = Some(
+                     GenerateCouponCodes(
+                       prefix = "CP",
+                       quantity = 1 + Random.nextInt(5),
+                       length = 12
+                     ))
+                 )
 
-                 CouponManager.create(payload, context.name, None).map { newCoupon ⇒
-                   source.copy(formId = newCoupon.id)
+                 CouponManager.create(payload, context.name, None).map { newCoupons ⇒
+                   newCoupons.map(newCoupon ⇒ source.copy(formId = newCoupon.id))
                  }
                })
-    } yield coupons
+    } yield coupons.flatten
 }

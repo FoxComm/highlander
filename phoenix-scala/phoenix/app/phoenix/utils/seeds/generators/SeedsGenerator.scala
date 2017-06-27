@@ -1,9 +1,12 @@
 package phoenix.utils.seeds.generators
 
 import core.db._
+import core.failures.NotFoundFailure404
 import faker.Faker
 import objectframework.models.ObjectContexts
+import phoenix.models.{Reason, Reasons}
 import phoenix.models.account._
+import phoenix.models.admin.{AdminData, AdminsData}
 import phoenix.models.coupon._
 import phoenix.models.customer._
 import phoenix.models.inventory._
@@ -30,7 +33,7 @@ object SeedsGenerator
   def generateAddresses(customers: Seq[User]): Seq[Address] =
     customers.flatMap { c ⇒
       generateAddress(customer = c, isDefault = true) +:
-        ((0 to Random.nextInt(2)) map { i ⇒
+      ((0 to Random.nextInt(2)) map { i ⇒
         generateAddress(customer = c, isDefault = false)
       })
     }
@@ -46,13 +49,6 @@ object SeedsGenerator
   def makeCoupons(promotions: Seq[SimplePromotion]) =
     promotions.par.map { p ⇒
       generateCoupon(p)
-    }.toList
-
-  def makeCouponCodes(promotions: Seq[SimpleCoupon]) =
-    promotions.flatMap { c ⇒
-      CouponCodes.generateCodes("CP", 12, 1 + Random.nextInt(5)).map { d ⇒
-        CouponCode(couponFormId = c.formId, code = d)
-      }
     }.toList
 
   def pickOne[T](vals: Seq[T]): T = vals(Random.nextInt(vals.length))
@@ -71,30 +67,29 @@ object SeedsGenerator
                     Account()
                   })
       accountCustomers = accountIds zip generatedCustomers
-      customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map {
-                     case (accountId, customer) ⇒
-                       customer.copy(accountId = accountId)
-                   })
-      customers ← * <~ Users.filter(_.id.inSet(customerIds)).result
+      customers ← * <~ Users.createAllReturningModels(accountCustomers.map {
+                   case (accountId, customer) ⇒
+                     customer.copy(accountId = accountId)
+                 })
       _ ← * <~ CustomersData.createAll(customers.map { c ⇒
            CustomerData(accountId = c.accountId, userId = c.id, scope = Scope.current)
          })
-      _ ← * <~ Addresses.createAll(generateAddresses(customers))
-      _ ← * <~ CreditCards.createAll(generateCreditCards(customers))
-      orderedGcs ← * <~ randomSubset(customerIds).map { id ⇒
-                    generateGiftCardPurchase(id, context)
-                  }
-      appeasements ← * <~ (1 to appeasementCount).map(i ⇒ generateGiftCardAppeasement)
-
+      _     ← * <~ Addresses.createAll(generateAddresses(customers))
+      _     ← * <~ CreditCards.createAll(generateCreditCards(customers))
+      admin ← * <~ AdminsData.mustFindOneOr(NotFoundFailure404(AdminData, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      gcReason ← * <~ Reasons
+                  .filter(_.reasonType === (Reason.GiftCardCreation: Reason.ReasonType))
+                  .mustFindOneOr(NotFoundFailure404(Reason, "???")) // FIXME: get this ID from an `INSERT`? @michalrus
+      orderedGcs ← * <~ (1 to appeasementCount).map(_ ⇒ generateGiftCard(admin.accountId, gcReason, context))
+      appeasements ← * <~ (1 to appeasementCount).map(_ ⇒
+                      generateGiftCardAppeasement(admin.accountId, gcReason))
       giftCards ← * <~ orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(1)
       promotions     ← * <~ generatePromotions(unsavedPromotions)
       unsavedCoupons ← * <~ makeCoupons(promotions.filter(_.applyType == Promotion.Coupon))
       coupons        ← * <~ generateCoupons(unsavedCoupons)
-      unsavedCodes   ← * <~ makeCouponCodes(coupons)
-      _              ← * <~ CouponCodes.createAll(unsavedCodes)
-      _ ← * <~ randomSubset(customerIds, customerIds.length).map { id ⇒
-           generateOrders(id, context, skuIds, pickOne(giftCards))
+      _ ← * <~ randomSubset(customers, customers.length).map { customer ⇒
+           generateOrders(customer.accountId, context, skuIds, pickOne(giftCards))
          }
     } yield {}
   }

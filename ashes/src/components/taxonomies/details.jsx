@@ -8,7 +8,7 @@ import { assoc } from 'sprout-data';
 
 // components
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
-import { SliderCheckbox } from '../checkbox/checkbox';
+import { SliderCheckbox } from 'components/core/checkbox';
 
 //styles
 import styles from './taxonomy.css';
@@ -48,11 +48,6 @@ export default class TaxonomyDetails extends React.Component {
   }
 
   render() {
-    return (
-      <ObjectDetailsDeux
-        {...this.props}
-        renderers={this.renderers}
-      />
-    );
+    return <ObjectDetailsDeux {...this.props} renderers={this.renderers} />;
   }
 }

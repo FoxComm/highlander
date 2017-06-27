@@ -8,12 +8,10 @@ import phoenix.utils.aliases._
 import scala.concurrent.Future
 
 case class GoogleOauthOptions(
-    roleName: String,
-    scopeId: Int, //must retrieve from db for now.
-    orgName: String,
     clientId: String,
     clientSecret: String,
     redirectUri: String,
+    scopes: Seq[String],
     accessType: String = "offline",
     hostedDomain: Option[String] = None
 ) extends OauthClientOptions {
@@ -33,4 +31,6 @@ trait GoogleProvider extends OauthProvider {
       val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer $accessToken")
       Http(req OK as.json4s.Json).map(_.extract[UserInfo])
     }
+
+  override def mkScopes(scopes: Set[String]): String = scopes.mkString(" ")
 }

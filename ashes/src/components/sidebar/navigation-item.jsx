@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { IndexLink } from 'components/link';
 import type { Claims } from 'lib/claims';
 
-import Icon from 'components/icon/icon';
+import SvgIcon from 'components/core/svg-icon';
 
 import styles from './navigation-item.css';
 
@@ -23,7 +23,6 @@ type Props = {
 };
 
 const NavigationItem = (props: Props) => {
-
   const containerClass = (): string => {
     const routeNames = props.routes.map(route => route.name);
     let isActive;
@@ -39,25 +38,26 @@ const NavigationItem = (props: Props) => {
      thus setting isActive to true for both 'Customers' and 'Customer Groups'
      menu items
      */
-    if (props.to === 'customers' && (_.includes(routeNames, 'groups') || _.includes(routeNames, 'groups-base') )) {
+    if (props.to === 'customers' && (_.includes(routeNames, 'groups') || _.includes(routeNames, 'groups-base'))) {
       isActive = false;
     }
 
     return classNames('fc-navigation-item-container', {
-      '_active': isActive,
+      _active: isActive,
     });
   };
 
   return (
     <div className={containerClass()}>
-      <div className='fc-navigation-item'>
+      <div className="fc-navigation-item">
         <IndexLink
           to={props.to}
           params={props.linkParams || {}}
-          className='fc-navigation-item__link'
+          className="fc-navigation-item__link"
           actualClaims={props.actualClaims}
-          expectedClaims={props.expectedClaims}>
-          <Icon name={props.icon} styleName="nav-item" />
+          expectedClaims={props.expectedClaims}
+        >
+          <SvgIcon name={props.icon} styleName="nav-item" />
           <span>{props.title}</span>
         </IndexLink>
       </div>

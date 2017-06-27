@@ -1,13 +1,15 @@
+// libs
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
+// components
 import TabView from './tab';
+import TextInput from 'components/core/text-input';
 
 export default class EditableTabView extends React.Component {
-
   state = {
     editValue: this.props.defaultValue,
   };
@@ -30,7 +32,7 @@ export default class EditableTabView extends React.Component {
   };
 
   get className() {
-    return classnames({ '_editing': this.props.editMode });
+    return classnames({ _editing: this.props.editMode });
   }
 
   get dirtyState() {
@@ -48,19 +50,21 @@ export default class EditableTabView extends React.Component {
   cancelEdit(event) {
     this.preventAction(event);
 
-    this.setState({
-      editValue: this.props.defaultValue,
-    }, () => this.props.onEditNameCancel());
+    this.setState(
+      {
+        editValue: this.props.defaultValue,
+      },
+      () => this.props.onEditNameCancel()
+    );
   }
 
   get tabContent() {
     if (this.props.editMode) {
       return (
         <div className="fc-editable-tab__content fc-form-field">
-          <input
+          <TextInput
             autoFocus
             className="fc-editable-tab__content-input"
-            type="text"
             onBlur={this.endEditName}
             onChange={this.changeInput}
             onClick={this.preventAction}
@@ -69,10 +73,7 @@ export default class EditableTabView extends React.Component {
             value={this.state.editValue}
           />
           <div className="fc-editable-tab__content-close">
-            <a
-              onClick={this.cancelEdit}
-              onMouseDown={this.preventAction}
-              onMouseUp={this.preventAction}>
+            <a onClick={this.cancelEdit} onMouseDown={this.preventAction} onMouseUp={this.preventAction}>
               &times;
             </a>
           </div>
@@ -84,8 +85,8 @@ export default class EditableTabView extends React.Component {
   }
 
   @autobind
-  changeInput({ target }) {
-    this.setState({ editValue: target.value });
+  changeInput(value) {
+    this.setState({ editValue: value });
   }
 
   @autobind

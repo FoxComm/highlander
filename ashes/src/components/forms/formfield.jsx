@@ -8,12 +8,12 @@ import * as validators from 'lib/validators';
 import classNames from 'classnames';
 import { isDefined } from 'lib/utils';
 
-import AutoScroll from '../common/auto-scroll';
+import AutoScroll from 'components/utils/auto-scroll';
 
 type FormFieldErrorProps = {
-  error: Element<*>|string,
+  error: Element<*> | string,
   autoScroll?: boolean,
-}
+};
 
 export function FormFieldError(props: FormFieldErrorProps) {
   return (
@@ -25,23 +25,23 @@ export function FormFieldError(props: FormFieldErrorProps) {
 }
 
 type FormFieldProps = {
-  validator?: string|(value: any) => string;
-  children: Element<*>;
-  required: ?any;
-  validateOnBlur: ?any;
-  maxLength: ?number;
-  target: ?string;
-  name: ?string;
-  error: ?string|boolean;
-  getTargetValue: (node: any) => any;
-  className: ?string;
-  labelClassName?: string;
-  labelAtRight?: Element<*>|string;
-  labelAfterInput?: boolean;
-  label?: string;
-  validationLabel?: string;
-  requiredMessage?: string;
-  isDefined: (value: any) => boolean;
+  validator?: string | ((value: any) => string),
+  children: Element<*>,
+  required: ?any,
+  validateOnBlur: ?any,
+  maxLength: ?number,
+  target: ?string,
+  name: ?string,
+  error: ?string | boolean,
+  getTargetValue: (node: any) => any,
+  className: ?string,
+  labelClassName?: string,
+  labelAtRight?: Element<*> | string,
+  labelAfterInput?: boolean,
+  label?: string,
+  validationLabel?: string,
+  requiredMessage?: string,
+  isDefined: (value: any) => boolean,
   scrollToErrors?: boolean,
 };
 
@@ -56,7 +56,7 @@ export default class FormField extends Component {
 
   static defaultProps = {
     target: 'input,textarea,select',
-    getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+    getTargetValue: node => (node.type == 'checkbox' ? node.checked : node.value),
     isDefined: isDefined,
   };
 
@@ -211,10 +211,9 @@ export default class FormField extends Component {
   validate(): boolean {
     let errors = [];
 
-    const validator: ?Function =
-      typeof this.props.validator == 'string'
-        ? validators[this.props.validator]
-        : this.props.validator;
+    const validator: ?Function = typeof this.props.validator == 'string'
+      ? validators[this.props.validator]
+      : this.props.validator;
 
     const value = this.getTargetValue();
     let label = this.props.validationLabel || this.props.label;
@@ -274,13 +273,7 @@ export default class FormField extends Component {
       return (
         <div>
           {this.errors.map((error, index) => {
-            return (
-              <FormFieldError
-                key={`error-${index}`}
-                error={error}
-                autoScroll={this.props.scrollToErrors}
-              />
-            );
+            return <FormFieldError key={`error-${index}`} error={error} autoScroll={this.props.scrollToErrors} />;
           })}
         </div>
       );
@@ -312,14 +305,13 @@ export default class FormField extends Component {
     );
     const children = React.cloneElement(this.props.children, {
       key: 'children',
+      error: this.hasError,
     });
 
-    const content = this.props.labelAfterInput
-      ? [children, this.label]
-      : [this.label, children];
+    const content = this.props.labelAfterInput ? [children, this.label] : [this.label, children];
 
     return (
-      <div className={className} ref={ref => this._block = ref}>
+      <div className={className} ref={ref => (this._block = ref)}>
         {content}
         {this.errorMessages}
       </div>

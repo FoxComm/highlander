@@ -26,19 +26,17 @@ import Button from 'ui/buttons';
 import styles from './checkout.css';
 
 // types
-import type { CheckoutState, EditStage } from 'modules/checkout';
+import type { CheckoutState } from 'modules/checkout';
 import type { CheckoutActions } from './types';
 import type { AsyncStatus } from 'types/async-actions';
 
 // actions
 import * as actions from 'modules/checkout';
-import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 import { fetchUser } from 'modules/auth';
 
 
 type Props = CheckoutState & CheckoutActions & {
-  setEditStage: (stage: EditStage) => Object,
   hideCart: () => Promise<*>,
   fetchCart: () => Promise<*>,
   addresses: Array<any>,
@@ -170,7 +168,6 @@ class Checkout extends Component {
   checkout() {
     return this.props.checkout()
       .then(() => {
-        this.props.setEditStage(EditStages.FINISHED);
         browserHistory.push('/checkout/done');
       });
   }
@@ -222,63 +219,62 @@ class Checkout extends Component {
     const isGuestMode = isGuest(_.get(props.auth, 'user'));
     const cartFetched = props.fetchCartState.finished;
 
-    if (cartFetched) {
-      const shippingAddress = _.get(this.props.cart, 'shippingAddress', {});
+    if (!cartFetched) {
+      return <Loader />;
+    }
 
-      return (
-        <div styleName="wrapper">
-          <div styleName="main-container">
-            <div styleName="row">
-              <div styleName="column">
-                <div styleName="shipping">
-                  <Shipping
-                    isEditing={props.editStage}
-                    onComplete={this.setShipping}
-                    addresses={this.props.addresses}
-                    fetchAddresses={this.props.fetchAddresses}
-                    shippingAddress={shippingAddress}
-                    auth={this.props.auth}
-                    isGuestMode={isGuestMode}
-                  />
-                </div>
-                <div styleName="delivery">
-                  <Delivery
-                    isEditing={props.editStage}
-                    onComplete={this.setDelivery}
-                    shippingMethods={props.shippingMethods}
-                    cart={this.props.cart}
-                    fetchShippingMethods={props.fetchShippingMethods}
-                    shippingAddressEmpty={_.isEmpty(shippingAddress)}
-                  />
-                </div>
-              </div>
-              <div styleName="payment">
-                <Billing
+    const shippingAddress = _.get(this.props.cart, 'shippingAddress', {});
+
+    return (
+      <div styleName="wrapper">
+        <div styleName="main-container">
+          <div styleName="row">
+            <div styleName="column">
+              <div styleName="shipping">
+                <Shipping
+                  isEditing={props.editStage}
+                  onComplete={this.setShipping}
+                  addresses={this.props.addresses}
+                  fetchAddresses={this.props.fetchAddresses}
+                  shippingAddress={shippingAddress}
+                  auth={this.props.auth}
                   isGuestMode={isGuestMode}
-                  paymentMethods={_.get(props.cart, 'paymentMethods', [])}
-                  chooseCreditCard={this.props.chooseCreditCard}
-                  onComplete={this.setBilling}
+                />
+              </div>
+              <div styleName="delivery">
+                <Delivery
+                  isEditing={props.editStage}
+                  onComplete={this.setDelivery}
+                  shippingMethods={props.shippingMethods}
+                  cart={this.props.cart}
+                  fetchShippingMethods={props.fetchShippingMethods}
+                  shippingAddressEmpty={_.isEmpty(shippingAddress)}
                 />
               </div>
             </div>
-            <div styleName="order-summary">
-              {this.orderContent}
+            <div styleName="payment">
+              <Billing
+                isGuestMode={isGuestMode}
+                paymentMethods={_.get(props.cart, 'paymentMethods', [])}
+                chooseCreditCard={this.props.chooseCreditCard}
+                onComplete={this.setBilling}
+                fetchAddresses={this.props.fetchAddresses}
+              />
             </div>
           </div>
-          <div styleName="side-container">
-            {this.orderTotals}
+          <div styleName="order-summary">
+            {this.orderContent}
           </div>
-
-          <GuestAuth
-            isEditing={!this.isEmailSetForCheckout()}
-            location={this.props.location}
-          />
         </div>
-      );
-    }
+        <div styleName="side-container">
+          {this.orderTotals}
+        </div>
 
-    return (
-      <Loader />
+        <GuestAuth
+          isEditing={!this.isEmailSetForCheckout()}
+          location={this.props.location}
+        />
+      </div>
     );
   }
 

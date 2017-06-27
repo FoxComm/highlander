@@ -39,8 +39,8 @@ const tableColumns = [
   { field: 'name', text: 'Group Name' },
   { field: 'customersCount', text: 'Customers Count' },
   { field: 'groupType', text: 'Type' },
-  { field: 'createdAt', type: 'date', text: 'Date/Time Created' },
-  { field: 'updatedAt', type: 'date', text: 'Date/Time Last Modified' },
+  { field: 'createdAt', type: 'datetime', text: 'Date/Time Created' },
+  { field: 'updatedAt', type: 'datetime', text: 'Date/Time Last Modified' },
 ];
 
 const groupTypes = {

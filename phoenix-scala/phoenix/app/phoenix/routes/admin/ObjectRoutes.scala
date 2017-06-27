@@ -21,25 +21,25 @@ object ObjectRoutes {
             ObjectSchemasManager.getAllSchemas()
           }
         } ~
-          pathPrefix("byKind") {
-            (get & path(Segment)) { kind ⇒
-              getOrFailures {
-                ObjectSchemasManager.getSchemasForKind(kind)
-              }
+        pathPrefix("byKind") {
+          (get & path(Segment)) { kind ⇒
+            getOrFailures {
+              ObjectSchemasManager.getSchemasForKind(kind)
+            }
+          }
+        } ~
+        (pathPrefix("byName") & path(Segment)) { schemaName ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              ObjectSchemasManager.getSchema(schemaName)
             }
           } ~
-          (pathPrefix("byName") & path(Segment)) { schemaName ⇒
-            (get & pathEnd) {
-              getOrFailures {
-                ObjectSchemasManager.getSchema(schemaName)
-              }
-            } ~
-              (post & entity(as[UpdateObjectSchema])) { payload ⇒
-                mutateOrFailures {
-                  ObjectSchemasManager.update(schemaName, payload)
-                }
-              }
+          (post & entity(as[UpdateObjectSchema])) { payload ⇒
+            mutateOrFailures {
+              ObjectSchemasManager.update(schemaName, payload)
+            }
           }
+        }
       }
     }
 }

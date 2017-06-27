@@ -30,22 +30,28 @@ object CouponResponses {
 
     case class Root(id: Int,
                     context: ObjectContextResponse.Root,
+                    code: String,
                     attributes: Json,
                     promotion: Int,
                     archivedAt: Option[Instant])
         extends ResponseItem
 
-    def build(coupon: IlluminatedCoupon, originalCoupon: Coupon): Root =
+    def build(coupon: IlluminatedCoupon, code: String, originalCoupon: Coupon): Root =
       Root(
         id = coupon.id,
         context = ObjectContextResponse.build(coupon.context),
+        code = code,
         attributes = coupon.attributes,
         promotion = coupon.promotion,
         archivedAt = originalCoupon.archivedAt
       )
 
-    def build(context: ObjectContext, coupon: Coupon, form: ObjectForm, shadow: ObjectShadow): Root =
-      build(IlluminatedCoupon.illuminate(context, coupon, form, shadow), coupon)
+    def build(context: ObjectContext,
+              code: String,
+              coupon: Coupon,
+              form: ObjectForm,
+              shadow: ObjectShadow): Root =
+      build(IlluminatedCoupon.illuminate(context, coupon, form, shadow), code, coupon)
 
   }
 }

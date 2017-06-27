@@ -59,7 +59,6 @@ The order, in which `systemd` launches the services:
 |bottledwater_phoenix        |   |kibana|                      
 |bottledwater_middlewarehouse|   +------+                      
 |bottledwater_onboarding     |                                 
-|materialized_views          |                                 
 |pgweb                       |                                 
 +----------------------------+                                 
 ```
@@ -91,6 +90,6 @@ The order, in which `highlander` subgroups are launched:
                 |* capture-consumer      |     |* orders-anthill    |----------|* bernardo    |
                 |* gift-card-consumer    |     |* orders-reviews    |          |* eggcrate    |
                 |* shipments-consumer    |     |* orders-sphex      |          |* river-rock  |
-                |* stock-items-consumer  |     |* product-activity  |          +--------------+
+                |                        |     |* product-activity  |          +--------------+
                 +------------------------+     +--------------------+
 ```

@@ -1,9 +1,10 @@
 package phoenix.utils.apis
 
 import cats.implicits._
+import com.stripe.model.DeletedCard
+import com.typesafe.scalalogging.LazyLogging
 import core.db._
 import core.utils.Money._
-import com.stripe.model.{DeletedCard, Token}
 import phoenix.failures.CustomerFailures.CustomerMustHaveCredentials
 import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCard
@@ -11,6 +12,26 @@ import phoenix.payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
 import phoenix.utils.aliases.stripe._
 
 import scala.collection.JavaConversions._
+
+object FoxStripe extends LazyLogging {
+  val stripe = "api.stripe.com"
+
+  /**
+    * As an attempt to investigate issue [1], let's try this naive ping impl.
+    * It works on my local, so I want to test it on appliances and staging.
+    * -- Anna
+    *
+    * [1] https://github.com/FoxComm/highlander/issues/2090
+    */
+  def ping(): Unit = {
+    import sys.process._
+
+    if (s"ping -c1 $stripe".run().exitValue() == 0)
+      logger.info(s"$stripe ping: SUCCESS")
+    else
+      logger.error(s"$stripe ping: FAILURE")
+  }
+}
 
 /**
   * Fox Stripe API implementation
@@ -21,13 +42,15 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   def createCardFromToken(email: Option[String],
                           token: String,
                           stripeCustomerId: Option[String],
-                          address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] =
+                          address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] = {
+    FoxStripe.ping()
     email match {
       case Some(e) ⇒
         createCardAndMaybeCustomer(e, Map("source" → token), stripeCustomerId, address)
       case _ ⇒
         Result.failure(CustomerMustHaveCredentials)
     }
+  }
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
   def createCardFromSource(email: Option[String],

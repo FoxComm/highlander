@@ -5,27 +5,18 @@ module.exports = {
     rules: [
       {
         test: /\.jsx?$/,
-        include: [
-          path.resolve(__dirname, '../src'),
-        ],
-        use: [ 'babel-loader?cacheDirectory=true' ],
+        include: [path.resolve(__dirname, '../src')],
+        use: ['babel-loader?cacheDirectory=true'],
       },
       {
         test: /\.css$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: { sourceMap: true }
-          },
-          'postcss-loader',
-        ]
+        use: ['style-loader', 'css-loader?{sourceMap:true}', 'postcss-loader'],
       },
       {
         test: /\.less$/,
-        use: [ 'style-loader', 'css-loader', 'less-loader' ]
+        use: ['style-loader', 'css-loader?{sourceMap:true}', 'less-loader']
       },
-    ]
+    ],
   },
 
   devtool: 'eval-source-map',

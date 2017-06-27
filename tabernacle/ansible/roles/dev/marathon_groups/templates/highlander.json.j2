@@ -37,10 +37,9 @@
             "apps": [
                 {% include "core-consumers/green-river.json.j2" %},
                 {% include "core-consumers/capture-consumer.json.j2" %},
-                {## {% include "core-consumers/customer-groups-consumer.json.j2" %} ,##}
+                {% include "core-consumers/customer-groups-consumer.json.j2" %},
                 {% include "core-consumers/gift-card-consumer.json.j2" %},
-                {% include "core-consumers/shipments-consumer.json.j2" %},
-                {% include "core-consumers/stock-items-consumer.json.j2" %}
+                {% include "core-consumers/shipments-consumer.json.j2" %}
             ]
         },
         {
@@ -51,7 +50,8 @@
                     {% include "core-integrations/shipstation.json.j2" %},
                 {% endif %}
                 {% include "core-integrations/messaging.json.j2" %},
-                {% include "core-integrations/hyperion.json.j2" %}
+                {% include "core-integrations/hyperion.json.j2" %},
+                {% include "core-integrations/geronimo.json.j2" %}
             ]
         },
         {

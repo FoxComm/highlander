@@ -1,4 +1,3 @@
-
 .products {
   display: flex;
 
@@ -12,7 +11,7 @@
 }
 
 .label {
-  padding-top: 0.5em;
+  padding-top: .5em;
   white-space: nowrap;
 }
 

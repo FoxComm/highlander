@@ -21,42 +21,42 @@ object CustomerGroupsRoutes {
             GroupManager.findAll
           }
         } ~
-          (post & pathEnd & entity(as[CustomerGroupPayload])) { payload ⇒
-            mutateOrFailures {
-              GroupManager.create(payload, auth.model)
-            }
-          } ~
-          pathPrefix("templates") {
-            (get & pathEnd) {
-              getOrFailures {
-                GroupTemplateManager.getAll()
-              }
-            }
+        (post & pathEnd & entity(as[CustomerGroupPayload])) { payload ⇒
+          mutateOrFailures {
+            GroupManager.create(payload, auth.model)
           }
-      } ~
-        pathPrefix("customer-groups" / IntNumber) { groupId ⇒
+        } ~
+        pathPrefix("templates") {
           (get & pathEnd) {
             getOrFailures {
-              GroupManager.getById(groupId)
+              GroupTemplateManager.getAll()
             }
-          } ~
-            (patch & pathEnd & entity(as[CustomerGroupPayload])) { payload ⇒
-              mutateOrFailures {
-                GroupManager.update(groupId, payload, auth.model)
-              }
-            } ~
-            (delete & pathEnd) {
-              deleteOrFailures {
-                GroupManager.delete(groupId, auth.model)
-              }
-            } ~
-            path("customers") {
-              (post & pathEnd & entity(as[CustomerGroupMemberSyncPayload])) { payload ⇒
-                doOrFailures(
-                  GroupMemberManager.sync(groupId, payload)
-                )
-              }
-            }
+          }
         }
+      } ~
+      pathPrefix("customer-groups" / IntNumber) { groupId ⇒
+        (get & pathEnd) {
+          getOrFailures {
+            GroupManager.getById(groupId)
+          }
+        } ~
+        (patch & pathEnd & entity(as[CustomerGroupPayload])) { payload ⇒
+          mutateOrFailures {
+            GroupManager.update(groupId, payload, auth.model)
+          }
+        } ~
+        (delete & pathEnd) {
+          deleteOrFailures {
+            GroupManager.delete(groupId, auth.model)
+          }
+        } ~
+        path("customers") {
+          (post & pathEnd & entity(as[CustomerGroupMemberSyncPayload])) { payload ⇒
+            doOrFailures(
+              GroupMemberManager.sync(groupId, payload)
+            )
+          }
+        }
+      }
     }
 }

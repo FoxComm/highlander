@@ -1,4 +1,5 @@
-@import "common.css";
+@import 'common.css';
+@import 'colors.css';
 
 .main {
   display: inline-flex;
@@ -7,14 +8,15 @@
   min-height: 32px;
   font-size: 12px;
   line-height: 16px;
-  color: #fff;
-  background-color: #24334b;
+  color: var(--color-light-text);
+  background-color: var(--bg-nav-main);
   border-radius: 16px;
 }
 
 .loading {
   @apply --loading-caramel;
-  background-color: rgba(58, 67, 80, .8);
+
+  background-color: var(--bg-nav-disabled);
 }
 
 .button {
@@ -23,7 +25,7 @@
   font-weight: bold;
   background: none;
   border: none;
-  border-left: 1px solid #7D848E;
+  border-left: 1px solid var(--bg-grey-buttons);
   border-radius: 0 17px 17px 0;
 }
 
@@ -32,7 +34,7 @@
 }
 
 .main:not(.loading) .button:hover {
-  background-color: #141f31;
+  background-color: var(--bg-nav-active);
 }
 
 .label {
@@ -46,7 +48,7 @@
 }
 
 .main.clickable:not(.loading) .label:hover {
-  background: #141f31;
+  background-color: var(--bg-nav-active);
   cursor: pointer;
 }
 

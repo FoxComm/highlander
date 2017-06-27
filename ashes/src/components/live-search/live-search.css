@@ -1,0 +1,29 @@
+@import 'colors.css';
+
+.table {
+  position: relative;
+  z-index: 0;
+}
+
+.dropdown {
+  position: absolute;
+  z-index: 1;
+}
+
+.action {
+  color: var(--color-additional-text);
+}
+
+.term {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.icon {
+  margin-right: 8px;
+}
+
+.pill {
+  margin: 3px 0 0 5px;
+}

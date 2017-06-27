@@ -1,11 +1,19 @@
 package utils
 
+import com.typesafe.scalalogging.Logger
 import core.utils._
+import java.util.concurrent.{Executors, ScheduledExecutorService}
+import org.scalatest.mockito.MockitoSugar
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
 import phoenix.payloads.NotePayloads.CreateNote
+import phoenix.utils._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.Future
 import testutils.TestBase
 
 class UtilsTest extends TestBase {
+  implicit val scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
   "camelToUnderscores" - {
     "should convert camelCase string to snake_case string" in {
@@ -22,4 +30,18 @@ class UtilsTest extends TestBase {
     }
   }
 
+  "timeoutAfter" - {
+    "should allow to complete future before timeout exceed" in {
+      val f = Future(42).timeoutAfter(50.millis, null)(666)
+      f.futureValue must === (42)
+    }
+
+    "should timeout with specified result after given time" in {
+      val f = Future {
+        Thread.sleep(100)
+        42
+      }.timeoutAfter(50.millis, null)(666)
+      f.futureValue must === (666)
+    }
+  }
 }

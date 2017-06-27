@@ -1,9 +1,10 @@
+@import 'colors.css';
 
 .empty-message {
   padding: 20px;
   text-align: center;
-  background: #fff;
-  color: #9ba3a7;
+  background: var(--bg-white);
+  color: var(--color-additional-text);
   font-size: 15px;
   font-weight: 600;
   line-height: 60px;
@@ -30,4 +31,3 @@
 .add-coupon-button {
   width: 100px;
 }
-

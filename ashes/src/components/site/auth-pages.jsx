@@ -1,8 +1,7 @@
-
 // @flow
 
 import React, { Element, Component } from 'react';
-import Icon from 'components/icon/icon';
+import SvgIcon from 'components/core/svg-icon';
 
 import s from './auth-pages.css';
 
@@ -29,17 +28,15 @@ export default class AuthPages extends Component {
   }
 
   get body(): Element<*> {
-    return React.cloneElement(
-      this.props.children, {
-        isMounted: this.state.isMounted,
-      }
-    );
+    return React.cloneElement(this.props.children, {
+      isMounted: this.state.isMounted,
+    });
   }
 
   render() {
     return (
       <div className={s.body}>
-        <Icon name="start" className={s.logo} />
+        <SvgIcon name="start" className={s.logo} />
         {this.body}
         <div className={s.copyright}>
           © 2017 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.

@@ -1,125 +1,31 @@
-// Media queries
-@media_desktop: ~"only screen and (min-width: 1025px)";
-@media_tablet: ~"only screen and (min-width: 768px) and (max-width: 1024px)";
-@media_mobile: ~"only screen and (max-width: 767px)";
-@media_retina: ~"(min-resolution: 120dpi), (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 4/3), (min-device-pixel-ratio: 1.25)";
+// Copy set of 'colors.css'
 
-// Site variables
-@site_max-width: 100%;
-@site_font-size: 15px;
+@color-text: #363636;
+@color-additional-text: rgba(54, 54, 54, 0.5);
+@color-subtitle-text: #abb2b6;
+@color-light-text: #fff;
+@color-link: #49cab9;
+@color-error-text: #f65554;
 
-// font sizes
-@semibold: 600;
-@bold: 700;
-@normal: 400;
-@thin: 300;
+@color-border: #d9d9d9;
 
-// Colors
-@color-white: #ffffff;
-@color-black: #000000;
-@color-decor0: #f2f2f2;
-@color-decor1: #484848;
-@color-decor2: #333a45;
-@color-decor3: #3a4350;
-@color-decor4: #828e9f;
-@color-decor5: #9ba3a7;
-@color-decor6: #bdc3c6;
-@color-decor7: #ced2d5;
-@color-decor8: #bfbfbf;
-@color-decor9: #d9d9d9;
-@color-decor10: #ebebeb;
-@color-decor11: #f5f5f5;
-@color-decor12: #f7f7f7;
-@color-decor13: #fcfcfc;
-@color-decor14: #3aacb3;
-@color-decor15: #4fc2c9;
-@color-decor16: #99e6ea;
-@color-decor17: #a0e9ed;
-@color-decor18: #7Da0f3;
-@color-decor19: #a0beed;
-@color-decor20: #c5d6ff;
-@color-decor21: #e1eaff;
-@color-decor22: #f45758;
-@color-decor23: #ff9796;
+
+@bg-white: #fff;
+@bg-nav-main: #25334a;
+@bg-nav-active: #1a2535;
+@bg-nav-disabled: #99a9c4;
+@bg-nav-pink: #fc54a6;
+@bg-field-error: @color-error-text;
+@bg-grey: #f9f9f9;
+@bg-grey-buttons: #ced2d5;
+@bg-grey-buttons-hover: #bdc3c6;
+@bg-grey-headers: #f7f7f7;
+@bg-green-buttons: #49cab9;
+@bg-green-buttons-hover: #1dbfaa;
+@bg-message-success: #adf2e9;
+@bg-message-warning: #fff9a0;
+@bg-message-error: #ffb1b1;
+
+
+
 @color-decor24: #ffbb3c;
-@color-decor25: #ffdd7f;
-@color-decor26: #47628d;
-@color-decor27: #b98bdc;
-@color-decor28: #dd63b9;
-@color-decor29: #a2dee1;
-@color-decor31: #959698;
-@color-decor32: #3e4d61;
-@color-decor33: #f2595c;
-@color-decor34: #f2f2f2;
-@color-decor35: #e5e7e8;
-@color-decor36: #333c49;
-@color-decor37: #37bac2;
-@color-decor38: #e9feff;
-@color-decor39: #49c2ca;
-@color-decor40: #cdcccc;
-@color-decor41: #cdcdcd;
-@color-decor42: #b1b1b1;
-@color-decor43: rgba(0,0,0,0.30);
-@color-decor44: #dfe3ed;
-@color-decor45: #7f7f7f;
-@color-decor46: #4fc2c9;
-@color-decor47: #F45758;
-@color-decor48: #D8FBFD;
-@color-decor49: #EAFEFF;
-@color-decor50: #F7423B;
-@color-decor51: rgba(0,0,0,0.50);
-@color-decor52: #989898;
-@color-decor53: #B9B9B9;
-@color-decor54: #F5FEFF;
-@color-decor55: rgba(0,0,0,0.40);
-@color-decor56: #3A434F;
-@color-decor57: #b3b3b3;
-@color-decor58: rgba(0,0,0,.1);
-@color-decor59: #6a6a6a;
-@color-decor60: #e4e6ea;
-@color-decor61: #f4f5f6;
-@color-decor62: #2C323C;
-
-@color-text-gray: #adaaaa;
-@color-transparent: transparent;
-
-// Site colors
-@color-border: #bbbdbf;
-@color-header-border: @color-decor9;
-@color-btn-bg: #f1f1f2;
-@color-btn-bg-hover: #e3e3e4;
-@color-link-tab: #595959;
-@color-tooltip-bg: @color-decor3;
-@color-subtitle: #abb2b6;
-
-// Default colors
-@color-default-fg: @color-decor1;
-@color-default-bg: @color-decor0;
-
-// Control colors
-@color-control-primary-fg: @color-decor0;
-@color-control-primary-bg: @color-decor15;
-@color-control-primary-hover-fg: @color-decor0;
-@color-control-primary-hover-bg: @color-decor14;
-@color-control-primary-disabled-fg: @color-decor29;
-@color-control-primary-disabled-bg: @color-decor15;
-
-@color-control-secondary-fg: @color-default-fg;
-@color-control-secondary-bg: @color-transparent;
-@color-control-secondary-hover-fg: @color-black;
-@color-control-secondary-hover-bg: @color-transparent;
-@color-control-secondary-disabled-fg: @color-decor31;
-@color-control-secondary-disabled-bg: @color-transparent;
-
-@color-control-standard-fg: @color-default-fg;
-@color-control-standard-bg: @color-decor7;
-@color-control-standard-hover-fg: @color-default-fg;
-@color-control-standard-hover-bg: @color-decor6;
-@color-control-standard-disabled-fg: @color-decor31;
-@color-control-standard-disabled-bg: @color-decor7;
-
-@color-control-yes-fg: @color-decor0;
-@color-control-yes-bg: @color-decor15;
-
-@color-control-no-fg: @color-decor0;
-@color-control-no-bg: @color-decor22;

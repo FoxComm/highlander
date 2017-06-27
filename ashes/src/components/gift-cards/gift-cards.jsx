@@ -30,22 +30,24 @@ type Props = {
     cancelGiftCards: (codes: Array<string>, reasonId: number) => void,
     changeGiftCardsState: (codes: Array<string>, state: string) => void,
     exportByIds: (
-      ids: Array<number>, description: string, fields: Array<string>, entity: string, identifier: string
+      ids: Array<number>,
+      description: string,
+      fields: Array<string>,
+      entity: string,
+      identifier: string
     ) => void,
   },
-  bulkExportAction: (
-    fields: Array<string>, entity: string, identifier: string, description: string
-  ) => Promise<*>,
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string, description: string) => Promise<*>,
 };
 
 const tableColumns = [
-  {field: 'code', text: 'Gift Card Number', model: 'giftcard'},
-  {field: 'originType', text: 'Type', model: 'giftCard'},
-  {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
-  {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
-  {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
-  {field: 'state', text: 'State', type: 'state', model: 'giftCard'},
-  {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
+  { field: 'code', text: 'Gift Card Number', model: 'giftcard' },
+  { field: 'originType', text: 'Type', model: 'giftCard' },
+  { field: 'originalBalance', text: 'Original Balance', type: 'currency' },
+  { field: 'currentBalance', text: 'Current Balance', type: 'currency' },
+  { field: 'availableBalance', text: 'Available Balance', type: 'currency' },
+  { field: 'state', text: 'State', type: 'state', model: 'giftCard' },
+  { field: 'createdAt', text: 'Date/Time Issued', type: 'datetime' },
 ];
 
 class GiftCards extends Component {
@@ -53,26 +55,23 @@ class GiftCards extends Component {
 
   @autobind
   cancelGiftCards(allChecked: boolean, toggledIds: Array<string>) {
-    const {cancelGiftCards} = this.props.bulkActions;
+    const { cancelGiftCards } = this.props.bulkActions;
 
-    return (
-      <CancelModal
-        count={toggledIds.length}
-        onConfirm={(reasonId) => cancelGiftCards(toggledIds, reasonId)} />
-    );
+    return <CancelModal count={toggledIds.length} onConfirm={reasonId => cancelGiftCards(toggledIds, reasonId)} />;
   }
 
   getChangeGiftCardsState(state: string) {
     const stateTitle = stateTitles[state];
 
     return (allChecked, toggledIds) => {
-      const {changeGiftCardsState} = this.props.bulkActions;
+      const { changeGiftCardsState } = this.props.bulkActions;
 
       return (
         <ChangeStateModal
           count={toggledIds.length}
           stateTitle={stateTitle}
-          onConfirm={() => changeGiftCardsState(toggledIds, state)} />
+          onConfirm={() => changeGiftCardsState(toggledIds, state)}
+        />
       );
     };
   }
@@ -101,12 +100,7 @@ class GiftCards extends Component {
   }
 
   get cancelGCAction(): Array<any> {
-    return [
-      'Cancel Gift Cards',
-      this.cancelGiftCards,
-      'successfully canceled',
-      'could not be canceled',
-    ];
+    return ['Cancel Gift Cards', this.cancelGiftCards, 'successfully canceled', 'could not be canceled'];
   }
 
   get bulkActions(): Array<any> {
@@ -121,7 +115,7 @@ class GiftCards extends Component {
   renderDetail(messages: string, code: string) {
     return (
       <span key={code}>
-        Gift card <Link to="giftcard" params={{giftCard: code}}>{code}</Link>
+        Gift card <Link to="giftcard" params={{ giftCard: code }}>{code}</Link>
       </span>
     );
   }
@@ -129,18 +123,11 @@ class GiftCards extends Component {
   renderRow(row: Object, index: number, columns: Columns, params: Object) {
     const key = `gift-card-${row.code}`;
 
-    return (
-      <GiftCardRow
-        key={key}
-        giftCard={row}
-        columns={columns}
-        params={params}
-      />
-    );
+    return <GiftCardRow key={key} giftCard={row} columns={columns} params={params} />;
   }
 
   render() {
-    const {list, actions} = this.props;
+    const { list, actions } = this.props;
 
     return (
       <div>
@@ -148,11 +135,9 @@ class GiftCards extends Component {
           storePath="giftCards.bulk"
           module="giftCards"
           entity="gift card"
-          renderDetail={this.renderDetail} />
-        <BulkActions
-          module="giftCards"
-          entity="gift card"
-          actions={this.bulkActions}>
+          renderDetail={this.renderDetail}
+        />
+        <BulkActions module="giftCards" entity="gift card" actions={this.bulkActions}>
           <SelectableSearchList
             exportEntity="giftCards"
             exportTitle="Gift Cards"
@@ -164,20 +149,21 @@ class GiftCards extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={actions}
-            predicate={({code}) => code} />
+            predicate={({ code }) => code}
+          />
         </BulkActions>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     list: _.get(state.giftCards, 'list', {}),
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     actions: bindActionCreators(actions, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),

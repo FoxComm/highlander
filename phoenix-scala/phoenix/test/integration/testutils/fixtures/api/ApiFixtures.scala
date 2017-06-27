@@ -68,26 +68,28 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse.Root]
   }
 
-  trait ProductSku_ApiFixture {
-    val productCode: String = s"testprod_${Lorem.numerify("####")}"
-    val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
-    def skuPrice: Long      = Random.nextInt(20000).toLong + 100
+  def randomProductName: String = s"testprod_${Lorem.numerify("####")}"
+  def randomSkuCode: String     = s"sku_${Lorem.letterify("????").toUpperCase}"
+  def randomSkuPrice: Long      = Random.nextInt(20000).toLong + 100
 
-    private val skuPayload = SkuPayload(
+  case class ProductSku_ApiFixture(productName: String = randomProductName,
+                                   skuCode: String = randomSkuCode,
+                                   skuPrice: Long = randomSkuPrice) {
+    val skuPayload = SkuPayload(
       attributes = Map("code"        → tv(skuCode),
                        "title"       → tv(skuCode.capitalize),
                        "salePrice"   → usdPrice(skuPrice),
                        "retailPrice" → usdPrice(skuPrice)) ++ eternalActivity())
 
     val productPayload =
-      CreateProductPayload(
-        attributes =
-          Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)) ++ eternalActivity(),
-        skus = Seq(skuPayload),
-        variants = None)
+      CreateProductPayload(attributes =
+                             Map("name" → tv(productName), "title" → tv(productName)) ++ eternalActivity(),
+                           skus = Seq(skuPayload),
+                           variants = None)
 
     val product: ProductRoot =
       productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]
+
     val sku: SkuResponse.Root = product.skus.onlyElement
   }
 
@@ -172,18 +174,22 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     def promotion: PromotionResponse.Root
 
     lazy val coupon = couponsApi
-      .create(CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo), promotion.id))(implicitly,
-                                                                                         defaultAdminAuth)
-      .as[CouponResponse.Root]
+      .create(
+        CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo),
+                     promotion.id,
+                     singleCode = Some(Lorem.letterify("?????")),
+                     generateCodes = None))(implicitly, defaultAdminAuth)
+      .as[Seq[CouponResponse.Root]]
+      .headOption
+      .value
 
-    lazy val couponCode =
-      couponsApi(coupon.id).codes.generate(Lorem.letterify("?????"))(defaultAdminAuth).as[String]
+    lazy val couponCode = coupon.code
 
     protected def couponAttrs(activeFrom: Instant, activeTo: Option[Instant]): Map[String, Json] = {
       val usageRules = {
-        ("isExclusive"              → true) ~
-          ("isUnlimitedPerCode"     → true) ~
-          ("isUnlimitedPerCustomer" → true)
+        ("isExclusive"            → true) ~
+        ("isUnlimitedPerCode"     → true) ~
+        ("isUnlimitedPerCustomer" → true)
       }.asShadowVal(t = "usageRules")
 
       val commonAttrs = Map[String, Any](

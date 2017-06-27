@@ -55,11 +55,11 @@ func (controller *carrierController) getCarrierByID() gin.HandlerFunc {
 
 		//get carrier by id
 		carrier, err := controller.service.GetCarrierByID(id)
-		if err == nil {
-			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
-		} else {
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -77,11 +77,11 @@ func (controller *carrierController) createCarrier() gin.HandlerFunc {
 
 		//try create
 		carrier, err := controller.service.CreateCarrier(payload.Model())
-		if err == nil {
-			context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
-		} else {
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -104,11 +104,11 @@ func (controller *carrierController) updateCarrier() gin.HandlerFunc {
 		model.ID = id
 		carrier, err := controller.service.UpdateCarrier(model)
 
-		if err == nil {
-			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
-		} else {
+		if err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 	}
 }
 
@@ -119,10 +119,10 @@ func (controller *carrierController) deleteCarrier() gin.HandlerFunc {
 			return
 		}
 
-		if err := controller.service.DeleteCarrier(id); err == nil {
-			context.Status(http.StatusNoContent)
-		} else {
+		if err := controller.service.DeleteCarrier(id); err != nil {
 			handleServiceError(context, err)
+			return
 		}
+		context.Status(http.StatusNoContent)
 	}
 }
