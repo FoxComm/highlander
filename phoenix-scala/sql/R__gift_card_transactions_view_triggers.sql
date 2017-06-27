@@ -50,12 +50,12 @@ create or replace function update_gc_txn_update_fn() returns trigger as $$
   end;
 $$ language plpgsql;
 
-create or replace function update_gc_txn_view_from_order_payment_fn() returns trigger as $$
+create or replace function update_gc_txn_view_from_orders_fn() returns trigger as $$
   begin
     update gift_card_transactions_view set
       order_payment = q.order_payment
       from (select
-            new.id,
+            gca.id,
             case when op is not null then
               to_json((
                 o.reference_number,
@@ -63,14 +63,19 @@ create or replace function update_gc_txn_view_from_order_payment_fn() returns tr
                 to_json_timestamp(op.created_at)
               )::export_order_payments)
             else '{}' end as order_payment
-        from order_payments as op
+        from gift_card_adjustments as gca
+        inner join order_payments as op on (gca.order_payment_id = op.id)
         inner join orders as o on (o.reference_number = op.cord_ref)
-        where op.id = new.order_payment_id) as q
+        where op.cord_ref = new.reference_number) as q
       where gift_card_transactions_view.id = q.id;
 
     return null;
   end;
 $$ language plpgsql;
+
+drop trigger if exists update_gc_txn_insert_fn on gift_card_adjustments;
+drop trigger if exists update_gc_txn_update on gift_card_adjustments;
+drop trigger if exists update_gc_txn_view_from_orders on orders;
 
 
 create trigger update_gc_txn_insert_fn
@@ -83,9 +88,7 @@ create trigger update_gc_txn_update
     for each row
     execute procedure update_gc_txn_update_fn();
 
-create trigger update_gc_txn_from_orders_payment
-    after update on gift_card_adjustments
+create trigger update_gc_txn_view_from_orders
+    after insert on orders
     for each row
-    when (new.order_payment_id is not null and
-      new.order_payment_id is distinct from old.order_payment_id)
-    execute procedure update_gc_txn_view_from_order_payment_fn();
+    execute procedure update_gc_txn_view_from_orders_fn();
