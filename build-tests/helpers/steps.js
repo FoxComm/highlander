@@ -1,4 +1,5 @@
 import $ from '../payloads';
+import superagent from 'superagent';
 
 //TODO structure steps, to make them more readable
 
@@ -120,6 +121,10 @@ export const getShippingMethods = allure.createStep('List shipping methods', (ap
 	api.cart.getShippingMethods()
 ));
 
+export const getCartsShippingMethods = allure.createStep('List carts shipping methods', (api, cart) => (
+	api.carts.getShippingMethods(cart.referenceNumber)
+));
+
 export const chooseShippingMethod = allure.createStep('Choose shipping method', (api, method) => (
 	api.cart.chooseShippingMethod(method.id)
 ));
@@ -228,4 +233,19 @@ export const removeCoupon = allure.createStep('Remove coupon', (api, couponCode)
 	api.cart.removeCoupon()
 ));
 
+export const getCart = allure.createStep('Get a single cart', (api, referenceNumber) => (
+	api.carts.one(referenceNumber)
+));
+
+export const addLineItemQuantities = allure.createStep('Add line item quantities', (api, referenceNumber, payload) => (
+	api.carts.addLineItemQuantities(referenceNumber, payload)
+));
+
+export const getPage = allure.createStep('Get page', (url) => (
+	superagent.get(url)
+));
+
+export const userGetPage = allure.createStep('Authorized get page', (api, url) => (
+	api.agent.get(url)
+));
 
