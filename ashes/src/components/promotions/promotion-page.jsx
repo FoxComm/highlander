@@ -6,7 +6,6 @@ import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
-
 // components
 import SubNav from './sub-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
@@ -17,9 +16,35 @@ import offers from './offers';
 // actions
 import * as PromotionActions from 'modules/promotions/details';
 
+type clientSideErrors = {
+  qualifierErrors: Object,
+  offerErrors: Object,
+};
+
+type ErrorUpdateParams = {
+  discountType: string,
+  key: string,
+  value: any,
+};
+
+type State = {
+  object: Object,
+  schema: Object,
+  justSaved: boolean,
+  clientSideErrors: clientSideErrors,
+};
+
+type DiscountChildType = {
+  type: string,
+  title: string,
+  default: ?Object,
+  validate: ?Object,
+  content: Array,
+};
+
 class PromotionPage extends ObjectPage {
 
-  state = {
+  state: State = {
     object: this.props.originalObject,
     schema: this.props.schema,
     justSaved: false,
@@ -29,52 +54,49 @@ class PromotionPage extends ObjectPage {
     },
   };
 
-  getDiscountChildErrors(discountChild, discountChildTypes, object) {
+  getDiscountChildErrors(discountChild: string,
+    discountChildTypes: Array<DiscountChildType>,
+    object: Object) {
     const discountChildValue = _.get(object, `discounts[0].attributes.${discountChild}.v`, {});
     const key = _.keys(discountChildValue)[0];
-    const errors = {};
-    _.forEach(discountChildValue[key], (v,k) => {
+    return _.reduce(discountChildValue[key], (result,v,k) => {
       const { validate } = _.find(discountChildTypes, (dc) => dc.type == key);
       const validator = _.get(validate, `${k}.validate`, (v) => true);
       if (!validator(v)) {
-        if (_.isEmpty(errors)) errors[key] = {};
-        errors[key][k] = validate[k].error;
+        if (_.isEmpty(result)) result[key] = {};
+        result[key][k] = validate[k].error;
       }
-    });
-    return errors;
+      return result;
+    }, {});
   }
 
-  setClientSideErrors(errors) {
+  setClientSideErrors(errors: Object) {
     this.setState({
       clientSideErrors: errors,
     });
   }
 
   @autobind
-  updateClientSideErrors(errorsRoute, params, discountChildTypes) {
+  updateClientSideErrors(errorsRoute: string,
+    params: ErrorUpdateParams,
+    discountChildTypes: Array<DiscountChildType>) {
     const { discountType, key, value } = params;
     const { validate } = _.find(discountChildTypes, (dc) => dc.type == discountType);
     const validator = _.get(validate, `${key}.validate`, (v) => true);
     const { clientSideErrors } = this.state;
     const existingError = _.get(clientSideErrors, `${errorsRoute}.${discountType}`, {});
-    if (!validator(value)) {
-      const newError = {
+    if (!validator(value) || !_.isEmpty(existingError)) {
+      const newError = !validator(value) ? {
         ...existingError,
         [key]: validate[key].error,
-      };
-      const newClientSideErrors = assoc(clientSideErrors, [errorsRoute, discountType], newError);
-      this.setClientSideErrors(newClientSideErrors);
-      return;
-    }
-    if (!_.isEmpty(existingError)) {
-      const newError = _.omit(existingError, [key]);
+      } : _.omit(existingError, [key]);
       const newClientSideErrors = assoc(clientSideErrors, [errorsRoute, discountType], newError);
       this.setClientSideErrors(newClientSideErrors);
     }
   }
 
   @autobind
-  getCombinedErrors(object = this.state.object) {
+  getCombinedErrors(object: Object = this.state.object) {
     const errors = {
       qualifierErrors: this.getDiscountChildErrors('qualifier', qualifiers, object),
       offerErrors: this.getDiscountChildErrors('offer', offers, object),

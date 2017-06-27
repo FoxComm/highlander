@@ -22,7 +22,6 @@ const layout = require('./layout.json');
 
 export default class PromotionForm extends ObjectDetails {
   layout = layout;
-  state = {};
 
   renderApplyType() {
     const promotion = this.props.object;

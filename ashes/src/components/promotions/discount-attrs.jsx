@@ -100,7 +100,7 @@ const DiscountAttrs = (props: Props) => {
           return (
             <div key={i}>
               {renderer(item, context, props.dropdownId)}
-              {error ? <FormFieldError error={error} /> : null}
+              {error && <FormFieldError error={error} />}
             </div>
           );
         })}
