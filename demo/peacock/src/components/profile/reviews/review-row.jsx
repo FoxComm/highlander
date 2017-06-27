@@ -4,7 +4,7 @@ import React from 'react';
 
 // components
 import ActionLink from 'ui/action-link/action-link';
-import ProductImage from '../../image/image';
+import ProductImage from 'components/image/image';
 
 import type Review from 'types/review';
 

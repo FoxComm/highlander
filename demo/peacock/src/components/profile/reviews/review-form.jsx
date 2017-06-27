@@ -11,8 +11,8 @@ import CheckoutForm from 'pages/checkout/checkout-form';
 import { FormField } from 'ui/forms';
 import { TextInput } from 'ui/text-input';
 import { TextArea } from 'ui/textarea';
-import ErrorAlerts from 'ui/alerts/error-alerts';
 import Loader from 'ui/loader';
+import ProductImage from 'components/image/image';
 
 // types
 import type Review from 'types/review';
@@ -108,6 +108,25 @@ class ReviewForm extends Component {
     });
   }
 
+  get productImage() {
+    const { currentReview } = this.state;
+
+    if (_.isEmpty(currentReview)) return null;
+
+    const { imageUrl, productName } = currentReview.attributes;
+
+    return (
+      <div styleName="product-info modal">
+        <div styleName="product-image modal">
+          <ProductImage src={imageUrl.v} width={50} height={50} />
+        </div>
+        <div styleName="product-name modal">
+          {productName.v}
+        </div>
+      </div>
+    );
+  }
+
   get content() {
     const { fetchState } = this.props;
 
@@ -119,6 +138,7 @@ class ReviewForm extends Component {
 
     return (
       <div>
+        {this.productImage}
         <FormField styleName="form-field">
           <TextInput
             required
