@@ -33,8 +33,7 @@ test:
 	MIX_ENV=test mix espec
 
 seed:
-	mix run priv/seeds/clothes_accessories_categories.exs
-	mix run priv/seeds/clothes_schema.exs
+	mix run priv/seeds/seeds.exs
 
 ####################################################################
 # Docker build targets                                             #
