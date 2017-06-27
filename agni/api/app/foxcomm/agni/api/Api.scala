@@ -4,6 +4,7 @@ import com.twitter.finagle.Http
 import com.twitter.finagle.http.Status
 import com.twitter.util.Await
 import foxcomm.agni._
+import foxcomm.agni.dsl.query._
 import foxcomm.agni.interpreter.es.queryInterpreter
 import foxcomm.utils.finch._
 import io.circe.generic.extras.auto._
@@ -14,14 +15,19 @@ import org.elasticsearch.common.ValidationException
 
 object Api extends App {
   def endpoints(searchService: SearchService)(implicit s: Scheduler) =
-    post(
+    post("api" :: "search" :: "translate" :: jsonBody[SearchPayload.fc]) { (searchPayload: SearchPayload.fc) ⇒
+      searchService
+        .translate(searchPayload = searchPayload)
+        .map(Ok)
+        .toTwitterFuture
+    } :+: post(
       "api" :: "search" :: string :: string :: param("size")
         .as[Int] :: paramOption("from").as[Int] :: jsonBody[SearchPayload]) {
       (searchIndex: String, searchType: String, size: Int, from: Option[Int], searchQuery: SearchPayload) ⇒
         searchService
           .searchFor(searchIndex = searchIndex,
                      searchType = searchType,
-                     searchQuery = searchQuery,
+                     searchPayload = searchQuery,
                      searchSize = size,
                      searchFrom = from)
           .map(Ok)

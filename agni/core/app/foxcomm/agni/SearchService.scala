@@ -10,15 +10,36 @@ import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
+import org.elasticsearch.common.xcontent.{ToXContent, XContentFactory}
+import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHit
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 class SearchService private (client: Client, qi: ESQueryInterpreter) {
   import SearchService.ExtractJsonObject
 
+  def translate(searchPayload: SearchPayload.fc): Task[Json] = {
+    def buildJson(qb: QueryBuilder): Coeval[Json] =
+      Coeval.eval {
+        val builder = XContentFactory.jsonBuilder()
+        builder.prettyPrint()
+        builder.startObject()
+        builder.field("query")
+        qb.toXContent(builder, ToXContent.EMPTY_PARAMS)
+        builder.endObject()
+        parseByteBuffer(builder.bytes().toChannelBuffer.toByteBuffer)
+          .fold(Coeval.raiseError(_), Coeval.eval(_))
+      }.flatten
+
+    for {
+      builder ← qi(searchPayload.query).task
+      json    ← buildJson(builder).task
+    } yield json
+  }
+
   def searchFor(searchIndex: String,
                 searchType: String,
-                searchQuery: SearchPayload,
+                searchPayload: SearchPayload,
                 searchSize: Int,
                 searchFrom: Option[Int]): Task[SearchResult] = {
     def prepareBuilder: Coeval[SearchRequestBuilder] = Coeval.eval {
@@ -28,11 +49,11 @@ class SearchService private (client: Client, qi: ESQueryInterpreter) {
         .setTypes(searchType)
         .setSize(searchSize)
       searchFrom.foreach(builder.setFrom)
-      searchQuery.fields.foreach(fs ⇒ builder.setFetchSource(fs.toList.toArray, Array.empty[String]))
+      searchPayload.fields.foreach(fs ⇒ builder.setFetchSource(fs.toList.toArray, Array.empty[String]))
       builder
     }
 
-    def evalQuery(builder: SearchRequestBuilder): Coeval[SearchRequestBuilder] = searchQuery match {
+    def evalQuery(builder: SearchRequestBuilder): Coeval[SearchRequestBuilder] = searchPayload match {
       case SearchPayload.es(query, _) ⇒
         Coeval.eval(builder.setQuery(Json.fromJsonObject(query).dump))
       case SearchPayload.fc(query, _) ⇒
