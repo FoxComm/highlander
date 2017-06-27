@@ -56,6 +56,8 @@ GERONIMO_DB_PASSWORD=''
 BROKER_HOST=kafka_broker_host
 BROKER_PORT=9092
 CONSUMER_GROUP=geronimo_kafka_ex
+SCHEMA_REGISTRY_IP=schema_registry_ip
+SCHEMA_REGISTRY_PORT=8081
 
 # Start kafka worker on application start
 START_WORKER=true 
