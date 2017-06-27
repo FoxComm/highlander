@@ -51,6 +51,16 @@ GERONIMO_DB_HOST=localhost
 GERONIMO_DB_USER=geronimo
 GERONIMO_DB_NAME=geronimo_development
 GERONIMO_DB_PASSWORD=''
+
+# kafka
+BROKER_HOST=kafka_broker_host
+BROKER_PORT=9092
+CONSUMER_GROUP=geronimo_kafka_ex
+
+# Start kafka worker on application start
+START_WORKER=true 
+
+#jwt
 PUBLIC_KEY=/path/to/public_key.pem
 ```
 
