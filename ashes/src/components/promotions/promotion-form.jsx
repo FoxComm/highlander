@@ -14,6 +14,7 @@ import SelectCustomerGroups from '../customers-groups/select-groups';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
+import Discounts from './discounts';
 
 import { setDiscountAttr } from 'paragons/promotion';
 import { setObjectAttr, omitObjectAttr } from 'paragons/object';
@@ -76,20 +77,6 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   @autobind
-  handleQualifierChange(qualifier: Object) {
-    const newPromotion = setDiscountAttr(this.props.object, 'qualifier', qualifier);
-
-    this.props.onUpdateObject(newPromotion);
-  }
-
-  @autobind
-  handleOfferChange(offer: Object) {
-    const newPromotion = setDiscountAttr(this.props.object, 'offer', offer);
-
-    this.props.onUpdateObject(newPromotion);
-  }
-
-  @autobind
   handleApplyTypeChange({ target }: Object) {
     const value = target.getAttribute('name');
     const newPromotion = assoc(this.props.object, 'applyType', value);
@@ -112,42 +99,6 @@ export default class PromotionForm extends ObjectDetails {
 
   renderState(): ?Element<*> {
     return super.renderState();
-  }
-
-  renderDiscounts() {
-    const discounts = _.get(this.props.object, 'discounts', []);
-    const discountChildren = discounts.reduce((acc, disc, index) => {
-      const makeKey = prefix => `${prefix}-${disc.id || index}`;
-      return [
-        ...acc,
-        <div key={makeKey('qualifier')} styleName="sub-title">Qualifier</div>,
-        <DiscountAttrs
-          key={makeKey('qualifier-attrs')}
-          blockId={'promo-qualifier-block-'+index}
-          dropdownId={'promo-qualifier-dd-'+index}
-          discount={disc}
-          attr="qualifier"
-          descriptions={qualifiers}
-          onChange={this.handleQualifierChange}
-        />,
-        <div key={makeKey('offer')} styleName="sub-title">Offer</div>,
-        <DiscountAttrs
-          key={makeKey('offer-attrs')}
-          blockId={'promo-offer-block-'+index}
-          dropdownId={'promo-offer-dd-'+index}
-          discount={disc}
-          attr="offer"
-          descriptions={offers}
-          onChange={this.handleOfferChange}
-        />
-      ];
-    }, []);
-
-    return (
-      <div>
-        {discountChildren}
-      </div>
-    );
   }
 
   @autobind
@@ -183,5 +134,42 @@ export default class PromotionForm extends ObjectDetails {
         />
       </div>
     );
+  }
+
+  renderDiscountsSection() {
+    let qualifier = _.get(this.props.object, 'discounts.0.attributes.qualifier.v');
+    let offer = _.get(this.props.object, 'discounts.0.attributes.offer.v');
+    return (
+      <div>
+        <Discounts
+          onChangeQualifier={this.handleQualifierChange}
+          onChangeOffer={this.handleOfferChange}
+          discounts={{
+            qualifier: {
+              ...qualifier
+            },
+            offer: {
+              ...offer
+            }
+          }}
+        />
+      </div>
+    );
+  }
+
+  @autobind
+  handleQualifierChange(qualifier: Object) {
+    const newPromotion = setDiscountAttr(this.props.object,
+      'qualifier', qualifier
+    );
+    this.props.onUpdateObject(newPromotion);
+  }
+
+  @autobind
+  handleOfferChange(offer: Object) {
+    const newPromotion = setDiscountAttr(this.props.object,
+      'offer', offer
+    );
+    this.props.onUpdateObject(newPromotion);
   }
 }

@@ -29,7 +29,7 @@
       "title": "Discounts",
       "content": [
         {
-          "type": "discounts"
+          "type": "discounts-section"
         },
         {
           "type": "customers"

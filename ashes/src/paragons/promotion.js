@@ -9,15 +9,18 @@ function addEmptyDiscount(promotion) {
       qualifier: {
         t: 'qualifier',
         v: {
-          orderAny: {}
+          discountType: 'order',
+          qualifierType: 'noQualifier',
+          widgetValue: 0,
+          exGiftCardQual: true,
         }
       },
       offer: {
         t: 'offer',
         v: {
-          orderPercentOff: {
-            discount: 0,
-          }
+          offerType: 'orderPercentOff',
+          exGiftCardOffer: true,
+          widgetValue: 0,
         }
       }
     },

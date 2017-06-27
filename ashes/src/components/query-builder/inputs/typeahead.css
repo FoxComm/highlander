@@ -1,0 +1,46 @@
+.typeahead {
+  width: 180px;
+  & :global .fc-pilled-input__input-wrapper {
+    min-width: 0;
+  }
+
+  & :global input[type=text]{
+    width: 100% ;
+  }
+
+  & :global input[type=text]:disabled{
+    display: none;
+  }
+
+  & :global .fc-pilled-input__pill {
+    margin: 2px 0 2px 5px;
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  height: auto;
+  padding: 10px 0;
+}
+
+.item-icon {
+  margin-left: 10px;
+  display: flex;
+  .initials {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.item-name {
+  flex-grow: 1;
+  margin-left: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.item-email {
+  margin-right: 20px;
+}

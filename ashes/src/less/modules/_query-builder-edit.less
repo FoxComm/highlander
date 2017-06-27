@@ -1,6 +1,6 @@
 @keyframes fc-count-highlight {
   from {
-    background-color: @bg-message-success;
+    background-color: @color-decor17;
   }
 
   to {
@@ -9,39 +9,39 @@
 
 @keyframes fc-count-highlight2 {
   from {
-    background-color: @bg-message-success;
+    background-color: @color-decor17;
   }
 
   to {
   }
 }
 
-.fc-customer-group-edit {
+.fc-query-builder-edit {
   margin-bottom: 40px;
   padding: 0 1.85%;
 
   .fc-title {
     font-size: 24px;
-    font-weight: 600;
+    font-weight: @semibold;
     line-height: 33px;
-    // color: @color-text;
+    // color: @color-decor1;
     margin-bottom: 4px; // fixme
   }
 
   &__or {
     font-size: 14px;
-    font-weight: 400;
+    font-weight: @normal;
     line-height: 19px;
     &:hover {
-      color: @color-link;
+      color: #37BAC2;
     }
   }
 
   &__title {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: @semibold;
     line-height: 22px;
-    color: @color-text;
+    color: #333A45;
   }
 
   &__name {
@@ -53,6 +53,11 @@
   &__form-name {
     width: 557px;
     vertical-align: middle;
+  }
+
+  &__separator-hr {
+    height: 20px;
+    margin: 0;
   }
 
   &__match {
@@ -81,9 +86,9 @@
     align-items: flex-start;
     margin-top: 60px;
     font-size: 32px;
-    font-weight: 600;
+    font-weight: @semibold;
     line-height: 43px;
-    color: @color-additional-text;
+    color: @color-decor8;
     margin-bottom: 50px;
 
     &-value._is_modified {

@@ -1,4 +1,4 @@
-.fc-customer-group-builder {
+.fc-query-builder {
 
   &__criterions {
     flex-direction: column;
@@ -56,6 +56,10 @@
     }
     span {
       margin-left: 1rem;
+      line-height: 20px;
+      padding: 10px 0;
+      vertical-align: top;
+      display: inline-block;
     }
   }
 
@@ -65,17 +69,17 @@
     cursor: pointer;
 
     position: relative;
-    top: 7px;
+    top: 10px;
 
     &:hover {
-      color: @color-error-text;
+      color: @color-decor22;
     }
   }
 
   @value-width: 180px;
   @value-height: 40px;
   &__value {
-    background: @bg-white;
+    background: @color-white;
     .inline-block();
     box-sizing: border-box;
     width: @value-width;
@@ -124,7 +128,7 @@
       }
       &:last-child {
         .margin-bottom(@b-size + (@line-height - @value-height/2) + @critertion-margin);
-        .fc-customer-group-builder__vertical-select__item:after {
+        .fc-query-builder__vertical-select__item:after {
           height: @line-height;
         }
       }
@@ -139,8 +143,8 @@
       &:after {
         content: "";
         height: @sep-line-height;
-        border-top: 2px solid @color-border;
-        border-right: 2px solid @color-border;
+        border-top: 2px solid @color-decor7;
+        border-right: 2px solid @color-decor7;
         width: @line-width;
         position: absolute;
         left: 100%;
@@ -162,18 +166,18 @@
       .left(@line-width - @b-size/2 - 1);
       .top(@line-height + @value-height/2 - 1);
       text-align: center;
-      background: @bg-grey-buttons;
+      background: @color-decor7;
     }
 
     &__or {
-      .font-spec(14px, 700);
+      .font-spec(14px, @bold);
     }
 
     &__add {
       padding: 0;
       line-height: @b-size;
       &:hover {
-        background: @bg-grey-buttons;
+        background: @color-decor6;
       }
     }
 
@@ -184,15 +188,15 @@
       align-self: flex-start;
       cursor: pointer;
       &:hover {
-        color: @color-error-text;
+        color: @color-decor22;
       }
     }
 
-    .fc-customer-group-builder__value {
+    .fc-query-builder__value {
       width: @value-width;
     }
 
-    .fc-customer-group-builder__lookup {
+    .fc-query-builder__lookup {
       width: @value-width;
     }
 
@@ -221,7 +225,7 @@
       width: 30px;
       height: @value-height;
       line-height: @value-height;
-      color: @color-additional-text;
+      color: @color-decor7;
     }
 
     .fc-prepend-input, .fc-append-input {
