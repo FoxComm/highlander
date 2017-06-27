@@ -49,7 +49,7 @@ const qualifiers = [
         {
           name: 'search',
           widget: 'selectProducts',
-          label: 'Items for qualify'
+          label: 'Qualifying items'
         }
       ]
     ]
@@ -71,7 +71,7 @@ const qualifiers = [
         {
           name: 'search',
           widget: 'selectProducts',
-          label: 'Items for qualify'
+          label: 'Qualifying items'
         }
       ]
     ]
@@ -93,7 +93,7 @@ const qualifiers = [
         {
           name: 'search',
           widget: 'selectProducts',
-          label: 'Items for qualify'
+          label: 'Qualifying items'
         }
       ]
     ]
