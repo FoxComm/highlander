@@ -22,7 +22,7 @@ import Icon from 'components/core/icon';
 import styles from './payment-row.css';
 
 // redux
-import {deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment} from 'modules/carts/details';
+import { deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment } from 'modules/carts/details';
 
 import type { PaymentMethod } from 'paragons/order';
 
@@ -40,6 +40,8 @@ type State = {
   isEditing: boolean,
   showDetails: boolean,
 };
+
+const availablePaymentMethods = ['creditCard', 'giftCard', 'storeCredit'];
 
 class PaymentRow extends Component {
   props: Props;
@@ -82,7 +84,7 @@ class PaymentRow extends Component {
       };
 
       let DetailsElement = null;
-      switch(paymentMethod.type) {
+      switch (paymentMethod.type) {
         case 'creditCard':
           DetailsElement = CreditCardDetails;
           break;
@@ -94,8 +96,10 @@ class PaymentRow extends Component {
           break;
       }
 
-      if (DetailsElement == null) {
-        throw `Unexpected payment method ${paymentMethod.type}`;
+      if (DetailsElement === null) {
+        console.warn(`Unexpected payment method ${paymentMethod.type}`);
+
+        return null;
       }
 
       return (
@@ -110,9 +114,7 @@ class PaymentRow extends Component {
 
   get editActions(): ?Element<*> {
     if (this.props.editMode) {
-      const editButton = !this.state.isEditing
-        ? <EditButton onClick={this.startEdit} />
-        : null;
+      const editButton = !this.state.isEditing ? <EditButton onClick={this.startEdit} /> : null;
 
       return (
         <TableCell styleName="actions-cell">
@@ -128,10 +130,14 @@ class PaymentRow extends Component {
     const dir = this.state.showDetails ? 'up' : 'down';
     const iconClass = `chevron-${dir}`;
 
+    const toggler =
+      availablePaymentMethods.indexOf(paymentMethod.type) > -1 &&
+      <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />;
+
     return (
       <TableRow key="summary" styleName="payment-row">
         <TableCell styleName="toggle-column">
-          <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />
+          {toggler}
           <PaymentMethodDetails paymentMethod={paymentMethod} />
         </TableCell>
         <TableCell>
@@ -165,7 +171,7 @@ class PaymentRow extends Component {
   @autobind
   toggleDetails() {
     this.setState({
-      showDetails: !this.state.showDetails
+      showDetails: !this.state.showDetails,
     });
   }
 
@@ -180,8 +186,9 @@ class PaymentRow extends Component {
 }
 
 const deleteActions = {
-  deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment
+  deleteCreditCardPayment,
+  deleteGiftCardPayment,
+  deleteStoreCreditPayment,
 };
 
 export default connect(void 0, deleteActions)(PaymentRow);
-

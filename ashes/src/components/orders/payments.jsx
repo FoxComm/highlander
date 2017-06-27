@@ -21,13 +21,8 @@ export default class Payments extends React.Component {
     const { order } = this.props.details;
     const { paymentMethods } = order;
 
-    const title = <PanelHeader showStatus={false} text="Payment Method" />;
-
     return (
-      <ContentBox
-        className="fc-order-payment"
-        title={title}
-        indentContent={false}>
+      <ContentBox className="fc-order-payment" title="Payment Method" indentContent={false}>
         <PaymentsPanel order={order} paymentMethods={paymentMethods} />
       </ContentBox>
     );

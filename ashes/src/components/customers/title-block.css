@@ -6,7 +6,7 @@
 }
 
 :root {
-  --avatar-margin-top: calc(- var(--circle-size) / 3); /* stylelint-disable-line */
+  --avatar-margin-top: calc(-var(--circle-size) / 3); /* stylelint-disable-line */
 }
 
 .block {
@@ -15,13 +15,11 @@
 }
 
 .header {
-  background: #263349;
-  height: 60px;
   text-align: center;
 }
 
 .head {
-  height: 91px;
+  height: 60px;
   color: var(--color-light-text);
   background-color: var(--bg-nav-main);
   border-radius: 3px 3px 0 0;
@@ -104,23 +102,21 @@
   display: inline-block;
   width: 50%;
 
-  &:only-child {
-    width: 100%;
-  }
-
   & > li {
-    height: 40px;
     display: flex;
     align-items: center;
+    padding: 7px 0 8px;
 
     & > i {
+      width: 40px;
+      font-style: normal;
+      font-size: 22px;
       line-height: 24px;
       text-align: center;
       color: var(--color-additional-text);
     }
 
     &.fc-customer-info-days > i {
-      margin-right: 8px;
       font-size: 15px;
       font-weight: 700;
       line-height: 20px;
@@ -134,9 +130,15 @@
   word-wrap: break-word;
 }
 
+.groups {
+  display: flex;
+  padding: 10px;
+}
+
 .group {
   padding: 5px 10px;
-  margin: 0 5px 5px 8px;
+  margin-right: 5px;
+  margin-bottom: 5px;
   display: inline-block;
   vertical-align: top;
   font-size: 14px;
@@ -150,5 +152,4 @@
 .guest {
   color: var(--color-additional-text);
   padding-top: 5px;
-  margin-left: 8px;
 }

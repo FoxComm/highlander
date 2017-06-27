@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import { isEmpty } from 'lodash';
 import React, { Component } from 'react';
 
 //components
@@ -29,9 +30,9 @@ export default class CustomerInfo extends Component {
       return <div styleName="guest">Guest</div>;
     } else if (customer.groups) {
       return (
-        <div>
-          {customer.groups.map((customer) => {
-            return <div styleName="group">{customer}</div>;
+        <div styleName="groups">
+          {customer.groups.map(group => {
+            return <div styleName="group" key={group.id}>{group.name}</div>;
           })}
         </div>
       );
@@ -76,24 +77,22 @@ export default class CustomerInfo extends Component {
               <li>
                 <Icon name="customer" />
                 <div styleName="value">{customer.id}</div>
-              </li>
-            }
+              </li>}
             {customer.phoneNumber &&
               <li>
                 <Icon name="phone" />
                 <div styleName="value">{customer.phoneNumber}</div>
-              </li>
-            }
+              </li>}
             {customer.location &&
               <li>
                 <Icon name="location" />
                 <div styleName="value">{customer.location}</div>
-              </li>
-            }
-            <li styleName="groups">
-              <Icon name="customers" />
-              {this.customerGroups}
-            </li>
+              </li>}
+            {!isEmpty(customer.groups) &&
+              <li>
+                <Icon name="customers" />
+                {this.customerGroups}
+              </li>}
           </ul>
         </article>
       </div>
