@@ -106,7 +106,7 @@ class CartIntegrationTest
 
       customersApi(customer.id).payments.storeCredit
         .create(CreateManualStoreCredit(amount = storeCreditAmount, reasonId = reason.id))
-        .as[StoreCreditResponse.Root]
+        .as[StoreCreditResponse]
 
       cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(storeCreditAmount))
 

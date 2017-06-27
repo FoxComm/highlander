@@ -20,15 +20,14 @@ object DiscountManager {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[DiscountFormResponse.Root] =
+  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[DiscountFormResponse] =
     for {
       // guard to make sure the form is a discount
       _    ← * <~ Discounts.filter(_.formId === id).mustFindOneOr(NotFoundFailure404(Discount, id))
       form ← * <~ ObjectForms.mustFindById404(id)
     } yield DiscountFormResponse.build(form)
 
-  def getShadow(id: Int, contextName: String)(implicit ec: EC,
-                                              db: DB): DbResultT[DiscountShadowResponse.Root] =
+  def getShadow(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[DiscountShadowResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -40,7 +39,7 @@ object DiscountManager {
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield DiscountShadowResponse.build(shadow)
 
-  def get(discountId: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[DiscountResponse.Root] =
+  def get(discountId: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[DiscountResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -54,7 +53,7 @@ object DiscountManager {
     } yield DiscountResponse.build(form, shadow)
 
   def create(payload: CreateDiscount,
-             contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[DiscountResponse.Root] =
+             contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[DiscountResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -89,7 +88,7 @@ object DiscountManager {
 
   def update(discountId: Int, payload: UpdateDiscount, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[DiscountResponse.Root] =
+      db: DB): DbResultT[DiscountResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -126,7 +125,7 @@ object DiscountManager {
   }
 
   def getIlluminated(id: Int, contextName: String)(implicit ec: EC,
-                                                   db: DB): DbResultT[IlluminatedDiscountResponse.Root] =
+                                                   db: DB): DbResultT[IlluminatedDiscountResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)

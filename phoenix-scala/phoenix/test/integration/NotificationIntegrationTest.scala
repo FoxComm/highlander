@@ -81,7 +81,7 @@ class NotificationIntegrationTest
     "creates notification" in new Fixture {
       subscribeToNotifications()
 
-      val activity = notificationsApi.create(newNotificationPayload).as[ActivityResponse.Root]
+      val activity = notificationsApi.create(newNotificationPayload).as[ActivityResponse]
       activity.id must === ("test")
     }
   }
@@ -97,7 +97,7 @@ class NotificationIntegrationTest
         sub.dimensionId must === (dimension.id)
         sub.objectId must === (randomObjectId)
         sub.reason must === (Watching)
-        val activity = notificationsApi.create(newNotificationPayload).as[ActivityResponse.Root]
+        val activity = notificationsApi.create(newNotificationPayload).as[ActivityResponse]
         activity.id must === ("test")
       }
 

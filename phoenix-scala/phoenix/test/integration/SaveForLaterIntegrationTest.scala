@@ -6,7 +6,6 @@ import phoenix.models.account._
 import phoenix.models.product.{Mvp, SimpleContext}
 import phoenix.models.{SaveForLater, SaveForLaters}
 import phoenix.responses.SaveForLaterResponse
-import phoenix.services.SaveForLaterManager.SavedForLater
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -21,12 +20,12 @@ class SaveForLaterIntegrationTest
 
   "GET v1/save-for-later/:customerId" - {
     "shows all save for later items for customer" in new Fixture {
-      saveForLaterApi(customer.accountId).get().as[SavedForLater] mustBe empty
+      saveForLaterApi(customer.accountId).get().as[Seq[SaveForLaterResponse]] mustBe empty
 
       SaveForLaters
         .create(SaveForLater(accountId = customer.accountId, skuId = product.skuId))
         .gimme
-      saveForLaterApi(customer.accountId).get().as[SavedForLater] must === (roots)
+      saveForLaterApi(customer.accountId).get().as[Seq[SaveForLaterResponse]] must === (roots)
     }
 
     "404 if customer is not found" in {
@@ -36,13 +35,13 @@ class SaveForLaterIntegrationTest
 
   "POST v1/save-for-later/:customerId/:sku" - {
     "adds sku to customer's save for later list" in new Fixture {
-      saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater] must === (roots)
+      saveForLaterApi(customer.accountId).create(product.code).as[Seq[SaveForLaterResponse]] must === (roots)
 
-      saveForLaterApi(customer.accountId).get().as[SavedForLater] must === (roots)
+      saveForLaterApi(customer.accountId).get().as[Seq[SaveForLaterResponse]] must === (roots)
     }
 
     "does not create duplicate records" in new Fixture {
-      val result = saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater]
+      val result = saveForLaterApi(customer.accountId).create(product.code).as[Seq[SaveForLaterResponse]]
       result must === (roots)
 
       saveForLaterApi(customer.accountId)
@@ -66,7 +65,7 @@ class SaveForLaterIntegrationTest
   "DELETE v1/save-for-later/:id" - {
     "deletes save for later" in new Fixture {
       val saveForLaterId =
-        saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].head.id
+        saveForLaterApi(customer.accountId).create(product.code).as[Seq[SaveForLaterResponse]].head.id
 
       saveForLaterApi.delete(saveForLaterId).mustBeEmpty()
     }

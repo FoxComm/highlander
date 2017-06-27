@@ -32,7 +32,7 @@ trait SkuOps { self: PhoenixAdminApi with DefaultJwtAdminAuth ⇒
   def deactivateSku(skuCode: String): Unit = {
     import org.json4s.JsonDSL._
     import org.json4s._
-    val skuResponse = skusApi(skuCode).get().as[SkuResponse.Root]
+    val skuResponse = skusApi(skuCode).get().as[SkuResponse]
     val activeFromJson: Json = ("t" → "date") ~ ("v" → (Instant.now
       .minus(2, ChronoUnit.DAYS))
       .toString)
@@ -85,7 +85,7 @@ class SkuIntegrationTest
 
       skusApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some)).mustBeOk()
 
-      val getResponse = skusApi(code).get().as[SkuResponse.Root]
+      val getResponse = skusApi(code).get().as[SkuResponse]
       getResponse.albums.length must === (1)
       getResponse.albums.head.images.length must === (1)
       getResponse.albums.head.images.head.src must === (src)
@@ -94,7 +94,7 @@ class SkuIntegrationTest
 
   "GET v1/skus/:context/:code" - {
     "Get a created SKU successfully" in new Fixture {
-      val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
+      val skuResponse = skusApi(sku.code).get().as[SkuResponse]
       val code        = skuResponse.attributes \ "code" \ "v"
       code.extract[String] must === (sku.code)
 
@@ -112,7 +112,7 @@ class SkuIntegrationTest
     "Adds a new attribute to the SKU" in new Fixture {
       val payload =
         SkuPayload(attributes = Map("name" → (("t" → "string") ~ ("v" → "Test"))), albums = None)
-      val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse.Root]
+      val skuResponse = skusApi(sku.code).update(payload).as[SkuResponse]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
       (skuResponse.attributes \ "name" \ "v").extract[String] must === ("Test")
@@ -124,7 +124,7 @@ class SkuIntegrationTest
         SkuPayload(attributes = Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))), albums = None)
       skusApi(sku.code).update(payload).mustBeOk()
 
-      val skuResponse = skusApi("upcode").get().as[SkuResponse.Root]
+      val skuResponse = skusApi("upcode").get().as[SkuResponse]
       (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
 
       (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
@@ -133,7 +133,7 @@ class SkuIntegrationTest
 
   "DELETE v1/skus/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
-      val result = skusApi(sku.code).archive().as[SkuResponse.Root]
+      val result = skusApi(sku.code).archive().as[SkuResponse]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -141,7 +141,7 @@ class SkuIntegrationTest
     }
 
     "Successfully archives SKU which is linked to a product" in new FixtureWithProduct {
-      val result = skusApi(sku.code).archive().as[SkuResponse.Root]
+      val result = skusApi(sku.code).archive().as[SkuResponse]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -149,7 +149,7 @@ class SkuIntegrationTest
     }
 
     "SKU Albums must be unlinked" in new Fixture {
-      skusApi(sku.code).archive().as[SkuResponse.Root].albums mustBe empty
+      skusApi(sku.code).archive().as[SkuResponse].albums mustBe empty
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {

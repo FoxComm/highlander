@@ -44,7 +44,7 @@ class RedeemedGcCheckoutIT
     cartApi.shippingAddress.create(address).mustBeOk()
 
     ShippingMethods.createAll(Factories.shippingMethods).gimme
-    val shippingMethod = shippingMethodsApi.forCart(cartRef).as[Seq[ShippingMethodsResponse.Root]].head
+    val shippingMethod = shippingMethodsApi.forCart(cartRef).as[Seq[ShippingMethodsResponse]].head
     cartApi.shippingMethod.update(UpdateShippingMethod(shippingMethod.id)).mustBeOk()
 
     cartApi.payments.giftCard

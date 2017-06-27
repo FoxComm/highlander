@@ -13,7 +13,7 @@ import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit.StoreCredit
 import phoenix.models.payment.{storecredit, InStorePaymentStates}
 import phoenix.payloads.GiftCardPayloads._
-import phoenix.responses.StoreCreditResponse.{Root ⇒ ScRoot}
+import phoenix.responses.StoreCreditResponse
 import phoenix.responses.giftcards._
 import slick.jdbc.PostgresProfile.api._
 import testutils._
@@ -342,8 +342,8 @@ class GiftCardIntegrationTest
 
     "POST /v1/gift-cards/:code/convert/:customerId" - {
       "successfully converts GC to SC" in new Fixture {
-        val root: ScRoot =
-          giftCardsApi(giftCard2.code).convertToStoreCredit(customer.accountId).as[ScRoot]
+        val root: StoreCreditResponse =
+          giftCardsApi(giftCard2.code).convertToStoreCredit(customer.accountId).as[StoreCreditResponse]
 
         root.customerId must === (customer.accountId)
         root.originType must === (StoreCredit.GiftCardTransfer)

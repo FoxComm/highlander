@@ -14,7 +14,7 @@ import phoenix.payloads.PaymentPayloads.{CreateApplePayPayment, CreditCardPaymen
 import phoenix.payloads.UpdateShippingMethod
 import phoenix.responses.cord._
 import phoenix.responses.users.CustomerResponse
-import phoenix.responses.{CaptureResponse, CreditCardsResponse}
+import phoenix.responses.{CaptureResponse, CreditCardResponse}
 import phoenix.utils.seeds.{Factories, ShipmentSeeds}
 import slick.jdbc.PostgresProfile.api._
 import testutils.apis._
@@ -68,7 +68,7 @@ class ApplePayIntegrationTest
   "Capture of Apple Pay payments" - {
     "Should capture cc payments if cc payment was authorized" in new ApplePayFixture with CreditCardsFixture {
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
+        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardResponse]
         cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
 
         val orderResponse = cartsApi(refNum).checkout().as[OrderResponse]
@@ -86,7 +86,7 @@ class ApplePayIntegrationTest
 
     "Fail if order is not in Auth state" in new ApplePayFixture with CreditCardsFixture {
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
-        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
+        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardResponse]
         cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
         val skuInCart = cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus
         CreditCardCharges.filter(_.creditCardId === cc.id).map(_.state).update(FailedAuth).gimme
@@ -108,7 +108,7 @@ class ApplePayIntegrationTest
       withCustomerAuth(customerLoginData, customer.id) { implicit auth ⇒
         // adding both apple pay and CC payment
         storefrontPaymentsApi.applePay.create(payment).mustBeOk()
-        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardsResponse.Root]
+        val cc = storefrontPaymentsApi.creditCards.create(ccPayload).as[CreditCardResponse]
         cartsApi(refNum).payments.creditCard.add(CreditCardPayment(cc.id)).mustBeOk()
 
         // additional check to make sure only one failure has arrived

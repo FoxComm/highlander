@@ -6,12 +6,12 @@ import phoenix.responses.users.UserResponse
 
 object CategoryTailored {
   case class FullCategoryCreated(admin: Option[UserResponse],
-                                 category: FullCategoryResponse.Root,
-                                 context: ObjectContextResponse.Root)
+                                 category: FullCategoryResponse,
+                                 context: ObjectContextResponse)
       extends ActivityBase[FullCategoryCreated]
 
   case class FullCategoryUpdated(admin: Option[UserResponse],
-                                 category: FullCategoryResponse.Root,
-                                 context: ObjectContextResponse.Root)
+                                 category: FullCategoryResponse,
+                                 context: ObjectContextResponse)
       extends ActivityBase[FullCategoryUpdated]
 }

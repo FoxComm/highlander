@@ -8,8 +8,7 @@ import phoenix.models.Notes.scope._
 import phoenix.models.account._
 import phoenix.models.{Note, Notes}
 import phoenix.payloads.NotePayloads._
-import phoenix.responses.AdminNotes
-import phoenix.responses.AdminNotes.Root
+import phoenix.responses.AdminNoteResponse
 import phoenix.services._
 import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
@@ -28,7 +27,7 @@ trait NoteManager[K, T <: Identity[T]] {
   def getEntityId(e: T): Int = e.id
 
   // Use this methods wherever you want
-  def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] =
+  def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[AdminNoteResponse]] =
     for {
       entity   ← * <~ fetchEntity(key)
       response ← * <~ forModel(entityQuerySeq(getEntityId(entity)))
@@ -36,15 +35,15 @@ trait NoteManager[K, T <: Identity[T]] {
 
   def create(key: K,
              author: User,
-             payload: CreateNote)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
+             payload: CreateNote)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[AdminNoteResponse] =
     for {
       entity ← * <~ fetchEntity(key)
       note   ← * <~ createInner(entity, noteType(), author, payload)
-    } yield AdminNotes.build(note, author)
+    } yield AdminNoteResponse.build(note, author)
 
   def update(key: K, noteId: Int, author: User, payload: UpdateNote)(implicit ec: EC,
                                                                      db: DB,
-                                                                     ac: AC): DbResultT[Root] =
+                                                                     ac: AC): DbResultT[AdminNoteResponse] =
     for {
       entity ← * <~ fetchEntity(key)
       note   ← * <~ updateInner(entity, noteId, author, payload)
@@ -77,14 +76,14 @@ trait NoteManager[K, T <: Identity[T]] {
   private def updateInner(entity: T, noteId: Int, author: User, payload: UpdateNote)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[Root] =
+      ac: AC): DbResultT[AdminNoteResponse] =
     for {
       oldNote ← * <~ Notes
                  .filterByIdAndAdminId(noteId, author.accountId)
                  .mustFindOneOr(NotFoundFailure404(Note, noteId))
       newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
       _       ← * <~ LogActivity().noteUpdated(author, entity, oldNote, newNote)
-    } yield AdminNotes.build(newNote, author)
+    } yield AdminNoteResponse.build(newNote, author)
 
   private def deleteInner(entity: T, noteId: Int, admin: User)(implicit ec: EC,
                                                                db: DB,
@@ -96,13 +95,13 @@ trait NoteManager[K, T <: Identity[T]] {
     } yield ()
 
   private def forModel[M <: FoxModel[M]](
-      finder: Notes.QuerySeq)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] = {
+      finder: Notes.QuerySeq)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[AdminNoteResponse]] = {
     val query = for {
       notes   ← finder
       authors ← notes.author
     } yield (notes, authors)
     DbResultT.fromF(query.result.map(_.map {
-      case (note, author) ⇒ AdminNotes.build(note, author)
+      case (note, author) ⇒ AdminNoteResponse.build(note, author)
     }))
   }
 }

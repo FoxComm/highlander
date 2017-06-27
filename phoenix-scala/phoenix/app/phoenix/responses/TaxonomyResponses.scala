@@ -8,11 +8,11 @@ import phoenix.responses.TaxonResponses._
 
 object TaxonomyResponses {
 
-  object TaxonomyResponse {
-    case class Root(id: Int) extends ResponseItem
+  case class TaxonomyResponse(id: Int) extends ResponseItem
 
+  object TaxonomyResponse {
     //Taxonomy here is a placeholder for future. Using only form
-    def build(t: Taxonomy): Root = Root(id = t.formId)
+    def build(t: Taxonomy): TaxonomyResponse = TaxonomyResponse(id = t.formId)
   }
 
   case class FullTaxonomyResponse(id: Int,
