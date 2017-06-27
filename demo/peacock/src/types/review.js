@@ -19,7 +19,7 @@ export type Review = {
   attributes: Attributes,
   createdAt: string,
   id: number,
-  rating: ?number, // not sure here
+  rating: ?number, // not fully implemented yet, it's null for now
   scope: string,
   sku: string,
   title: ?string,

@@ -152,9 +152,7 @@
   font-weight: 900;
   font-size: 16px;
 
-  &.modal {
-
-  }
+  &.modal {}
 }
 
 .reviews-actions {
