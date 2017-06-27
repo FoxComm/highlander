@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Strict mode
-set -ue
+set -euo pipefail
 
 # Reset default password
 echo "Resetting Neo4j default password..."

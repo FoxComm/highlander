@@ -6,6 +6,7 @@ let __svg__ = { path: '../../../images/**/*.svg', name: 'symbols.svg' };
 // @todo [hash]. https://github.com/mrsum/webpack-svgstore-plugin/issues/141
 
 // Remove when mocha
+// @todo why we do that? Works fine without condition
 if (process.env.NODE_ENV !== 'test') {
   // Loading svg sprite to <body>
   require('webpack-svgstore-plugin/src/helpers/svgxhr')(__svg__);

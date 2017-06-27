@@ -541,18 +541,10 @@ class LogActivity(val ac: AC) extends AnyVal {
     Activities.log(PromotionUpdated(promotionResponse, admin.map(UserResponse.build(_))))
 
   /* Coupons */
-  def couponCreated(couponResponse: CouponResponse.Root, admin: Option[User])(
-      implicit ec: EC): DbResultT[Activity] =
-    Activities.log(CouponCreated(couponResponse, admin.map(UserResponse.build(_))))
-
-  def couponUpdated(couponResponse: CouponResponse.Root, admin: Option[User])(
-      implicit ec: EC): DbResultT[Activity] =
-    Activities.log(CouponUpdated(couponResponse, admin.map(UserResponse.build(_))))
-
   def singleCouponCodeCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
     Activities.log(SingleCouponCodeGenerated(coupon, admin.map(UserResponse.build(_))))
 
-  def multipleCouponCodeCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
+  def multipleCouponCodesCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
     Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(UserResponse.build(_))))
 
   /* Store Admin */

@@ -177,13 +177,16 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     def promotion: PromotionResponse.Root
 
     lazy val coupon = couponsApi
-      .create(CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo, couponUsageRules), promotion.id))(
-        implicitly,
-        defaultAdminAuth)
-      .as[CouponResponse.Root]
+      .create(
+        CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo, couponUsageRules),
+                     promotion.id,
+                     singleCode = Some(Lorem.letterify("?????")),
+                     generateCodes = None))(implicitly, defaultAdminAuth)
+      .as[Seq[CouponResponse.Root]]
+      .headOption
+      .value
 
-    lazy val couponCode =
-      couponsApi(coupon.id).codes.generate(Lorem.letterify("?????"))(defaultAdminAuth).as[String]
+    lazy val couponCode = coupon.code
 
     protected def couponAttrs(activeFrom: Instant,
                               activeTo: Option[Instant],

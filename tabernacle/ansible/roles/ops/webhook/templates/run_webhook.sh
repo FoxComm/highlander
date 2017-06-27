@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 /usr/local/bin/webhook -port 80 \
     -hotreload \

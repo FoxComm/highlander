@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ue
+set -euo pipefail
 
 ORDERED=/var/tmp/ordered.lst
 REFRESH=/var/tmp/refresh.lst

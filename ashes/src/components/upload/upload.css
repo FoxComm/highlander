@@ -1,39 +1,50 @@
 @import 'colors.css';
 
-.upload {
+.block {
+  background-clip: padding-box;
   transition: border-color .3s;
-  padding: 15px 5px;
-  margin: -15px -5px;
 
-  &:global(._empty) {
-    border: 3px dashed var(--bg-grey-buttons);
-    margin: -18px -8px;
-  }
+  &.dragOverWindow {
+    border: 2px dashed var(--color-border);
+    margin: -9px;
+    padding: 7px;
 
-  &:global(._dragPossible) {
-    border: 3px dashed var(--bg-message-success);
-    margin: -18px -8px;
-  }
-
-  &:global(._dragActive) {
-    border: 3px dashed var(--color-link);
-    margin: -18px -8px;
-  }
-
-  &:global(._disabled) {
-    & .container {
-      cursor: no-drop;
+    &.emptyMod {
+      margin: 0;
+      padding: 0;
+      border: dashed 2px var(--color-border);
     }
   }
 
-  &:global(._empty) .container {
-    display: flex;
-    align-items: center;
+  &.emptyMod {
+    border: dashed 2px var(--color-border);
+  }
+
+  &.dragOverArea {
+    background-color: var(--bg-message-success);
+    border-color: var(--bg-green-buttons);
   }
 }
 
 .container {
-  min-height: 420px;
+  min-height: 300px;
+
+  .dragOverArea & {
+    opacity: .3;
+    pointer-events: none;
+  }
+
+  .emptyMod & {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    pointer-events: none; /* otherwise `onDragEnder` on .block will not works properly */
+  }
+
+  .disabled & {
+    cursor: no-drop;
+  }
 }
 
 .empty {
@@ -41,13 +52,13 @@
   margin: 0 auto;
   font-weight: bold;
   color: var(--color-additional-text);
-  opacity: .5;
+}
 
-  & i {
-    display: block;
-    font-size: 96px;
-    line-height: .8;
-  }
+.icon {
+  display: block;
+  font-size: 96px;
+  line-height: .8;
+  opacity: .6;
 }
 
 .input {

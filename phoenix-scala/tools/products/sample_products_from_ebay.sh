@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 CATEGORIES=(shoes pants gadget mug cup chair glasses tv computer headphones electric toy)
 

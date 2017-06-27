@@ -1,20 +1,24 @@
 package phoenix.facades
 
-import java.io.{ByteArrayInputStream, InputStream}
-import java.net.URLConnection
+import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream, InputStream}
+import java.net.{URL, URLConnection}
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 
+import scala.annotation.tailrec
+import scala.concurrent.Future
+import scala.util.Try
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
+
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import core.db.{DbResultT, _}
+import core.db._
 import core.failures.{Failure, Failures}
 import core.utils.generateUuid
 import objectframework.IlluminateAlgorithm
@@ -30,34 +34,50 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import slick.dbio.DBIO
 
-import scala.annotation.tailrec
-import scala.concurrent.Future
-import scala.util.Try
-
 object ImageFacade extends ImageHelpers {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  case class ImageFacadeException(underlyingFailure: Failure) extends Throwable
+  val allowedUrlSchemes: Set[String] = Set("http", "https")
+
+  case class ImageFacadeException(underlyingFailure: core.failures.Failure) extends Throwable
 
   trait ImageUploader[T] {
 
     case class S3Path(dir: String, fileName: String) {
-      def absPath(): String =
+      def absPath: String =
         s"$dir/$fileName"
     }
 
     object S3Path {
-      def get(album: Option[Album], fileName: String): S3Path = {
+
+      /** change extension to standard one
+        * if provided extension from fileName doesn't match with mediaType
+        * */
+      private def fixExtension(fileName: String, mediaType: MediaType): String = {
+        val extFromMedia = mediaType.fileExtensions.last
+        fileName.lastIndexOf('.') match {
+          case -1 ⇒ s"$fileName.$extFromMedia"
+          case idx ⇒
+            val ext = fileName.substring(idx)
+            if (MediaTypes.forExtension(ext) == mediaType)
+              fileName
+            else
+              s"${fileName.slice(0, idx)}.$extFromMedia"
+        }
+      }
+
+      def get(album: Option[Album], fileName: String, mediaType: MediaType): S3Path = {
         val now        = ZonedDateTime.now()
         val year: Int  = now.getYear
         val month: Int = now.getMonthValue
 
-        val prefix = s"${now.getDayOfMonth}${now.getHour}${now.getMinute}${now.getSecond}"
+        val prefix    = s"${now.getDayOfMonth}${now.getHour}${now.getMinute}${now.getSecond}"
+        val finalName = fixExtension(fileName, mediaType)
 
         album.fold {
-          S3Path(dir = s"other/$year/$month", fileName = s"$prefix$fileName")
+          S3Path(dir = s"other/$year/$month", fileName = s"$prefix$finalName")
         } { album ⇒
-          S3Path(dir = s"albums/${album.contextId}/${album.formId}", fileName = fileName)
+          S3Path(dir = s"albums/${album.contextId}/${album.formId}", fileName = finalName)
         }
       }
     }
@@ -92,26 +112,72 @@ object ImageFacade extends ImageHelpers {
 
   }
 
+  def validateImageUrl(url: String): Either[Failures, Uri] =
+    Try {
+      val normalized = new URL(url).toURI.toASCIIString
+      val uri        = Uri(normalized)
+      if (uri.isRelative || uri.isEmpty || !allowedUrlSchemes.contains(uri.scheme))
+        Either.left(InvalidImageUrl(url).single)
+      else
+        Either.right(uri)
+    }.getOrElse(Either.left(InvalidImageUrl(url).single))
+
   object ImageUploader {
 
-    val allowedImageTypes: List[String] =
-      List(MediaTypes.`image/gif`, MediaTypes.`image/png`, MediaTypes.`image/jpeg`).map(_.value)
+    sealed trait ContentTypeGuess[T] {
+      protected def unsafeGuessContentType(src: T): String
+
+      def guessContentType(src: T): Option[String] =
+        Try {
+          Option(unsafeGuessContentType(src))
+        }.toOption.flatten
+    }
+
+    private object ContentTypeGuess {
+
+      implicit object BBContentTypeGuess extends ContentTypeGuess[ByteBuffer] {
+
+        private def asInputStream(buffer: ByteBuffer): InputStream = {
+          if (buffer.hasArray) { // use heap buffer; no array is created; only the reference is used
+            new ByteArrayInputStream(buffer.array)
+          }
+          new utils.io.ByteBufferInputStream(buffer)
+        }
+
+        protected def unsafeGuessContentType(bb: ByteBuffer): String =
+          URLConnection.guessContentTypeFromStream(asInputStream(bb))
+      }
+
+      implicit object ISContentTypeGuess extends ContentTypeGuess[InputStream] {
+        protected def unsafeGuessContentType(is: InputStream): String =
+          URLConnection.guessContentTypeFromStream(is)
+      }
+
+      implicit object PathContentTypeGuess extends ContentTypeGuess[Path] {
+        protected def unsafeGuessContentType(path: Path): String = {
+          val is = new BufferedInputStream(new FileInputStream(path.toAbsolutePath.toString))
+          try URLConnection.guessContentTypeFromStream(is)
+          finally is.close()
+        }
+      }
+    }
+
+    private val allowedImageTypes: List[MediaType] =
+      List(MediaTypes.`image/gif`, MediaTypes.`image/png`, MediaTypes.`image/jpeg`)
+
+    private val allowedImageTypeValues: List[String] =
+      allowedImageTypes.map(_.value)
+
+    def shouldBeValidImage[T](imageData: T)(implicit ct: ContentTypeGuess[T]): Either[Failures, MediaType] =
+      ct.guessContentType(imageData)
+        .map { contentType ⇒
+          allowedImageTypes
+            .find(_.value == contentType)
+            .fold(Either.left[Failures, MediaType](UnsupportedImageType(contentType).single))(Either.right(_))
+        }
+        .getOrElse(Either.left(UnknownImageType.single))
 
     implicit object ImagePayloadUploader extends ImageUploader[ImagePayload] {
-
-      def shouldBeValidImage(imageData: ByteBuffer): Either[Failures, Unit] =
-        guessContentType(imageData)
-          .map { contentType ⇒
-            if (allowedImageTypes.contains(contentType)) Either.right({})
-            else Either.left(UnsupportedImageType(contentType).single)
-          }
-          .getOrElse(Either.left(UnknownImageType.single))
-
-      def shouldBeValidUrl(url: String): Either[Failures, Uri] = {
-        val uri = Uri(url)
-        if (uri.isRelative || uri.isEmpty) Either.left(InvalidImageUrl(url).single)
-        else Either.right(uri)
-      }
 
       def uploadImagesR(payload: ImagePayload, context: OC, maybeAlbum: Option[Album])(
           implicit ec: EC,
@@ -121,13 +187,13 @@ object ImageFacade extends ImageHelpers {
           sys: ActorSystem,
           apis: Apis): DbResultT[Seq[ImagePayload]] =
         for {
-          url       ← * <~ shouldBeValidUrl(payload.src)
+          url       ← * <~ validateImageUrl(payload.src)
           imageData ← * <~ fetchImageData(url)
-          _         ← * <~ shouldBeValidImage(imageData)
+          mediaType ← * <~ shouldBeValidImage(imageData)
           url ← * <~ saveBufferAndThen[String](imageData) { path ⇒
                  val fileName = extractFileNameFromUri(url)
-                 val s3Path   = S3Path.get(maybeAlbum, fileName = fileName)
-                 DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile))
+                 val s3Path   = S3Path.get(maybeAlbum, fileName = fileName, mediaType = mediaType)
+                 DbResultT.fromResult(apis.amazon.uploadFile(s3Path.absPath, path.toFile, overwrite = false))
                }
           newPayload = payload.copy(src = url)
 
@@ -138,8 +204,10 @@ object ImageFacade extends ImageHelpers {
 
     implicit object MultipartUploader extends ImageUploader[Multipart.FormData] {
 
-      private def getFileFromRequest(bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat) = {
+      private def getImageFromRequest(
+          bytes: Source[ByteString, Any])(implicit ec: EC, am: Mat): Future[Either[Failures, Path]] = {
         val file = Files.createTempFile("tmp", ".jpg")
+
         bytes.runWith(FileIO.toPath(file)).map { ioResult ⇒
           if (ioResult.wasSuccessful) Either.right(file)
           else Either.left(ErrorReceivingImage.single)
@@ -149,7 +217,7 @@ object ImageFacade extends ImageHelpers {
       private def uploadPathToS3(filePath: java.nio.file.Path,
                                  s3Path: S3Path)(implicit ec: EC, am: Mat, apis: Apis) =
         for {
-          url ← apis.amazon.uploadFileF(s3Path.absPath, filePath.toFile)
+          url ← apis.amazon.uploadFileF(s3Path.absPath, filePath.toFile, overwrite = false)
           _ = Files.deleteIfExists(filePath)
         } yield ImageUploaded(url = url, fileName = s3Path.fileName)
 
@@ -166,8 +234,8 @@ object ImageFacade extends ImageHelpers {
           .filter(_.name == "upload-file")
           .mapAsyncUnordered(4) { part ⇒
             for {
-              filePathE ← getFileFromRequest(part.entity.dataBytes)
-              filePath ← filePathE.fold(_ ⇒ Future.failed[Path](ImageFacadeException(ErrorReceivingImage)),
+              filePathE ← getImageFromRequest(part.entity.dataBytes)
+              filePath ← filePathE.fold(x ⇒ Future.failed[Path](ImageFacadeException(x.head)),
                                         Future.successful)
               fileName ← part.filename.fold(Future.failed[String](
                           ImageFacadeException(ImageFilenameNotFoundInPayload)))(Future.successful)
@@ -175,8 +243,12 @@ object ImageFacade extends ImageHelpers {
           }
           .mapAsyncUnordered(4) {
             case (filePath, fileName) ⇒
-              val s3path = S3Path.get(maybeAlbum, fileName = fileName)
-              uploadPathToS3(filePath, s3path)
+              shouldBeValidImage(filePath).fold(
+                x ⇒ Future.failed[ImageUploaded](ImageFacadeException(x.head)), { mediaType ⇒
+                  val s3path = S3Path.get(maybeAlbum, fileName = fileName, mediaType = mediaType)
+                  uploadPathToS3(filePath, s3path)
+                }
+              )
           }
           .map { srcInfo ⇒
             val payload =
@@ -257,7 +329,7 @@ object ImageFacade extends ImageHelpers {
 
   // - endpoints
 
-  def attachImageToAlbum(
+  private def attachImageToAlbum(
       album: Album,
       payload: ImagePayload)(implicit ec: EC, db: DB, au: AU, oc: OC): DbResultT[Seq[FullObject[Image]]] =
     for {
@@ -342,18 +414,4 @@ trait ImageHelpers extends LazyLogging {
       result ← * <~ block(path)
       _      ← * <~ Files.deleteIfExists(path)
     } yield result
-
-  private def asInputStream(buffer: ByteBuffer): InputStream = {
-    if (buffer.hasArray) { // use heap buffer; no array is created; only the reference is used
-      new ByteArrayInputStream(buffer.array)
-    }
-    new utils.io.ByteBufferInputStream(buffer)
-  }
-
-  protected def guessContentType(byteBuffer: ByteBuffer): Option[String] =
-    Try {
-      // can return null or throw exception
-      Option(URLConnection.guessContentTypeFromStream(asInputStream(byteBuffer)))
-    }.toOption.flatten
-
 }
