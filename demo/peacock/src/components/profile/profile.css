@@ -171,6 +171,10 @@
   margin-left: 15px;
 }
 
+.review-body {
+  min-height: 150px !important;
+}
+
 .product-info {
   &.modal {
     display: flex;
@@ -178,6 +182,15 @@
     margin-bottom: 20px;
   }
 }
+
+.form-field {
+  margin: 0 15px 11px 17px;
+
+  &:last-child {
+    margin-bottom: 20px;
+  }
+}
+
 
 @media (--medium-only) {
   .profile {

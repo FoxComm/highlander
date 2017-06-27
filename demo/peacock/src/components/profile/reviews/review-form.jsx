@@ -147,12 +147,13 @@ class ReviewForm extends Component {
             onChange={this.handleTitleChange}
           />
         </FormField>
-        <FormField>
+        <FormField styleName="form-field">
           <TextArea
             required
             placeholder="Product review"
             value={this.state.body}
             onChange={this.handleBodyChange}
+            styleName="review-body"
           />
         </FormField>
       </div>
@@ -173,7 +174,7 @@ class ReviewForm extends Component {
   render() {
     const action = {
       handler: this.props.closeModal,
-      title: 'Close',
+      title: 'Cancel',
     };
 
     const disabled = !this.state.title && !this.state.body;
