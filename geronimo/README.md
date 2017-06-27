@@ -497,7 +497,7 @@ Params:
 ```json
 {
 	"content_type_id": 1,
-    "storefront": "theperfectgourmet.com",
+    "storefront": "foo.bar",
 	"content": {
 		"title":"Some title foooooo",
 		"body":"Lorem ipsum",
@@ -514,7 +514,7 @@ Params:
     "updated_at": "2017-06-12T03:15:17Z",
     "scope": "1",
     "schema_version": "2017-06-12T03:13:46Z",
-    "storefront": "theperfectgourmet.com",
+    "storefront": "foo.bar",
     "kind": "BlogPost",
     "inserted_at": "2017-06-12T03:15:17Z",
     "id": 3,
