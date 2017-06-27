@@ -86,6 +86,7 @@ class ReviewsBlock extends Component {
         review={review}
         key={`review-${review.id}`}
         handleReviewForm={this.handleReviewForm}
+        removeReview={this.props.removeReview}
       />
     );
   }

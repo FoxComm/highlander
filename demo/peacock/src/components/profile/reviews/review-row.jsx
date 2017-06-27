@@ -13,6 +13,7 @@ import styles from '../profile.css';
 type Props = {
   review: Review,
   handleReviewForm: Function, // signature
+  removeReview: Function, // signature
 };
 
 const ReviewRow = (props: Props) => {
@@ -36,7 +37,7 @@ const ReviewRow = (props: Props) => {
           />
 
           <ActionLink
-            action={() => { console.log('ignore the review');}}
+            action={() => { props.removeReview(review.id); }}
             title="Ignore"
             styleName="reviews-action-link"
           />
@@ -52,7 +53,7 @@ const ReviewRow = (props: Props) => {
         />
 
         <ActionLink
-          action={() => { console.log('remove the review');}}
+          action={() => { props.removeReview(review.id); }}
           title="Delete"
           styleName="reviews-action-link"
         />

@@ -43,15 +43,28 @@ const _fetchReviewsForSku = createAsyncActions(
 
 const _updateReview = createAsyncActions(
   'updateReview',
-  function(reviewId: Number, payload: Object) {
+  function(reviewId: number, payload: Object) {
     return this.api.reviews.update(reviewId, payload);
   }
 );
+
+const _removeReview = createAsyncActions(
+  'removeReview',
+  function(reviewId: number) {
+    const { dispatch } = this;
+    return this.api.reviews.delete(reviewId).then((resp) => {
+      dispatch(cleanUpReviews(reviewId));
+    });
+  }
+);
+
+const cleanUpReviews = createAction('CLEAN_UP_REVIEWS');
 
 // actions - public
 export const fetchReviewsForUser = _fetchReviewsForUser.perform;
 export const fetchReviewsForSku = _fetchReviewsForSku.perform;
 export const updateReview = _updateReview.perform;
+export const removeReview =  _removeReview.perform;
 export const clearReviews = createAction('REVIEWS_CLEAR');
 export const toggleReviewsModal = createAction('TOGGLE_REVIEWS_MODAL');
 
@@ -100,6 +113,15 @@ const reducer = createReducer({
       reviewsModalVisible: !current,
     };
   },
+  [cleanUpReviews]: (state, reviewId) => {
+    const newList = _.filter(state.list, (review) => review.id !== reviewId);
+    console.log('newList -> ', newList);
+
+    return {
+      ...state,
+      list: newList,
+    };
+  }
 }, initialState);
 
 export default reducer;
