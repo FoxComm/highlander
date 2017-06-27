@@ -110,7 +110,7 @@ class PromotionPage extends ObjectPage {
     if (!_.isEmpty(errors.qualifierErrors) || !_.isEmpty(errors.offerErrors)) {
       this.validateForm();
       this.validate();
-      return;
+      return null;
     }
     let isNew = this.isNew;
     let willBePromo = super.save();
