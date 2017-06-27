@@ -1,14 +1,12 @@
 package objectframework.services
 
 import org.json4s._
-
 import cats.data._
 import cats.implicits._
-
+import cats.kernel.Monoid
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.Failure
-
 import objectframework.IlluminateAlgorithm
 import objectframework.content._
 import objectframework.db._
@@ -54,7 +52,7 @@ object ContentManager {
 
   type FullContentRelations = Map[String, Seq[Content]]
   def getRelations(content: Content)(implicit ec: EC): DbResultT[FullContentRelations] = {
-    val empty = DbResultT.pure(Map.empty[String, Seq[Content]])
+    val empty = (Map.empty : FullContentRelations).pure[DbResultT]
 
     content.relations.foldLeft(empty) { (accRelations, relation) ⇒
       accRelations.flatMap { relations ⇒
@@ -106,6 +104,6 @@ object ContentManager {
   private def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] =
     errors match {
       case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
-      case Nil          ⇒ DbResultT.pure(Unit)
+      case Nil          ⇒ ().pure[DbResultT]
     }
 }

@@ -52,7 +52,7 @@ object PaymentHelper {
                                                 apis: Apis,
                                                 ac: AC): DbResultT[Long] =
     if (payments.isEmpty) {
-      DbResultT.pure(0L)
+      0L.pure[DbResultT]
     } else {
 
       val amounts: Seq[Long] = payments.map { case (payment, _) ⇒ payment.getAmount() }
@@ -195,6 +195,7 @@ object Checkout {
 }
 
 class ExternalCalls {
+  // FIXME: have mercy… @michalrus
   @volatile var authPaymentsSuccess: Boolean    = false
   @volatile var middleWarehouseSuccess: Boolean = false
 }
@@ -240,10 +241,10 @@ case class Checkout(
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
       skusToHold           ← * <~ inventoryTrackedSkus.map(sku ⇒ SkuInventoryHold(sku.code, sku.qty))
-      _ ← * <~ doOrMeh(skusToHold.nonEmpty,
+      _ ← * <~ when(skusToHold.nonEmpty,
                        DbResultT.fromResult(
                          apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
-      mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty
+      mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty // FIXME: I almost removed that, having read `==` here. Please, don’t… @michalrus
     } yield {}
 
   private def filterInventoryTrackingSkus(skus: Map[String, Int]) =
@@ -331,13 +332,13 @@ case class Checkout(
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
-      _ ← * <~ doOrMeh(scTotal > 0, LogActivity().scFundsAuthorized(customer, cart, scIds, scTotal))
-      _ ← * <~ doOrMeh(gcTotal > 0, LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
+      _ ← * <~ when(scTotal > 0, LogActivity().scFundsAuthorized(customer, cart, scIds, scTotal).void)
+      _ ← * <~ when(gcTotal > 0, LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal).void)
 
       grandTotal       = cart.grandTotal
       internalPayments = gcTotal + scTotal
-      _ ← * <~ doOrMeh(grandTotal > internalPayments, // run external payments only if we have to pay more
-                       doExternalPayment(grandTotal - internalPayments))
+      _ ← * <~ when(grandTotal > internalPayments, // run external payments only if we have to pay more
+                       doExternalPayment(grandTotal - internalPayments).void)
 
       mutatingResult = externalCalls.authPaymentsSuccess = true // fixme is this flag used anywhere? @aafa
     } yield {}

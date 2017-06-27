@@ -45,7 +45,7 @@ object CreditCardManager {
                        .map(_.gatewayCustomerId)
                        .one
       address = Address.fromPayload(payload.billingAddress, customer.accountId)
-      _ ← * <~ doOrMeh(payload.addressIsNew, Addresses.create(address))
+      _ ← * <~ when(payload.addressIsNew, Addresses.create(address).void)
       stripes ← * <~ apis.stripe.createCardFromToken(email = customer.email,
                                                      token = payload.token,
                                                      stripeCustomerId = customerToken,
@@ -69,7 +69,7 @@ object CreditCardManager {
 
     def createCard(customer: User, sCustomer: StripeCustomer, sCard: StripeCard, address: Address) =
       for {
-        _ ← * <~ doOrMeh(address.isNew, Addresses.create(address.copy(accountId = accountId)))
+        _ ← * <~ when(address.isNew, Addresses.create(address.copy(accountId = accountId)).void)
         cc = CreditCard.buildFromSource(accountId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
         region  ← * <~ Regions.findOneById(newCard.address.regionId).safeGet

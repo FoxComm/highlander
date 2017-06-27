@@ -149,7 +149,7 @@ object CartLineItemUpdater {
              .filterByContext(ctx.id)
              .filter(_.code === lineItem.sku)
              .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
-      fullSku ← ObjectManager.getFullObject(DbResultT.pure(sku))
+      fullSku ← ObjectManager.getFullObject(sku.pure[DbResultT])
       _       ← * <~ IlluminatedSku.illuminate(ctx, fullSku).mustBeActive
       // TODO: check if that SKU’s Product is not archived/deactivated @michalrus
       _            ← * <~ mustFindProductIdForSku(sku, cart.refNum)

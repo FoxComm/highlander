@@ -35,7 +35,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
                       // Deactivation/archival don’t happen often enough to justify
                       // this additional overhead for each cart GET request.
                       hasActiveLineItems(state)
-                    } else DbResultT.pure(state))
+                    } else state.pure[DbResultT])
       state ← * <~ hasShipAddress(state)
       state ← * <~ validShipMethod(state)
       state ← * <~ sufficientPayments(state, isCheckout)
@@ -145,7 +145,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
       // we'll find out if the `ExternalFunds` doesn't auth at checkout but we presume sufficient funds if we have a
       // `ExternalFunds` regardless of GC/SC funds availability
       if (payments.exists(_.isExternalFunds)) {
-        lift(response)
+        response.pure[DBIO]
       } else if (payments.nonEmpty) {
         cartFunds(payments).map {
           case Some(funds) if funds >= grandTotal ⇒
@@ -155,7 +155,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
             warning(response, InsufficientFunds(cart.refNum))
         }
       } else {
-        lift(warning(response, InsufficientFunds(cart.refNum)))
+        warning(response, InsufficientFunds(cart.refNum)).pure[DBIO]
       }
 
     if (cart.grandTotal > 0 || cart.subTotal > 0) {
@@ -164,7 +164,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
         .result
         .flatMap(availableFunds(cart.grandTotal, _))
     } else {
-      lift(response)
+      response.pure[DBIO]
     }
   }
 

@@ -28,7 +28,7 @@ import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import core.db._
+import core.db.{when => ifM, _}
 import core.utils.Money._
 import phoenix.services.carts.CartLineItemUpdater
 

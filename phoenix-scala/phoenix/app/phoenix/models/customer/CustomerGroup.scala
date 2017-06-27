@@ -22,7 +22,7 @@ case class CustomerGroup(id: Int = 0,
                          scope: LTree,
                          createdBy: Int,
                          name: String,
-                         customersCount: Int = 0,
+                         customersCount: Int = 0, // FIXME: is this denormalization needed at all? https://foxcommerce.slack.com/archives/C06696D1R/p1498564090580988 @michalrus
                          clientState: Json,
                          elasticRequest: Json,
                          groupType: GroupType,

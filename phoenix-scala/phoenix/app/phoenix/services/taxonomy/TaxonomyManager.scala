@@ -160,7 +160,7 @@ object TaxonomyManager {
                         .map(Some(_)))
 
       _ ← * <~ location.position.fold(DbResultT.unit) { position ⇒
-           doOrMeh(
+           when(
              position != 0,
              TaxonomyTaxonLinks
                .active()
@@ -191,9 +191,7 @@ object TaxonomyManager {
                            .mustFindOneOr(InvalidTaxonomiesForTaxon(taxonFull.model, 0))
       taxonomy    ← * <~ Taxonomies.findOneById(taxonomyTaxonLink.leftId).safeGet
       maybeParent ← * <~ TaxonomyTaxonLinks.parentOf(taxonomyTaxonLink)
-      parentTaxon ← * <~ maybeParent
-                     .map(link ⇒ Taxons.findOneById(link.rightId))
-                     .getOrElse(lift(None))
+      parentTaxon ← * <~ maybeParent.flatTraverse(link ⇒ Taxons.findOneById(link.rightId).dbresult)
     } yield FullTaxonResponse.build(taxonFull, taxonomy.formId, parentTaxon.map(_.formId))
 
   private def updateTaxonomyHierarchy(taxon: Taxon,
@@ -205,7 +203,7 @@ object TaxonomyManager {
               .active()
               .mustFindByTaxonomyAndTaxonFormId(taxonomy.model, taxon.formId)
       moveSpec ← * <~ MoveSpec(link, parentLink, location.position).validate
-      _        ← * <~ doOrMeh(moveSpec.isMoveRequired, moveTaxon(taxonomy.model, moveSpec))
+      _        ← * <~ when(moveSpec.isMoveRequired, moveTaxon(taxonomy.model, moveSpec))
     } yield taxonomy
 
   private def mustFindSingleTaxonomyForTaxon(taxon: Taxon)(implicit ec: EC,

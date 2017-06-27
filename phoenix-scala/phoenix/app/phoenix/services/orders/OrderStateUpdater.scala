@@ -31,10 +31,10 @@ object OrderStateUpdater {
       _       ← * <~ order.transitionState(newState)
       _       ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated ← * <~ Orders.mustFindByRefNum(refNum)
-      _ ← * <~ doOrMeh(updated.state == Order.Canceled,
+      _ ← * <~ when(updated.state == Order.Canceled,
                        DbResultT.fromResult(apis.middlewarehouse.cancelHold(refNum)))
       response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
-      _        ← * <~ doOrMeh(order.state != newState, LogActivity().orderStateChanged(admin, response, order.state))
+      _        ← * <~ when(order.state != newState, LogActivity().orderStateChanged(admin, response, order.state).void)
     } yield response
 
   def updateStates(admin: User,

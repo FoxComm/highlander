@@ -37,7 +37,7 @@ object * extends LazyLogging {
     DbResultT.fromResult(fa)
 
   def <~[A](v: A)(implicit ec: EC): DbResultT[A] =
-    DbResultT.pure(v)
+    v.pure[DbResultT]
 
   def <~[A](v: Validated[Failures, A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromEither(v.toEither)

@@ -94,7 +94,7 @@ object AccountManager {
                       .filter(_.state === (AdminData.Invited: AdminData.State))
                       .one
       _ ← * <~ adminCreated.map(ad ⇒ AdminsData.update(ad, ad.copy(state = AdminData.Active)))
-      _ ← * <~ doOrMeh(adminCreated.isEmpty, LogActivity().userPasswordReset(user))
+      _ ← * <~ when(adminCreated.isEmpty, LogActivity().userPasswordReset(user).void)
     } yield ResetPasswordDoneAnswer(email = remind.email, org = organization.name)
 
   def getById(accountId: Int)(implicit ec: EC, db: DB): DbResultT[UserResponse] =
@@ -114,7 +114,7 @@ object AccountManager {
                       .findByNameInScope(context.org, scope.id)
                       .mustFindOr(OrganizationNotFound(context.org, scope.path))
 
-      _ ← * <~ doOrMeh(checkEmail, email.fold(DbResultT.unit)(Users.createEmailMustBeUnique))
+      _ ← * <~ when(checkEmail, email.fold(DbResultT.unit)(Users.createEmailMustBeUnique))
 
       account ← * <~ Accounts.create(Account())
 

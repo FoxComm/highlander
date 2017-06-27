@@ -103,7 +103,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       externalCaptureTotal ← * <~ determineExternalCapture(total, gcPayments, scPayments, order.currency)
       internalCaptureTotal = total - externalCaptureTotal
       _ ← * <~ internalCapture(internalCaptureTotal, order, customer, gcPayments, scPayments)
-      _ ← * <~ doOrMeh(externalCaptureTotal > 0, externalCapture(externalCaptureTotal, order))
+      _ ← * <~ when(externalCaptureTotal > 0, externalCapture(externalCaptureTotal, order))
 
       resp = CaptureResponse(
         order = order.refNum,
@@ -142,8 +142,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
-      _ ← * <~ doOrMeh(scTotal > 0, LogActivity().scFundsCaptured(customer, order, scIds, scTotal))
-      _ ← * <~ doOrMeh(gcTotal > 0, LogActivity().gcFundsCaptured(customer, order, gcCodes, gcTotal))
+      _ ← * <~ when(scTotal > 0, LogActivity().scFundsCaptured(customer, order, scIds, scTotal).void)
+      _ ← * <~ when(gcTotal > 0, LogActivity().gcFundsCaptured(customer, order, gcCodes, gcTotal).void)
     } yield {}
 
   private def externalCapture(total: Long, order: Order): DbResultT[Unit] = {
@@ -277,9 +277,11 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def getPrice(item: OrderLineItemProductData): DbResultT[LineItemPrice] =
     FormShadowGet.price(item.skuForm, item.skuShadow) match {
       case Some((price, currency)) ⇒
-        DbResultT.pure(LineItemPrice(item.lineItem.referenceNumber, item.sku.code, price, currency))
+        LineItemPrice(item.lineItem.referenceNumber, item.sku.code, price, currency).pure[DbResultT]
       case None ⇒ DbResultT.failure(CaptureFailures.SkuMissingPrice(item.sku.code))
     }
+
+  // FIXME: use MonadError below, no need for DbResultT @michalrus
 
   private def validatePayload(payload: CapturePayloads.Capture,
                               orderSkus: Seq[OrderLineItemProductData]): DbResultT[Unit] =
@@ -299,12 +301,12 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def paymentStateMustBeInAuth(order: Order, paymentState: CordPaymentState.State): DbResultT[Unit] =
     if (paymentState != CordPaymentState.Auth)
       DbResultT.failure(CaptureFailures.OrderMustBeInAuthState(order.refNum))
-    else DbResultT.pure(Unit)
+    else ().pure[DbResultT]
 
   private def mustHavePositiveShippingCost(shippingCost: CapturePayloads.ShippingCost): DbResultT[Unit] =
     if (shippingCost.total < 0)
       DbResultT.failure(CaptureFailures.ShippingCostNegative(shippingCost.total))
-    else DbResultT.pure(Unit)
+    else ().pure[DbResultT]
 
   private def mustHaveCodes(items: Seq[CapturePayloads.CaptureLineItem],
                             codes: Seq[String],
@@ -316,10 +318,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def mustHaveCode(item: CapturePayloads.CaptureLineItem,
                            codes: Seq[String],
                            orderRef: String): DbResultT[Unit] =
-    if (codes.contains(item.sku)) DbResultT.pure(Unit)
+    if (codes.contains(item.sku)) ().pure[DbResultT]
     else DbResultT.failure(CaptureFailures.SkuNotFoundInOrder(item.sku, orderRef))
 
   private def mustHaveSameLineItems(lOne: Int, lTwo: Int, orderRef: String): DbResultT[Unit] =
-    if (lOne == lTwo) DbResultT.pure(Unit)
+    if (lOne == lTwo) ().pure[DbResultT]
     else DbResultT.failure(CaptureFailures.SplitCaptureNotSupported(orderRef))
 }

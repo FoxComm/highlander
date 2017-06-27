@@ -220,7 +220,7 @@ object ObjectUtils {
       for {
         commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       } yield commit.some
-    else DbResultT.pure(None)
+    else none[ObjectCommit].pure[DbResultT]
 
   private def updateIfDifferent(
       old: FormAndShadow,
@@ -244,7 +244,7 @@ object ObjectUtils {
            }
         _ ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
-    else DbResultT.pure(UpdateResult(old.form, old.shadow, updated = false))
+    else UpdateResult(old.form, old.shadow, updated = false).pure[DbResultT]
 
   private def validateShadow(form: ObjectForm, shadow: ObjectShadow)(implicit ec: EC,
                                                                      fmt: Formats): DbResultT[Unit] =
@@ -252,6 +252,6 @@ object ObjectUtils {
 
   def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] = errors match {
     case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
-    case Nil          ⇒ DbResultT.pure(Unit)
+    case Nil          ⇒ ().pure[DbResultT]
   }
 }

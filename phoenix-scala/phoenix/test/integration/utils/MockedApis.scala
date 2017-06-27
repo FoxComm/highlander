@@ -2,7 +2,7 @@ package utils
 
 import cats.implicits._
 import com.stripe.model.DeletedCard
-import core.db._
+import core.db.{when => ifM, _}
 import java.io.File
 import org.apache.avro.generic.GenericData
 import org.apache.kafka.clients.producer.MockProducer
@@ -129,7 +129,7 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
     when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.createSku(any[Int], any[CreateSku])(any[EC], any[AU]))
-      .thenReturn(DbResultT.pure(ProductVariantSku(skuId = -1, mwhSkuId = -1)))
+      .thenReturn(ProductVariantSku(skuId = -1, mwhSkuId = -1).pure[DbResultT])
     mocked
   }
 

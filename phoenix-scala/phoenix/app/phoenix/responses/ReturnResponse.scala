@@ -2,9 +2,10 @@ package phoenix.responses
 
 import java.time.Instant
 
+import cats.implicits._
 import core.db._
 import core.utils.Money._
-import phoenix.models.account.{Organization, Organizations, Users}
+import phoenix.models.account.{Organization, Organizations, User, Users}
 import phoenix.models.admin.AdminsData
 import phoenix.models.customer.CustomersData
 import phoenix.models.payment.giftcard.GiftCard
@@ -103,9 +104,9 @@ object ReturnResponse {
       // Either customer or storeAdmin as creator
       customer     ← * <~ Users.findOneByAccountId(rma.accountId)
       customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
-      storeAdmin   ← * <~ rma.storeAdminId.map(Users.findOneByAccountId).getOrElse(lift(None))
-      adminData    ← * <~ rma.storeAdminId.map(AdminsData.findOneByAccountId).getOrElse(lift(None))
-      organization ← * <~ rma.storeAdminId.map(Organizations.mustFindByAccountId)
+      storeAdmin ← rma.storeAdminId.flatTraverse(Users.findOneByAccountId(_).dbresult)
+      adminData    ← * <~ rma.storeAdminId.flatTraverse(AdminsData.findOneByAccountId(_).dbresult)
+      organization ← * <~ rma.storeAdminId.traverse(Organizations.mustFindByAccountId)
       // Payment methods
       ccPayment       ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
       applePayPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).applePays.one

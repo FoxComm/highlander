@@ -43,7 +43,7 @@ trait TestSeeds extends TestFixtureBase {
                     .headOption
 
       ad ← * <~ (maybeAdmin match {
-            case Some(admin) ⇒ DbResultT.pure(admin)
+            case Some(admin) ⇒ admin.pure[DbResultT]
             case None ⇒
               Factories.createStoreAdmin(user = Factories.storeAdmin,
                                          password = password,

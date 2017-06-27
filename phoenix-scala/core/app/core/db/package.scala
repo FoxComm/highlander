@@ -105,20 +105,14 @@ package object db {
   }
 
   trait FoxyTFunctions[F[_]] {
-    def apply[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
-      pure(a)
-
-    def pure[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] =
-      Monad[FoxyT[F, ?]].pure(a)
-
     def good[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me @michalrus
-      pure(a)
+      a.pure[FoxyT[F, ?]]
 
     def unit(implicit F: Monad[F]): FoxyT[F, Unit] =
-      pure(()) // TODO: remove me? @michalrus
+      ().pure[FoxyT[F, ?]] // TODO: remove me? @michalrus
 
     def none[A](implicit F: Monad[F]): FoxyT[F, Option[A]] =
-      pure(None) // TODO: remove me? @michalrus
+      (None: Option[A]).pure[FoxyT[F, ?]] // TODO: remove me? @michalrus
 
     def uiWarning(f: Failure)(implicit F: Monad[F]): FoxyT[F, Unit] =
       StateT.modify(MetaResponse.Warning(f) :: _)
@@ -161,7 +155,7 @@ package object db {
       L.map(lfa)(_.fold(Either.left(_), Either.right(_))).sequence.flatMap { xa ⇒
         val failures = L.collect(xa) { case Left(f) ⇒ f.toList }.toList.flatten
         val values   = L.collect(xa) { case Right(a) ⇒ a }
-        NonEmptyList.fromList(failures).fold(FoxyT[F].pure(values))(FoxyT[F].failures(_))
+        NonEmptyList.fromList(failures).fold(values.pure[FoxyT[F, ?]])(FoxyT[F].failures(_))
       }
 
     /** A bit like ``sequence`` but will ignore failed Foxies. */
@@ -276,15 +270,12 @@ package object db {
   def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] =
     sql.overrideStatements(sql.statements.map(_ + " for update"))
 
-  def lift[A](value: A): DBIO[A] = DBIO.successful(value)
-
-  def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
-
+  // TODO: I don’t know… does this help? @michalrus
   def ifElse[A](condition: Boolean, ifBranch: ⇒ DbResultT[A], elseBranch: ⇒ DbResultT[A]) =
     if (condition) ifBranch else elseBranch
 
-  def doOrMeh(condition: Boolean, action: ⇒ DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
-    if (condition) action.meh else DbResultT.unit
+  def when[F[_]](p: Boolean, s: ⇒ F[Unit])(implicit F: Applicative[F]): F[Unit] =
+    if (p) s.void else F.pure(())
 
   def doOrGood[A](condition: Boolean, action: ⇒ DbResultT[A], good: ⇒ A)(implicit ec: EC): DbResultT[A] =
     if (condition) action else DbResultT.good(good)

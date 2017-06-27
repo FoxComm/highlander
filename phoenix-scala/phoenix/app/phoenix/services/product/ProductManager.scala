@@ -2,6 +2,7 @@ package phoenix.services.product
 
 import java.time.Instant
 
+import cats._
 import cats.data._
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
@@ -98,16 +99,16 @@ object ProductManager extends LazyLogging {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
       illuminated = IlluminatedProduct
         .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
-      _ ← * <~ doOrMeh(
+      _ ← when(
            checkActive, {
              illuminated.mustBeActive match {
                case Left(err) ⇒ {
                  logger.warn(err.toString)
-                 DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
+                 DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug)).void
                }
                case Right(_) ⇒ DbResultT.unit
              }
-           }
+           } : DbResultT[Unit]
          )
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
@@ -409,14 +410,14 @@ object ProductManager extends LazyLogging {
   def mustFindFullProductById(productId: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(Products.mustFindById404(productId))
 
-  // This is an inefficient intensely quering method that does the trick
+  // This is an inefficient intensely querying method that does the trick
   private def skusToBeUnassociatedMustNotBePresentInCarts(productId: Int, payloadSkus: Seq[SkuPayload])(
       implicit ec: EC,
       db: DB): DbResultT[Unit] =
     for {
       skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
                           case links @ Seq(_) ⇒
-                            lift(links.map(_.rightId))
+                            links.map(_.rightId).pure[DBIO]
                           case _ ⇒
                             for {
                               variantLinks ← ProductVariantLinks

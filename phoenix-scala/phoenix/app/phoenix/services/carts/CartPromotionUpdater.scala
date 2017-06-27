@@ -79,7 +79,7 @@ object CartPromotionUpdater {
           case JNothing | JNull ⇒ None
           case cgis             ⇒ cgis.extractOpt[Set[Int]]
         }
-        result ← * <~ customerGroupIdsO.fold(DbResultT.pure(true))(GroupMemberManager.isMemberOfAny(_, user))
+        result ← * <~ customerGroupIdsO.fold(true.pure[DbResultT])(GroupMemberManager.isMemberOfAny(_, user))
       } yield result
 
     promos.filterA(isApplicable)
@@ -120,7 +120,7 @@ object CartPromotionUpdater {
       promotions ← * <~ promotionsQ.result.dbresult
                     .map(_.toStream) >>= filterPromotionsUsingCustomerGroups(user)
       promotion ← * <~ promotions.headOption
-                   .map(DbResultT.pure(_))
+                   .map(_.pure[DbResultT])
                    .getOrElse(DbResultT.failure(OrderHasNoPromotions)) // TODO: no function for that? Seems useful? @michalrus
       adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion, failFatally)
     } yield (orderPromo, promotion, adjustments)

@@ -22,7 +22,7 @@ import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.PaymentFixtures.CreditCardsFixture
 import testutils.fixtures.api.ApiFixtureHelpers
-import core.db._
+import core.db.{when => ifM, _}
 
 class CreditCardsIntegrationTest
     extends IntegrationTestBase
