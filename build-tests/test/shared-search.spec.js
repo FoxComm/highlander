@@ -1,9 +1,6 @@
 import { AdminApi } from '../helpers/Api';
 import $ from '../payloads';
-import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
-import isString from '../helpers/isString';
-import isNumber from '../helpers/isNumber';
+import isDate from '../helpers/isDate'
 import { expect } from 'chai';
 import * as step from '../helpers/steps';
 
@@ -24,13 +21,13 @@ describe('Shared Search', function() {
 		const api = new AdminApi;
 		await step.loginAsAdmin(api);
 		const sharedSearches = await step.listSharedSearch(api, 'ordersScope');
-		expect(isArray(sharedSearches)).to.be.true;
+		expect(sharedSearches).to.be.a('array');
 		for (const sharedSearch of sharedSearches) {
-			expect(isNumber(sharedSearch.id)).to.be.true;
-			expect(isNumber(sharedSearch.storeAdminId)).to.be.true;
-			expect(isString(sharedSearch.code)).to.be.true;
-			expect(isString(sharedSearch.title)).to.be.true;
-			expect(isString(sharedSearch.scope)).to.be.true;
+			expect(sharedSearch.id).to.be.a('number');
+			expect(sharedSearch.storeAdminId).to.be.a('number');
+			expect(sharedSearch.code).to.be.a('string');
+			expect(sharedSearch.title).to.be.a('string');
+			expect(sharedSearch.scope).to.be.a('string');
 			expect(isDate(sharedSearch.createdAt)).to.be.true;
 			expect(sharedSearch.query).to.exist;
 			expect(sharedSearch.rawQuery).to.exist;
@@ -42,12 +39,12 @@ describe('Shared Search', function() {
 		await step.loginAsAdmin(api);
 		const payload = $.randomSharedSearchPayload();
 		const newSharedSearch = await step.createNewSharedSearch(api, payload);
-		expect(isString(newSharedSearch.code)).to.be.true;
+		expect(newSharedSearch.code).to.be.a('string');
 		newSharedSearchCodes.push(newSharedSearch.code);
-		expect(isNumber(newSharedSearch.id)).to.be.true;
-		expect(isNumber(newSharedSearch.storeAdminId)).to.be.true;
-		expect(isString(newSharedSearch.title)).to.be.true;
-		expect(isString(newSharedSearch.scope)).to.be.true;
+		expect(newSharedSearch.id).to.be.a('number');
+		expect(newSharedSearch.storeAdminId).to.be.a('number');
+		expect(newSharedSearch.title).to.be.a('string');
+		expect(newSharedSearch.scope).to.be.a('string');
 		expect(isDate(newSharedSearch.createdAt)).to.be.true;
 		expect(newSharedSearch.query).to.exist;
 		expect(newSharedSearch.rawQuery).to.exist;
@@ -58,7 +55,7 @@ describe('Shared Search', function() {
 		await step.loginAsAdmin(api);
 		const payload = $.randomSharedSearchPayload();
 		const newSharedSearch = await step.createNewSharedSearch(api, payload);
-		expect(isString(newSharedSearch.code)).to.be.true;
+		expect(newSharedSearch.code).to.be.a('string');
 		newSharedSearchCodes.push(newSharedSearch.code);
 		const foundSharedSearch = await step.getSharedSearch(api, newSharedSearch.code);
 		expect(foundSharedSearch).to.deep.equal(newSharedSearch);
@@ -89,14 +86,14 @@ describe('Shared Search', function() {
 		await step.loginAsAdmin(api);
 		const payload = $.randomSharedSearchPayload();
 		const newSharedSearch = await step.createNewSharedSearch(api, payload);
-		expect(isString(newSharedSearch.code)).to.be.true;
+		expect(newSharedSearch.code).to.be.a('string');
 		newSharedSearchCodes.push(newSharedSearch.code);
 		const associates = await step.getAssociates(api, newSharedSearch.code);
-		expect(isArray(associates)).to.be.true;
+		expect(associates).to.be.a('array');
 		for (const associate of associates) {
-			expect(isNumber(associate.id)).to.be.true;
-			expect(isString(associate.email)).to.be.true;
-			expect(isString(associate.name)).to.be.true;
+			expect(associate.id).to.be.a('number');
+			expect(associate.email).to.be.a('string');
+			expect(associate.name).to.be.a('string');
 			expect(isDate(associate.createdAt)).to.be.true;
 		}
 	});
@@ -106,7 +103,7 @@ describe('Shared Search', function() {
 		await step.loginAsAdmin(api);
 		const payload = $.randomSharedSearchPayload();
 		const newSharedSearch = await step.createNewSharedSearch(api, payload);
-		expect(isString(newSharedSearch.code)).to.be.true;
+		expect(newSharedSearch.code).to.be.a('string');
 		newSharedSearchCodes.push(newSharedSearch.code);
 		const newStoreAdmin = await step.createAdminUser(api, $.randomStoreAdminPayload());
 		const associationPayload = { associates: [newStoreAdmin.id] };
@@ -127,7 +124,7 @@ describe('Shared Search', function() {
 		await step.loginAsAdmin(api);
 		const payload = $.randomSharedSearchPayload();
 		const newSharedSearch = await step.createNewSharedSearch(api, payload);
-		expect(isString(newSharedSearch.code)).to.be.true;
+		expect(newSharedSearch.code).to.be.a('string');
 		newSharedSearchCodes.push(newSharedSearch.code);
 		const newStoreAdmin = await step.createAdminUser(api, $.randomStoreAdminPayload());
 		const associationPayload = { associates: [newStoreAdmin.id] };

@@ -1,10 +1,6 @@
 import createCreditCard from '../helpers/createCreditCard';
 import placeRandomOrder from '../helpers/placeRandomOrder';
 import { AdminApi, CustomerApi } from '../helpers/Api';
-import isArray from '../helpers/isArray';
-import isString from '../helpers/isString';
-import isNumber from '../helpers/isNumber';
-import isDate from '../helpers/isDate';
 import $ from '../payloads';
 import { expect } from 'chai';
 import * as step from '../helpers/steps';
@@ -27,7 +23,7 @@ describe('Cart', function() {
 		const quantity = $.randomNumber(1, 10);
 		const fullOrder = await step.addSkuToCart(customerApi, skuCode, quantity).then(r => r.result);
 		expect(fullOrder.lineItems).to.exist;
-		expect(isArray(fullOrder.lineItems.skus)).to.be.true;
+		expect(fullOrder.lineItems.skus).to.be.a('array');
 		expect(fullOrder.lineItems.skus.length).to.equal(1);
 		expect(fullOrder.lineItems.skus[0].sku).to.equal(skuCode);
 		expect(fullOrder.lineItems.skus[0].quantity).to.equal(quantity);
@@ -51,7 +47,7 @@ describe('Cart', function() {
 		const newQuantity = $.randomNumber(2, 10);
 		const fullOrder = await step.updateQty(customerApi, skuCode, newQuantity).then(r => r.result);
 		expect(fullOrder.lineItems).to.exist;
-		expect(isArray(fullOrder.lineItems.skus)).to.be.true;
+		expect(fullOrder.lineItems.skus).to.be.a('array');
 		expect(fullOrder.lineItems.skus.length).to.equal(1);
 		expect(fullOrder.lineItems.skus[0].sku).to.equal(skuCode);
 		expect(fullOrder.lineItems.skus[0].quantity).to.equal(newQuantity);
@@ -74,7 +70,7 @@ describe('Cart', function() {
 		await step.addSkuToCart(customerApi, skuCode, 1);
 		const fullOrder = await customerApi.cart.removeSku(skuCode).then(r => r.result);
 		expect(fullOrder.lineItems).to.exist;
-		expect(isArray(fullOrder.lineItems.skus)).to.be.true;
+		expect(fullOrder.lineItems.skus).to.be.a('array');
 		expect(fullOrder.lineItems.skus.length).to.equal(0);
 		const foundOrder = await step.getCurrentCart(customerApi);
 		expect(foundOrder).to.deep.equal(fullOrder);
@@ -108,12 +104,12 @@ describe('Cart', function() {
 		await step.getCurrentCart(customerApi);
 		await step.setShippingAddress(customerApi, $.randomCreateAddressPayload());
 		const shippingMethods = await step.getShippingMethods(customerApi);
-		expect(isArray(shippingMethods)).to.be.true;
+		expect(shippingMethods).to.be.a('array');
 		for (const shippingMethod of shippingMethods) {
-			expect(isNumber(shippingMethod.id)).to.be.true;
-			expect(isNumber(shippingMethod.price)).to.be.true;
-			expect(isString(shippingMethod.name)).to.be.true;
-			expect(isString(shippingMethod.code)).to.be.true;
+			expect(shippingMethod.id).to.be.a('number');
+			expect(shippingMethod.price).to.be.a('number');
+			expect(shippingMethod.name).to.be.a('string');
+			expect(shippingMethod.code).to.be.a('string');
 		}
 	});
 
@@ -141,7 +137,7 @@ describe('Cart', function() {
 		await step.login(customerApi, credentials.email, credentials.password, $.customerOrg);
 		await step.getCurrentCart(customerApi);
 		const fullOrder = await step.addCreditCard(customerApi, newCard.id).then(r => r.result);
-		expect(isArray(fullOrder.paymentMethods)).to.be.true;
+		expect(fullOrder.paymentMethods).to.be.a('array');
 		expect(fullOrder.paymentMethods.length).to.equal(1);
 		const orderCreditCard = fullOrder.paymentMethods[0];
 		expect(orderCreditCard.type).to.equal('creditCard');
@@ -168,10 +164,10 @@ describe('Cart', function() {
 		await step.login(customerApi, credentials.email, credentials.password, $.customerOrg);
 		await step.getCurrentCart(customerApi);
 		const fullOrderAfterAddingCC = await step.addCreditCard(customerApi, newCard.id).then(r => r.result);
-		expect(isArray(fullOrderAfterAddingCC.paymentMethods)).to.be.true;
+		expect(fullOrderAfterAddingCC.paymentMethods).to.be.a('array');
 		expect(fullOrderAfterAddingCC.paymentMethods.length).to.equal(1);
 		const fullOrderAfterRemovingCC = await step.removeCreditCards(customerApi).then(r => r.result);
-		expect(isArray(fullOrderAfterRemovingCC.paymentMethods)).to.be.true;
+		expect(fullOrderAfterRemovingCC.paymentMethods).to.be.a('array');
 		expect(fullOrderAfterRemovingCC.paymentMethods.length).to.equal(0);
 		const foundOrder = await step.getCurrentCart(customerApi);
 		expect(foundOrder).to.deep.equal(fullOrderAfterRemovingCC);
@@ -189,7 +185,7 @@ describe('Cart', function() {
 		await step.getCurrentCart(customerApi);
 		const payload = { code: newGiftCard.code, amount: newGiftCard.availableBalance };
 		const fullOrder = await step.addGiftCard(customerApi, payload).then(r => r.result);
-		expect(isArray(fullOrder.paymentMethods)).to.be.true;
+		expect(fullOrder.paymentMethods).to.be.a('array');
 		expect(fullOrder.paymentMethods.length).to.equal(1);
 		const orderGiftCard = fullOrder.paymentMethods[0];
 		expect(orderGiftCard.code).to.equal(payload.code);
@@ -212,10 +208,10 @@ describe('Cart', function() {
 		await step.getCurrentCart(customerApi);
 		const payload = { code: newGiftCard.code, amount: newGiftCard.availableBalance };
 		const fullOrderAfterAddingGC = await step.addGiftCard(customerApi, payload).then(r => r.result);
-		expect(isArray(fullOrderAfterAddingGC.paymentMethods)).to.be.true;
+		expect(fullOrderAfterAddingGC.paymentMethods).to.be.a('array');
 		expect(fullOrderAfterAddingGC.paymentMethods.length).to.equal(1);
 		const fullOrderAfterRemovingGC = await step.removeGiftCard(customerApi, payload.code).then(r => r.result);
-		expect(isArray(fullOrderAfterRemovingGC.paymentMethods)).to.be.true;
+		expect(fullOrderAfterRemovingGC.paymentMethods).to.be.a('array');
 		expect(fullOrderAfterRemovingGC.paymentMethods.length).to.equal(0);
 		const foundOrder = await step.getCurrentCart(customerApi);
 		expect(foundOrder).to.deep.equal(fullOrderAfterRemovingGC);
@@ -230,7 +226,7 @@ describe('Cart', function() {
 		const newStoreCredit = await step.issueStoreCredit(api, customerApi, storeCreditPayload);
 		await step.getCurrentCart(customerApi);
 		const fullOrder = await step.addStoreCredit(customerApi, newStoreCredit.availableBalance).then(r => r.result);
-		expect(isArray(fullOrder.paymentMethods)).to.be.true;
+		expect(fullOrder.paymentMethods).to.be.a('array');
 		expect(fullOrder.paymentMethods.length, 1).to.equal(1);
 		const orderStoreCredit = fullOrder.paymentMethods[0];
 		expect(orderStoreCredit.type).to.equal('storeCredit');
@@ -253,10 +249,10 @@ describe('Cart', function() {
 		await step.getCurrentCart(customerApi);
 		const fullOrderAfterAddingSC =
 			await step.addStoreCredit(customerApi, newStoreCredit.availableBalance).then(r => r.result);
-		expect(isArray(fullOrderAfterAddingSC.paymentMethods)).to.be.true;
+		expect(fullOrderAfterAddingSC.paymentMethods).to.be.a('array');
 		expect(fullOrderAfterAddingSC.paymentMethods.length).to.equal(1);
 		const fullOrderAfterRemovingSC = await step.removeStoreCredits(customerApi).then(r => r.result);
-		expect(isArray(fullOrderAfterRemovingSC.paymentMethods)).to.be.true;
+		expect(fullOrderAfterRemovingSC.paymentMethods).to.be.a('array');
 		expect(fullOrderAfterRemovingSC.paymentMethods.length).to.equal(0);
 		const foundOrder = await step.getCurrentCart(customerApi);
 		expect(foundOrder).to.deep.equal(fullOrderAfterRemovingSC);
@@ -322,8 +318,8 @@ describe('Cart', function() {
 		expect(fullOrder.paymentState).to.equal('auth');
 		expect(fullOrder.orderState).to.equal('remorseHold');
 		expect(fullOrder.shippingState).to.equal('remorseHold');
-		expect(isDate(fullOrder.placedAt)).to.be.true;
-		expect(isDate(fullOrder.remorsePeriodEnd)).to.be.true;
+		expect(fullOrder.placedAt).to.be.a('date');
+		expect(fullOrder.remorsePeriodEnd).to.be.a('date');
 		expect(fullOrder.billingAddress).to.deep.equal(newCard.address);
 		expect(fullOrder.billingCreditCardInfo.type).to.equal('creditCard');
 		expect(fullOrder.billingCreditCardInfo.id).to.equal(newCard.id);

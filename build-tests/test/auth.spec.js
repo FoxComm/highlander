@@ -1,8 +1,6 @@
 import { CustomerApi, AdminApi } from '../helpers/Api';
-import isString from '../helpers/isString';
-import isNumber from '../helpers/isNumber';
-import isDate from '../helpers/isDate';
 import $ from '../payloads';
+import isDate from '../helpers/isDate'
 import { expect } from 'chai';
 import * as step from '../helpers/steps';
 
@@ -15,9 +13,9 @@ describe('[bvt] Auth', function() {
 		const { email, name, password } = $.randomUserCredentials();
 		const signupResponse = await step.signup(api, email, name, password);
 
-		expect(isString(signupResponse.jwt)).to.be.true;
+		expect(signupResponse.jwt).to.be.a('string');
 		expect(signupResponse.jwt.length > 0).to.be.true;
-		expect(isNumber(signupResponse.user.id)).to.be.true;
+		expect(signupResponse.user.id).to.be.a('number');
 		expect(isDate(signupResponse.user.createdAt)).to.be.true;
 		expect(signupResponse.user.email).to.equal(email);
 		expect(signupResponse.user.name).to.equal(name);

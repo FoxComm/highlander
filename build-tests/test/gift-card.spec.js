@@ -2,9 +2,7 @@ import testNotes from './test-notes';
 import { AdminApi, CustomerApi } from '../helpers/Api';
 import createCreditCard from '../helpers/createCreditCard';
 import waitFor from '../helpers/waitFor';
-import isNumber from '../helpers/isNumber';
-import isString from '../helpers/isString';
-import isDate from '../helpers/isDate';
+import isDate from '../helpers/isDate'
 import $ from '../payloads';
 import config from '../config';
 import { expect } from 'chai';
@@ -19,11 +17,11 @@ describe('Gift Card', function() {
 		await step.loginAsAdmin(api);
 		const payload = $.randomGiftCardPayload();
 		const newGiftCard = await step.createNewGiftCard(api, payload);
-		expect(isNumber(newGiftCard.id)).to.be.true;
+		expect(newGiftCard.id).to.be.a('number');
 		expect(isDate(newGiftCard.createdAt)).to.be.true;
-		expect(isString(newGiftCard.code)).to.be.true;
+		expect(newGiftCard.code).to.be.a('string');
 		expect(newGiftCard.code.length).to.equal(16);
-		expect(isNumber(newGiftCard.originId)).to.be.true;
+		expect(newGiftCard.originId).to.be.a('number');
 		expect(newGiftCard.originType).to.equal('csrAppeasement');
 		expect(newGiftCard.state).to.equal('active');
 		expect(newGiftCard.currency).to.equal('USD');
@@ -115,7 +113,7 @@ describe('Gift Card', function() {
 			const newGiftCardCode = await waitFor(500, 10000, () =>
 					step.getOrder(api, fullOrder.referenceNumber)
 						.then(r => r.result.lineItems.skus[0].attributes.giftCard.code),
-				isString);
+				(x) => typeof(x) === 'string');
 			const foundGiftCard = await step.getGiftCard(api, newGiftCardCode);
 			expect(foundGiftCard.message).to.equal(giftCardAttributes.giftCard.message);
 			expect(foundGiftCard.recipientName).to.equal(giftCardAttributes.giftCard.recipientName);

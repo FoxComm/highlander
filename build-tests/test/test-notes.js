@@ -1,7 +1,6 @@
 import { AdminApi } from '../helpers/Api';
 import $ from '../payloads';
 import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
 import { expect } from 'chai';
 import * as step from '../helpers/steps';
 
@@ -11,7 +10,7 @@ export default ({ objectType, createObject, selectId = obj => obj.id }) => {
 		await step.loginAsAdmin(api);
 		const newObject = await createObject(api);
 		const notes = await step.getNotes(api, objectType, selectId(newObject));
-		expect(isArray(notes)).to.be.true;
+		expect(notes).to.be.a('array');
 	});
 
 	it('[bvt] Can create a new note', async () => {
