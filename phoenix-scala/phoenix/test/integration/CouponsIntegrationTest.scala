@@ -56,7 +56,7 @@ class CouponsIntegrationTest
 
   "DELETE /v1/coupons/:context/:id" - {
     "archive existing coupon" in new Coupon_TotalQualifier_PercentOff {
-      val archiveResp = couponsApi(coupon.id).archive().as[CouponResponse.Root]
+      val archiveResp = couponsApi(coupon.id).archive().as[CouponResponse]
 
       withClue(archiveResp.archivedAt.value → now) {
         archiveResp.archivedAt.value.isBeforeNow mustBe true

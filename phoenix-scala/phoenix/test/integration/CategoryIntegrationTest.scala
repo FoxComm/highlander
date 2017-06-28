@@ -19,7 +19,7 @@ class CategoryIntegrationTest
   "Categories" - {
     "GET v1/categories/:context/:formId" - {
       "returns a full category" in new Fixture {
-        val content = categoriesApi(category.form.id).get().as[FullCategoryResponse.Root]
+        val content = categoriesApi(category.form.id).get().as[FullCategoryResponse]
 
         content.form.id must === (category.form.id)
         content.shadow.id must === (category.shadow.id)
@@ -35,7 +35,7 @@ class CategoryIntegrationTest
 
         val content = categoriesApi(category.form.id)
           .update(UpdateFullCategory(UpdateCategoryForm(updatedForm), UpdateCategoryShadow(updatedShadow)))
-          .as[FullCategoryResponse.Root]
+          .as[FullCategoryResponse]
 
         val formValues: List[Json] = content.form.attributes.asInstanceOf[JObject].children
         val shadowKeys: Iterable[String] =
@@ -55,7 +55,7 @@ class CategoryIntegrationTest
 
         val content = categoriesApi
           .create(CreateFullCategory(CreateCategoryForm(updatedForm), CreateCategoryShadow(updatedShadow)))
-          .as[FullCategoryResponse.Root]
+          .as[FullCategoryResponse]
 
         val formValues: List[Json] = content.form.attributes.asInstanceOf[JObject].children
         val shadowKeys: Iterable[String] =
@@ -68,7 +68,7 @@ class CategoryIntegrationTest
 
     "GET v1/categories/:formId/form" - {
       "return form" in new Fixture {
-        val content = categoriesApi(category.form.id).form().as[CategoryFormResponse.Root]
+        val content = categoriesApi(category.form.id).form().as[CategoryFormResponse]
 
         val formValues: List[Json] = content.attributes.asInstanceOf[JObject].children
 
@@ -79,7 +79,7 @@ class CategoryIntegrationTest
 
     "GET v1/categories/:context/:formId/baked" - {
       "returns illuminated object" in new Fixture {
-        val content = categoriesApi(category.form.id).baked().as[IlluminatedCategoryResponse.Root]
+        val content = categoriesApi(category.form.id).baked().as[IlluminatedCategoryResponse]
 
         val expected: JObject = testAttributes.obj.map {
           case (key, value) ⇒ (key, ("t" → "string") ~ ("v" → value))
@@ -92,7 +92,7 @@ class CategoryIntegrationTest
       "returns shadow" in new Fixture {
         val keys = categoriesApi(category.form.id)
           .shadow()
-          .as[CategoryShadowResponse.Root]
+          .as[CategoryShadowResponse]
           .attributes
           .asInstanceOf[JObject]
           .values

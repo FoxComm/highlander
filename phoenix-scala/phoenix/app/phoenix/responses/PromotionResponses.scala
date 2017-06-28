@@ -11,26 +11,28 @@ import phoenix.utils.aliases._
 
 object PromotionResponses {
 
+  case class PromotionFormResponse(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
+
   object PromotionFormResponse {
 
-    case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
-
-    def build(f: ObjectForm): Root =
-      Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
+    def build(f: ObjectForm): PromotionFormResponse =
+      PromotionFormResponse(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
   }
+
+  case class PromotionResponse(id: Int,
+                               context: ObjectContextResponse,
+                               applyType: Promotion.ApplyType,
+                               attributes: Json,
+                               discounts: Seq[IlluminatedDiscountResponse],
+                               archivedAt: Option[Instant])
+      extends ResponseItem
 
   object PromotionResponse {
 
-    case class Root(id: Int,
-                    context: ObjectContextResponse.Root,
-                    applyType: Promotion.ApplyType,
-                    attributes: Json,
-                    discounts: Seq[IlluminatedDiscountResponse.Root],
-                    archivedAt: Option[Instant])
-        extends ResponseItem
-
-    def build(promotion: IlluminatedPromotion, discounts: Seq[IlluminatedDiscount], promo: Promotion): Root =
-      Root(
+    def build(promotion: IlluminatedPromotion,
+              discounts: Seq[IlluminatedDiscount],
+              promo: Promotion): PromotionResponse =
+      PromotionResponse(
         id = promotion.id,
         context = ObjectContextResponse.build(promotion.context),
         applyType = promotion.applyType,
@@ -43,7 +45,7 @@ object PromotionResponses {
               promotion: Promotion,
               form: ObjectForm,
               shadow: ObjectShadow,
-              discounts: Seq[(ObjectForm, ObjectShadow)]): Root = {
+              discounts: Seq[(ObjectForm, ObjectShadow)]): PromotionResponse = {
       val promoIlluminated = IlluminatedPromotion.illuminate(context, promotion, form, shadow)
       build(promotion = promoIlluminated, discounts = discounts.map {
         case (f, s) ⇒

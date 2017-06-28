@@ -17,7 +17,7 @@ import phoenix.responses.ResponseItem
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
-case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) extends ResponseItem
+case class CordResponseCouponPair(coupon: CouponResponse, code: String) extends ResponseItem
 
 object CordResponsePromotions {
 
@@ -43,7 +43,7 @@ object CordResponsePromotions {
     fa.flatMap(_.map(a ⇒ DbResultT.pure(a.some)).getOrElse(fb))
 
   private def renderPromotionResponse(
-      promotion: Promotion)(implicit ec: EC, ctx: OC, db: DB): DbResultT[PromotionResponse.Root] =
+      promotion: Promotion)(implicit ec: EC, ctx: OC, db: DB): DbResultT[PromotionResponse] =
     for {
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
@@ -58,11 +58,11 @@ object CordResponsePromotions {
     } yield respPromo
 
   private def fetchAutoApply(
-      promotionShadowId: Int)(implicit ec: EC, db: DB, ctx: OC): DbResultT[PromotionResponse.Root] =
+      promotionShadowId: Int)(implicit ec: EC, db: DB, ctx: OC): DbResultT[PromotionResponse] =
     renderHistoricalPromotion(promotionShadowId)
 
   private def renderHistoricalPromotion(
-      promotionShadowId: Int)(implicit ec: EC, db: DB, ctx: OC): DbResultT[PromotionResponse.Root] =
+      promotionShadowId: Int)(implicit ec: EC, db: DB, ctx: OC): DbResultT[PromotionResponse] =
     for {
       promotionShadow ← * <~ ObjectShadows.mustFindById404(promotionShadowId)
       promotionFormId = promotionShadow.formId
@@ -87,7 +87,7 @@ object CordResponsePromotions {
   private def fetchCoupon(couponCodeId: Int)(
       implicit db: DB,
       ec: EC,
-      ctx: OC): DbResultT[(PromotionResponse.Root, CordResponseCouponPair)] =
+      ctx: OC): DbResultT[(PromotionResponse, CordResponseCouponPair)] =
     for {
       // Coupon
       couponCode ← * <~ CouponCodes

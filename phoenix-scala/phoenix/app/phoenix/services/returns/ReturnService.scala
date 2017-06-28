@@ -23,7 +23,7 @@ object ReturnService {
 
   def updateMessageToCustomer(refNum: String, payload: ReturnMessageToCustomerPayload)(
       implicit ec: EC,
-      db: DB): DbResultT[Root] =
+      db: DB): DbResultT[ReturnResponse] =
     for {
       rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
@@ -32,11 +32,12 @@ object ReturnService {
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
-  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(implicit ec: EC,
-                                                                          db: DB,
-                                                                          au: AU,
-                                                                          ac: AC,
-                                                                          apis: Apis): DbResultT[Root] =
+  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(
+      implicit ec: EC,
+      db: DB,
+      au: AU,
+      ac: AC,
+      apis: Apis): DbResultT[ReturnResponse] =
     for {
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
       _        ← * <~ rma.transitionState(payload.state)
@@ -61,8 +62,9 @@ object ReturnService {
     } yield rma
 
   // todo should be available for non-admin as well
-  def createByAdmin(admin: User,
-                    payload: ReturnCreatePayload)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
+  def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
+                                                               db: DB,
+                                                               ac: AC): DbResultT[ReturnResponse] =
     for {
       order        ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
       _            ← * <~ failIf(order.state != Order.Shipped, OrderMustBeShippedForReturn(order.refNum, order.state))
@@ -77,27 +79,27 @@ object ReturnService {
       _ ← * <~ LogActivity().returnCreated(admin, response)
     } yield response
 
-  def list(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+  def list(implicit ec: EC, db: DB): DbResultT[Seq[ReturnResponse]] =
     for {
       rma      ← * <~ Returns.result
       response ← * <~ rma.map(fromRma)
     } yield response
 
-  def getByCustomer(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+  def getByCustomer(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[ReturnResponse]] =
     for {
       _        ← * <~ Accounts.mustFindById404(customerId)
       rma      ← * <~ Returns.findByAccountId(customerId).result
       response ← * <~ rma.map(fromRma)
     } yield response
 
-  def getByOrder(refNum: String)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+  def getByOrder(refNum: String)(implicit ec: EC, db: DB): DbResultT[Seq[ReturnResponse]] =
     for {
       _        ← * <~ Orders.mustFindByRefNum(refNum)
       rma      ← * <~ Returns.findByOrderRefNum(refNum).result
       response ← * <~ rma.map(fromRma)
     } yield response
 
-  def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[ReturnResponse] =
     for {
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
       response ← * <~ fromRma(rma)

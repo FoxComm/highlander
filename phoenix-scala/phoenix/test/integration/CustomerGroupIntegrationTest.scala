@@ -6,7 +6,7 @@ import org.scalatest.mockito.MockitoSugar
 import phoenix.models.customer.CustomerGroup._
 import phoenix.models.customer._
 import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
-import phoenix.responses.GroupResponses.GroupResponse.{build, Root}
+import phoenix.responses.GroupResponses.GroupResponse
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -29,7 +29,7 @@ class CustomerGroupIntegrationTest
                                          customersCount = 1,
                                          groupType = Manual)
 
-      val root    = customerGroupsApi.create(payload).as[Root]
+      val root    = customerGroupsApi.create(payload).as[GroupResponse]
       val created = CustomerGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
       created.groupType must === (Manual)
@@ -48,7 +48,7 @@ class CustomerGroupIntegrationTest
         groupType = Dynamic
       )
 
-      val root    = customerGroupsApi.create(payload).as[Root]
+      val root    = customerGroupsApi.create(payload).as[GroupResponse]
       val created = CustomerGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
       created.groupType must === (Dynamic)
@@ -69,7 +69,7 @@ class CustomerGroupIntegrationTest
                                          scope = scopeN.some,
                                          groupType = Manual)
 
-      val root = customerGroupsApi.create(payload).as[Root]
+      val root = customerGroupsApi.create(payload).as[GroupResponse]
       root.elasticRequest must !==(JObject())
       ((((root.elasticRequest \ "query" \ "bool" \ "filter")(0) \ "bool" \ "must")(0) \ "term" \ "groups")) must === (
         JInt(root.id))
@@ -91,7 +91,7 @@ class CustomerGroupIntegrationTest
 
   "GET /v1/customer-groups/:groupId" - {
     "fetches group info" in new Fixture {
-      customerGroupsApi(group.id).get().as[Root] must === (build(group))
+      customerGroupsApi(group.id).get().as[GroupResponse] must === (GroupResponse.build(group))
     }
 
     "404 if group not found" in new Fixture {
@@ -109,7 +109,7 @@ class CustomerGroupIntegrationTest
 
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
 
-      val updated = customerGroupsApi(group.id).update(payload).as[Root]
+      val updated = customerGroupsApi(group.id).update(payload).as[GroupResponse]
       (updated.name, updated.customersCount) must === ((payload.name, payload.customersCount))
     }
 

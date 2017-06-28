@@ -1,9 +1,9 @@
 /* @flow */
 
 import React, { Element } from 'react';
-import classNames from 'classnames';
 
-import Footer from '../footer/footer';
+import Footer from 'components/footer/footer';
+import Overlay from 'ui/overlay/overlay';
 
 import styles from './storefront.css';
 
@@ -23,17 +23,13 @@ const StoreFront = (props: Props) => {
     })
   );
 
-  const overlayClass = classNames(styles['content-container-overlay'], {
-    [styles['_with-overlay']]: props.isContentOverlayVisible,
-  });
-
   return (
     <div styleName="container">
       <div styleName="content-container">
         {childrenWithRoutes}
       </div>
       <Footer />
-      <div className={overlayClass} />
+      <Overlay shown={props.isContentOverlayVisible} />
     </div>
   );
 };
