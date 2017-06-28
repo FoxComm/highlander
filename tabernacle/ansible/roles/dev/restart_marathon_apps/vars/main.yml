@@ -1,6 +1,5 @@
 marathon_apps:
   # core-backend group
-    agni: "{{ lookup('env', 'AGNI_RESTART') | default(false) }}"
     isaac: "{{ lookup('env', 'ISAAC_RESTART') | default(false) }}"
     middlewarehouse: "{{ lookup('env', 'MIDDLEWAREHOUSE_RESTART') | default(false) }}"
     phoenix: "{{ lookup('env', 'PHOENIX_RESTART') | default(false) }}"

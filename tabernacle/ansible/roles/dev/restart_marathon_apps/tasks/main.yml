@@ -5,7 +5,6 @@
       url: "{{base_url}}/highlander/{{item.group}}/{{item.app}}/restart"
       method: POST
     with_items:
-      - { group: core-backend, app: agni }
       - { group: core-backend, app: isaac }
       - { group: core-backend, app: middlewarehouse }
       - { group: core-backend, app: phoenix }
