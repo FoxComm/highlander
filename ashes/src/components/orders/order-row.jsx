@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 
 import MultiSelectRow from '../table/multi-select-row';
-import OrderParagon from 'paragons/order';
+import OrderParagon, { isAmazonListItemOrder } from 'paragons/order';
 
 const compileShippingStatus = order => {
   if (order.state == 'canceled') {
@@ -17,7 +17,7 @@ const compileShippingStatus = order => {
   let deliveredItemCount = 0;
 
   _.forEach(order.shipments, shipment => {
-    switch(shipment.state) {
+    switch (shipment.state) {
       case 'canceled':
         canceledItemCount += 1;
         break;
@@ -43,11 +43,18 @@ const compileShippingStatus = order => {
   });
 
   if (order.shipments.length > 0) {
-    if (order.state == 'fulfillmentStarted' && shippedItemCount > 0 &&
-        deliveredItemCount == 0 && (pendingItemCount > 0 || partiallyShippedItemCount > 0)) {
+    if (
+      order.state == 'fulfillmentStarted' &&
+      shippedItemCount > 0 &&
+      deliveredItemCount == 0 &&
+      (pendingItemCount > 0 || partiallyShippedItemCount > 0)
+    ) {
       return 'Partially Shipped';
-    } else if (order.state == 'fulfillmentStarted' && deliveredItemCount > 0 &&
-               (shippedItemCount > 0 || pendingItemCount > 0)) {
+    } else if (
+      order.state == 'fulfillmentStarted' &&
+      deliveredItemCount > 0 &&
+      (shippedItemCount > 0 || pendingItemCount > 0)
+    ) {
       return 'Partially Delivered';
     } else if (canceledItemCount == order.shipments.length) {
       return 'Canceled';
@@ -62,7 +69,7 @@ const compileShippingStatus = order => {
 };
 
 const setCellContents = (order, field) => {
-  switch(field) {
+  switch (field) {
     case 'referenceNumber':
     case 'placedAt':
     case 'customer.name':
@@ -78,24 +85,22 @@ const setCellContents = (order, field) => {
 };
 
 type Props = {
-  order: OrderParagon;
-  columns: Array<*>;
-  params: Object;
+  order: OrderParagon,
+  columns: Array<*>,
+  params: Object,
 };
 
 const OrderRow = (props: Props) => {
   const { order, columns, params } = props;
 
-  // @todo verify isAmazon more strictly and convenient
-  const email = _.get(order, 'customer.email', '');
-  const isAmazon = email.endsWith('@marketplace.amazon.com');
+  const isAmazon = isAmazonListItemOrder(order);
   const linkTo = isAmazon ? 'amazon-order' : 'order';
 
   return (
     <MultiSelectRow
       columns={columns}
       linkTo={linkTo}
-      linkParams={{order: order.referenceNumber}}
+      linkParams={{ order: order.referenceNumber }}
       row={order}
       setCellContents={setCellContents}
       params={params}

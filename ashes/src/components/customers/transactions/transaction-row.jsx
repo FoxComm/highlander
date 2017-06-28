@@ -1,9 +1,11 @@
 /* @flow */
 
-import React from 'react';
-
 // libs
 import _ from 'lodash';
+import React from 'react';
+
+// helpers
+import { isAmazonListItemOrder } from 'paragons/order';
 
 // components
 import MultiSelectRow from '../../table/multi-select-row';
@@ -20,16 +22,22 @@ const OrderTransactionRow = (props: Props) => {
   const computePaymentState = (order: Object) => {
     // This is a pretty limited algorithm, but it matches what Phoenix is doing.
     // We'll beef it up when we get shipping and payment capture in the system.
-    const authorizations = _.reduce(order.payments, (result, payment) => {
-      const { paymentMethodType } = payment;
-      if ((paymentMethodType == 'creditCard' && payment.creditCardState == 'fullCapture') ||
-        (paymentMethodType == 'giftCard' && payment.giftCardState == 'capture') ||
-        (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'capture')) {
-        return result + 1;
-      }
+    const authorizations = _.reduce(
+      order.payments,
+      (result, payment) => {
+        const { paymentMethodType } = payment;
+        if (
+          (paymentMethodType == 'creditCard' && payment.creditCardState == 'fullCapture') ||
+          (paymentMethodType == 'giftCard' && payment.giftCardState == 'capture') ||
+          (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'capture')
+        ) {
+          return result + 1;
+        }
 
-      return result;
-    }, 0);
+        return result;
+      },
+      0
+    );
 
     return authorizations > 0 && authorizations == order.payments.length ? 'Full Capture' : 'Auth';
   };
@@ -59,11 +67,13 @@ const OrderTransactionRow = (props: Props) => {
     }
   };
 
+  const route = !isAmazonListItemOrder(order) ? 'order' : 'amazon-order';
+
   return (
     <MultiSelectRow
       columns={columns}
-      linkTo="order"
-      linkParams={{order: order.referenceNumber}}
+      linkTo={route}
+      linkParams={{ order: order.referenceNumber }}
       row={order}
       setCellContents={setCellContents}
       params={params}

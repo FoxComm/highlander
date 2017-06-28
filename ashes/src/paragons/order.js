@@ -27,6 +27,7 @@ export type Order = {
   paymentMethods: Array<PaymentMethod>,
   orderState: string,
   lineItems: Object,
+  channel?: string,
 };
 
 export type ShippingMethod = {
@@ -88,6 +89,18 @@ function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
     l.totalPrice = l.quantity * l.price;
     return l;
   });
+}
+
+export function isAmazonOrder(order: Order) {
+  return order.channel === 'Amazon.com';
+}
+
+// @todo verify isAmazon more strictly and convenient
+// @todo: introduce flow types for list responses from ES
+export function isAmazonListItemOrder(order: any) {
+  const customerEmail = _.get(order, 'customer.email', '');
+
+  return customerEmail.endsWith('@marketplace.amazon.com');
 }
 
 export default class OrderParagon {

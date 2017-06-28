@@ -24,7 +24,7 @@ import styles from './payment-row.css';
 // redux
 import { deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment } from 'modules/carts/details';
 
-import type Order from 'paragons/order';
+import type Order, { isAmazonOrder } from 'paragons/order';
 import type { Cart, PaymentMethod } from 'paragons/order';
 
 type Props = {
@@ -73,7 +73,7 @@ class PaymentRow extends Component {
   }
 
   get details(): ?Element<*> {
-    if (this.props.order.channel === 'Amazon.com') {
+    if (isAmazonOrder(this.props.order)) {
       return null;
     }
 
@@ -134,8 +134,7 @@ class PaymentRow extends Component {
     const dir = this.state.showDetails ? 'up' : 'down';
     const iconClass = `chevron-${dir}`;
 
-    const toggler =
-      order.channel !== 'Amazon.com' && <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />;
+    const toggler = isAmazonOrder(order) && <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />;
 
     return (
       <TableRow key="summary" styleName="payment-row">

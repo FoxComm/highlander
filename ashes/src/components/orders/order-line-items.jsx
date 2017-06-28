@@ -6,7 +6,7 @@ import React from 'react';
 import ContentBox from 'components/content-box/content-box';
 import SkuLineItems, { defaultColumns } from 'components/sku-line-items/sku-line-items';
 
-import OrderParagon from 'paragons/order';
+import OrderParagon, { isAmazonOrder } from 'paragons/order';
 
 type Props = {
   order: OrderParagon,
@@ -17,7 +17,7 @@ const OrderLineItems = (props: Props) => {
 
   let columns = defaultColumns;
 
-  if (props.order.channel === 'Amazon.com') {
+  if (isAmazonOrder(props.order)) {
     const skuFieldIndex = findIndex(defaultColumns, { field: 'sku' });
 
     columns = [

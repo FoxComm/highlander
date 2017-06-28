@@ -14,13 +14,13 @@ import DiscountsPanel from 'components/discounts-panel/discounts-panel';
 import OrderCoupons from './order-coupons';
 import ParticipantsPanel from '../participants';
 
-import OrderParagon from 'paragons/order';
+import OrderParagon, { isAmazonOrder } from 'paragons/order';
 
 type Props = {
   details: {
     order: OrderParagon,
   },
-  entityType: string;
+  entityType: string,
 };
 
 export default class OrderDetails extends Component {
@@ -38,12 +38,8 @@ export default class OrderDetails extends Component {
         <div className="fc-order-details-body">
           <div className="fc-order-details-main">
             <OrderLineItems order={order} />
-            {order.channel !== 'Amazon.com' &&
-              <DiscountsPanel promotion={order.promotion} />
-            }
-            {order.channel !== 'Amazon.com' &&
-            <OrderCoupons isCart={false} coupon={order.coupon} />
-            }
+            {!isAmazonOrder(order) && <DiscountsPanel promotion={order.promotion} />}
+            {!isAmazonOrder(order) && <OrderCoupons isCart={false} coupon={order.coupon} />}
             <OrderShippingAddress isCart={false} order={order} />
             <OrderShippingMethod isCart={false} order={order} />
             <Payments {...this.props} />
@@ -51,7 +47,7 @@ export default class OrderDetails extends Component {
           <div className="fc-order-details-aside">
             <TotalsSummary entity={order} title={order.title} />
             <CustomerCard customer={order.customer} />
-            <ParticipantsPanel entity={{entityId: order.referenceNumber, entityType}} />
+            <ParticipantsPanel entity={{ entityId: order.referenceNumber, entityType }} />
           </div>
         </div>
       </div>
