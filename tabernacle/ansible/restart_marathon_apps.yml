@@ -1,6 +1,6 @@
 ---
 
-- name: Restart an app in marathon
+- name: Restart apps in marathon
   hosts: localhost
   roles:
     - { role: dev/restart_marathon_apps }
