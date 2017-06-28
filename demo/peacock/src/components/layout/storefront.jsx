@@ -1,7 +1,6 @@
 /* @flow */
 
 import React, { Element } from 'react';
-import classNames from 'classnames';
 
 import Footer from 'components/footer/footer';
 import Overlay from 'ui/overlay/overlay';

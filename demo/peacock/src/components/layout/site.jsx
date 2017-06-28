@@ -7,7 +7,7 @@ import { dissoc } from 'sprout-data';
 import ScrollContainer from 'react-router-scroll/lib/ScrollContainer';
 
 // components
-import Overlay from 'ui/overlay/overlay';
+import Overlay from 'components/overlay/overlay';
 import Auth from 'components/auth/auth';
 import Header from 'components/header/header';
 
