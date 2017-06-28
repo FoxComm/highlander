@@ -124,7 +124,7 @@ describe('Cart', function() {
 		await step.setShippingAddress(customerApi, $.randomCreateAddressPayload());
 		const shippingMethods = await step.getShippingMethods(customerApi);
 		const shippingMethod = $.randomArrayElement(shippingMethods);
-		const fullOrder = await step.chooseShippingMethod(customerApi, shippingMethod).then(r => r.result);
+		const fullOrder = await step.chooseShippingMethod(customerApi, shippingMethod.id).then(r => r.result);
 		expect(fullOrder.shippingMethod).to.deep.equal(shippingMethod);
 		const foundOrder = await step.getCurrentCart(customerApi);
 		expect(foundOrder).to.deep.equal(fullOrder);
