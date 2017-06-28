@@ -125,8 +125,8 @@ export const getCartsShippingMethods = allure.createStep('List carts shipping me
 	api.carts.getShippingMethods(cart.referenceNumber)
 ));
 
-export const chooseShippingMethod = allure.createStep('Choose shipping method', (api, method) => (
-	api.cart.chooseShippingMethod(method.id)
+export const chooseShippingMethod = allure.createStep('Choose shipping method', (api, methodId) => (
+	api.cart.chooseShippingMethod(methodId)
 ));
 
 export const addCreditCard = allure.createStep('Add credit card', (api, cardId) => (

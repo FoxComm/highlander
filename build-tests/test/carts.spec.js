@@ -3,9 +3,6 @@ import testWatchers from './test-watchers';
 import createCreditCard from '../helpers/createCreditCard';
 import placeRandomOrder from '../helpers/placeRandomOrder';
 import { AdminApi, CustomerApi } from '../helpers/Api';
-import isArray from '../helpers/isArray';
-import isString from '../helpers/isString';
-import isNumber from '../helpers/isNumber';
 import $ from '../payloads';
 import { expect } from 'chai';
 import * as step from '../helpers/steps';
@@ -54,12 +51,12 @@ describe('Carts', function() {
 		const api = new AdminApi;
 		await step.loginAsAdmin(api);
 		const shippingMethodsFromAdminApi = await step.getCartsShippingMethods(api, cart);
-		expect(isArray(shippingMethodsFromAdminApi)).to.be.true;
+		expect(shippingMethodsFromAdminApi).to.be.a('array');
 		for (const shippingMethod of shippingMethodsFromAdminApi) {
-			expect(isNumber(shippingMethod.id)).to.be.true;
-			expect(isNumber(shippingMethod.price)).to.be.true;
-			expect(isString(shippingMethod.name)).to.be.true;
-			expect(isString(shippingMethod.code)).to.be.true;
+			expect(shippingMethod.id).to.be.a('number');
+			expect(shippingMethod.price).to.be.a('number');
+			expect(shippingMethod.name).to.be.a('string');
+			expect(shippingMethod.code).to.be.a('string');
 		}
 		expect(shippingMethodsFromAdminApi).to.deep.equal(shippingMethodsFromCustomerApi);
 	});
@@ -76,7 +73,7 @@ describe('Carts', function() {
 		const payload = $.randomLineItemsPayload([skuCode]);
 		const updatedCart = await step.addLineItemQuantities(api, referenceNumber, payload).then(r => r.result);
 		expect(updatedCart.lineItems).to.exist;
-		expect(isArray(updatedCart.lineItems.skus)).to.be.true;
+		expect(updatedCart.lineItems.skus).to.be.a('array');
 		expect(updatedCart.lineItems.skus.length).to.equal(1);
 		expect(updatedCart.lineItems.skus[0].sku).to.equal(skuCode);
 		expect(updatedCart.lineItems.skus[0].quantity).to.equal(payload[0].quantity);
@@ -119,7 +116,7 @@ describe('Carts', function() {
 		// const cart = await customerApi.cart.get();
 		// t.deepEqual(cart, updatedCart);
 	});
-	TODO: BROKEN
+
 	it('[bvt] Can\'t access the cart once order for it has been placed', async () => {
 		const { fullOrder } = await placeRandomOrder();
 		try {

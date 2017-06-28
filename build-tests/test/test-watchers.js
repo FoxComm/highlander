@@ -1,7 +1,6 @@
 import { AdminApi } from '../helpers/Api';
 import $ from '../payloads';
 import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
 import { expect } from 'chai';
 import * as step from '../helpers/steps';
 
@@ -12,7 +11,7 @@ export default ({ objectApi, createObject, selectId }) => {
 		const newObject = await createObject(api);
 		const id = selectId(newObject);
 		const watchers = await objectApi(api).getWatchers(id);
-		expect(isArray(watchers)).to.be.true;
+		expect(watchers).to.be.a('array');
 		expect(watchers.length).to.equal(0);
 	});
 
@@ -25,7 +24,7 @@ export default ({ objectApi, createObject, selectId }) => {
 		const watchersPayload = { assignees: [watcher.id] };
 		const id = selectId(newObject);
 		const watchers = await objectApi(api).addWatchers(id, watchersPayload).then(r => r.result);
-		expect(isArray(watchers)).to.be.true;
+		expect(watchers).to.be.a('array');
 		expect(watchers.length).to.equal(1);
 		expect(isDate(watchers[0].createdAt)).to.be.true;
 
@@ -44,7 +43,7 @@ export default ({ objectApi, createObject, selectId }) => {
 		const watchersPayload = { assignees: [watcherId] };
 		const id = selectId(newObject);
 		const watchersAfterAdd = await objectApi(api).addWatchers(id, watchersPayload).then(r => r.result);
-		expect(isArray(watchersAfterAdd)).to.be.true;
+		expect(watchersAfterAdd).to.be.a('array');
 		expect(watchersAfterAdd.length).to.equal(1);
 
 		// dont work since of bug with assigning watcher #1993
@@ -57,7 +56,7 @@ export default ({ objectApi, createObject, selectId }) => {
 		const tempRemoveId = watchersAfterAdd[0].assignee.id;
 		await objectApi(api).removeWatcher(id, tempRemoveId);
 		const watchersAfterRemove = await objectApi(api).getWatchers(id);
-		expect(isArray(watchersAfterRemove)).to.be.true;
+		expect(watchersAfterRemove).to.be.a('array');
 		expect(watchersAfterRemove.length, 0).to.equal(0);
 	});
 };

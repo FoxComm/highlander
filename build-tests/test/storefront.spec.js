@@ -1,4 +1,3 @@
-import superagent from 'superagent';
 import { AdminApi, CustomerApi } from '../helpers/Api';
 import $ from '../payloads';
 import config from '../config';
