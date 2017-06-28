@@ -28,7 +28,11 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 .PHONY: docker
 docker: MSG=Dockerizing
 docker: notify
-	docker build -t $(DOCKER_IMAGE) .
+	docker build -t $(DOCKER_IMAGE) . --build-arg NPM_TOKEN=${NPM_TOKEN}
+
+.PHONY: docker-run
+docker-run:
+	docker run -it -p 4000:4000 ashes:latest
 
 .PHONY: docker-push
 docker-push: MSG=Registering
@@ -50,22 +54,25 @@ clean:
 
 .PHONY: test
 test: MSG=Testing
-test: notify flow lint
-	rm -rf ./node_modules
-	make install
-	@NODE_ENV=$(NODE_ENV) gulp test
+test: notify flow lint mocha
 
 .PHONY: t
-t: flow lint
-	@NODE_ENV=$(NODE_ENV) gulp test
+t: flow lint mocha
 
-.PHONY: mocha-main
-mocha-main:
-	@NODE_ENV=$(NODE_ENV) gulp mocha.main
+.PHONY: mocha-spec
+mocha-spec:
+	mocha --require test/acceptance/_setup --recursive ./src/**/*.spec.jsx
+
+.PHONY: mocha-acc
+mocha-acc:
+	@NODE_ENV=$(NODE_ENV) mocha --require test/acceptance/_setup --recursive ./test/acceptance/**/*.jsx
 
 .PHONY: mocha-unit
 mocha-unit:
-	@NODE_ENV=$(NODE_ENV) gulp mocha.unit
+	@NODE_ENV=$(NODE_ENV) mocha --recursive ./test/unit/**/*.js
+
+.PHONY: mocha
+mocha: mocha-acc mocha-spec mocha-unit
 
 .PHONY: stylelint
 stylelint:
@@ -100,6 +107,7 @@ styleguide sg:
 
 .PHONY: install i
 install i:
+	rm -rf ./node_modules
 	yarn cache clean
 	yarn --pure-lockfile
 

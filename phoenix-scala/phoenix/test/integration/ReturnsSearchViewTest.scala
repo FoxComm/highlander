@@ -45,7 +45,7 @@ class ReturnsSearchViewTest
 
       returnsApi(rma.referenceNumber).paymentMethods
         .add(PaymentMethod.CreditCard, ReturnPaymentPayload(amount = 20))
-        .as[ReturnResponse.Root]
+        .as[ReturnResponse]
 
       val rmaSearchView = viewOne(rma.id)
 
@@ -79,7 +79,7 @@ class ReturnsSearchViewTest
 
       returnsApi(rma.referenceNumber)
         .update(ReturnUpdateStatePayload(state = Processing, reasonId = None))
-        .as[ReturnResponse.Root]
+        .as[ReturnResponse]
         .state must === (Processing)
 
       viewOne(rma.id).state must === (Processing)
@@ -91,7 +91,7 @@ class ReturnsSearchViewTest
       val payload = ReturnMessageToCustomerPayload(message = "Hello!")
       returnsApi(rma.referenceNumber)
         .message(payload)
-        .as[ReturnResponse.Root]
+        .as[ReturnResponse]
         .messageToCustomer
         .head must === (payload.message)
 

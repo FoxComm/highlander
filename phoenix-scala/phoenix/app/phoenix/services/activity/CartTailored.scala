@@ -8,7 +8,7 @@ import phoenix.models.shipping.ShippingMethod
 import phoenix.responses.cord.CartResponse
 import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.responses.users.UserResponse
-import phoenix.responses.{AddressResponse, CreditCardsResponse}
+import phoenix.responses.{AddressResponse, CreditCardResponse}
 
 object CartTailored {
 
@@ -59,7 +59,7 @@ object CartTailored {
 
   /* Cart Payment Methods */
   case class CartPaymentMethodAddedCreditCard(cart: CartResponse,
-                                              creditCard: CreditCardsResponse.Root,
+                                              creditCard: CreditCardResponse,
                                               admin: Option[UserResponse])
       extends ActivityBase[CartPaymentMethodAddedCreditCard]
 

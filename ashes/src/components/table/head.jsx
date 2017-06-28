@@ -13,27 +13,28 @@ class TableHead extends React.Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
     setState: PropTypes.func,
-    sortBy: PropTypes.string
+    sortBy: PropTypes.string,
   };
 
   onHeaderClick(field, event) {
     event.preventDefault();
-    this.props.setState && this.props.setState({
-      sortBy: this.props.sortBy === field ? `-${field}` : `${field}`
-    });
+    this.props.setState &&
+      this.props.setState({
+        sortBy: this.props.sortBy === field ? `-${field}` : `${field}`,
+      });
   }
 
   @autobind
   renderColumn(column) {
-    const {sortBy, setState} = this.props;
-    const {field} = column;
+    const { sortBy, setState } = this.props;
+    const { field } = column;
     const sortable = column.sortable !== false;
 
     const className = classNames(column.className, {
       'fc-table-th': true,
-      'sorting': sortable && setState,
+      sorting: sortable && setState,
       'sorting-asc': sortable && `${field}` === sortBy,
-      'sorting-desc': sortable && `-${field}` === sortBy
+      'sorting-desc': sortable && `-${field}` === sortBy,
     });
 
     let contents = null;
@@ -46,16 +47,13 @@ class TableHead extends React.Component {
     }
 
     return (
-      <th className={className}
-          key={`${field}`}
-          onClick={sortable ? this.onHeaderClick.bind(this, field) : null}>
+      <th className={className} key={`${field}`} onClick={sortable ? this.onHeaderClick.bind(this, field) : null}>
         {contents}
-        {sortable && (
+        {sortable &&
           <span className="fc-table__sorting">
             <Icon name="down" />
             <Icon name="up" />
-          </span>
-        )}
+          </span>}
       </th>
     );
   }

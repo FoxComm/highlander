@@ -4,7 +4,7 @@ import core.failures.NotFoundFailure404
 import phoenix.models.Notes
 import phoenix.models.account._
 import phoenix.payloads.NotePayloads._
-import phoenix.responses.AdminNotes
+import phoenix.responses.AdminNoteResponse
 import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -20,7 +20,7 @@ class CustomerNotesIntegrationTest
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {
       val note =
-        notesApi.customer(customer.accountId).create(CreateNote("foo")).as[AdminNotes.Root]
+        notesApi.customer(customer.accountId).create(CreateNote("foo")).as[AdminNoteResponse]
       note.author.name.value must === (defaultAdmin.name.value)
       note.author.email.value must === (defaultAdmin.email.value)
     }
@@ -52,7 +52,7 @@ class CustomerNotesIntegrationTest
       notesApi
         .customer(customer.accountId)
         .get()
-        .as[Seq[AdminNotes.Root]]
+        .as[Seq[AdminNoteResponse]]
         .map(_.body)
         .toSet must contain theSameElementsAs bodies
     }
@@ -62,13 +62,13 @@ class CustomerNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val note =
-        notesApi.customer(customer.accountId).create(CreateNote("foo")).as[AdminNotes.Root]
+        notesApi.customer(customer.accountId).create(CreateNote("foo")).as[AdminNoteResponse]
 
       notesApi
         .customer(customer.accountId)
         .note(note.id)
         .update(UpdateNote("donkey"))
-        .as[AdminNotes.Root]
+        .as[AdminNoteResponse]
         .body must === ("donkey")
     }
   }
@@ -77,7 +77,7 @@ class CustomerNotesIntegrationTest
 
     "can soft delete note" in new Fixture {
       val note =
-        notesApi.customer(customer.accountId).create(CreateNote("foo")).as[AdminNotes.Root]
+        notesApi.customer(customer.accountId).create(CreateNote("foo")).as[AdminNoteResponse]
 
       notesApi.customer(customer.accountId).note(note.id).delete().mustBeEmpty()
 
@@ -88,7 +88,7 @@ class CustomerNotesIntegrationTest
         updatedNote.deletedAt.value.isBeforeNow mustBe true
       }
 
-      val allNotes = notesApi.customer(customer.accountId).get().as[Seq[AdminNotes.Root]]
+      val allNotes = notesApi.customer(customer.accountId).get().as[Seq[AdminNoteResponse]]
       allNotes.map(_.id) must not contain note.id
     }
   }

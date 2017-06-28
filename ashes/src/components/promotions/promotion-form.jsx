@@ -21,16 +21,12 @@ import { customerGroups } from 'paragons/object-types';
 const layout = require('./layout.json');
 
 export default class PromotionForm extends ObjectDetails {
-
   layout = layout;
 
   renderApplyType() {
     const promotion = this.props.object;
     return (
-      <FormField
-        ref="applyTypeField"
-        className="fc-object-form__field"
-      >
+      <FormField ref="applyTypeField" className="fc-object-form__field">
         <div>
           <RadioButton
             id="autoApplyRadio"
@@ -51,7 +47,6 @@ export default class PromotionForm extends ObjectDetails {
     );
   }
 
-
   get usageRules() {
     return _.get(this.props, 'object.attributes.usageRules.v', {});
   }
@@ -59,9 +54,7 @@ export default class PromotionForm extends ObjectDetails {
   renderUsageRules() {
     const isExclusive = _.get(this.usageRules, 'isExclusive');
     return (
-      <FormField
-        className="fc-object-form__field"
-      >
+      <FormField className="fc-object-form__field">
         <div>
           <RadioButton
             id="isExlusiveRadio"
@@ -83,21 +76,21 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   @autobind
-  handleQualifierChange(qualifier: Object) {
-    const newPromotion = setDiscountAttr(this.props.object,
-      'qualifier', qualifier
-    );
-
+  handleQualifierChange(qualifier: Object, params = {}) {
+    const newPromotion = setDiscountAttr(this.props.object, 'qualifier', qualifier);
     this.props.onUpdateObject(newPromotion);
+    if (!_.isEmpty(params)) {
+      this.props.updateClientSideErrors('qualifierErrors', params, qualifiers);
+    }
   }
 
   @autobind
-  handleOfferChange(offer: Object) {
-    const newPromotion = setDiscountAttr(this.props.object,
-      'offer', offer
-    );
-
+  handleOfferChange(offer: Object, params = {}) {
+    const newPromotion = setDiscountAttr(this.props.object, 'offer', offer);
     this.props.onUpdateObject(newPromotion);
+    if (!_.isEmpty(params)) {
+      this.props.updateClientSideErrors('offerErrors', params, offers);
+    }
   }
 
   @autobind
@@ -110,12 +103,12 @@ export default class PromotionForm extends ObjectDetails {
 
   @autobind
   handleUsageRulesChange({ target }: Object) {
-    const value = (target.getAttribute('name') === 'true');
+    const value = target.getAttribute('name') === 'true';
     const newPromotion = setObjectAttr(this.props.object, 'usageRules', {
       t: 'PromoUsageRules',
       v: {
-        'isExclusive': value
-      }
+        isExclusive: value,
+      },
     });
 
     this.props.onUpdateObject(newPromotion);
@@ -126,31 +119,39 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   renderDiscounts() {
-    let discountChilds = [];
     const discounts = _.get(this.props.object, 'discounts', []);
-    discounts.map((disc, index) => {
-      discountChilds.push(<div styleName="sub-title">Qualifier</div>),
-        discountChilds.push(<DiscountAttrs
-          blockId={'promo-qualifier-block-' + index}
-          dropdownId={'promo-qualifier-dd-' + index}
+    const discountChildren = discounts.reduce((acc, disc, index) => {
+      const makeKey = prefix => `${prefix}-${disc.id || index}`;
+      return [
+        ...acc,
+        <div key={makeKey('qualifier')} styleName="sub-title">Qualifier</div>,
+        <DiscountAttrs
+          errors={this.props.clientSideErrors.qualifierErrors}
+          key={makeKey('qualifier-attrs')}
+          blockId={'promo-qualifier-block-'+index}
+          dropdownId={'promo-qualifier-dd-'+index}
           discount={disc}
           attr="qualifier"
           descriptions={qualifiers}
           onChange={this.handleQualifierChange}
-        />);
-      discountChilds.push(<div styleName="sub-title">Offer</div>),
-        discountChilds.push(<DiscountAttrs
-          blockId={'promo-offer-block-' + index}
-          dropdownId={'promo-offer-dd-' + index}
+        />,
+        <div key={makeKey('offer')} styleName="sub-title">Offer</div>,
+        <DiscountAttrs
+          errors={this.props.clientSideErrors.offerErrors}
+          key={makeKey('offer-attrs')}
+          blockId={'promo-offer-block-'+index}
+          dropdownId={'promo-offer-dd-'+index}
           discount={disc}
           attr="offer"
           descriptions={offers}
           onChange={this.handleOfferChange}
-        />);
-    });
+        />
+      ];
+    }, []);
+
     return (
       <div>
-        {discountChilds}
+        {discountChildren}
       </div>
     );
   }

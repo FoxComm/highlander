@@ -7,19 +7,19 @@ import core.failures.NotFoundFailure404
 import phoenix.models.account._
 import phoenix.models.{Note, Notes}
 import phoenix.payloads.NotePayloads._
-import phoenix.responses.AdminNotes
-import phoenix.responses.AdminNotes.Root
+import phoenix.responses.AdminNoteResponse
+import phoenix.responses.AdminNoteResponse
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
 package object notes {
-  def forModel[M <: FoxModel[M]](finder: Notes.QuerySeq)(implicit ec: EC): DbResultT[Seq[Root]] = {
+  def forModel[M <: FoxModel[M]](finder: Notes.QuerySeq)(implicit ec: EC): DbResultT[Seq[AdminNoteResponse]] = {
     val query = for {
       notes   ← finder
       authors ← notes.author
     } yield (notes, authors)
     DbResultT.fromF(query.result.map(_.map {
-      case (note, author) ⇒ AdminNotes.build(note, author)
+      case (note, author) ⇒ AdminNoteResponse.build(note, author)
     }))
   }
 
@@ -37,15 +37,16 @@ package object notes {
       _ ← * <~ LogActivity().noteCreated(author, entity, note)
     } yield note
 
-  def updateNote[T](entity: T, noteId: Int, author: User, payload: UpdateNote)(implicit ec: EC,
-                                                                               ac: AC): DbResultT[Root] =
+  def updateNote[T](entity: T, noteId: Int, author: User, payload: UpdateNote)(
+      implicit ec: EC,
+      ac: AC): DbResultT[AdminNoteResponse] =
     for {
       oldNote ← * <~ Notes
                  .filterByIdAndAdminId(noteId, author.id)
                  .mustFindOneOr(NotFoundFailure404(Note, noteId))
       newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
       _       ← * <~ LogActivity().noteUpdated(author, entity, oldNote, newNote)
-    } yield AdminNotes.build(newNote, author)
+    } yield AdminNoteResponse.build(newNote, author)
 
   def deleteNote[T](entity: T, noteId: Int, admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
     for {

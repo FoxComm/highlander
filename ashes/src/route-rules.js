@@ -1,6 +1,7 @@
+/* @flow */
 
-const authFreeUrls = /\/(login|signup)$/;
+const authFreeUrls = /\/(login|signup|(reset|restore)-password)$/;
 
-export function isPathRequiredAuth(path) {
+export function isPathRequiredAuth(path: string): boolean {
   return !path.match(authFreeUrls);
 }

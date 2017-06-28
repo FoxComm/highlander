@@ -25,7 +25,7 @@ class AssignmentsIntegrationTest
     "can be assigned to order" in new Order_Baked {
       val response = ordersApi(order.refNum)
         .assign(AssignmentPayload(assignees = Seq(storeAdmin.accountId)))
-        .as[TheResponse[Seq[AssignmentResponse.Root]]]
+        .as[TheResponse[Seq[AssignmentResponse]]]
 
       private val assignment = response.result.onlyElement
       assignment.assignee.id mustBe storeAdmin.accountId
@@ -38,7 +38,7 @@ class AssignmentsIntegrationTest
       // TODO - AlreadyAssignedFailure here?
       val response = ordersApi(order.refNum)
         .assign(AssignmentPayload(assignees = Seq(storeAdmin.accountId, 666)))
-        .asThe[Seq[AssignmentResponse.Root]]
+        .asThe[Seq[AssignmentResponse]]
 
       private val assignment = response.result.onlyElement
       assignment.assignee.id must === (storeAdmin.accountId)
@@ -59,7 +59,7 @@ class AssignmentsIntegrationTest
     "can be unassigned from order" in new AssignmentFixture {
       val response = ordersApi(order.refNum).unassign(storeAdmin.accountId)
 
-      val theResponse = response.as[Seq[AssignmentResponse.Root]]
+      val theResponse = response.as[Seq[AssignmentResponse]]
       theResponse mustBe 'empty
     }
 
@@ -87,7 +87,7 @@ class AssignmentsIntegrationTest
         .assign(
           BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
                                 storeAdminId = storeAdmin.accountId))
-        .as[TheResponse[Seq[AllOrders.Root]]]
+        .as[TheResponse[Seq[AllOrders]]]
 
       response.result.size mustBe 2
 
@@ -110,7 +110,7 @@ class AssignmentsIntegrationTest
         .unassign(
           BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
                                 storeAdminId = storeAdmin.accountId))
-        .as[TheResponse[Seq[AllOrders.Root]]]
+        .as[TheResponse[Seq[AllOrders]]]
 
       response.result must have size 2
 

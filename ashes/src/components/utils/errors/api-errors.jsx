@@ -34,7 +34,5 @@ function getErrorsFromResponse(response: ?Object): Array<string> {
 export default ({ response, ...rest }: Props) => {
   const errors = getErrorsFromResponse(response);
 
-  return (
-    <Errors {...rest} errors={errors} />
-  );
+  return <Errors {...rest} errors={errors} />;
 };

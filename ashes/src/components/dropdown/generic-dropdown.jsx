@@ -21,7 +21,10 @@ export type DropdownItemType = [ValueType, string | Element<*>, ?boolean];
 export type MouseHandler = (e: MouseEvent) => void;
 
 export type RenderDropdownFunction = (
-  value: any, title: ?string | Element<*>, props: Props, handleToggleClick: MouseHandler
+  value: any,
+  title: ?string | Element<*>,
+  props: Props,
+  handleToggleClick: MouseHandler
 ) => Element<*>;
 
 export type Props = {
@@ -33,14 +36,14 @@ export type Props = {
   listClassName?: string,
   placeholder?: string | Element<*>,
   emptyMessage?: string | Element<*>,
-  open?: bool,
+  open?: boolean,
   children?: Element<*>,
   items?: Array<any>,
-  primary?: bool,
-  editable?: bool,
-  changeable?: bool,
-  disabled?: bool,
-  inputFirst?: bool,
+  primary?: boolean,
+  editable?: boolean,
+  changeable?: boolean,
+  disabled?: boolean,
+  inputFirst?: boolean,
   renderDropdownInput?: RenderDropdownFunction,
   renderNullTitle?: Function,
   renderPrepend?: Function,
@@ -54,8 +57,8 @@ export type Props = {
 };
 
 type State = {
-  open: bool,
-  dropup: bool,
+  open: boolean,
+  dropup: boolean,
   selectedValue: ValueType,
   pointedValueIndex: number,
 };
@@ -186,19 +189,19 @@ export default class GenericDropdown extends Component {
   get dropdownClassName(): string {
     const { primary, editable, disabled, className } = this.props;
 
-    return classNames(className, 'fc-dropdown', {
-      '_primary': primary,
-      '_editable': editable,
-      '_disabled': disabled,
+    return classNames(s.block, className, 'fc-dropdown', {
+      _primary: primary,
+      _editable: editable,
+      _disabled: disabled,
     });
   }
 
   get listClassName(): string {
     const { open, dropup } = this.state;
     return classNames('fc-dropdown__items', {
-      '_open': open,
-      '_dropup': dropup,
-      '_dropdown': !dropup,
+      _open: open,
+      _dropup: dropup,
+      _dropdown: !dropup,
     });
   }
 
@@ -229,12 +232,10 @@ export default class GenericDropdown extends Component {
 
     return renderDropdownInput
       ? renderDropdownInput(actualValue, title, this.props, this.handleToggleClick)
-      : (
-        <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
+      : <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
           {title}
           <input name={name} type="hidden" value={valueForInput} readOnly />
-        </div>
-      );
+        </div>;
   }
 
   get prependList(): ?Element<*> {
@@ -306,18 +307,24 @@ export default class GenericDropdown extends Component {
         case 38:
           e.preventDefault();
 
-          this.setState({
-            pointedValueIndex: getNewItemIndex(itemsCount, currentIndex, -1),
-          }, this.scrollViewport.bind(this, true));
+          this.setState(
+            {
+              pointedValueIndex: getNewItemIndex(itemsCount, currentIndex, -1),
+            },
+            this.scrollViewport.bind(this, true)
+          );
 
           break;
         // down
         case 40:
           e.preventDefault();
 
-          this.setState({
-            pointedValueIndex: getNewItemIndex(itemsCount, currentIndex),
-          }, this.scrollViewport);
+          this.setState(
+            {
+              pointedValueIndex: getNewItemIndex(itemsCount, currentIndex),
+            },
+            this.scrollViewport
+          );
 
           break;
       }
@@ -411,9 +418,9 @@ export default class GenericDropdown extends Component {
 
     return (
       <BodyPortal active={this.props.detached}>
-        <div className={this.listClassName} ref={m => this._menu = m}>
+        <div className={this.listClassName} ref={m => (this._menu = m)}>
           {this.prependList}
-          <ul className={this.optionsContainerClass} ref={i => this._items = i}>
+          <ul className={this.optionsContainerClass} ref={i => (this._items = i)}>
             {this.renderItems()}
           </ul>
           {this.appendList}
@@ -428,7 +435,7 @@ export default class GenericDropdown extends Component {
     const cls = classNames(s.controls, 'fc-dropdown__controls');
 
     return (
-      <div id={id} className={this.dropdownClassName} ref={c => this._block = c} tabIndex="0">
+      <div id={id} className={this.dropdownClassName} ref={c => (this._block = c)} tabIndex="0">
         <div className={cls} onClick={editable ? this.handleToggleClick : null}>
           {this.controls}
         </div>

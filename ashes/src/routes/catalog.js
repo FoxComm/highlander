@@ -57,9 +57,9 @@ const getRoutes = (jwt: Object) => {
       }, [
         router.read('product-details', { component: ProductForm, isIndex: true }),
         router.create('new-product', { component: ProductForm }),
-        router.read('product-images', {
-          title: 'Images',
-          path: 'images',
+        router.read('product-media', {
+          title: 'Media',
+          path: 'media',
           component: ProductImages,
           frn: frn.pim.album,
         }),
@@ -113,9 +113,9 @@ const getRoutes = (jwt: Object) => {
       ]),
       router.read('sku', { path: ':skuCode', component: SkuPage }, [
         router.read('sku-details', { component: SkuDetails, isIndex: true }),
-        router.read('sku-images', {
-          path: 'images',
-          title: 'Images',
+        router.read('sku-media', {
+          path: 'media',
+          title: 'Media',
           component: SkuImages,
           frn: frn.pim.album,
         }),

@@ -50,6 +50,10 @@ object UserFailures {
     def apply(domain: String) = NotFoundFailure404(Organization, s"$domain")
   }
 
+  case class OrganizationForAccountNotFound(accountId: Int) extends Failure {
+    def description: String = s"Cannot find an organization for an $accountId"
+  }
+
   object RoleNotFound {
     def apply(name: String, scope: String) = NotFoundFailure404(Role, s"$name+$scope")
   }

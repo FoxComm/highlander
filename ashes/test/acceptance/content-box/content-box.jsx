@@ -16,24 +16,23 @@ describe('ContentBox', function() {
     const title = 'Customer Info';
     contentBox = shallowRender(<ContentBox title={title} className="" />);
 
-    expect(contentBox, 'to contain', <div className="fc-title">{title}</div>);
+    expect(contentBox, 'to contain', <div className="title">{title}</div>);
   });
 
   it('should render container with correct class', function*() {
     const className = 'test-class';
     contentBox = shallowRender(<ContentBox title="" className={className} />);
 
-    expect(contentBox.props.className).to.be.equal(`fc-content-box ${className}`);
+    expect(contentBox.props.className).to.be.equal(`box fc-content-box ${className}`);
   });
 
   it('should render container with action block when provided', function*() {
     const actionBlock = 'Actions!';
     contentBox = shallowRender(<ContentBox title="" className="" actionBlock={actionBlock} />);
 
-    expect(
-      contentBox,
+    expect(contentBox,
       'to contain',
-      <div className="fc-controls">
+      <div className="controls">
         {actionBlock}
       </div>
     );
@@ -42,6 +41,8 @@ describe('ContentBox', function() {
   it('should not render action block by default', function*() {
     contentBox = shallowRender(<ContentBox title="" className="" />);
 
-    expect(contentBox, 'to contain exactly', <div className="fc-controls" />);
+    expect(contentBox, 'to contain exactly',
+      <div className="controls"></div>
+    );
   });
 });

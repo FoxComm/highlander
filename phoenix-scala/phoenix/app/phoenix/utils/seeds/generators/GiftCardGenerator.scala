@@ -2,8 +2,8 @@ package phoenix.utils.seeds.generators
 
 import core.db._
 import core.utils.Money.Currency
-
 import objectframework.models.ObjectContext
+import phoenix.models.Reason
 import phoenix.models.account.Scope
 import phoenix.models.payment.giftcard._
 import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
@@ -19,20 +19,22 @@ trait GiftCardGenerator {
     prices(Random.nextInt(prices.length)).toLong
   }
 
-  def generateGiftCardAppeasement(implicit db: DB, au: AU): DbResultT[GiftCard] =
+  def generateGiftCardAppeasement(adminAccountId: Int, reason: Reason)(implicit db: DB,
+                                                                       au: AU): DbResultT[GiftCard] =
     for {
-      origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
+      origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = adminAccountId, reasonId = reason.id))
       scope  ← * <~ Scope.resolveOverride()
       gc ← * <~ GiftCards.create(
-            GiftCard.buildAppeasement(GiftCardCreateByCsr(balance = nextGcBalance, reasonId = 1),
+            GiftCard.buildAppeasement(GiftCardCreateByCsr(balance = nextGcBalance, reasonId = reason.id),
                                       originId = origin.id,
                                       scope = scope))
     } yield gc
 
-  def generateGiftCard(adminAccountId: Int, context: ObjectContext)(implicit db: DB,
-                                                                    au: AU): DbResultT[GiftCard] =
+  def generateGiftCard(adminAccountId: Int, reason: Reason, context: ObjectContext)(
+      implicit db: DB,
+      au: AU): DbResultT[GiftCard] =
     for {
-      origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = adminAccountId, reasonId = 1))
+      origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = adminAccountId, reasonId = reason.id))
       gc ← * <~ GiftCards.create(
             GiftCard.build(balance = nextGcBalance, originId = origin.id, currency = Currency.USD))
     } yield gc

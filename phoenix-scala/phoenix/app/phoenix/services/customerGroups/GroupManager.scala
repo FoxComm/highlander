@@ -11,30 +11,30 @@ import phoenix.models.account.{Scope, User}
 import phoenix.models.customer.CustomerGroup.Manual
 import phoenix.models.customer._
 import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
-import phoenix.responses.GroupResponses.GroupResponse.{build, Root}
+import phoenix.responses.GroupResponses.GroupResponse
 import phoenix.services.LogActivity
 import phoenix.utils.aliases._
 import phoenix.utils.time._
 
 object GroupManager {
 
-  def findAll(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
-    CustomerGroups.filterActive().result.map(_.map(build)).dbresult
+  def findAll(implicit ec: EC, db: DB): DbResultT[Seq[GroupResponse]] =
+    CustomerGroups.filterActive().result.map(_.map(GroupResponse.build)).dbresult
 
-  def getById(groupId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def getById(groupId: Int)(implicit ec: EC, db: DB): DbResultT[GroupResponse] =
     for {
       group ← * <~ CustomerGroups.mustFindById404(groupId)
-    } yield build(group)
+    } yield GroupResponse.build(group)
 
   def create(payload: CustomerGroupPayload,
-             admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
+             admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[GroupResponse] =
     payload.templateId
       .map(tid ⇒ createTemplateGroup(tid, payload, admin))
       .getOrElse(createCustom(payload, admin))
 
   def update(groupId: Int,
              payload: CustomerGroupPayload,
-             admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
+             admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[GroupResponse] =
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerGroups.mustFindById404(groupId)
@@ -49,7 +49,7 @@ object GroupManager {
                        .fromPayloadAndAdmin(payloadWithCount, group.createdBy, scope)
                        .copy(id = groupId, createdAt = group.createdAt, updatedAt = Instant.now))
       _ ← * <~ LogActivity().customerGroupUpdated(groupEdited, admin)
-    } yield build(groupEdited)
+    } yield GroupResponse.build(groupEdited)
 
   def delete(groupId: Int, admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Unit] =
     for {
@@ -65,7 +65,7 @@ object GroupManager {
     } yield DbResultT.unit
 
   private def createCustom(payload: CustomerGroupPayload,
-                           admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
+                           admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[GroupResponse] =
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerGroups.create(CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
@@ -73,11 +73,12 @@ object GroupManager {
                               CustomerGroups.update(group, withGroupQuery(group)),
                               group)
       _ ← * <~ LogActivity().customerGroupCreated(updated, admin)
-    } yield build(updated)
+    } yield GroupResponse.build(updated)
 
-  private def createTemplateGroup(templateId: Int,
-                                  payload: CustomerGroupPayload,
-                                  admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
+  private def createTemplateGroup(
+      templateId: Int,
+      payload: CustomerGroupPayload,
+      admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[GroupResponse] =
     for {
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       template ← * <~ CustomerGroupTemplates.mustFindById404(templateId)
@@ -85,7 +86,7 @@ object GroupManager {
       _ ← * <~ GroupTemplateInstances.create(
            GroupTemplateInstance(groupId = group.id, groupTemplateId = template.id, scope = scope))
       _ ← * <~ LogActivity().customerGroupCreated(group, admin)
-    } yield build(group)
+    } yield GroupResponse.build(group)
 
   private def withGroupQuery(group: CustomerGroup): CustomerGroup = {
     val groupQuery = parse(s"""{"query":

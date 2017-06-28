@@ -24,7 +24,6 @@ type State = {
 };
 
 export default class SearchGroupModal extends Component {
-
   props: Props;
   state: State = {
     groups: [],
@@ -43,25 +42,14 @@ export default class SearchGroupModal extends Component {
   get footer() {
     const saveDisabled = isEmpty(this.state.groups);
 
-    return (
-      <SaveCancel
-        onCancel={this.props.onCancel}
-        onSave={this.handleSave}
-        saveDisabled={saveDisabled}
-      />
-    );
+    return <SaveCancel onCancel={this.props.onCancel} onSave={this.handleSave} saveDisabled={saveDisabled} />;
   }
 
   render() {
     const props = this.props;
 
     return (
-      <Modal
-        title="Select Groups"
-        footer={this.footer}
-        isVisible={props.isVisible}
-        onClose={props.onCancel}
-      >
+      <Modal title="Select Groups" footer={this.footer} isVisible={props.isVisible} onClose={props.onCancel}>
         <GroupsTypeahead
           suggestGroups={props.suggestGroups}
           suggested={props.suggested}

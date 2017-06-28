@@ -7,17 +7,11 @@ type Props = {
   children?: any,
   controlId: string,
   label: string,
-  required?: bool,
+  required?: boolean,
 };
 
-const VerticalFormField = ({
-  children,
-  controlId,
-  label,
-  required = false,
-}: Props) => {
-
-  const upChildren = React.Children.map(children, (child) => {
+const VerticalFormField = ({ children, controlId, label, required = false }: Props) => {
+  const upChildren = React.Children.map(children, child => {
     return React.cloneElement(child, {
       id: controlId,
       required,
@@ -28,9 +22,7 @@ const VerticalFormField = ({
     <div styleName="field">
       <label styleName="label" htmlFor={controlId}>
         {label}
-        {required && (
-           <span styleName="required">&nbsp;*</span>
-        )}
+        {required && <span styleName="required">&nbsp;*</span>}
       </label>
       <div styleName="input-container">
         {upChildren}

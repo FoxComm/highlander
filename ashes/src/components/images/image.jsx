@@ -1,17 +1,18 @@
 /* @flow */
 
+// parent: `./album`
+
 // styles
 import styles from './images.css';
 
 // libs
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
-import moment from 'moment';
 
 // components
-import BodyPortal from '../body-portal/body-portal';
+import BodyPortal from 'components/body-portal/body-portal';
 import ConfirmationModal from 'components/core/confirmation-modal';
-import ImageCard from '../image-card/image-card';
+import ImageCard from 'components/image-card/image-card';
 import EditImage from './edit-image';
 
 // types
@@ -23,6 +24,8 @@ export type Props = {
   editImage: (info: ImageInfo) => Promise<*>;
   deleteImage: () => Promise<*>;
   imagePid: string|number;
+  editAlbumState?: AsyncState;
+  disabled?: boolean;
 };
 
 type State = {
@@ -36,11 +39,31 @@ export default class Image extends Component<void, Props, State> {
   state: State = {
     editMode: false,
     deleteMode: false,
+    disabled: false,
   };
+
+  componentDidMount(): void {
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  @autobind
+  handleKeyDown({ key }: KeyboardEvent) {
+    if (key === 'Escape') {
+      this.handleCancelEditImage();
+    }
+  }
 
   @autobind
   handleEditImage(): void {
-    this.setState({ editMode: true });
+    const { disabled } = this.props;
+
+    if (!disabled) {
+      this.setState({ editMode: true });
+    }
   }
 
   @autobind
@@ -50,9 +73,8 @@ export default class Image extends Component<void, Props, State> {
 
   @autobind
   handleConfirmEditImage(form: ImageInfo): void {
-    this.props.editImage(form);
-
-    this.setState({ editMode: false });
+    this.props.editImage(form)
+      .then(() => this.setState({ editMode: false }));
   }
 
   @autobind
@@ -68,33 +90,54 @@ export default class Image extends Component<void, Props, State> {
   @autobind
   handleConfirmDeleteImage(): void {
     this.props.deleteImage();
+    // We don't need to set `deleteMode: false`, because component will be removed
+  }
 
-    this.setState({ deleteMode: false });
+  @autobind
+  handleRemove(): void {
+    this.setState({ editMode: false, deleteMode: true });
   }
 
   get deleteImageDialog(): ?Element<*> {
+    const { editAlbumState } = this.props;
+
+    if (!this.state.deleteMode) {
+      return;
+    }
+
     return (
       <BodyPortal className={styles.modal}>
         <ConfirmationModal
-          isVisible={this.state.deleteMode}
-          title="Delete Image"
-          label="Are you sure you want to delete this image?"
-          confirmLabel="Yes, Delete"
+          isVisible={true}
+          title='Delete Media'
+          label='Are you sure you want to delete this asset?'
+          confirmLabel='Yes, Delete'
           onCancel={this.handleCancelDeleteImage}
           onConfirm={this.handleConfirmDeleteImage}
+          asyncState={editAlbumState}
+          focus
         />
       </BodyPortal>
     );
   }
 
   get editImageDialog(): ?Element<*> {
+    const { editAlbumState = {} } = this.props;
+
+    if (!this.state.editMode) {
+      return null;
+    }
+
     return (
       <BodyPortal className={styles.modal}>
         <EditImage
-          isVisible={this.state.editMode}
+          isVisible={true}
           image={this.props.image}
           onCancel={this.handleCancelEditImage}
           onSave={this.handleConfirmEditImage}
+          onRemove={this.handleRemove}
+          inProgress={editAlbumState.inProgress}
+          error={editAlbumState.err}
         />
       </BodyPortal>
     );
@@ -117,7 +160,7 @@ export default class Image extends Component<void, Props, State> {
   }
 
   render() {
-    const { image, imagePid } = this.props;
+    const { image, imagePid, disabled } = this.props;
 
     return (
       <div>
@@ -126,11 +169,12 @@ export default class Image extends Component<void, Props, State> {
         <ImageCard
           id={image.id}
           src={image.src}
-          title={image.title}
-          secondaryTitle={`Uploaded ${image.uploadedAt || moment().format('L LT')}`}
           actions={this.getImageActions()}
+          onImageClick={this.handleEditImage}
           loading={image.loading}
-          key={`${imagePid}`}
+          failed={image.failed}
+          key={imagePid}
+          disabled={disabled}
         />
       </div>
     );

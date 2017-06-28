@@ -113,12 +113,15 @@ class SkuContentBox extends Component {
   @autobind
   addNewSkus() {
     const newVariants = _.values(this.state.selectedOptions);
-    this.setState({
-      selectedOptions: {}
-    }, () => {
-      this.props.onAddNewVariants(newVariants);
-      this.closeAction();
-    });
+    this.setState(
+      {
+        selectedOptions: {},
+      },
+      () => {
+        this.props.onAddNewVariants(newVariants);
+        this.closeAction();
+      }
+    );
   }
 
   getValuesKey(values: Array<OptionValue>): string {
@@ -129,9 +132,7 @@ class SkuContentBox extends Component {
   toggleAddedOption(values: Array<OptionValue>) {
     let { selectedOptions } = this.state;
     const key = this.getValuesKey(values);
-    selectedOptions = key in selectedOptions
-      ? dissoc(selectedOptions, key)
-      : assoc(selectedOptions, key, values);
+    selectedOptions = key in selectedOptions ? dissoc(selectedOptions, key) : assoc(selectedOptions, key, values);
 
     this.setState({
       selectedOptions,
@@ -151,7 +152,7 @@ class SkuContentBox extends Component {
   render() {
     const { props } = this;
     return (
-      <ContentBox title="SKUs" actionBlock={ this.actions }>
+      <ContentBox title="SKUs" actionBlock={this.actions}>
         <SkuList
           key="sku-list"
           fullProduct={props.fullProduct}
@@ -161,7 +162,7 @@ class SkuContentBox extends Component {
           skus={this.skus}
           variants={variantsWithMultipleOptions(props.variants)}
         />
-        { this.addSkuDialog }
+        {this.addSkuDialog}
       </ContentBox>
     );
   }

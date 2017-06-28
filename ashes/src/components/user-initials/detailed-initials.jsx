@@ -8,7 +8,6 @@ import PropTypes from 'prop-types';
 import UserInitials from './initials';
 
 export default class DetailedUserInitials extends Component {
-
   state = {
     tooltipShown: false,
   };
@@ -20,20 +19,18 @@ export default class DetailedUserInitials extends Component {
     email: PropTypes.string,
     actionBlock: PropTypes.node,
     showTooltipOnClick: PropTypes.bool,
-    className: PropTypes.string
+    className: PropTypes.string,
   };
 
   static defaultProps = {
-    showTooltipOnClick: false
+    showTooltipOnClick: false,
   };
 
   get initials() {
     const initials = <UserInitials {...this.props} />;
 
     if (this.props.showTooltipOnClick) {
-      return (
-        <div onClick={this.toggleState}>{initials}</div>
-      );
+      return <div onClick={this.toggleState}>{initials}</div>;
     } else {
       return initials;
     }
@@ -41,18 +38,18 @@ export default class DetailedUserInitials extends Component {
 
   @autobind
   toggleState() {
-    this.setState({tooltipShown: !this.state.tooltipShown});
+    this.setState({ tooltipShown: !this.state.tooltipShown });
   }
 
   render() {
     const rootClass = classNames('initials', 'fc-with-tooltip', this.props.className, {
-      '_clickable': this.props.showTooltipOnClick
+      _clickable: this.props.showTooltipOnClick,
     });
     const tooltipClass = classNames('fc-tooltip', 'fc-tooltip-left', {
-      '_shown': this.props.showTooltipOnClick && this.state.tooltipShown
+      _shown: this.props.showTooltipOnClick && this.state.tooltipShown,
     });
     const overlayClassName = classNames('fc-tooltip__overlay', {
-      '_shown': this.state.tooltipShown
+      _shown: this.state.tooltipShown,
     });
     return (
       <div className={rootClass}>
@@ -60,11 +57,11 @@ export default class DetailedUserInitials extends Component {
         <div className={tooltipClass}>
           <div className="fc-tooltip__body">
             <div className="fc-strong">{this.props.name}</div>
-            {this.props.email && (<div>{this.props.email}</div>)}
+            {this.props.email && <div>{this.props.email}</div>}
           </div>
-          {this.props.actionBlock && (<div className="fc-tooltip__actions">{this.props.actionBlock}</div>)}
+          {this.props.actionBlock && <div className="fc-tooltip__actions">{this.props.actionBlock}</div>}
         </div>
-        {this.props.showTooltipOnClick && (<div className={overlayClassName} onClick={this.toggleState}></div>)}
+        {this.props.showTooltipOnClick && <div className={overlayClassName} onClick={this.toggleState} />}
       </div>
     );
   }

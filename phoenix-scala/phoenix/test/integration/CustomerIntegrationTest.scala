@@ -3,7 +3,6 @@ import java.time.temporal.ChronoUnit
 
 import cats.implicits._
 import com.stripe.exception.CardException
-import core.db._
 import core.failures.NotFoundFailure404
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -23,10 +22,8 @@ import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UserPayloads._
-import phoenix.responses.CreditCardsResponse.{Root ⇒ CardResponse}
+import phoenix.responses.CreditCardResponse
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.CreditCardsResponse
-import phoenix.responses.users.CustomerResponse
 import phoenix.services.carts.CartPaymentUpdater
 import phoenix.utils.aliases.stripe.StripeCard
 import phoenix.utils.seeds.Factories
@@ -34,14 +31,14 @@ import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
 import testutils.fixtures.BakedFixtures
-import testutils.fixtures.api.ApiFixtureHelpers
+import core.db._
+import phoenix.responses.users.CustomerResponse
 
 class CustomerIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixPublicApi
     with DefaultJwtAdminAuth
-    with ApiFixtureHelpers
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -55,8 +52,7 @@ class CustomerIntegrationTest
       created.accountId must === (root.id)
     }
 
-    "fails if email is already in use" in {
-      val customer = api_newCustomer()
+    "fails if email is already in use" in new Customer_Seed {
       customersApi
         .create(CreateCustomerPayload(email = customer.email.value, name = "test".some))
         .mustFailWith400(CustomerEmailNotUnique)
@@ -86,9 +82,8 @@ class CustomerIntegrationTest
   }
 
   "GET /v1/customers/email/:email" - {
-    "fetches customer info by email" in {
-      val customer = api_newCustomer()
-      customersApi.getByEmail(customer.email.value).as[CustomerResponse].id must === (customer.id)
+    "fetches customer info by email" in new Fixture {
+      customersApi.getByEmail(customer.email.value).as[CustomerResponse].id must === (customer.accountId)
     }
 
     "fails if customer not found" in {
@@ -385,11 +380,11 @@ class CustomerIntegrationTest
       val deleted = CreditCards.create(creditCard.copy(id = 0, inWallet = false)).gimme
 
       val creditCards =
-        customersApi(customer.accountId).payments.creditCards.get().as[Seq[CardResponse]]
+        customersApi(customer.accountId).payments.creditCards.get().as[Seq[CreditCardResponse]]
       val ccRegion = Regions.findOneById(creditCard.address.regionId).gimme.value
 
       creditCards must have size 1
-      creditCards.head must === (CreditCardsResponse.build(creditCard, ccRegion))
+      creditCards.head must === (CreditCardResponse.build(creditCard, ccRegion))
       creditCards.head.id must !==(deleted.id)
     }
   }
@@ -401,7 +396,7 @@ class CustomerIntegrationTest
       val ccResp = customersApi(customer.accountId).payments
         .creditCard(creditCard.id)
         .setDefault()
-        .as[CardResponse]
+        .as[CreditCardResponse]
 
       ccResp.isDefault mustBe true
       ccResp.id must === (creditCard.id)
@@ -418,7 +413,7 @@ class CustomerIntegrationTest
       val ccResp = customersApi(customer.accountId).payments
         .creditCard(nonDefault.id)
         .setDefault()
-        .as[CardResponse]
+        .as[CreditCardResponse]
 
       val (prevDefault, currDefault) =
         (CreditCards.refresh(default).gimme, CreditCards.refresh(nonDefault).gimme)
@@ -452,7 +447,7 @@ class CustomerIntegrationTest
         val root = customersApi(customer.accountId).payments
           .creditCard(creditCard.id)
           .edit(EditCreditCard(holderName = "Bob".some))
-          .as[CardResponse]
+          .as[CreditCardResponse]
 
         root.id must !==(creditCard.id)
         root.inWallet mustBe true

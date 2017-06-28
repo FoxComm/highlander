@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import { Link } from 'components/link';
 import Icon from 'components/core/icon';
 
+// @todo refactor this component, it almost identical to ../customers/title-block.jsx
 import styles from 'components/customers/title-block.css';
 
 type Props = {

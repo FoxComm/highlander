@@ -8,24 +8,23 @@ import phoenix.responses.ResponseItem
 
 import scala.concurrent.Future
 
-object AllOrders {
-  type Response = Future[Seq[Root]]
+case class AllOrders(referenceNumber: String,
+                     orderState: Order.State,
+                     email: Option[String] = None,
+                     name: Option[String] = None,
+                     // FIXME: why Option?
+                     paymentState: Option[CordPaymentState.State] = None,
+                     shippingState: Option[Order.State],
+                     placedAt: Instant,
+                     remorsePeriodEnd: Option[Instant] = None,
+                     total: Long)
+    extends ResponseItem
 
-  case class Root(referenceNumber: String,
-                  orderState: Order.State,
-                  email: Option[String] = None,
-                  name: Option[String] = None,
-                  // FIXME: why Option?
-                  paymentState: Option[CordPaymentState.State] = None,
-                  shippingState: Option[Order.State],
-                  placedAt: Instant,
-                  remorsePeriodEnd: Option[Instant] = None,
-                  total: Long)
-      extends ResponseItem
+object AllOrders {
 
   def build(order: Order,
             customer: Option[User] = None,
-            paymentState: Option[CordPaymentState.State] = None): Root = Root(
+            paymentState: Option[CordPaymentState.State] = None): AllOrders = AllOrders(
     referenceNumber = order.referenceNumber,
     orderState = order.state,
     name = customer.flatMap(_.name),

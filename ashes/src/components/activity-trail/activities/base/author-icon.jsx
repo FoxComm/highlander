@@ -1,4 +1,3 @@
-
 // libs
 import _ from 'lodash';
 import React from 'react';
@@ -30,7 +29,7 @@ const AuthorIcon = props => {
     case 'customer':
       return (
         <div className={classNames('fc-activity__customer-icon', className)}>
-          <Icon className="icon-customer"></Icon>
+          <Icon className="icon-customer" />
         </div>
       );
     default:

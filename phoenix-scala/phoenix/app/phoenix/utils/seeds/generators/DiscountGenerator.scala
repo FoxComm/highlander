@@ -49,7 +49,7 @@ case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
 
 case class SimpleDiscountShadow(f: SimpleDiscountForm) {
 
-  val shadow = ObjectUtils.newShadow(
+  val shadow: JValue = ObjectUtils.newShadow(
     parse("""
         {
           "title" : {"type": "string", "ref": "title"},
@@ -71,7 +71,7 @@ trait DiscountGenerator {
   }
 
   def generateDiscounts(sourceData: Seq[SimpleDiscount])(implicit db: DB,
-                                                         au: AU): DbResultT[Seq[DiscountResponse.Root]] =
+                                                         au: AU): DbResultT[Seq[DiscountResponse]] =
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       discounts ← * <~ sourceData.map(source ⇒ {

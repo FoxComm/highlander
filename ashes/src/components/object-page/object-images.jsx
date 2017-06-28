@@ -6,19 +6,26 @@ import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 
 // components
-import Images from '../images/images';
+import Images from 'components/images/images';
 
 export function connectImages(namespace, actions) {
   const plural = `${namespace}s`;
 
-  const mapStateToProps = (state) => ({
-    namespace,
-    albums: _.get(state, [plural, 'images', 'albums'], []),
-    isLoading: _.get(state, ['asyncActions', `${plural}FetchAlbums`, 'inProgress'], true),
-    addAlbumInProgress: _.get(state, ['asyncActions', `${plural}AddAlbum`, 'inProgress'], false),
-    editAlbumInProgress: _.get(state, ['asyncActions', `${plural}EditAlbum`, 'inProgress'], false),
-    uploadImagesInProgress: _.get(state, ['asyncActions', `${plural}UploadImages`, 'inProgress'], false),
-  });
+  const mapStateToProps = (state) => {
+    return {
+      namespace,
+      albums: _.get(state, [plural, 'images', 'albums'], []),
+      isLoading: _.get(state, ['asyncActions', `${plural}FetchAlbums`, 'inProgress'], true),
+      failedImagesCount: _.get(state, [plural, 'images', 'failedImagesCount'], 0),
+      asyncActionsState: {
+        addAlbum: state.asyncActions[`${plural}AddAlbum`],
+        editAlbum: state.asyncActions[`${plural}EditAlbum`],
+        uploadMedia: state.asyncActions[`${plural}UploadMedia`],
+        uploadMediaByUrl: state.asyncActions[`${plural}UploadMediaByUrl`],
+        archiveAlbum: state.asyncActions[`${plural}ArchiveAlbum`],
+      }
+    };
+  };
 
   return ImagesPage => {
     return connect(mapStateToProps, actions)(ImagesPage);
@@ -55,4 +62,3 @@ export default class ImagesPage extends Component {
     );
   }
 }
-

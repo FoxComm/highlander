@@ -7,19 +7,17 @@ import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.responses.users.UserResponse
 
 object StoreCreditTailored {
-  case class StoreCreditCreated(admin: UserResponse,
-                                user: UserResponse,
-                                storeCredit: StoreCreditResponse.Root)
+  case class StoreCreditCreated(admin: UserResponse, user: UserResponse, storeCredit: StoreCreditResponse)
       extends ActivityBase[StoreCreditCreated]
 
   case class StoreCreditStateChanged(admin: UserResponse,
-                                     storeCredit: StoreCreditResponse.Root,
+                                     storeCredit: StoreCreditResponse,
                                      payload: StoreCreditUpdateStateByCsr)
       extends ActivityBase[StoreCreditStateChanged]
 
   case class StoreCreditConvertedToGiftCard(admin: UserResponse,
                                             giftCard: GiftCardResponse,
-                                            storeCredit: StoreCreditResponse.Root)
+                                            storeCredit: StoreCreditResponse)
       extends ActivityBase[StoreCreditConvertedToGiftCard]
 
   case class StoreCreditAuthorizedFunds(user: UserResponse,

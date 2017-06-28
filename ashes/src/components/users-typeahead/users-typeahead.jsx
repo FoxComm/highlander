@@ -22,12 +22,12 @@ export type Props = {
   suggested: Array<TUser>,
   suggestUsers: (term: string) => AbortablePromise,
   suggestState: AsyncState,
-}
+};
 
 type State = {
   term: string,
   selected: Array<any>,
-}
+};
 
 /**
  * Dump component, doesn't connected to redux store.
@@ -69,15 +69,12 @@ export default class UsersTypeahead extends Component {
 
   @autobind
   handleSelectItem(item: TUser, event: Object) {
-    if (_.find(this.state.selected, {id: item.id})) {
+    if (_.find(this.state.selected, { id: item.id })) {
       event.preventHiding();
     } else {
       this.setState({
         term: '',
-        selected: [
-          ...this.state.selected,
-          item,
-        ],
+        selected: [...this.state.selected, item],
       });
     }
   }
@@ -130,5 +127,3 @@ export default class UsersTypeahead extends Component {
     );
   }
 }
-
-

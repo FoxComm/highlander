@@ -18,7 +18,7 @@ import styles from './option-list.css';
 
 type Props = {
   value: {
-    id: string|number,
+    id: string | number,
     value: OptionValue,
   },
   confirmAction: Function,
@@ -44,7 +44,7 @@ class ValueEditDialog extends Component {
   handleChange(newValue: string, field: string) {
     const value = assoc(this.state.value, field, newValue);
 
-    this.setState({value});
+    this.setState({ value });
   }
 
   @autobind
@@ -69,29 +69,17 @@ class ValueEditDialog extends Component {
 
     return (
       <Form ref="form" styleName="option-edit-dialog">
-        <FormField
-          className="fc-object-form__field"
-          label="Name"
-          key={`object-form-attribute-name`}
-          required
-        >
+        <FormField className="fc-object-form__field" label="Name" key={`object-form-attribute-name`} required>
           <TextInput
             id="fct-value-name-fld"
             value={name}
             ref="nameInput"
-            onChange={(value) => this.handleChange(value, 'name')}
+            onChange={value => this.handleChange(value, 'name')}
             autoFocus
           />
         </FormField>
-        <FormField
-          className="fc-object-form__field"
-          label="Color Swatch"
-          key={`object-form-attribute-swatch`}
-        >
-          <SwatchInput
-            value={swatch}
-            onChange={this.handleSwatchChange}
-          />
+        <FormField className="fc-object-form__field" label="Color Swatch" key={`object-form-attribute-swatch`}>
+          <SwatchInput value={swatch} onChange={this.handleSwatchChange} />
         </FormField>
       </Form>
     );

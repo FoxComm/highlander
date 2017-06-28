@@ -14,7 +14,6 @@ export const selectionState = {
 };
 
 export default class MultiSelectHead extends React.Component {
-
   static propTypes = {
     pageChecked: PropTypes.oneOf(_.values(selectionState)),
     setAllChecked: PropTypes.func,

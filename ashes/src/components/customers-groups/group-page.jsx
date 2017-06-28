@@ -54,11 +54,10 @@ class GroupPage extends Component {
 
   @autobind
   archiveGroup() {
-    this.props.archiveGroup(this.props.group.id)
-      .then(() => {
-        this.props.reset();
-        this.props.push({ name: 'groups' });
-      });
+    this.props.archiveGroup(this.props.group.id).then(() => {
+      this.props.reset();
+      this.props.push({ name: 'groups' });
+    });
   }
 
   render() {

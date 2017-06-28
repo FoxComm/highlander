@@ -11,8 +11,8 @@ import TableRow from './row';
 import TableCell from './cell';
 import Spinner from 'components/core/spinner';
 
-export function tableMessage(message: Element<*>|string, inline: boolean = false): Element<*> {
-  const cls = classNames('fc-table-message', { '_inline': inline });
+export function tableMessage(message: Element<*> | string, inline: boolean = false): Element<*> {
+  const cls = classNames('fc-table-message', { _inline: inline });
 
   return (
     <div className={cls}>
@@ -36,7 +36,7 @@ export type Props = {
   },
   renderRow?: (row: RowType, index: number, isNew: ?boolean) => ?Element<*>,
   setState?: Function,
-  predicate: (row: RowType) => string|number,
+  predicate: (row: RowType) => string | number,
   processRows: (rows: Array<Element<*>>) => Element<*>,
   detectNewRows?: boolean,
   isLoading?: boolean,
@@ -52,7 +52,7 @@ export type Props = {
 };
 
 type State = {
-  newIds: Array<string|number>,
+  newIds: Array<string | number>,
 };
 
 const ROWS_COUNT_TO_SHOW_LOADING_OVERLAY = 4;
@@ -67,7 +67,7 @@ export default class Table extends Component {
       rows: [],
       from: 0,
       size: 0,
-      total: 0
+      total: 0,
     },
     showLoadingOnMount: true,
     isLoading: false,
@@ -93,7 +93,7 @@ export default class Table extends Component {
 
   @autobind
   defaultRenderRow(row: RowType, index: number, isNew: ?boolean): Element<*> {
-    const rowKey = this.props.predicate && this.props.predicate(row) || index;
+    const rowKey = (this.props.predicate && this.props.predicate(row)) || index;
     return (
       <TableRow key={`row-${rowKey}`} isNew={isNew}>
         {this.props.columns.map((column, cellIdx) => {
@@ -112,7 +112,6 @@ export default class Table extends Component {
       let newIds = [];
 
       if (this.props.predicate && nextProps.data.rows && nextProps.data.rows !== this.rows) {
-
         const oldRows = _.keyBy(this.rows, this.props.predicate);
         const newRows = _.keyBy(nextProps.data.rows, this.props.predicate);
 
@@ -142,13 +141,12 @@ export default class Table extends Component {
 
     const renderRow = props.renderRow || this.defaultRenderRow;
 
-    const rows = _.flatMap(this.rows, ((row, index) => {
-      const isNew = props.detectNewRows &&
-        props.predicate &&
-        (this.state.newIds.indexOf(String(props.predicate(row))) != -1);
+    const rows = _.flatMap(this.rows, (row, index) => {
+      const isNew =
+        props.detectNewRows && props.predicate && this.state.newIds.indexOf(String(props.predicate(row))) != -1;
 
       return renderRow(row, index, isNew);
-    }));
+    });
 
     return props.processRows(rows, props.columns);
   }
@@ -156,7 +154,7 @@ export default class Table extends Component {
   message(isEmpty: boolean) {
     const { props } = this;
 
-    const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
+    const showLoading = (props.showLoadingOnMount && props.isLoading === null) || props.isLoading;
 
     if (showLoading) {
       return tableMessage(<Spinner className="fc-table__waiting" />, this.loadingInline);
@@ -177,13 +175,13 @@ export default class Table extends Component {
     const dataExists = _.isArray(tableRows) ? tableRows.length > 0 : !!tableRows;
     const isLoading = this.props.isLoading;
 
-    if (!isLoading && dataExists || isLoading && this.loadingInline) {
+    if ((!isLoading && dataExists) || (isLoading && this.loadingInline)) {
       return this.wrapBody(tableRows);
     }
   }
 
   wrapBody(body: Element<*>) {
-    const {tbodyId} = this.props;
+    const { tbodyId } = this.props;
     const firstRow = React.Children.toArray(body)[0];
     if (firstRow && (firstRow.type === 'tbody' || !this.props.wrapToTbody)) {
       return body;
@@ -201,9 +199,7 @@ export default class Table extends Component {
   tableHead(isEmpty: boolean) {
     if (this.props.renderHeadIfEmpty || !isEmpty) {
       const { data, setState, className, ...rest } = this.props;
-      return (
-        <TableHead {...rest} getRef={ref => this._tableHead = ref} sortBy={data.sortBy} setState={setState} />
-      );
+      return <TableHead {...rest} getRef={ref => (this._tableHead = ref)} sortBy={data.sortBy} setState={setState} />;
     }
   }
 

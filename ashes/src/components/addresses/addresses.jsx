@@ -16,28 +16,25 @@ const Addresses = props => {
     <div>
       {content}
       <ConfirmationModal
-        isVisible={ props.deletingId != null } /* null and undefined */
+        isVisible={props.deletingId != null} /* null and undefined */
         label="Are you sure you want to delete this address?"
         confirmLabel="Yes, Delete"
-        onCancel={() => props.stopDeletingAddress(props.customerId) }
+        onCancel={() => props.stopDeletingAddress(props.customerId)}
         onConfirm={() => {
           props.stopDeletingAddress();
-          props.deleteAddress(props.customerId, props.deletingId)
-            .then(() => {
-              props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
-            });
+          props.deleteAddress(props.customerId, props.deletingId).then(() => {
+            props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
+          });
         }}
       />
     </div>
   );
 };
 
-const renderContent = (props) => {
+const renderContent = props => {
   return (
     <ul id="fct-customer-addresses-list" className="fc-float-list">
-      {props.processContent(
-        props.addresses.map((address, idx) => props.createAddressBox(address, idx, props))
-      )}
+      {props.processContent(props.addresses.map((address, idx) => props.createAddressBox(address, idx, props)))}
     </ul>
   );
 };
@@ -59,7 +56,7 @@ Addresses.propTypes = {
   stopDeletingAddress: PropTypes.func,
   setAddressDefault: PropTypes.func,
   startEditingAddress: PropTypes.func,
-  deletingId: PropTypes.number
+  deletingId: PropTypes.number,
 };
 
 /*eslint "react/prop-types": 0*/
@@ -80,11 +77,10 @@ export function createAddressBox(address, idx, props) {
   );
 }
 
-
 Addresses.defaultProps = {
   addresses: [],
   createAddressBox,
-  processContent: _.identity
+  processContent: _.identity,
 };
 
 export default Addresses;

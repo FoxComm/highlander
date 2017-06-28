@@ -12,7 +12,7 @@ import {
   setName,
   setConditions,
   setMainCondition,
-  GROUP_TYPE_MANUAL
+  GROUP_TYPE_MANUAL,
 } from 'modules/customer-groups/details/group';
 
 //helpers
@@ -24,24 +24,17 @@ import { Dropdown } from 'components/dropdown';
 import QueryBuilder from './query-builder';
 import TextInput from 'components/core/text-input';
 
-const SELECT_CRITERIA = [
-  [operators.and, 'all'],
-  [operators.or, 'any']
-];
+const SELECT_CRITERIA = [[operators.and, 'all'], [operators.or, 'any']];
 
 const prefixed = prefix('fc-customer-group-edit');
 
 class GroupEditor extends React.Component {
-
   static propTypes = {
     type: PropTypes.string.isRequired,
     group: PropTypes.shape({
       id: PropTypes.number,
       name: PropTypes.string,
-      mainCondition: PropTypes.oneOf([
-        operators.and,
-        operators.or,
-      ]),
+      mainCondition: PropTypes.oneOf([operators.and, operators.or]),
       conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
       isValid: PropTypes.bool,
     }),
@@ -72,16 +65,15 @@ class GroupEditor extends React.Component {
     const { group: { name }, actions: { setName } } = this.props;
 
     return (
-      <FormField label="Group Name"
-                 labelClassName={classNames(prefixed('title'), prefixed('name'))}>
+      <FormField label="Group Name" labelClassName={classNames(prefixed('title'), prefixed('name'))}>
         <TextInput
-         id="nameField"
-         className={prefixed('form-name')}
-         name="Name"
-         maxLength="255"
-         required
-         onChange={(value) => setName(value)}
-         value={name}
+          id="nameField"
+          className={prefixed('form-name')}
+          name="Name"
+          maxLength="255"
+          required
+          onChange={value => setName(value)}
+          value={name}
         />
       </FormField>
     );
@@ -90,11 +82,7 @@ class GroupEditor extends React.Component {
   get typeField() {
     return (
       <FormField>
-        <TextInput
-          type="hidden"
-          name="type"
-          value={this.type}
-        />
+        <TextInput type="hidden" name="type" value={this.type} />
       </FormField>
     );
   }
@@ -126,11 +114,7 @@ class GroupEditor extends React.Component {
     return (
       <div>
         {this.mainCondition}
-        <QueryBuilder
-          conditions={group.conditions}
-          isValid={group.isValid}
-          setConditions={actions.setConditions}
-        />
+        <QueryBuilder conditions={group.conditions} isValid={group.isValid} setConditions={actions.setConditions} />
       </div>
     );
   }

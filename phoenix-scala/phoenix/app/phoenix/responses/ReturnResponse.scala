@@ -4,15 +4,32 @@ import java.time.Instant
 
 import core.db._
 import core.utils.Money._
-import phoenix.models.account.Users
+import phoenix.models.account.{Organization, Organizations, Users}
 import phoenix.models.admin.AdminsData
 import phoenix.models.customer.CustomersData
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.returns.ReturnPayments.scope._
 import phoenix.models.returns._
+import phoenix.responses.ReturnResponse.{LineItems, Payments, ReturnTotals}
 import phoenix.responses.users.{CustomerResponse, StoreAdminResponse}
 import phoenix.services.carts.CartTotaler
 import phoenix.services.returns.{ReturnLineItemManager, ReturnTotaler}
+
+case class ReturnResponse(id: Int,
+                          referenceNumber: String,
+                          orderRefNum: String,
+                          rmaType: Return.ReturnType,
+                          state: Return.State,
+                          lineItems: LineItems,
+                          payments: Payments,
+                          customer: Option[CustomerResponse],
+                          storeAdmin: Option[StoreAdminResponse],
+                          messageToCustomer: Option[String],
+                          canceledReasonId: Option[Int],
+                          createdAt: Instant,
+                          updatedAt: Instant,
+                          totals: ReturnTotals)
+    extends ResponseItem
 
 object ReturnResponse {
   case class ReturnTotals(subTotal: Long, taxes: Long, shipping: Long, adjustments: Long, total: Long)
@@ -62,22 +79,6 @@ object ReturnResponse {
                       storeCredit: Option[Payment.StoreCredit])
       extends ResponseItem
 
-  case class Root(id: Int,
-                  referenceNumber: String,
-                  orderRefNum: String,
-                  rmaType: Return.ReturnType,
-                  state: Return.State,
-                  lineItems: LineItems,
-                  payments: Payments,
-                  customer: Option[CustomerResponse],
-                  storeAdmin: Option[StoreAdminResponse],
-                  messageToCustomer: Option[String],
-                  canceledReasonId: Option[Int],
-                  createdAt: Instant,
-                  updatedAt: Instant,
-                  totals: ReturnTotals)
-      extends ResponseItem
-
   def buildPayments(creditCard: Option[ReturnPayment],
                     applePay: Option[ReturnPayment],
                     giftCard: Option[(ReturnPayment, GiftCard)],
@@ -98,13 +99,14 @@ object ReturnResponse {
                  taxes = taxes,
                  total = subTotal + shipping + taxes - adjustments)
 
-  def fromRma(rma: Return)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def fromRma(rma: Return)(implicit ec: EC, db: DB): DbResultT[ReturnResponse] =
     for {
       // Either customer or storeAdmin as creator
       customer     ← * <~ Users.findOneByAccountId(rma.accountId)
       customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
       storeAdmin   ← * <~ rma.storeAdminId.map(Users.findOneByAccountId).getOrElse(lift(None))
       adminData    ← * <~ rma.storeAdminId.map(AdminsData.findOneByAccountId).getOrElse(lift(None))
+      organization ← * <~ rma.storeAdminId.map(Organizations.mustFindByAccountId)
       // Payment methods
       ccPayment       ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
       applePayPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).applePays.one
@@ -129,9 +131,10 @@ object ReturnResponse {
           cu ← customerData
         } yield CustomerResponse.build(c, cu),
         storeAdmin = for {
-          a  ← storeAdmin
-          au ← adminData
-        } yield StoreAdminResponse.build(a, au),
+          a   ← storeAdmin
+          ad  ← adminData
+          org ← organization
+        } yield StoreAdminResponse.build(a, ad, org),
         payments = buildPayments(creditCard = ccPayment,
                                  applePay = applePayPayment,
                                  giftCard = gcPayment,
@@ -146,8 +149,8 @@ object ReturnResponse {
             storeAdmin: Option[StoreAdminResponse] = None,
             lineItems: LineItems = LineItems(List.empty, Option.empty),
             payments: Payments = Payments(Option.empty, Option.empty, Option.empty, Option.empty),
-            totals: ReturnTotals = ReturnTotals(0, 0, 0, 0, 0)): Root =
-    Root(
+            totals: ReturnTotals = ReturnTotals(0, 0, 0, 0, 0)): ReturnResponse =
+    ReturnResponse(
       id = rma.id,
       referenceNumber = rma.refNum,
       orderRefNum = rma.orderRef,

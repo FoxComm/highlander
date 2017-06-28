@@ -29,22 +29,24 @@ type Props = {
     cancelOrders: (referenceNumbers: Array<string>, reasonId: number) => Promise<*>,
     changeOrdersState: (referenceNumbers: Array<string>, state: string) => Promise<*>,
     exportByIds: (
-      ids: Array<number>, description: string, fields: Array<Object>, entity: string, identifier: string
+      ids: Array<number>,
+      description: string,
+      fields: Array<Object>,
+      entity: string,
+      identifier: string
     ) => void,
   },
-  bulkExportAction: (
-    fields: Array<string>, entity: string, identifier: string, description: string
-  ) => Promise<*>,
+  bulkExportAction: (fields: Array<string>, entity: string, identifier: string, description: string) => Promise<*>,
 };
 
 const tableColumns = [
-  {field: 'referenceNumber', text: 'Order', model: 'order'},
-  {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
-  {field: 'customer.name', text: 'Customer Name'},
-  {field: 'customer.email', text: 'Customer Email'},
-  {field: 'state', text: 'Order State', type: 'state', model: 'order'},
-  {field: 'shipping.state', text: 'Shipment State', type: 'state', model: 'shipment'},
-  {field: 'grandTotal', text: 'Total', type: 'currency'}
+  { field: 'referenceNumber', text: 'Order', model: 'order' },
+  { field: 'placedAt', text: 'Date/Time Placed', type: 'datetime' },
+  { field: 'customer.name', text: 'Customer Name' },
+  { field: 'customer.email', text: 'Customer Email' },
+  { field: 'state', text: 'Order State', type: 'state', model: 'order' },
+  { field: 'shipping.state', text: 'Shipment State', type: 'state', model: 'shipment' },
+  { field: 'grandTotal', text: 'Total', type: 'currency' },
 ];
 
 class Orders extends Component {
@@ -54,11 +56,7 @@ class Orders extends Component {
   cancelOrders(allChecked: boolean, toggledIds: Array<string>) {
     const { cancelOrders } = this.props.bulkActions;
 
-    return (
-      <CancelModal
-        count={toggledIds.length}
-        onConfirm={(reasonId) => cancelOrders(toggledIds, reasonId)} />
-    );
+    return <CancelModal count={toggledIds.length} onConfirm={reasonId => cancelOrders(toggledIds, reasonId)} />;
   }
 
   @autobind
@@ -77,13 +75,14 @@ class Orders extends Component {
     const stateTitle = stateTitles[state];
 
     return (allChecked: boolean, toggledIds: Array<string>) => {
-      const {changeOrdersState} = this.props.bulkActions;
+      const { changeOrdersState } = this.props.bulkActions;
 
       return (
         <ChangeStateModal
           count={toggledIds.length}
           stateTitle={stateTitle}
-          onConfirm={() => changeOrdersState(toggledIds, state)} />
+          onConfirm={() => changeOrdersState(toggledIds, state)}
+        />
       );
     };
   }
@@ -100,12 +99,7 @@ class Orders extends Component {
   }
 
   get cancelOrdersAction(): Array<any> {
-    return [
-      'Cancel Selected Orders',
-      this.cancelOrders,
-      'successfully canceled',
-      'could not be canceled',
-    ];
+    return ['Cancel Selected Orders', this.cancelOrders, 'successfully canceled', 'could not be canceled'];
   }
 
   get bulkActions(): Array<any> {
@@ -123,40 +117,25 @@ class Orders extends Component {
     return (row, index, columns, params) => {
       const key = `order-${row.id}`;
 
-      return (
-        <OrderRow
-          order={row}
-          columns={columns}
-          key={key}
-          params={params}
-        />
-      );
+      return <OrderRow order={row} columns={columns} key={key} params={params} />;
     };
   }
 
   renderDetail(message: string, referenceNumber: string) {
     return (
       <span key={referenceNumber}>
-        Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
+        Order <Link to="order-details" params={{ order: referenceNumber }}>{referenceNumber}</Link>
         {_.isEmpty(message) ? null : `: ${message}`}
       </span>
     );
   }
 
   render() {
-    const {list, actions} = this.props;
+    const { list, actions } = this.props;
     return (
       <div>
-        <BulkMessages
-          storePath="orders.bulk"
-          module="orders"
-          entity="order"
-          renderDetail={this.renderDetail} />
-        <BulkActions
-          module="orders"
-          entity="order"
-          watchActions={true}
-          actions={this.bulkActions}>
+        <BulkMessages storePath="orders.bulk" module="orders" entity="order" renderDetail={this.renderDetail} />
+        <BulkActions module="orders" entity="order" watchActions={true} actions={this.bulkActions}>
           <SelectableSearchList
             entity="orders.list"
             exportEntity="orders"
@@ -168,20 +147,21 @@ class Orders extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={actions}
-            predicate={({referenceNumber}) => referenceNumber} />
+            predicate={({ referenceNumber }) => referenceNumber}
+          />
         </BulkActions>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     list: _.get(state.orders, 'list', {}),
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     actions: bindActionCreators(actions, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),

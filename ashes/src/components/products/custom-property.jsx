@@ -96,7 +96,8 @@ export default class CustomProperty extends Component<void, Props, State> {
         <FormField
           className="fc-product-details__field"
           label="Field Label"
-          labelClassName="fc-product-details__field-label">
+          labelClassName="fc-product-details__field-label"
+        >
           <TextInput
             id="fct-field-label-fld"
             ref="field"
@@ -109,7 +110,8 @@ export default class CustomProperty extends Component<void, Props, State> {
         <FormField
           className="fc-product-details__field"
           label="Field Type"
-          labelClassName="fc-product-details__field-label">
+          labelClassName="fc-product-details__field-label"
+        >
           <Dropdown
             id="fct-field-type-dd"
             className={s.dropdown}

@@ -4,7 +4,7 @@ import core.db._
 import phoenix.models.activity.Dimension
 import phoenix.models.taxonomy._
 import phoenix.models.{Assignment, NotificationSubscription}
-import phoenix.responses.TaxonResponses.TaxonResponse._
+import phoenix.responses.TaxonResponses.TaxonResponse
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
@@ -14,7 +14,7 @@ object TaxonAssignmentsManager extends AssignmentsManager[Int, Taxon] {
   val notifyDimension = Dimension.taxon
   val notifyReason    = NotificationSubscription.Assigned
 
-  def buildResponse(model: Taxon): Root = build(model)
+  def buildResponse(model: Taxon): TaxonResponse = TaxonResponse.build(model)
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[Taxon] =
     Taxons.mustFindByContextAndFormId404(defaultContextId, id)

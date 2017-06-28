@@ -21,10 +21,9 @@ import slick.jdbc.PostgresProfile.api._
 
 object ReturnLineItemManager {
 
-  def addLineItem(refNum: String, payload: ReturnLineItemPayload)(implicit ec: EC,
-                                                                  db: DB,
-                                                                  ac: AC,
-                                                                  oc: OC): DbResultT[ReturnResponse.Root] =
+  def addLineItem(
+      refNum: String,
+      payload: ReturnLineItemPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC): DbResultT[ReturnResponse] =
     for {
       rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       reason   ← * <~ ReturnReasons.mustFindById400(payload.reasonId)
@@ -37,7 +36,7 @@ object ReturnLineItemManager {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      oc: OC): DbResultT[ReturnResponse.Root] =
+      oc: OC): DbResultT[ReturnResponse] =
     for {
       rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       skusLiQuery = ReturnLineItems
@@ -162,7 +161,7 @@ object ReturnLineItemManager {
     } yield li
 
   def deleteLineItem(refNum: String,
-                     lineItemId: Int)(implicit ec: EC, ac: AC, db: DB): DbResultT[ReturnResponse.Root] =
+                     lineItemId: Int)(implicit ec: EC, ac: AC, db: DB): DbResultT[ReturnResponse] =
     for {
       rma     ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       li      ← * <~ ReturnLineItems.mustFindById404(lineItemId)

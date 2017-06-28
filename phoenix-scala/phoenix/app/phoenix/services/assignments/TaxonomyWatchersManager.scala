@@ -4,7 +4,7 @@ import core.db._
 import phoenix.models.activity.Dimension
 import phoenix.models.taxonomy._
 import phoenix.models.{Assignment, NotificationSubscription}
-import phoenix.responses.TaxonomyResponses.TaxonomyResponse._
+import phoenix.responses.TaxonomyResponses.TaxonomyResponse
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 
@@ -14,7 +14,7 @@ object TaxonomyWatchersManager extends AssignmentsManager[Int, Taxonomy] {
   val notifyDimension = Dimension.taxonomy
   val notifyReason    = NotificationSubscription.Watching
 
-  def buildResponse(model: Taxonomy): Root = build(model)
+  def buildResponse(model: Taxonomy): TaxonomyResponse = TaxonomyResponse.build(model)
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[Taxonomy] =
     Taxonomies.mustFindByContextAndFormId404(defaultContextId, id)

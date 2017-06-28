@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import s from './overlay.css';
 
 type Props = {
-  shown: bool,
+  shown: boolean,
   onClick?: Function,
 };
 

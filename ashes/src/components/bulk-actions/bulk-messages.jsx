@@ -12,7 +12,6 @@ import SuccessNotification from '../bulk-actions/success-notification';
 import ErrorNotification from '../bulk-actions/error-notification';
 import { ApiErrors } from 'components/utils/errors';
 
-
 type Props = {
   storePath: string,
   module: string,
@@ -30,7 +29,6 @@ type Props = {
   },
   bulkActions: Object,
 };
-
 
 class BulkMessages extends Component {
   props: Props;
@@ -55,11 +53,13 @@ class BulkMessages extends Component {
 
     if (successes) {
       notifications.push(
-        <SuccessNotification key="successes"
-                             entity={entity}
-                             hideAlertDetails={hideAlertDetails}
-                             overviewMessage={messages.success}
-                             onHide={clearSuccesses}>
+        <SuccessNotification
+          key="successes"
+          entity={entity}
+          hideAlertDetails={hideAlertDetails}
+          overviewMessage={messages.success}
+          onHide={clearSuccesses}
+        >
           {map(successes, renderDetail)}
         </SuccessNotification>
       );
@@ -67,20 +67,20 @@ class BulkMessages extends Component {
 
     if (errors) {
       notifications.push(
-        <ErrorNotification key="errors"
-                           entity={entity}
-                           overviewMessage={messages.error}
-                           hideAlertDetails={hideAlertDetails}
-                           onHide={clearErrors}>
+        <ErrorNotification
+          key="errors"
+          entity={entity}
+          overviewMessage={messages.error}
+          hideAlertDetails={hideAlertDetails}
+          onHide={clearErrors}
+        >
           {map(errors, renderDetail)}
         </ErrorNotification>
       );
     }
 
     if (error) {
-      notifications.push(
-        <ApiErrors key="general-error" response={error} closeAction={clearError} />
-      );
+      notifications.push(<ApiErrors key="general-error" response={error} closeAction={clearError} />);
     }
 
     return (

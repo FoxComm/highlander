@@ -10,7 +10,7 @@ type Props = {
   onToggle?: (id: number) => void,
 };
 
-const CustomerRow = ({customer, checked = false, onToggle = (id) => {}}: Props) => {
+const CustomerRow = ({ customer, checked = false, onToggle = id => {} }: Props) => {
   return (
     <li className="fc-choose-customers__entry" key={customer.id}>
       <Checkbox
