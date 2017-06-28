@@ -27,7 +27,7 @@ export type Order = {
   paymentMethods: Array<PaymentMethod>,
   orderState: string,
   lineItems: Object,
-  channel?: string,
+  channel: ?string,
 };
 
 export type ShippingMethod = {
@@ -91,7 +91,7 @@ function collectLineItems(skus: Array<SkuItem>): Array<SkuItem> {
   });
 }
 
-export function isAmazonOrder(order: Order) {
+export function isAmazonOrder(order: OrderParagon) {
   return order.channel === 'Amazon.com';
 }
 
