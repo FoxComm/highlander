@@ -9,7 +9,7 @@ import foxcomm.agni.interpreter.QueryInterpreter
 import io.circe.JsonObject
 import org.elasticsearch.common.xcontent.{ToXContent, XContentBuilder}
 import org.elasticsearch.index.query._
-import shapeless.Coproduct
+import scala.annotation.tailrec
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.TraversableOps"))
 private[es] object ESQueryInterpreter
@@ -18,39 +18,50 @@ private[es] object ESQueryInterpreter
   val State: (BoolQueryBuilder ⇒ Id[BoolQueryBuilder]) ⇒ State =
     Kleisli[Id, BoolQueryBuilder, BoolQueryBuilder]
 
-  private implicit class RichBoolQueryBuilder(val b: BoolQueryBuilder) extends AnyVal {
-    def inContext(qf: QueryFunction.WithContext)(qb: QueryBuilder): Unit = qf.ctx match {
-      case QueryContext.must(None)        ⇒ b.filter(qb)
-      case QueryContext.must(Some(boost)) ⇒ b.must(qb).boost(boost)
-      case QueryContext.should(boost)     ⇒ b.should(qb).boost(boost.getOrElse(Boostable.default))
-      case QueryContext.not(None)         ⇒ b.mustNot(qb)
-      case QueryContext.not(Some(boost)) ⇒
-        val boosting = QueryBuilders
-          .boostingQuery()
-          .negativeBoost(boost)
-          .negative(qb)
-          .boost(Boostable.default)
-          .positive(QueryBuilders.matchAllQuery())
-        b.must(boosting)
+  private def buildNestedQuery(path: NonEmptyVector[String])(q: String ⇒ QueryBuilder): QueryBuilder = {
+    @tailrec def rec(path: Vector[String], acc: QueryBuilder): QueryBuilder = path match {
+      case Vector() :+ l ⇒
+        QueryBuilders.nestedQuery(l, acc)
+      case i :+ l ⇒
+        rec(i, QueryBuilders.nestedQuery(l, acc))
     }
+
+    val combined = path.tail.iterator.scanLeft(path.head)((p, f) ⇒ s"$p.$f").toVector
+    rec(combined.init, q(combined.last))
+  }
+
+  private implicit class RichBoolQueryBuilder(val b: BoolQueryBuilder) extends AnyVal {
+    def inContext(qf: QueryFunction.WithContext)(qb: QueryBuilder): BoolQueryBuilder = qf.ctx match {
+      case QueryContext.filter ⇒ b.filter(qb)
+      case QueryContext.must   ⇒ b.must(qb)
+      case QueryContext.should ⇒ b.should(qb)
+      case QueryContext.not    ⇒ b.mustNot(qb)
+    }
+  }
+
+  private implicit class RichBoostableQueryBuilder[B <: QueryBuilder with BoostableQueryBuilder[B]](val b: B)
+      extends AnyVal {
+    def withBoost(qf: QueryFunction.WithField): B = qf.boost.fold(b)(b.boost)
   }
 
   private implicit class RichField(val f: Field) extends AnyVal {
     def nest(q: String ⇒ QueryBuilder): QueryBuilder =
-      f.eliminate(q,
-                  _.eliminate(fs ⇒ fs.toVector.init.foldRight(q(fs.toVector.last))(QueryBuilders.nestedQuery),
-                              _.impossible))
+      f.eliminate(
+        q,
+        _.eliminate(
+          buildNestedQuery(_)(q),
+          _.impossible
+        )
+      )
   }
 
   private final case class RawQueryBuilder(content: JsonObject) extends QueryBuilder {
-    def doXContent(builder: XContentBuilder, params: ToXContent.Params): Unit = {
-      builder.startObject()
+
+    def doXContent(builder: XContentBuilder, params: ToXContent.Params): Unit =
       content.toMap.foreach {
         case (n, v) ⇒
-          builder.rawField(n, v.dump)
+          builder.rawField(n, v.toSmile)
       }
-      builder.endObject()
-    }
   }
 
   def apply(qfs: NonEmptyList[QueryFunction]): State = State { b ⇒
@@ -61,15 +72,15 @@ private[es] object ESQueryInterpreter
     val inContext = b.inContext(qf) _
     for (v ← qf.value.toList) {
       qf.field match {
-        case QueryField.Single(n) ⇒ inContext(n.nest(QueryBuilders.matchQuery(_, v)))
+        case QueryField.Single(n) ⇒ inContext(n.nest(QueryBuilders.matchQuery(_, v).withBoost(qf)))
         case QueryField.Multiple(ns) ⇒
           val (sfs, nfs) = ns.foldLeft(Vector.empty[String] → Vector.empty[NonEmptyVector[String]]) {
             case ((sAcc, nAcc), f) ⇒
               f.select[String].fold(sAcc)(sAcc :+ _) →
                 f.select[NonEmptyVector[String]].fold(nAcc)(nAcc :+ _)
           }
-          inContext(QueryBuilders.multiMatchQuery(v, sfs: _*))
-          nfs.foreach(nf ⇒ inContext(Coproduct[Field](nf).nest(QueryBuilders.matchQuery(_, v))))
+          if (sfs.nonEmpty) inContext(QueryBuilders.multiMatchQuery(v, sfs: _*).withBoost(qf))
+          nfs.foreach(nf ⇒ inContext(buildNestedQuery(nf)(QueryBuilders.matchQuery(_, v).withBoost(qf))))
       }
     }
     b
@@ -81,8 +92,8 @@ private[es] object ESQueryInterpreter
     for (f ← qf.in.toList) {
       inContext {
         vs match {
-          case v :: Nil ⇒ f.nest(QueryBuilders.termQuery(_, v))
-          case _        ⇒ f.nest(QueryBuilders.termsQuery(_, vs: _*))
+          case v :: Nil ⇒ f.nest(QueryBuilders.termQuery(_, v).withBoost(qf))
+          case _        ⇒ f.nest(QueryBuilders.termsQuery(_, vs: _*).withBoost(qf))
         }
       }
     }
@@ -98,7 +109,7 @@ private[es] object ESQueryInterpreter
   def rangeF(qf: QueryFunction.range): State = State { b ⇒
     b.inContext(qf) {
       qf.in.field.nest { f ⇒
-        val builder = QueryBuilders.rangeQuery(f)
+        val builder = QueryBuilders.rangeQuery(f).withBoost(qf)
         val value   = qf.value.unify
         value.lower.foreach {
           case (RangeFunction.Gt, v)  ⇒ builder.gt(v)
@@ -120,6 +131,7 @@ private[es] object ESQueryInterpreter
   }
 
   def boolF(qf: QueryFunction.bool): State = State { b ⇒
-    qf.value.toNEL.foldM(b)((b, qf) ⇒ eval(qf)(b): Id[BoolQueryBuilder])
+    b.inContext(qf)(apply(qf.value.toNEL)(QueryBuilders.boolQuery()))
+    b
   }
 }

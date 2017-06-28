@@ -1,13 +1,13 @@
 [
   {
     "type": "equals",
-    "context": "must^",
+    "context": "must",
     "in": "slug",
     "value": [ "awesome", "whatever" ]
   },
   {
-    "type": "matches",
-    "context": "should^.5",
+    "type": "matches^.5",
+    "context": "should",
     "in": [ "title", "description", "skus.code" ],
     "value": [ "food", "drink" ]
   },
@@ -25,7 +25,15 @@
     "value": "archivedAt"
   },
   {
+    "type": "raw",
+    "context": "filter",
+    "value": {
+      "match_all": {}
+    }
+  },
+  {
     "type": "bool",
+    "context": "should",
     "value": [
       {
         "type": "equals",
@@ -34,6 +42,7 @@
       },
       {
         "type": "bool",
+        "context": "not",
         "value": {
           "type": "exists",
           "value": "context"

@@ -55,7 +55,7 @@ class SearchService private (client: Client, qi: ESQueryInterpreter) {
 
     def evalQuery(builder: SearchRequestBuilder): Coeval[SearchRequestBuilder] = searchPayload match {
       case SearchPayload.es(query, _) ⇒
-        Coeval.eval(builder.setQuery(Json.fromJsonObject(query).dump))
+        Coeval.eval(builder.setQuery(Json.fromJsonObject(query).toBytes))
       case SearchPayload.fc(query, _) ⇒
         qi(query).map(builder.setQuery)
     }

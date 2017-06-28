@@ -3,13 +3,11 @@ package foxcomm.agni.dsl
 import scala.language.higherKinds
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.implicits._
-import cats.instances.either._
 import io.circe._
 import io.circe.generic.extras.semiauto._
 import scala.util.Try
 import shapeless._
 
-@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
 object query {
   type QueryValueF[F[_], T] = T :+: F[T] :+: CNil
   type QueryValue[T]        = QueryValueF[NonEmptyList, T]
@@ -48,23 +46,12 @@ object query {
       Decoder[RangeBound[String]].map(Coproduct[RangeValue](_))
 
   object Boostable {
-    private[this] val explicitBoostableRegex = "^(\\w+)\\^([0-9]*\\.?[0-9]+)$".r
-    private[this] val boostableRegex         = "^(\\w+)\\^$".r
+    private[this] val boostableRegex = "^(\\w+)\\^([0-9]*\\.?[0-9]+)$".r
 
-    object explicit {
-      def unapply(s: String): Option[(String, Float)] = s match {
-        case explicitBoostableRegex(f, b) ⇒ Try(f → b.toFloat).toOption
-        case _                            ⇒ None
-      }
+    def unapply(s: String): Option[(String, Float)] = s match {
+      case boostableRegex(f, b) ⇒ Try(f → b.toFloat).toOption
+      case _                    ⇒ None
     }
-
-    private[this] val explicitMatcher = (explicit.unapply _).andThen(_.map { case (f, b) ⇒ f → Some(b) })
-
-    def unapply(s: String): Option[(String, Option[Float])] =
-      explicitMatcher(s) orElse (s match {
-        case boostableRegex(f) ⇒ Some(f → Some(default))
-        case f                 ⇒ Some(f → None)
-      })
 
     def default: Float = 1.0f
   }
@@ -98,18 +85,12 @@ object query {
 
   sealed trait QueryContext
   object QueryContext {
-    final case class must(boost: Option[Float])   extends QueryContext
-    final case class should(boost: Option[Float]) extends QueryContext
-    final case class not(boost: Option[Float])    extends QueryContext
+    case object filter extends QueryContext
+    case object must   extends QueryContext
+    case object should extends QueryContext
+    case object not    extends QueryContext
 
-    implicit val decodeQueryContext: Decoder[QueryContext] = Decoder.instance[QueryContext](c ⇒
-      c.as[String].flatMap {
-        case Boostable("must", b)         ⇒ Either.right(must(b))
-        case Boostable("should", b)       ⇒ Either.right(should(b))
-        case Boostable.explicit("not", b) ⇒ Either.right(not(Some(b)))
-        case "not"                        ⇒ Either.right(not(None))
-        case _                            ⇒ Either.left(DecodingFailure("Invalid query context", c.history))
-    })
+    implicit val decodeQueryContext: Decoder[QueryContext] = deriveEnumerationDecoder[QueryContext]
   }
 
   sealed trait RangeFunction
@@ -164,50 +145,89 @@ object query {
 
   sealed trait QueryFunction
   object QueryFunction {
-    sealed trait Basic extends QueryFunction
+    val Discriminator = "type"
 
-    sealed trait WithField extends Basic { this: QueryFunction ⇒
+    private def buildQueryFunctionDecoder[A <: QueryFunction](expectedTpe: String, decoder: Decoder[A])(
+        onBoost: (Float, HCursor, Decoder[A]) ⇒ Decoder.Result[A]) =
+      Decoder.instance { c ⇒
+        val tpe = c.downField(Discriminator).focus.flatMap(_.asString)
+        tpe match {
+          case Some(Boostable(`expectedTpe`, b)) ⇒ onBoost(b, c, decoder)
+          case Some(`expectedTpe`)               ⇒ decoder(c)
+          case _                                 ⇒ Either.left(DecodingFailure("Unknown query function type", c.history))
+        }
+      }
+
+    private def buildBoostableDecoder[A <: QueryFunction](expectedTpe: String)(decoder: Decoder[A]) =
+      buildQueryFunctionDecoder[A](expectedTpe, decoder)((boost, cursor, decoder) ⇒
+        decoder.tryDecode(cursor.withFocus(_.mapObject(_.add("boost", Json.fromFloatOrNull(boost))))))
+
+    private def buildDecoder[A <: QueryFunction](expectedTpe: String)(decoder: Decoder[A]): Decoder[A] =
+      buildQueryFunctionDecoder[A](expectedTpe, decoder)((_, cursor, _) ⇒
+        Either.left(DecodingFailure(s"$expectedTpe query function is not boostable", cursor.history)))
+
+    sealed trait WithField { this: QueryFunction ⇒
       def field: QueryField
+      def boost: Option[Float]
     }
-    sealed trait WithContext extends Basic { this: QueryFunction ⇒
+    sealed trait WithContext { this: QueryFunction ⇒
       def ctx: QueryContext
     }
 
-    sealed trait TermLevel extends Basic with WithContext { this: QueryFunction ⇒
+    sealed trait TermLevel extends WithContext { this: QueryFunction ⇒
       def context: Option[QueryContext]
 
-      final def ctx: QueryContext = context.getOrElse(QueryContext.must(None))
+      final def ctx: QueryContext = context.getOrElse(QueryContext.filter)
     }
-    sealed trait FullText extends Basic with WithContext with WithField { this: QueryFunction ⇒
+    sealed trait FullText extends WithContext with WithField { this: QueryFunction ⇒
       def context: Option[QueryContext]
       def in: Option[QueryField]
 
-      final def ctx: QueryContext = context.getOrElse(QueryContext.must(Some(Boostable.default)))
+      final def ctx: QueryContext = context.getOrElse(QueryContext.must)
       final def field: QueryField = in.getOrElse(QueryField.Single(Coproduct("_all")))
     }
 
     final case class matches private (in: Option[QueryField],
                                       value: QueryValue[String],
-                                      context: Option[QueryContext])
+                                      context: Option[QueryContext],
+                                      boost: Option[Float])
         extends QueryFunction
         with FullText
+    object matches {
+      implicit val decodeMatches: Decoder[matches] = buildBoostableDecoder("matches")(deriveDecoder[matches])
+    }
 
-    final case class equals private (in: QueryField, value: CompoundValue, context: Option[QueryContext])
+    final case class equals private (in: QueryField,
+                                     value: CompoundValue,
+                                     context: Option[QueryContext],
+                                     boost: Option[Float])
         extends QueryFunction
         with TermLevel
         with WithField {
       def field: QueryField = in
     }
+    object equals {
+      implicit val decodeEquals: Decoder[equals] = buildBoostableDecoder("equals")(deriveDecoder[equals])
+    }
 
     final case class exists private (value: QueryField, context: Option[QueryContext])
         extends QueryFunction
         with TermLevel
+    object exists {
+      implicit val decodeExists: Decoder[exists] = buildDecoder("exists")(deriveDecoder[exists])
+    }
 
-    final case class range private (in: QueryField.Single, value: RangeValue, context: Option[QueryContext])
+    final case class range private (in: QueryField.Single,
+                                    value: RangeValue,
+                                    context: Option[QueryContext],
+                                    boost: Option[Float])
         extends QueryFunction
         with TermLevel
         with WithField {
       def field: QueryField.Single = in
+    }
+    object range {
+      implicit val decodeRange: Decoder[range] = buildBoostableDecoder("range")(deriveDecoder[range])
     }
 
     final case class raw private (value: JsonObject, context: QueryContext)
@@ -215,13 +235,20 @@ object query {
         with WithContext {
       def ctx: QueryContext = context
     }
+    object raw {
+      implicit val decodeRaw: Decoder[raw] = buildDecoder("raw")(deriveDecoder[raw])
+    }
 
-    final case class bool private (value: QueryValue[QueryFunction]) extends QueryFunction
+    final case class bool private (value: QueryValue[QueryFunction], context: QueryContext)
+        extends QueryFunction
+        with WithContext {
+      def ctx: QueryContext = context
+    }
     object bool {
       // TODO: make it configurable (?)
       val MaxDepth = 25
 
-      implicit val decodeBool: Decoder[bool] = {
+      implicit val decodeBool: Decoder[bool] = buildDecoder[bool]("bool") {
         val decoder    = deriveDecoder[bool]
         val depthField = "_depth"
 
@@ -244,7 +271,12 @@ object query {
     }
 
     implicit val decodeQueryFunction: Decoder[QueryFunction] =
-      deriveDecoder[QueryFunction.Basic].map(identity) or Decoder[bool].map(identity)
+      Decoder[matches].map(identity[QueryFunction](_)) or
+        Decoder[equals].map(identity[QueryFunction](_)) or
+        Decoder[exists].map(identity[QueryFunction](_)) or
+        Decoder[range].map(identity[QueryFunction](_)) or
+        Decoder[raw].map(identity[QueryFunction](_)) or
+        Decoder[bool].map(identity[QueryFunction](_))
   }
 
   final case class FCQuery(query: Option[NonEmptyList[QueryFunction]])

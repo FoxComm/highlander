@@ -5,6 +5,7 @@ import foxcomm.agni.dsl.query._
 import io.circe.{Json, JsonObject}
 import io.circe.parser._
 import org.scalatest.EitherValues._
+import org.scalatest.OptionValues._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 import scala.annotation.tailrec
 import scala.io.Source
@@ -31,7 +32,7 @@ class QueryDslSpec extends FlatSpec with Matchers {
       json.as[FCQuery].right.value.query.map(_.toList).getOrElse(Nil)
     assertQueryFunction[QueryFunction.equals](queries.head) { equals ⇒
       equals.field.toList should === (List(Coproduct[Field]("slug")))
-      equals.ctx should === (QueryContext.must(Some(Boostable.default)))
+      equals.ctx should === (QueryContext.must)
       equals.context should be('defined)
       equals.value.toList should === (List("awesome", "whatever"))
     }
@@ -40,13 +41,14 @@ class QueryDslSpec extends FlatSpec with Matchers {
         List(Coproduct[Field]("title"),
              Coproduct[Field]("description"),
              Coproduct[Field](NonEmptyVector.of("skus", "code"))))
-      matches.ctx should === (QueryContext.should(Some(0.5f)))
+      matches.ctx should === (QueryContext.should)
+      matches.boost.value should === (0.5f)
       matches.context should be('defined)
       matches.value.toList should === (List("food", "drink"))
     }
     assertQueryFunction[QueryFunction.range](queries(2)) { range ⇒
       range.field.toList should === (List(Coproduct[Field]("price")))
-      range.ctx should === (QueryContext.must(None))
+      range.ctx should === (QueryContext.filter)
       range.context should be('empty)
       range.value.unify.toMap.mapValues(_.toString) should === (
         Map(
@@ -56,16 +58,22 @@ class QueryDslSpec extends FlatSpec with Matchers {
     }
     assertQueryFunction[QueryFunction.exists](queries(3)) { exists ⇒
       exists.value.toList should === (List(Coproduct[Field]("archivedAt")))
-      exists.ctx should === (QueryContext.not(None))
+      exists.ctx should === (QueryContext.not)
       exists.context should be('defined)
     }
-    assertQueryFunction[QueryFunction.bool](queries(4)) { bool ⇒
+    assertQueryFunction[QueryFunction.raw](queries(4)) { raw ⇒
+      raw.context should === (QueryContext.filter)
+      raw.value should === (JsonObject.singleton("match_all", Json.fromJsonObject(JsonObject.empty)))
+    }
+    assertQueryFunction[QueryFunction.bool](queries(5)) { bool ⇒
+      bool.context should === (QueryContext.should)
       val qfs = bool.value.toNEL
       assertQueryFunction[QueryFunction.equals](qfs.head) { equals ⇒
         equals.field.toList should === (List(Coproduct[Field]("context")))
         equals.value.toList should === (List("default"))
       }
       assertQueryFunction[QueryFunction.bool](qfs.tail.head) { bool ⇒
+        bool.context should === (QueryContext.not)
         assertQueryFunction[QueryFunction.exists](bool.value.toNEL.head) { exists ⇒
           exists.value.toList should === (List(Coproduct[Field]("context")))
         }
@@ -86,8 +94,9 @@ class QueryDslSpec extends FlatSpec with Matchers {
         deepBool(boolDepth - 1,
                  JsonObject.fromMap(
                    Map(
-                     "type"  → Json.fromString("bool"),
-                     "value" → Json.fromJsonObject(embed)
+                     "type"    → Json.fromString("bool"),
+                     "context" → Json.fromString("filter"),
+                     "value"   → Json.fromJsonObject(embed)
                    )))
       else Json.fromJsonObject(embed)
 
