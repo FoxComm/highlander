@@ -27,7 +27,7 @@ import objectframework.services.ObjectManager
 import phoenix.failures.ImageFailures._
 import phoenix.models.image._
 import phoenix.payloads.ImagePayloads._
-import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import phoenix.responses.AlbumResponses.AlbumResponse
 import phoenix.services.image.ImageManager._
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
@@ -290,7 +290,7 @@ object ImageFacade extends ImageHelpers {
       am: Mat,
       sys: ActorSystem,
       imageUploader: ImageUploader[T],
-      apis: Apis): DbResultT[AlbumRoot] =
+      apis: Apis): DbResultT[AlbumResponse] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       album   ← * <~ mustFindAlbumByFormIdAndContext404(albumId, context)
@@ -306,7 +306,7 @@ object ImageFacade extends ImageHelpers {
       au: AU,
       am: Mat,
       sys: ActorSystem,
-      apis: Apis): DbResultT[AlbumRoot] =
+      apis: Apis): DbResultT[AlbumResponse] =
     uploadImagesToAlbum[ImagePayload](albumId, contextName, payload)
 
   def uploadImagesFromMultipartToAlbum(albumId: Int, contextName: String, formData: Multipart.FormData)(
@@ -315,7 +315,7 @@ object ImageFacade extends ImageHelpers {
       au: AU,
       am: Mat,
       sys: ActorSystem,
-      apis: Apis): DbResultT[AlbumRoot] =
+      apis: Apis): DbResultT[AlbumResponse] =
     uploadImagesToAlbum[Multipart.FormData](albumId, contextName, formData)
 
   def uploadImagesFromMultiPart(contextName: String, formData: Multipart.FormData)(

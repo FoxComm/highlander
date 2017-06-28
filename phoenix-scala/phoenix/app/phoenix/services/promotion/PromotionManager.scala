@@ -29,10 +29,9 @@ object PromotionManager {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def create(
-      payload: CreatePromotion,
-      contextName: String,
-      admin: Option[User])(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[PromotionResponse.Root] = {
+  def create(payload: CreatePromotion,
+             contextName: String,
+             admin: Option[User])(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[PromotionResponse] = {
     val formAndShadow =
       FormAndShadow.fromPayload(kind = Promotion.kind, attributes = payload.attributes)
 
@@ -93,7 +92,7 @@ object PromotionManager {
   def update(id: Int, payload: UpdatePromotion, contextName: String, admin: Option[User])(
       implicit ec: EC,
       ac: AC,
-      db: DB): DbResultT[PromotionResponse.Root] = {
+      db: DB): DbResultT[PromotionResponse] = {
 
     val formAndShadow = FormAndShadow.fromPayload(Promotion.kind, payload.attributes)
 
@@ -124,7 +123,7 @@ object PromotionManager {
   }
 
   def archiveByContextAndId(contextName: String, formId: Int)(implicit ec: EC,
-                                                              db: DB): DbResultT[PromotionResponse.Root] =
+                                                              db: DB): DbResultT[PromotionResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -174,8 +173,7 @@ object PromotionManager {
                   .updateInternal(updateDiscount.id, updateDiscount.attributes, context)
     } yield UpdateDiscountResult(discount.form, discount.shadow)
 
-  def getIlluminated(id: Int, contextName: String)(implicit ec: EC,
-                                                   db: DB): DbResultT[PromotionResponse.Root] =
+  def getIlluminated(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[PromotionResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)

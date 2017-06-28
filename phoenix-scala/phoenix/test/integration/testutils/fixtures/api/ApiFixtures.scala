@@ -19,7 +19,6 @@ import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.payloads.CatalogPayloads._
 import phoenix.responses.CatalogResponse
 import phoenix.responses.CouponResponses.CouponResponse
-import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import phoenix.responses.ProductReviewResponses.ProductReviewResponse
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
@@ -31,6 +30,7 @@ import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQ
 
 import scala.util.Random
 import phoenix.payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
+import phoenix.responses.ProductResponses.ProductResponse
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth { self: FoxSuite ⇒
 
@@ -65,8 +65,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
                                                      countryId = 234,
                                                      defaultLanguage = "en")
 
-    val catalog: CatalogResponse.Root =
-      catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse.Root]
+    val catalog: CatalogResponse =
+      catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse]
   }
 
   def randomProductName: String = s"testprod_${Lorem.numerify("####")}"
@@ -88,10 +88,10 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
                            skus = Seq(skuPayload),
                            variants = None)
 
-    val product: ProductRoot =
-      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]
+    val product: ProductResponse =
+      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductResponse]
 
-    val sku: SkuResponse.Root = product.skus.onlyElement
+    val sku: SkuResponse = product.skus.onlyElement
   }
 
   trait ProductVariants_ApiFixture {
@@ -126,8 +126,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
         variants = Some(Seq(variant))
       )
 
-    val product: ProductRoot =
-      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]
+    val product: ProductResponse =
+      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductResponse]
   }
 
   trait Coupon_AnyQualifier_PercentOff extends CouponFixtureBase {
@@ -139,7 +139,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       PromoQualifierBuilder.CartAny)
 
     def promotion =
-      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse.Root]
+      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse]
   }
 
   trait Coupon_TotalQualifier_PercentOff extends CouponFixtureBase {
@@ -152,7 +152,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       PromoQualifierBuilder.CartTotalAmount(qualifiedSubtotal))
 
     def promotion =
-      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse.Root]
+      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse]
   }
 
   trait Coupon_NumItemsQualifier_PercentOff extends CouponFixtureBase {
@@ -165,7 +165,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       PromoQualifierBuilder.CartNumUnits(qualifiedNumItems))
 
     lazy val promotion =
-      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse.Root]
+      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse]
   }
 
   trait CouponFixtureBase {
@@ -174,7 +174,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
     def couponUsageRules: CouponUsageRules =
       CouponUsageRules(isUnlimitedPerCode = true, isUnlimitedPerCustomer = true)
 
-    def promotion: PromotionResponse.Root
+    def promotion: PromotionResponse
 
     lazy val coupon = couponsApi
       .create(
@@ -182,7 +182,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
                      promotion.id,
                      singleCode = Some(Lorem.letterify("?????")),
                      generateCodes = None))(implicitly, defaultAdminAuth)
-      .as[Seq[CouponResponse.Root]]
+      .as[Seq[CouponResponse]]
       .headOption
       .value
 

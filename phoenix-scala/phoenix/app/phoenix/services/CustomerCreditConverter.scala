@@ -17,7 +17,7 @@ object CustomerCreditConverter {
 
   def toStoreCredit(giftCardCode: String,
                     accountId: Int,
-                    admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreCreditResponse.Root] =
+                    admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreCreditResponse] =
     for {
       giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
       _        ← * <~ failIf(!giftCard.isActive, GiftCardConvertFailure(giftCard))

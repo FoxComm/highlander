@@ -19,7 +19,9 @@ class StripeApiErrorHandlingTest extends TestBase { // for Monad[Future]
       def boom = throw someStripeException
 
       // FIXME: how to get rid of the explicit StateT#runEmptyA operation below? Why `Await.result` and not `.futureValue` (`.gimmeFailures`) with tuned timeouts? @michalrus
-      val result = Await.result(new StripeWrapper(timeout).inBlockingPool(boom).runEmptyA.value, Inf)
+      val result =
+        Await.result(new StripeWrapper(timeout, timeout / 3, timeout).inBlockingPool(boom).runEmptyA.value,
+                     Inf)
       result.leftVal.head must === (StripeFailure(someStripeException))
     }
 
@@ -30,14 +32,17 @@ class StripeApiErrorHandlingTest extends TestBase { // for Monad[Future]
 
       /** Scalatest’s futureValue wraps the exception, so we can’t use it here. */
       an[ArithmeticException] must be thrownBy {
-        Await.result(new StripeWrapper(timeout).inBlockingPool(oops).runEmptyA.value, Inf)
+        Await.result(new StripeWrapper(timeout, timeout / 3, timeout).inBlockingPool(oops).runEmptyA.value,
+                     Inf)
       }
     }
 
     "catches timeouts in stripe API" in {
       def boom = { Thread.sleep(300); throw someStripeException }
 
-      val result = Await.result(new StripeWrapper(timeout).inBlockingPool(boom).runEmptyA.value, Inf)
+      val result =
+        Await.result(new StripeWrapper(timeout, timeout / 3, timeout).inBlockingPool(boom).runEmptyA.value,
+                     Inf)
       result.leftVal.head must === (StripeProcessingFailure("Request to Stripe timed out"))
     }
   }

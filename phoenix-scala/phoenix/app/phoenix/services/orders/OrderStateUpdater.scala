@@ -50,12 +50,11 @@ object OrderStateUpdater {
          }
     } yield ()
 
-  def updateStates(admin: User,
-                   refNumbers: Seq[String],
-                   newState: Order.State,
-                   skipActivity: Boolean = false)(implicit ec: EC,
-                                                  db: DB,
-                                                  ac: AC): DbResultT[BatchResponse[AllOrders.Root]] =
+  def updateStates(
+      admin: User,
+      refNumbers: Seq[String],
+      newState: Order.State,
+      skipActivity: Boolean = false)(implicit ec: EC, db: DB, ac: AC): DbResultT[BatchResponse[AllOrders]] =
     for {
       // Turn failures into errors
       batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)

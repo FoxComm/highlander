@@ -11,8 +11,8 @@ import phoenix.models.location.{Addresses, Region}
 import phoenix.models.payment.creditcard.{BillingAddress, CreditCard, CreditCards}
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
-import phoenix.responses.CreditCardsResponse
-import phoenix.responses.CreditCardsResponse.Root
+import phoenix.responses.CreditCardResponse
+import phoenix.responses.CreditCardResponse
 import phoenix.utils.TestStripeSupport
 import phoenix.utils.aliases.stripe.StripeCustomer
 import phoenix.utils.seeds.Factories
@@ -152,22 +152,22 @@ class CreditCardsIntegrationTest
     "deletes specified card" in {
       val customer = api_newCustomer()
 
-      val ccResp1 = customersApi(customer.id).payments.creditCards.create(ccPayload).as[Root]
+      val ccResp1 = customersApi(customer.id).payments.creditCards.create(ccPayload).as[CreditCardResponse]
 
       val stripeCard2 = newStripeCard
       when(stripeWrapperMock.createCard(m.any(), m.any())).thenReturn(Result.good(stripeCard2))
       when(stripeWrapperMock.findCardByCustomerId(stripeCustomer.getId, stripeCard2.getId))
         .thenReturn(Result.good(stripeCard2))
 
-      val ccResp2 = customersApi(customer.id).payments.creditCards.create(ccPayload).as[Root]
+      val ccResp2 = customersApi(customer.id).payments.creditCards.create(ccPayload).as[CreditCardResponse]
 
-      val allCcs = customersApi(customer.id).payments.creditCards.get().as[Seq[Root]]
+      val allCcs = customersApi(customer.id).payments.creditCards.get().as[Seq[CreditCardResponse]]
       allCcs must contain theSameElementsAs Seq(ccResp1, ccResp2)
 
       customersApi(customer.id).payments.creditCard(ccResp2.id).delete().mustBeEmpty()
       verify(stripeWrapperMock).deleteCard(m.argThat(cardStripeIdMatches(stripeCard2.getId)))
 
-      customersApi(customer.id).payments.creditCards.get().as[Seq[Root]] must === (Seq(ccResp1))
+      customersApi(customer.id).payments.creditCards.get().as[Seq[CreditCardResponse]] must === (Seq(ccResp1))
     }
 
     "errors 404 if customer not found" in {
@@ -194,7 +194,7 @@ class CreditCardsIntegrationTest
 
       storefrontPaymentsApi.creditCards
         .get()
-        .as[Seq[CreditCardsResponse.Root]]
+        .as[Seq[CreditCardResponse]]
         .head
         .address
         .phoneNumber must === (testPhoneNumber.some)

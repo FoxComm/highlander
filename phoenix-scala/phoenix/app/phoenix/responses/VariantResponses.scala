@@ -11,17 +11,18 @@ object VariantResponses {
 
   type VariantValueSkuLinks = Map[Int, Seq[String]]
 
+  case class IlluminatedVariantResponse(id: Int,
+                                        context: Option[ObjectContextResponse],
+                                        attributes: Json,
+                                        values: Seq[IlluminatedVariantValueResponse])
+      extends ResponseItem
+
   object IlluminatedVariantResponse {
-    case class Root(id: Int,
-                    context: Option[ObjectContextResponse.Root],
-                    attributes: Json,
-                    values: Seq[IlluminatedVariantValueResponse.Root])
-        extends ResponseItem
 
     def build(variant: IlluminatedVariant,
               variantValues: Seq[FullObject[VariantValue]],
-              variantValueSkus: VariantValueSkuLinks): Root =
-      Root(
+              variantValueSkus: VariantValueSkuLinks): IlluminatedVariantResponse =
+      IlluminatedVariantResponse(
         id = variant.id,
         attributes = variant.attributes,
         context = ObjectContextResponse.build(variant.context).some,
@@ -30,17 +31,17 @@ object VariantResponses {
 
     def buildLite(variant: IlluminatedVariant,
                   variantValues: Seq[FullObject[VariantValue]],
-                  variantValueSkus: VariantValueSkuLinks): Root =
-      Root(id = variant.id,
-           attributes = variant.attributes,
-           context = None,
-           values = illuminateValues(variantValues, variantValueSkus))
+                  variantValueSkus: VariantValueSkuLinks): IlluminatedVariantResponse =
+      IlluminatedVariantResponse(id = variant.id,
+                                 attributes = variant.attributes,
+                                 context = None,
+                                 values = illuminateValues(variantValues, variantValueSkus))
 
     def illuminateValues(variantValues: Seq[FullObject[VariantValue]],
-                         variantValueSkus: VariantValueSkuLinks): Seq[IlluminatedVariantValueResponse.Root] =
-      variantValues.map(
-        vv ⇒
-          IlluminatedVariantValueResponse
-            .build(vv, variantValueSkus.getOrElse(vv.model.id, Seq.empty)))
+                         variantValueSkus: VariantValueSkuLinks): Seq[IlluminatedVariantValueResponse] =
+      variantValues.map { vv ⇒
+        IlluminatedVariantValueResponse
+          .build(vv, variantValueSkus.getOrElse(vv.model.id, Seq.empty))
+      }
   }
 }

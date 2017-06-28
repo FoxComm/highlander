@@ -46,7 +46,7 @@ trait PromotionFixtures extends TestFixtureBase {
                                        attributes = promoAttributes,
                                        discounts = Seq(CreateDiscount(attributes = discountAttributes)))
 
-    val (promoRoot: PromotionResponse.Root, promotion: Promotion) = createPromotionFromPayload(promoPayload)
+    val (promoRoot: PromotionResponse, promotion: Promotion) = createPromotionFromPayload(promoPayload)
 
     def createPromotionFromPayload(promoPayload: CreatePromotion) =
       (for {

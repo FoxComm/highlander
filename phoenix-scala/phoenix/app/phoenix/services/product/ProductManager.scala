@@ -23,7 +23,7 @@ import phoenix.payloads.ImagePayloads.AlbumPayload
 import phoenix.payloads.ProductPayloads._
 import phoenix.payloads.SkuPayloads._
 import phoenix.payloads.VariantPayloads._
-import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import phoenix.responses.AlbumResponses.AlbumResponse
 import phoenix.responses.AlbumResponses._
 import phoenix.responses.ProductResponses._
 import phoenix.responses.SkuResponses._
@@ -46,13 +46,12 @@ object ProductManager extends LazyLogging {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  def createProduct(admin: User, payload: CreateProductPayload)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      oc: OC,
-      au: AU,
-      apis: Apis): DbResultT[ProductResponse.Root] = {
+  def createProduct(admin: User, payload: CreateProductPayload)(implicit ec: EC,
+                                                                db: DB,
+                                                                ac: AC,
+                                                                oc: OC,
+                                                                au: AU,
+                                                                apis: Apis): DbResultT[ProductResponse] = {
 
     val form            = ObjectForm.fromPayload(Product.kind, payload.attributes)
     val shadow          = ObjectShadow.fromPayload(payload.attributes)
@@ -93,7 +92,7 @@ object ProductManager extends LazyLogging {
   }
 
   def getProduct(productId: ProductReference,
-                 checkActive: Boolean)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] =
+                 checkActive: Boolean)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
       illuminated = IlluminatedProduct
@@ -138,7 +137,7 @@ object ProductManager extends LazyLogging {
       ac: AC,
       oc: OC,
       au: AU,
-      apis: Apis): DbResultT[ProductResponse.Root] = {
+      apis: Apis): DbResultT[ProductResponse] = {
 
     val formAndShadow = FormAndShadow.fromPayload(Product.kind, payload.attributes)
 
@@ -186,7 +185,7 @@ object ProductManager extends LazyLogging {
   }
 
   def archiveByContextAndId(
-      productId: ProductReference)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse.Root] = {
+      productId: ProductReference)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductResponse] = {
     val payload = Map("activeFrom" → (("v" → JNull) ~ ("t" → JString("datetime"))),
                       "activeTo" → (("v" → JNull) ~ ("t" → JString("datetime"))))
 
@@ -234,7 +233,7 @@ object ProductManager extends LazyLogging {
   private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(
       implicit ec: EC,
       db: DB,
-      oc: OC): DbResultT[(Seq[SkuResponse.Root], Seq[IlluminatedVariantResponse.Root])] = {
+      oc: OC): DbResultT[(Seq[SkuResponse], Seq[IlluminatedVariantResponse])] = {
     val variantValueIds = variants
       .flatMap { case (_, variantValue) ⇒ variantValue }
       .map(_.model.id)
@@ -273,7 +272,7 @@ object ProductManager extends LazyLogging {
     }
 
   private def validateSkuMatchesVariants(
-      skus: Seq[SkuResponse.Root],
+      skus: Seq[SkuResponse],
       variants: Seq[(FullObject[Variant], Seq[FullObject[VariantValue]])]): ValidatedNel[Failure, Unit] = {
     val maxSkus = variants.map { case (_, values) ⇒ values.length.max(1) }.product
 
@@ -301,7 +300,7 @@ object ProductManager extends LazyLogging {
       implicit ec: EC,
       db: DB,
       oc: OC,
-      au: AU): DbResultT[Seq[AlbumRoot]] =
+      au: AU): DbResultT[Seq[AlbumResponse]] =
     albumsPayload match {
       case Some(payloads) ⇒
         for {
@@ -394,8 +393,7 @@ object ProductManager extends LazyLogging {
       .filter(_.formId === formId)
       .mustFindOneOr(ProductFormNotFoundForContext(formId, contextId))
 
-  def getContextsForProduct(formId: Int)(implicit ec: EC,
-                                         db: DB): DbResultT[Seq[ObjectContextResponse.Root]] =
+  def getContextsForProduct(formId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[ObjectContextResponse]] =
     for {
       products   ← * <~ Products.filterByFormId(formId).result
       contextIds ← * <~ products.map(_.contextId)

@@ -19,10 +19,8 @@ import slick.jdbc.PostgresProfile.api._
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def createNotification(payload: CreateNotification)(implicit ac: AC,
-                                                      au: AU,
-                                                      ec: EC,
-                                                      db: DB): DbResultT[ActivityResponse.Root] =
+  def createNotification(
+      payload: CreateNotification)(implicit ac: AC, au: AU, ec: EC, db: DB): DbResultT[ActivityResponse] =
     for {
       dimension ← * <~ Dimensions.findOrCreateByName(payload.sourceDimension)
       activity = Activity(

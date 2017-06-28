@@ -5,8 +5,8 @@ import java.time.Instant
 import phoenix.models.account._
 import phoenix.models.customer.{CustomerData, CustomerRank}
 import phoenix.models.location.Region
-import phoenix.responses.StoreCreditResponse.Totals
-import phoenix.responses.{GroupResponses, ResponseItem}
+import phoenix.responses.GroupResponses.CustomerGroupResponse
+import phoenix.responses.{ResponseItem, StoreCreditTotalsResponse}
 
 case class CustomerResponse(id: Int = 0,
                             email: Option[String] = None,
@@ -18,12 +18,12 @@ case class CustomerResponse(id: Int = 0,
                             isBlacklisted: Boolean,
                             rank: Option[Int] = None,
                             totalSales: Long = 0,
-                            storeCreditTotals: Totals,
+                            storeCreditTotals: StoreCreditTotalsResponse,
                             numOrders: Option[Int] = None,
                             billingRegion: Option[Region] = None,
                             shippingRegion: Option[Region] = None,
                             lastOrderDays: Option[Long] = None,
-                            groups: Seq[GroupResponses.CustomerGroupResponse.Root])
+                            groups: Seq[CustomerGroupResponse])
     extends ResponseItem
 
 object CustomerResponse {
@@ -34,8 +34,8 @@ object CustomerResponse {
             numOrders: Option[Int] = None,
             rank: Option[CustomerRank] = None,
             lastOrderDays: Option[Long] = None,
-            scTotals: Option[Totals] = None,
-            groups: Seq[GroupResponses.CustomerGroupResponse.Root] = Seq.empty): CustomerResponse = {
+            scTotals: Option[StoreCreditTotalsResponse] = None,
+            groups: Seq[CustomerGroupResponse] = Seq.empty): CustomerResponse = {
 
     require(customerData.userId == customer.id)
     require(customerData.accountId == customer.accountId)
@@ -52,7 +52,7 @@ object CustomerResponse {
       rank = rank.flatMap(_.rank),
       totalSales = rank.map(_.revenue).getOrElse(0L),
       numOrders = numOrders,
-      storeCreditTotals = scTotals.getOrElse(Totals(0, 0)),
+      storeCreditTotals = scTotals.getOrElse(StoreCreditTotalsResponse(0, 0)),
       billingRegion = billingRegion,
       shippingRegion = shippingRegion,
       lastOrderDays = lastOrderDays,

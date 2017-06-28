@@ -12,31 +12,32 @@ import phoenix.utils.JsonFormatters
 object AlbumResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  object AlbumResponse {
-    case class Root(id: Int,
-                    name: String,
-                    images: Seq[ImageResponse.Root],
-                    createdAt: Instant,
-                    updatedAt: Instant,
-                    archivedAt: Option[Instant])
-        extends ResponseItem
+  case class AlbumResponse(id: Int,
+                           name: String,
+                           images: Seq[ImageResponse],
+                           createdAt: Instant,
+                           updatedAt: Instant,
+                           archivedAt: Option[Instant])
+      extends ResponseItem
 
-    def build(album: FullObject[Album], images: Seq[FullObject[Image]]): Root = {
+  object AlbumResponse {
+
+    def build(album: FullObject[Album], images: Seq[FullObject[Image]]): AlbumResponse = {
       val model       = album.model
       val formAttrs   = album.form.attributes
       val shadowAttrs = album.shadow.attributes
 
       val name = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
 
-      Root(id = album.form.id,
-           name = name,
-           images = images.map(ImageResponse.build),
-           createdAt = model.createdAt,
-           updatedAt = model.updatedAt,
-           archivedAt = model.archivedAt)
+      AlbumResponse(id = album.form.id,
+                    name = name,
+                    images = images.map(ImageResponse.build),
+                    createdAt = model.createdAt,
+                    updatedAt = model.updatedAt,
+                    archivedAt = model.archivedAt)
     }
 
-    def build(fullAlbum: FullAlbumWithImages): Root = {
+    def build(fullAlbum: FullAlbumWithImages): AlbumResponse = {
       val (album, images) = fullAlbum
       build(album, images)
     }

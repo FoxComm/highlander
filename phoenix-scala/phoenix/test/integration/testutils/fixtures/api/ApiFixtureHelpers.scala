@@ -11,7 +11,7 @@ import phoenix.payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, Creat
 import phoenix.responses.cord.CartResponse
 import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.responses.users.CustomerResponse
-import phoenix.responses.{CreditCardsResponse, StoreCreditResponse}
+import phoenix.responses.{CreditCardResponse, StoreCreditResponse}
 import phoenix.utils.aliases._
 import phoenix.utils.time.today
 import testutils._
@@ -44,7 +44,7 @@ trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuit
 
   def api_newCreditCard(customerId: Int, customerName: String, address: CreateAddressPayload)(
       implicit sl: SL,
-      sf: SF): CreditCardsResponse.Root = {
+      sf: SF): CreditCardResponse = {
     val payload = CreateCreditCardFromTokenPayload(
       token = "whatever",
       lastFour = faker.Lorem.numerify("####"),
@@ -67,16 +67,15 @@ trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuit
 
     customersApi(customerId).payments.creditCards
       .create(payload)(defaultAdminAuth)
-      .as[CreditCardsResponse.Root]
+      .as[CreditCardResponse]
   }
 
   def api_newGiftCard(payload: GiftCardCreateByCsr)(implicit sl: SL, sf: SF): GiftCardResponse =
     giftCardsApi.create(payload)(defaultAdminAuth).as[GiftCardResponse]
 
-  def api_newStoreCredit(customerId: Int, payload: CreateManualStoreCredit)(
-      implicit sl: SL,
-      sf: SF): StoreCreditResponse.Root =
+  def api_newStoreCredit(customerId: Int, payload: CreateManualStoreCredit)(implicit sl: SL,
+                                                                            sf: SF): StoreCreditResponse =
     customersApi(customerId).payments.storeCredit
       .create(payload)(defaultAdminAuth)
-      .as[StoreCreditResponse.Root]
+      .as[StoreCreditResponse]
 }
