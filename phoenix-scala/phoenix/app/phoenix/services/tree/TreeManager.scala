@@ -53,7 +53,7 @@ object TreeManager {
       _ ← * <~ (if (shouldBeDeleted)
                   GenericTreeNodes.deleteById(
                     newChildNode.id,
-                    DbResultT.unit,
+                    ().pure[DbResultT],
                     _ ⇒
                       DatabaseFailure(
                         s"cannot delete node: index=${newChildNode.index}, tree=$treeName, context=$contextName"))
@@ -101,7 +101,7 @@ object TreeManager {
 
     for {
       maybeTree ← * <~ GenericTrees.filterByNameAndContext(treeName, context.id).one
-      tree      ← * <~ maybeTree.fold(ifEmptyAction)(tree ⇒ DbResultT.good(tree))
+      tree      ← * <~ maybeTree.fold(ifEmptyAction)(tree ⇒ tree.pure[DbResultT])
     } yield tree
   }
 
@@ -111,9 +111,8 @@ object TreeManager {
       parentNode ← * <~ GenericTreeNodes
                     .findNodesByIndex(treeId, parentIndex)
                     .mustFindOneOr(TreeNodeNotFound(treeId, parentIndex))
-      _ ← * <~ (if (parentNode.path.value.contains(childNode.index.toString))
-                  DbResultT.failure(ParentChildSwapFailure(parentNode.index, childNode.index))
-                else DbResultT.none)
+      _ ← * <~ when(parentNode.path.value.contains(childNode.index.toString),
+                    DbResultT.failure(ParentChildSwapFailure(parentNode.index, childNode.index)).void)
 
       parentPath    = parentNode.path.toString()
       patternLength = childNode.path.value.size - 1

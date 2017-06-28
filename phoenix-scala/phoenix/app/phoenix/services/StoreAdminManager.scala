@@ -70,17 +70,17 @@ object StoreAdminManager {
     for {
       _ ← * <~ AdminsData
            .filter(_.accountId === accountId)
-           .deleteAll(DbResultT.unit, DbResultT.failure[Unit](UserWithAccountNotFound(accountId)))
+           .deleteAll(().pure[DbResultT], DbResultT.failure[Unit](UserWithAccountNotFound(accountId)))
       _ ← * <~ CustomersData
            .filter(_.accountId === accountId)
-           .deleteAll(DbResultT.unit, DbResultT.failure[Unit](UserWithAccountNotFound(accountId)))
+           .deleteAll(().pure[DbResultT], DbResultT.failure[Unit](UserWithAccountNotFound(accountId)))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
       _      ← * <~ UserPasswordResets.filter(_.accountId === accountId).delete
-      result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
+      result ← * <~ Users.deleteById(admin.id, ().pure[DbResultT], i ⇒ NotFoundFailure404(User, i))
       _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete
       _      ← * <~ AccountRoles.findByAccountId(accountId).delete
       _      ← * <~ AccountOrganizations.filterByAccountId(accountId).delete
-      _      ← * <~ Accounts.deleteById(accountId, DbResultT.unit, i ⇒ NotFoundFailure404(Account, i))
+      _      ← * <~ Accounts.deleteById(accountId, ().pure[DbResultT], i ⇒ NotFoundFailure404(Account, i))
       _      ← * <~ LogActivity().storeAdminDeleted(admin, author)
     } yield result
 

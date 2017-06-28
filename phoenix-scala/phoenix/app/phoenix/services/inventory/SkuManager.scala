@@ -140,7 +140,7 @@ object SkuManager {
       case Some(commit) ⇒
         Skus.update(sku, sku.copy(code = code, shadowId = shadow.id, commitId = commit.id))
       case None ⇒
-        DbResultT.good(sku)
+        sku.pure[DbResultT]
     }
 
   def mustGetSkuCode(payload: SkuPayload): Either[Failures, String] =

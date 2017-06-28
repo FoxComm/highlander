@@ -48,7 +48,7 @@ object ReturnService {
       response ← * <~ ReturnResponse.fromRma(updated)
       customer ← * <~ Users.mustFindByAccountId(rma.accountId)
       _ ← * <~ when(rma.state != payload.state,
-                       LogActivity().returnStateChanged(customer, response, payload.state).void)
+                    LogActivity().returnStateChanged(customer, response, payload.state).void)
     } yield response
 
   private def update(rma: Return,

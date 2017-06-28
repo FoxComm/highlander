@@ -73,7 +73,7 @@ trait OrderGenerator extends ShipmentSeeds {
            orderFun(accountId, context, randomSubset(skuIds), giftCard)
          }
       _ ← * <~ cartFun(accountId, context, randomSubset(skuIds), giftCard)
-    } yield {}
+    } yield ()
   }
 
   private val yesterday: Instant = utils.time.yesterday.toInstant
@@ -286,7 +286,7 @@ trait OrderGenerator extends ShipmentSeeds {
       skus ← * <~ Skus.filter(_.id inSet skuIds).result
       _ ← * <~ OrderLineItems.createAll(skus.map(sku ⇒
            OrderLineItem(cordRef = orderRef, skuId = sku.id, skuShadowId = sku.shadowId, state = state)))
-    } yield {}
+    } yield ()
 
   def addProductsToCart(skuIds: Seq[Int], cartRef: String)(implicit db: DB): DbResultT[Seq[CartLineItem]] = {
     val itemsToInsert =
@@ -351,10 +351,11 @@ trait OrderGenerator extends ShipmentSeeds {
         op1 ← * <~ OrderPayments.create(
                OrderPayment.build(gc).copy(cordRef = cart.refNum, amount = deductFromGc.some))
         op2 ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
-      } yield {} else
+      } yield ()
+    else
       for {
         op ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = none))
-      } yield {}
+      } yield ()
 
   private def getCc(accountId: Int)(implicit db: DB) =
     CreditCards.findDefaultByAccountId(accountId).mustFindOneOr(CustomerHasNoCreditCard(accountId))

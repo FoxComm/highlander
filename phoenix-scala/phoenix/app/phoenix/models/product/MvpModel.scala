@@ -332,7 +332,7 @@ object Mvp {
   private def linkProductAndSku(product: Product, sku: Sku)(implicit ec: EC) =
     for {
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))
-    } yield {}
+    } yield ()
 
   def insertSku(scope: LTree, contextId: Int, s: SimpleSku): DbResultT[Sku] =
     for {

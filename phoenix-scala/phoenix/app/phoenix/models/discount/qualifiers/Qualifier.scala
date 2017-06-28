@@ -16,7 +16,7 @@ trait Qualifier extends DiscountBase {
 
   def check(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): Result[Unit]
 
-  def accept()(implicit ec: EC, apis: Apis): Result[Unit] = Result.unit
+  def accept()(implicit ec: EC, apis: Apis): Result[Unit] = ().pure[Result]
 
   def reject(input: DiscountInput, message: String)(implicit ec: EC): Result[Unit] =
     Result.failure(QualifierRejectionFailure(this, input, message))
@@ -33,7 +33,7 @@ trait ItemsQualifier extends Qualifier {
       search: Seq[ProductSearch])(implicit db: DB, ec: EC, apis: Apis, au: AU): Result[Unit] = {
     val inAnyOf = search.map(_.query(input).mapEither(matchEither(input)))
     Result.onlySuccessful(inAnyOf.toList).flatMap {
-      case xs if xs.nonEmpty ⇒ Result.unit
+      case xs if xs.nonEmpty ⇒ ().pure[Result]
       case _                 ⇒ Result.failure(SearchFailure)
     }
   }

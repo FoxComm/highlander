@@ -7,6 +7,7 @@ import org.json4s.Formats
 import phoenix.models.discount.DiscountHelpers.{offer, qualifier}
 import phoenix.services.discount.compilers.{OfferAstCompiler, QualifierAstCompiler}
 import phoenix.utils.JsonFormatters
+import slick.dbio.DBIO
 
 /**
   * An DiscountValidator checks to make sure a discount shadow is valid
@@ -18,7 +19,7 @@ object DiscountValidator {
   def validate(fs: FormAndShadow)(implicit ec: EC): DbResultT[Unit] =
     for {
       failures ← * <~ IlluminateAlgorithm.validateAttributes(fs.form.attributes, fs.shadow.attributes)
-      _        ← * <~ failIfFailures(failures)
+      _        ← * <~ failIfFailures[DBIO](failures) // TODO: why no inference? @michalrus
       _        ← * <~ QualifierAstCompiler(qualifier(fs.form, fs.shadow)).compile()
       _        ← * <~ OfferAstCompiler(offer(fs.form, fs.shadow)).compile()
     } yield None

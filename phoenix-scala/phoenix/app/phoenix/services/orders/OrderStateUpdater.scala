@@ -32,9 +32,10 @@ object OrderStateUpdater {
       _       ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated ← * <~ Orders.mustFindByRefNum(refNum)
       _ ← * <~ when(updated.state == Order.Canceled,
-                       DbResultT.fromResult(apis.middlewarehouse.cancelHold(refNum)))
+                    DbResultT.fromResult(apis.middlewarehouse.cancelHold(refNum)))
       response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
-      _        ← * <~ when(order.state != newState, LogActivity().orderStateChanged(admin, response, order.state).void)
+      _ ← * <~ when(order.state != newState,
+                    LogActivity().orderStateChanged(admin, response, order.state).void)
     } yield response
 
   def updateStates(admin: User,
@@ -72,7 +73,7 @@ object OrderStateUpdater {
           .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
 
         val batchFailures = (invalid ++ notFound).toMap
-        DbResultT.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
+        BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)).pure[DbResultT]
       }
     }
   }
@@ -97,7 +98,7 @@ object OrderStateUpdater {
         cancelOrders(cordRefs)
       case _ ⇒
         // FIXME: calling .dbresultt (which basically maps right) can be dangerous here. @anna
-        Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState).dbresult.meh
+        Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState).dbresult.void
     }
 
   private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC, db: DB): DbResultT[Unit] =

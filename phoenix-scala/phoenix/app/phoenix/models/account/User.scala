@@ -139,7 +139,7 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
     maybeEmail match {
       case Some(email) ⇒
         otherUserByEmail(email, accountId).one.mustNotFindOr(UserEmailNotUnique)
-      case None ⇒ DbResultT.unit
+      case None ⇒ ().pure[DbResultT]
     }
 
 }

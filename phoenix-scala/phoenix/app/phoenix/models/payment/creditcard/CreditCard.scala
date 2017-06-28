@@ -250,7 +250,7 @@ object CreditCards
 
   def mustFindByIdAndAccountId(id: Int, accountId: Int)(implicit ec: EC): DbResultT[CreditCard] =
     filter(cc ⇒ cc.id === id && cc.accountId === accountId).one.dbresult.flatMap {
-      case Some(cc) ⇒ DbResultT.good(cc)
+      case Some(cc) ⇒ cc.pure[DbResultT]
       case None     ⇒ DbResultT.failure(NotFoundFailure404(CreditCard, id))
     }
 }

@@ -17,17 +17,17 @@ object * extends LazyLogging {
   def <~[A](v: SqlAction[A, NoStream, Effect.All])(implicit ec: EC): DbResultT[A] =
     <~(v.map(Either.right))
 
-  def <~[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
-    DbResultT.fromF(v)
+  def <~[A](fa: DBIO[A])(implicit ec: EC): DbResultT[A] =
+    DbResultT.fromF(fa)
 
-  def <~[A](v: Either[Failures, A])(implicit ec: EC): DbResultT[A] =
-    DbResultT.fromEither(v)
+  def <~[A](fa: Either[Failures, A])(implicit ec: EC): DbResultT[A] =
+    DbResultT.fromEither(fa)
 
-  def <~[A](v: Future[Either[Failures, A]])(implicit M1: Monad[DBIO], M2: Monad[Future]): DbResultT[A] =
-    DbResultT.fromResult(Result.fromFEither(v))
+  def <~[A](gfa: Future[Either[Failures, A]])(implicit M1: Monad[DBIO], M2: Monad[Future]): DbResultT[A] =
+    DbResultT.fromResult(Result.fromFEither(gfa))
 
-  def <~[A](v: Future[A])(implicit ec: EC): DbResultT[A] =
-    <~(v.map(Either.right(_)).recover {
+  def <~[A](fa: Future[A])(implicit ec: EC): DbResultT[A] =
+    <~(fa.map(Either.right).recover {
       case ex ⇒
         logger.error("A Future failed during conversion to DbResultT.", ex)
         Either.left(GeneralFailure(ex.getMessage).single)
@@ -36,22 +36,25 @@ object * extends LazyLogging {
   def <~[A](fa: Result[A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromResult(fa)
 
-  def <~[A](v: A)(implicit ec: EC): DbResultT[A] =
-    v.pure[DbResultT]
+  // TODO: Is this more readable than inlining? @michalrus
+  def <~[A](a: A)(implicit ec: EC): DbResultT[A] =
+    a.pure[DbResultT]
 
   def <~[A](v: Validated[Failures, A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromEither(v.toEither)
 
-  def <~[M[_]: TraverseFilter, A](v: M[DbResultT[A]])(implicit ec: EC): DbResultT[M[A]] =
-    DbResultT.seqCollectFailures(v)
+  def <~[M[_]: TraverseFilter, A](fas: M[DbResultT[A]])(implicit ec: EC): DbResultT[M[A]] =
+    DbResultT.seqCollectFailures(fas)
 
   // FIXME: Remove this function after switching all Seqs to List/Vector. Cats don’t have instances for Seq and Seq is unsound. PM me or @kjanosz for details. @michalrus
-  def <~[A](v: Seq[DbResultT[A]])(implicit ec: EC): DbResultT[List[A]] =
-    DbResultT.seqCollectFailures(v.toList)
+  def <~[A](fas: Seq[DbResultT[A]])(implicit ec: EC): DbResultT[List[A]] =
+    DbResultT.seqCollectFailures(fas.toList)
 
-  def <~[A](v: DbResultT[A]): DbResultT[A] =
-    v
+  // TODO: Is this more readable than inlining? @michalrus
+  def <~[A](fa: DbResultT[A]): DbResultT[A] =
+    fa
 
-  def <~[A](v: Option[DbResultT[A]])(implicit ec: EC): DbResultT[Option[A]] = // TODO: sequence? @michalrus - yes, please! @aafa
-    v.fold(DbResultT.none[A])(_.map(Some(_)))
+  // TODO: Is this more readable than inlining? @michalrus
+  def <~[A](ofa: Option[DbResultT[A]])(implicit ec: EC): DbResultT[Option[A]] =
+    ofa.sequence
 }

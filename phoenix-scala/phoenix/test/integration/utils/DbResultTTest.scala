@@ -18,8 +18,8 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with Gi
 
         val transformer = for {
           _ ← DbResultT.fromEither(Either.right(Factories.rma))
-          _ ← DbResultT.good(Factories.rma)
-          c ← DbResultT.good(Factories.address)
+          _ ← Factories.rma.pure[DbResultT]
+          c ← Factories.address.pure[DbResultT]
         } yield c
 
         val result = db.run(transformer.runEmptyA.value).futureValue
@@ -33,7 +33,7 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with Gi
         val transformer = for {
           _ ← DbResultT.fromEither(Either.right(Factories.rma))
           _ ← DbResultT.failures[Unit](failure.single)
-          c ← DbResultT.good(Factories.address)
+          c ← Factories.address.pure[DbResultT]
         } yield c
 
         db.run(transformer.runEmptyA.value).futureValue.leftVal.head must === (failure)

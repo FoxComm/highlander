@@ -22,7 +22,7 @@ import testutils.apis._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.PaymentFixtures.CreditCardsFixture
 import testutils.fixtures.api.ApiFixtureHelpers
-import core.db.{when => ifM, _}
+import core.db.{when ⇒ ifM, _}
 
 class CreditCardsIntegrationTest
     extends IntegrationTestBase
@@ -86,7 +86,7 @@ class CreditCardsIntegrationTest
         .mustBeOk()
 
       val stripeCustomer2 = newStripeCustomer
-      when(stripeWrapperMock.createCustomer(m.any())).thenReturn(Result.good(stripeCustomer2))
+      when(stripeWrapperMock.createCustomer(m.any())).thenReturn(stripeCustomer2.pure[Result])
       customersApi(customer2.id).payments.creditCards
         .create(ccPayload.copy(token = "tok_2"))
         .mustBeOk()
@@ -155,9 +155,9 @@ class CreditCardsIntegrationTest
       val ccResp1 = customersApi(customer.id).payments.creditCards.create(ccPayload).as[Root]
 
       val stripeCard2 = newStripeCard
-      when(stripeWrapperMock.createCard(m.any(), m.any())).thenReturn(Result.good(stripeCard2))
+      when(stripeWrapperMock.createCard(m.any(), m.any())).thenReturn(stripeCard2.pure[Result])
       when(stripeWrapperMock.findCardByCustomerId(stripeCustomer.getId, stripeCard2.getId))
-        .thenReturn(Result.good(stripeCard2))
+        .thenReturn(stripeCard2.pure[Result])
 
       val ccResp2 = customersApi(customer.id).payments.creditCards.create(ccPayload).as[Root]
 

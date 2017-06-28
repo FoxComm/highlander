@@ -237,7 +237,8 @@ object ReturnPaymentManager {
       updated           ← * <~ Returns.refresh(rma)
       response          ← * <~ ReturnResponse.fromRma(rma)
 
-      _ ← * <~ when(paymentWasDeleted, LogActivity().returnPaymentsDeleted(response, List(paymentMethod)).void)
+      _ ← * <~ when(paymentWasDeleted,
+                    LogActivity().returnPaymentsDeleted(response, List(paymentMethod)).void)
     } yield response
 
   private def deletePayments(
@@ -249,7 +250,7 @@ object ReturnPaymentManager {
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
       _ ← * <~ when(deletedPayments.nonEmpty,
-                       LogActivity().returnPaymentsDeleted(response, deletedPayments).void)
+                    LogActivity().returnPaymentsDeleted(response, deletedPayments).void)
     } yield response
 
   private def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(

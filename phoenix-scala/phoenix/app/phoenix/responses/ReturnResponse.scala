@@ -104,9 +104,9 @@ object ReturnResponse {
       // Either customer or storeAdmin as creator
       customer     ← * <~ Users.findOneByAccountId(rma.accountId)
       customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
-      storeAdmin ← rma.storeAdminId.flatTraverse(Users.findOneByAccountId(_).dbresult)
-      adminData    ← * <~ rma.storeAdminId.flatTraverse(AdminsData.findOneByAccountId(_).dbresult)
-      organization ← * <~ rma.storeAdminId.traverse(Organizations.mustFindByAccountId)
+      storeAdmin   ← rma.storeAdminId.flatTraverse(Users.findOneByAccountId(_).dbresult)
+      adminData    ← rma.storeAdminId.flatTraverse(AdminsData.findOneByAccountId(_).dbresult)
+      organization ← rma.storeAdminId.traverse(Organizations.mustFindByAccountId)
       // Payment methods
       ccPayment       ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
       applePayPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).applePays.one

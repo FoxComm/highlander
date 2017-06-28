@@ -35,7 +35,7 @@ object SaveForLaterManager {
     } yield response
 
   def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
-    SaveForLaters.deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(SaveForLater, i))
+    SaveForLaters.deleteById(id, ().pure[DbResultT], i ⇒ NotFoundFailure404(SaveForLater, i))
 
   private def findAllDbio(customer: User, contextId: Int)(implicit ec: EC, db: DB): DbResultT[SavedForLater] =
     for {

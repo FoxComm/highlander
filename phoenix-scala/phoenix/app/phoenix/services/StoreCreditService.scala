@@ -29,7 +29,7 @@ object StoreCreditService {
   // Check subtype only if id is present in payload; discard actual model
   private def checkSubTypeExists(subTypeId: Option[Int], originType: StoreCredit.OriginType)(
       implicit ec: EC): DbResultT[Unit] =
-    subTypeId.fold(DbResultT.unit) { subtypeId ⇒
+    subTypeId.traverse { subtypeId ⇒
       StoreCreditSubtypes
         .byOriginType(originType)
         .filter(_.id === subtypeId)
@@ -38,9 +38,9 @@ object StoreCreditService {
         .flatMap(_.fold {
           DbResultT.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
         } { _ ⇒
-          DbResultT.unit
+          ().pure[DbResultT]
         })
-    }
+    }.void
 
   def totalsForCustomer(accountId: Int)(implicit ec: EC, db: DB): DbResultT[StoreCreditResponse.Totals] =
     for {
@@ -153,7 +153,7 @@ object StoreCreditService {
              .lastAuthByStoreCreditId(storeCredit.id)
              .one
              .mustNotFindOr(OpenTransactionsFailure)
-        _ ← * <~ reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResultT.unit)
+        _ ← * <~ reasonId.traverse(Reasons.mustFindById400)
         upd ← * <~ StoreCredits.update(storeCredit,
                                        storeCredit.copy(state = newState,
                                                         canceledReason = reasonId,

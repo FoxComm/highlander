@@ -1,5 +1,6 @@
 package objectframework.models
 
+import cats.implicits._
 import core.db.ExPostgresDriver.api._
 import core.db._
 import objectframework.ObjectFailures.{LinkAtPositionCannotBeFound, LinkCannotBeFound}
@@ -44,7 +45,7 @@ abstract class OrderedObjectHeadLinkQueries[M <: OrderedObjectHeadLink[M],
       replacedLink ← * <~ allLefts
                       .filter(_.position === newPosition)
                       .mustFindOneOr(LinkAtPositionCannotBeFound(baseTableRow.getClass, left.id, newPosition))
-      newLinks ← * <~ (if (link.position == newPosition) DbResultT.good((link, replacedLink))
+      newLinks ← * <~ (if (link.position == newPosition) (link, replacedLink).pure[DbResultT]
                        else swapLinkPositions(link, replacedLink))
       (updatedLink, _) = newLinks
     } yield updatedLink

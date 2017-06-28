@@ -60,6 +60,6 @@ class AllOrdersIntegrationTest
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "baz"))
       order ← * <~ Orders.createFromCart(cart, subScope = None)
       _     ← * <~ Orders.update(order, order.copy(state = ManualHold))
-    } yield {}).gimme
+    } yield ()).gimme
   }
 }

@@ -107,7 +107,7 @@ class StripeWrapper(timeout: FiniteDuration) extends StripeApiWrapper with LazyL
       case Left(xs) ⇒
         Result.failures(xs)
       case Right(c: StripeCard) if c.getObject.equals("card") ⇒
-        Result.good(c)
+        c.pure[Result]
       case _ ⇒
         Result.failure(GeneralFailure("Not a stripe card: " ++ account.toString))
     }

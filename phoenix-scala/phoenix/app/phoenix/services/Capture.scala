@@ -144,7 +144,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
       _ ← * <~ when(scTotal > 0, LogActivity().scFundsCaptured(customer, order, scIds, scTotal).void)
       _ ← * <~ when(gcTotal > 0, LogActivity().gcFundsCaptured(customer, order, gcCodes, gcTotal).void)
-    } yield {}
+    } yield ()
 
   private def externalCapture(total: Long, order: Order): DbResultT[Unit] = {
     def capture(charge: ExternalCharge[_]) = captureFromStripe(total, charge, order)

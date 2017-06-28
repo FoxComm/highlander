@@ -52,5 +52,5 @@ package object notes {
       note ← * <~ Notes.mustFindById404(noteId)
       _    ← * <~ Notes.update(note, note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
       _    ← * <~ LogActivity().noteDeleted(admin, entity, note)
-    } yield {}
+    } yield ()
 }

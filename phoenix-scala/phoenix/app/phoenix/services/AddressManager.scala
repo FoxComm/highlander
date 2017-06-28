@@ -64,7 +64,7 @@ object AddressManager {
       updated    ← * <~ Addresses.update(address, softDelete)
       response   ← * <~ AddressResponse.fromAddress(updated)
       _          ← * <~ LogActivity().addressDeleted(originator, customer, response)
-    } yield {}
+    } yield ()
 
   def setDefaultShippingAddress(addressId: Int, accountId: Int)(implicit ec: EC,
                                                                 db: DB): DbResultT[AddressResponse] =

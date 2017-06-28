@@ -2,7 +2,7 @@ package utils
 
 import cats.implicits._
 import com.stripe.model.DeletedCard
-import core.db.{when => ifM, _}
+import core.db.{when ⇒ ifM, _}
 import java.io.File
 import org.apache.avro.generic.GenericData
 import org.apache.kafka.clients.producer.MockProducer
@@ -67,18 +67,18 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
   def initStripeApiMock(mocked: StripeWrapper): StripeWrapper = {
     reset(mocked)
 
-    when(mocked.findCustomer(any())).thenReturn(Result.good(stripeCustomer))
-    when(mocked.createCustomer(any())).thenReturn(Result.good(stripeCustomer))
+    when(mocked.findCustomer(any())).thenReturn(stripeCustomer.pure[Result])
+    when(mocked.createCustomer(any())).thenReturn(stripeCustomer.pure[Result])
 
-    when(mocked.findCardForCustomer(any(), any())).thenReturn(Result.good(stripeCard))
-    when(mocked.getCustomersOnlyCard(any())).thenReturn(Result.good(stripeCard))
-    when(mocked.findCardByCustomerId(any(), any())).thenReturn(Result.good(stripeCard))
-    when(mocked.createCard(any(), any())).thenReturn(Result.good(stripeCard))
+    when(mocked.findCardForCustomer(any(), any())).thenReturn(stripeCard.pure[Result])
+    when(mocked.getCustomersOnlyCard(any())).thenReturn(stripeCard.pure[Result])
+    when(mocked.findCardByCustomerId(any(), any())).thenReturn(stripeCard.pure[Result])
+    when(mocked.createCard(any(), any())).thenReturn(stripeCard.pure[Result])
 
-    when(mocked.updateCard(any(), any())).thenReturn(Result.good(stripeCard))
-    when(mocked.deleteCard(any())).thenReturn(Result.good(new DeletedCard()))
+    when(mocked.updateCard(any(), any())).thenReturn(stripeCard.pure[Result])
+    when(mocked.deleteCard(any())).thenReturn((new DeletedCard()).pure[Result])
 
-    when(mocked.captureCharge(any(), any())).thenReturn(Result.good(new StripeCharge))
+    when(mocked.captureCharge(any(), any())).thenReturn((new StripeCharge).pure[Result])
     when(mocked.createCharge(any())).thenAnswer(new Answer[Result[StripeCharge]] {
       def answer(invocation: InvocationOnMock): Result[StripeCharge] = {
         val map    = invocation.getArgument[Map[String, AnyRef]](0)
@@ -86,7 +86,7 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
         map.get("amount").flatMap(s ⇒ Try(s.toString.toInt).toOption).foreach(charge.setAmount(_))
         map.get("currency").foreach(s ⇒ charge.setCurrency(s.toString))
         charge.setId(Random.nextString(10))
-        Result.good(charge)
+        charge.pure[Result]
       }
     })
     when(mocked.refundCharge(any(), any())).thenAnswer(new Answer[Result[StripeCharge]] {
@@ -99,7 +99,7 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
           .flatMap(s ⇒ Try(s.toString.toInt).toOption)
           .foreach(charge.setAmountRefunded(_))
         charge.setId(id)
-        Result.good(charge)
+        charge.pure[Result]
       }
     })
 
@@ -118,7 +118,7 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
   lazy val amazonApiMock: AmazonApi = {
     val mocked = mock[AmazonApi]
     when(mocked.uploadFile(any[String], any[File], any[Boolean])(any[EC]))
-      .thenReturn(Result.good("http://amazon-image.url/1"))
+      .thenReturn("http://amazon-image.url/1".pure[Result])
     when(mocked.uploadFileF(any[String], any[File], any[Boolean])(any[EC]))
       .thenReturn(Future.successful("http://amazon-image.url/1"))
     mocked
@@ -126,8 +126,8 @@ trait MockedApis extends MockitoSugar with MustMatchers with OptionValues with A
 
   lazy val middlewarehouseApiMock: MiddlewarehouseApi = {
     val mocked = mock[MiddlewarehouseApi]
-    when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
-    when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
+    when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(().pure[Result])
+    when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(().pure[Result])
     when(mocked.createSku(any[Int], any[CreateSku])(any[EC], any[AU]))
       .thenReturn(ProductVariantSku(skuId = -1, mwhSkuId = -1).pure[DbResultT])
     mocked

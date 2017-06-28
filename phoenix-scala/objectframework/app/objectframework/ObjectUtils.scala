@@ -184,7 +184,7 @@ object ObjectUtils {
                              .copy[T](form = updateResult.form, shadow = updateResult.shadow)
                            updateHead(newObject, commit.id)
                          case _ ⇒
-                           DbResultT.good(fullObject)
+                           fullObject.pure[DbResultT]
                        })
     } yield committedObject
 

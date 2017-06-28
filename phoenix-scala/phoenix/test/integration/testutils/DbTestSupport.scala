@@ -90,7 +90,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       // Can't create all schemas right now because promo tests are fucky
       // FIXME @anna @michalrus
       _ ← * <~ Factories.FIXME_createAllButPromoSchemas
-    } yield {}).gimme
+    } yield ()).gimme
 }
 
 object DbTestSupport extends GimmeSupport {

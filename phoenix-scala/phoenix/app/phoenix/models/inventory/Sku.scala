@@ -48,7 +48,7 @@ case class Sku(id: Int = 0,
     for {
       inCartCount ← * <~ CartLineItems.filter(_.skuId === id).size.result
       _           ← * <~ failIf(inCartCount > 0, SkuIsPresentInCarts(code))
-    } yield {}
+    } yield ()
 
 }
 

@@ -46,7 +46,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
           case Some(warnings) ⇒
             DbResultT.failures(warnings)
           case _ ⇒
-            DbResultT.good(validatorResponse)
+            validatorResponse.pure[DbResultT]
         }
       }
     } else {
@@ -101,7 +101,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
                                  case _ ⇒ warning(response, InvalidShippingMethod(cart.refNum))
                                } // FIXME validator warning and actual failure differ
                            case None ⇒
-                             DbResultT(warning(response, NoShipMethod(cart.refNum)))
+                             warning(response, NoShipMethod(cart.refNum)).pure[DbResultT]
                          })
     } yield validatedResponse
 

@@ -18,17 +18,18 @@ import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
 
-case class CustomerGroup(id: Int = 0,
-                         scope: LTree,
-                         createdBy: Int,
-                         name: String,
-                         customersCount: Int = 0, // FIXME: is this denormalization needed at all? https://foxcommerce.slack.com/archives/C06696D1R/p1498564090580988 @michalrus
-                         clientState: Json,
-                         elasticRequest: Json,
-                         groupType: GroupType,
-                         updatedAt: Instant = Instant.now,
-                         createdAt: Instant = Instant.now,
-                         deletedAt: Option[Instant] = None)
+case class CustomerGroup(
+    id: Int = 0,
+    scope: LTree,
+    createdBy: Int,
+    name: String,
+    customersCount: Int = 0, // FIXME: is this denormalization needed at all? https://foxcommerce.slack.com/archives/C06696D1R/p1498564090580988 @michalrus
+    clientState: Json,
+    elasticRequest: Json,
+    groupType: GroupType,
+    updatedAt: Instant = Instant.now,
+    createdAt: Instant = Instant.now,
+    deletedAt: Option[Instant] = None)
     extends FoxModel[CustomerGroup] {
 
   def mustBeOfType(expected: GroupType): Either[Failures, CustomerGroup] =

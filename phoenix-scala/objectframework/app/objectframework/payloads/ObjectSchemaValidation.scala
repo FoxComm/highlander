@@ -1,5 +1,6 @@
 package objectframework.payloads
 
+import cats.implicits._
 import cats.data.NonEmptyList
 import com.networknt.schema.JsonSchemaFactory
 import core.db._
@@ -35,7 +36,7 @@ object ObjectSchemaValidation {
         PayloadValidationFailure(error.getMessage)
       } match {
         case head :: tail ⇒ DbResultT.failures[M](NonEmptyList(head, tail))
-        case Nil          ⇒ DbResultT.good(payload)
+        case Nil          ⇒ payload.pure[DbResultT]
       }
 
     }

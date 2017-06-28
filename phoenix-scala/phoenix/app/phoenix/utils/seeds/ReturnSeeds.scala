@@ -17,7 +17,7 @@ trait ReturnSeeds {
            case (sku, id) ⇒ sku.copy(id = id)
          })
       _ ← * <~ Notes.createAll(returnNotes)
-    } yield {}
+    } yield ()
 
   def createReturnReasons(implicit ec: EC): DbResultT[Option[Int]] =
     ReturnReasons.createAll(returnReasons)

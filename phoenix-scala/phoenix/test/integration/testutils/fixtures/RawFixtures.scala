@@ -45,7 +45,7 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
       .create(Factories.address.copy(accountId = customer.accountId, isDefaultShipping = true))
       .gimme
 
-    lazy val region: Region = Regions.findOneById(address.regionId).safeGet.gimme
+    lazy val region: Region = Regions.findOneById(address.regionId).unsafeGet.gimme
   }
 
   // Cart

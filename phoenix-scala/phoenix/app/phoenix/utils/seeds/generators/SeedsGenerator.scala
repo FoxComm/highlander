@@ -91,6 +91,6 @@ object SeedsGenerator
       _ ← * <~ randomSubset(customers, customers.length).map { customer ⇒
            generateOrders(customer.accountId, context, skuIds, pickOne(giftCards))
          }
-    } yield {}
+    } yield ()
   }
 }

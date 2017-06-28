@@ -36,7 +36,7 @@ object AuthRoutes {
 
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
-        doLogin(payload.pure[DbResultT]   )(_.runDBIO())
+        doLogin(payload.pure[DbResultT])(_.runDBIO())
       } ~
       activityContext(defaultScope) { implicit ac ⇒
         (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒

@@ -2,6 +2,7 @@ package phoenix.models.taxonomy
 
 import java.time.Instant
 
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import core.db.ExPostgresDriver.api._
 import core.db._
@@ -123,10 +124,10 @@ object TaxonomyTaxonLinks
 
   def archive(link: TaxonomyTaxonLink)(implicit ec: EC): DbResultT[Unit] =
     for {
-      _ ← * <~ (if (link.archivedAt.isDefined) DbResultT.good(link)
+      _ ← * <~ (if (link.archivedAt.isDefined) link.pure[DbResultT]
                 else TaxonomyTaxonLinks.update(link, link.copy(archivedAt = Some(Instant.now))))
       _ ← * <~ shrinkPositions(link.taxonomyId, link.path, link.position)
-    } yield {}
+    } yield ()
 
   def updatePaths(taxonomyId: Int, oldPrefix: LTree, newPrefix: LTree): DBIO[Int] = {
     val patternLength = oldPrefix.value.length

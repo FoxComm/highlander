@@ -1,5 +1,6 @@
 package core.db
 
+import cats.implicits._
 import core.failures.{Failure, NotFoundFailure400, NotFoundFailure404}
 import core.utils.Strings._
 import slick.jdbc.PostgresProfile.api._
@@ -24,7 +25,7 @@ trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {
   private def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = notFound404K)(implicit ec: EC,
                                                                                      db: DB): DbResultT[M] =
     this.findOneById(id).dbresult.flatMap {
-      case Some(model) ⇒ DbResultT.good(model)
+      case Some(model) ⇒ model.pure[DbResultT]
       case None        ⇒ DbResultT.failure(notFoundFailure(id))
     }
 }
@@ -37,7 +38,7 @@ trait SearchByRefNum[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T
       implicit ec: EC,
       db: DB): DbResultT[M] =
     findOneByRefNum(refNum).dbresult.flatMap {
-      case Some(model) ⇒ DbResultT.good(model)
+      case Some(model) ⇒ model.pure[DbResultT]
       case None        ⇒ DbResultT.failure(notFoundFailure(refNum))
     }
 }
@@ -49,7 +50,7 @@ trait SearchByCode[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] 
   def mustFindByCode(code: String, notFoundFailure: String ⇒ Failure = notFound404K)(implicit ec: EC,
                                                                                      db: DB): DbResultT[M] =
     findOneByCode(code).dbresult.flatMap {
-      case Some(model) ⇒ DbResultT.good(model)
+      case Some(model) ⇒ model.pure[DbResultT]
       case None        ⇒ DbResultT.failure(notFoundFailure(code))
     }
 }
@@ -62,7 +63,7 @@ trait SearchByIdAndName[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M
       implicit ec: EC,
       db: DB): DbResultT[M] =
     findOneByIdAndName(id, name).dbresult.flatMap {
-      case Some(model) ⇒ DbResultT.good(model)
+      case Some(model) ⇒ model.pure[DbResultT]
       case None        ⇒ DbResultT.failure(notFoundFailure(name))
     }
 }

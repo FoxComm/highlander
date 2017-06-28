@@ -239,9 +239,9 @@ object Seeds {
 
              for {
                _ ← * <~ SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch)
-             } yield {}
+             } yield ()
            }
-      } yield {}
+      } yield ()
 
       step(s"Random batch $b", r)
     }
@@ -268,7 +268,7 @@ object Seeds {
       admin ← * <~ Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
       _     ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin.id)))
       _     ← * <~ Factories.createReturnReasons
-    } yield {}
+    } yield ()
 
   def createStageSeeds(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {
@@ -300,9 +300,9 @@ object Seeds {
              discounts  ← * <~ Factories.createDiscounts(search)
              promotions ← * <~ Factories.createCouponPromotions(discounts)
              coupons    ← * <~ Factories.createCoupons(promotions)
-           } yield {}
+           } yield ()
          }
-    } yield {}
+    } yield ()
 
   private def flyWayMigrate(config: Config)(implicit db: DB): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config), rootProjectSqlLocation)

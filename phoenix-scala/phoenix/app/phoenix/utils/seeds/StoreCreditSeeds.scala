@@ -25,7 +25,7 @@ trait StoreCreditSeeds {
       sc2 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 1000, accountId = cust1))
       sc3 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 500, accountId = cust1))
       sc4 ← * <~ StoreCredits.create(newSc.copy(originalBalance = 2000, accountId = cust3))
-    } yield {}
+    } yield ()
 
   def storeCredit(implicit au: AU) =
     StoreCredit(accountId = 0,

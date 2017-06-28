@@ -1,5 +1,6 @@
 package phoenix.services.category
 
+import cats.implicits._
 import objectframework.ObjectFailures._
 import objectframework.ObjectResponses.ObjectContextResponse
 import objectframework.ObjectUtils

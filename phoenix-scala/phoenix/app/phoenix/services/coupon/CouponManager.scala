@@ -172,6 +172,6 @@ object CouponManager {
       case None ⇒
         if (promotionId != coupon.promotionId)
           Coupons.update(coupon, coupon.copy(promotionId = promotionId))
-        else DbResultT.good(coupon)
+        else coupon.pure[DbResultT]
     }
 }

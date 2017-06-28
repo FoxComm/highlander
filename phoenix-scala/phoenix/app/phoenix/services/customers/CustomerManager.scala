@@ -185,7 +185,7 @@ object CustomerManager {
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
-      _ ← * <~ (if (custData.isGuest) DbResultT.unit
+      _ ← * <~ (if (custData.isGuest) ().pure[DbResultT]
                 else Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId))
       updated ← * <~ Users.update(customer, updatedUser(customer, payload))
       _       ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
@@ -207,7 +207,7 @@ object CustomerManager {
       updatedAccess ← * <~ AccountAccessMethods
                        .update(accessMethod, accessMethod.updatePassword(payload.newPassword))
       _ ← * <~ LogActivity().userPasswordReset(user)
-    } yield {}
+    } yield ()
 
   def updatedUser(customer: User, payload: UpdateCustomerPayload): User =
     customer.copy(
@@ -229,7 +229,7 @@ object CustomerManager {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ (customer.email match {
            case None ⇒ DbResultT.failure(CustomerMustHaveCredentials)
-           case _    ⇒ DbResultT.unit
+           case _    ⇒ ().pure[DbResultT]
          })
       _        ← * <~ Users.updateEmailMustBeUnique(customer.email, accountId)
       updated  ← * <~ Users.update(customer, customer.copy(name = payload.name.some))

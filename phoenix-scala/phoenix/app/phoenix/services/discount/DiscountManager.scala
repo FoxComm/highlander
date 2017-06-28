@@ -146,6 +146,6 @@ object DiscountManager {
       case Some(commit) ⇒
         Discounts.update(discount, discount.copy(shadowId = shadow.id, commitId = commit.id))
       case None ⇒
-        DbResultT.good(discount)
+        discount.pure[DbResultT]
     }
 }

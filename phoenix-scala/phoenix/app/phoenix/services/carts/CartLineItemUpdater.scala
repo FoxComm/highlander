@@ -138,7 +138,7 @@ object CartLineItemUpdater {
     for {
       _ ← * <~ CartLineItems
            .byCordRef(cart.referenceNumber)
-           .deleteAll(DbResultT.unit, DbResultT.unit)
+           .deleteAll
       updateResult ← * <~ payload.filter(_.quantity > 0).map(updateLineItems(cart, _))
     } yield updateResult.flatten
 
@@ -175,19 +175,19 @@ object CartLineItemUpdater {
                .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
         _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
         _ ← * <~ (if (lineItem.quantity > 0)
-                    createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes).meh
+                    createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes).void
                   else
                     removeLineItems(sku.id, -lineItem.quantity, cart.refNum, lineItem.attributes))
-      } yield {}
+      } yield ()
     }
-    DbResultT.seqCollectFailures(lineItemUpdActions.toList).meh
+    DbResultT.seqCollectFailures(lineItemUpdActions.toList).void
   }
 
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) =
     for {
       link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
               case Some(productLink) ⇒
-                DbResultT.good(productLink.leftId)
+                productLink.leftId.pure[DbResultT]
               case None ⇒
                 for {
                   valueLink ← * <~ VariantValueSkuLinks
@@ -218,7 +218,7 @@ object CartLineItemUpdater {
         val totalToDelete = Math.min(delta, lisMatchingPayload.length)
         val idsToDelete   = lisMatchingPayload.take(totalToDelete)
 
-        CartLineItems.filter(_.id.inSet(idsToDelete)).deleteAll(DbResultT.unit, DbResultT.unit)
+        CartLineItems.filter(_.id.inSet(idsToDelete)).deleteAll
       }
-      .meh
+      .void
 }

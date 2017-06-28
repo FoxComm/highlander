@@ -2,6 +2,7 @@ package objectframework
 
 import java.time.Instant
 
+import cats.implicits._
 import cats.data.NonEmptyList
 import com.networknt.schema.JsonSchemaFactory
 import com.typesafe.scalalogging.LazyLogging
@@ -34,7 +35,7 @@ object IlluminateAlgorithm extends LazyLogging {
       implicit ec: ExecutionContext): DbResultT[JValue] = {
     val illuminated = projectFlatAttributes(form.attributes, shadow.attributes)
     getInternalAttributes(schema).fold {
-      DbResultT.good(illuminated)
+      illuminated.pure[DbResultT]
     } { jsonSchema ⇒
       val jsonSchemaFactory = new JsonSchemaFactory
       val validator         = jsonSchemaFactory.getSchema(asJsonNode(jsonSchema))
@@ -45,7 +46,7 @@ object IlluminateAlgorithm extends LazyLogging {
         ObjectValidationFailure(form.kind, shadow.id, err.getMessage)
       } match {
         case head :: tail ⇒ DbResultT.failures[JValue](NonEmptyList(head, tail))
-        case Nil          ⇒ DbResultT.good(illuminated)
+        case Nil          ⇒ illuminated.pure[DbResultT]
       }
     }
   }

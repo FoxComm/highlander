@@ -86,7 +86,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   }
 
   def refresh(model: M)(implicit ec: EC): DBIO[M] =
-    findOneById(model.id).safeGet
+    findOneById(model.id).unsafeGet
 
   type QuerySeq = Query[T, M, Seq]
 

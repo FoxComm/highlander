@@ -105,5 +105,5 @@ object SearchReference {
   def skuSearchField: String       = "code"
 
   def pureMetrics(implicit ec: EC): Result[Long]    = 0L.pure[Result]
-  def pureBuckets(implicit ec: EC): Result[Buckets] = (Seq.empty : Buckets).pure[Result]
+  def pureBuckets(implicit ec: EC): Result[Buckets] = (Seq.empty: Buckets).pure[Result]
 }

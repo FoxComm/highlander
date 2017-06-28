@@ -23,9 +23,9 @@ trait Offer extends DiscountBase {
 
   def buildResult(input: DiscountInput, subtract: Long, lineItemRefNum: Option[String] = None)(
       implicit ec: EC): Result[Seq[OfferResult]] =
-    Result.good(Seq(OfferResult(input, subtract, lineItemRefNum, offerType)))
+    Seq(OfferResult(input, subtract, lineItemRefNum, offerType)).pure[Result]
 
-  def pureResult()(implicit ec: EC): Result[Seq[OfferResult]] = Result.good(Seq.empty)
+  def pureResult()(implicit ec: EC): Result[Seq[OfferResult]] = Seq.empty[OfferResult].pure[Result]
   def pureEither(): Either[Failures, Seq[OfferResult]]        = Either.left(SearchFailure.single)
 }
 
@@ -40,7 +40,6 @@ object Offer {
   * Offers that subtract amount from base price
   */
 trait AmountOffer {
-
   // If discount amount is bigger than price - subtract price, otherwise subtract discount
   def subtract(price: Long, discount: Long): Long = {
     val delta = price - discount

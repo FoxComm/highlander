@@ -20,7 +20,7 @@ trait CreditCardSeeds extends CreditCardGenerator {
              creditCard4.copy(accountId = customers._3),
              creditCard5.copy(accountId = customers._4)
            ))
-    } yield {}
+    } yield ()
 
   def creditCard1 =
     CreditCard(

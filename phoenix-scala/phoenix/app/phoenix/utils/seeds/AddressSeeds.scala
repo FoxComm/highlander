@@ -20,7 +20,7 @@ trait AddressSeeds {
              canadaAddress2.copy(accountId = customers._3),
              rowAddress1.copy(accountId = customers._4)
            ))
-    } yield {}
+    } yield ()
 
   def usAddress1 =
     Address(

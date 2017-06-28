@@ -104,11 +104,11 @@ object ProductManager extends LazyLogging {
              illuminated.mustBeActive match {
                case Left(err) ⇒ {
                  logger.warn(err.toString)
-                 DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug)).void
+                 DbResultT.failure[Unit](NotFoundFailure404(Product, oldProduct.model.slug))
                }
-               case Right(_) ⇒ DbResultT.unit
+               case Right(_) ⇒ ().pure[DbResultT]
              }
-           } : DbResultT[Unit]
+           }
          )
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
@@ -326,7 +326,7 @@ object ProductManager extends LazyLogging {
     val newProduct = withNewSlug.andThen(withCommit)(product)
 
     if (newProduct != product) Products.update(product, newProduct)
-    else DbResultT.good(product)
+    else product.pure[DbResultT]
   }
 
   private def findOrCreateSkusForProduct(
@@ -440,7 +440,7 @@ object ProductManager extends LazyLogging {
            for {
              skuToUnassociate ← * <~ Skus.mustFindByCode(codeToUnassociate)
              _                ← * <~ skuToUnassociate.mustNotBePresentInCarts
-           } yield {}
+           } yield ()
          })
-    } yield {}
+    } yield ()
 }

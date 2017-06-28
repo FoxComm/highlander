@@ -99,7 +99,7 @@ object ShippingManager {
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
         val hasRestrictions =
           QueryStatement.evaluate(shippingMethod.restrictions, shippingData, evaluateCondition)
-        if (hasRestrictions) DbResultT.failure(failure) else DbResultT.unit
+        if (hasRestrictions) DbResultT.failure(failure) else ().pure[DbResultT]
       } else {
         DbResultT.failure(failure)
       }

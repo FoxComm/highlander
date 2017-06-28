@@ -1,5 +1,6 @@
 package phoenix.services.returns
 
+import cats.implicits._
 import core.db._
 import core.failures.NotFoundFailure404
 import phoenix.models.returns._
@@ -29,7 +30,7 @@ object ReturnReasonsManager {
   def deleteReason(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       result ← * <~ ReturnReasons
-                .deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(ReturnReasons, i))
+                .deleteById(id, ().pure[DbResultT], NotFoundFailure404(ReturnReasons, _))
     } yield result
 
 }

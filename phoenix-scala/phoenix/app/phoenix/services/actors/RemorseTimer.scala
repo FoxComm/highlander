@@ -59,7 +59,7 @@ class RemorseTimer(implicit db: DB, ec: EC, apis: Apis) extends Actor {
               LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
           }
           .toList)
-      .meh
+      .void
 }
 
 /*

@@ -52,7 +52,7 @@ object ContentManager {
 
   type FullContentRelations = Map[String, Seq[Content]]
   def getRelations(content: Content)(implicit ec: EC): DbResultT[FullContentRelations] = {
-    val empty = (Map.empty : FullContentRelations).pure[DbResultT]
+    val empty = (Map.empty: FullContentRelations).pure[DbResultT]
 
     content.relations.foldLeft(empty) { (accRelations, relation) ⇒
       accRelations.flatMap { relations ⇒
@@ -86,7 +86,7 @@ object ContentManager {
         acc :+ (for {
           actualIds ← * <~ ContentQueries.filterCommitIds(kind, expectedIds).result
           _         ← * <~ validateAllCommits(kind, expectedIds, actualIds)
-        } yield {})
+        } yield ())
     }
 
   private def validateAllCommits(kind: String,

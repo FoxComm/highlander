@@ -91,7 +91,7 @@ object AddressResponse {
       (addresses, regions) = fullAddress.unzip
       response ← * <~ ((addresses.headOption, regions.headOption) match {
                   case (Some(address), Some(region)) ⇒
-                    DbResultT.good(buildFromOrder(address, region))
+                    buildFromOrder(address, region).pure[DbResultT]
                   case (None, _) ⇒
                     DbResultT.failure(
                       NotFoundFailure404(s"No addresses found for order with refNum=$cordRef"))

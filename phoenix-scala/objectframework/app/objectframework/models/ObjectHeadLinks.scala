@@ -84,13 +84,13 @@ object ObjectHeadLinks {
              case right if !linkedRightIds.contains(right.id) ⇒
                create(build(left, right))
            }
-      } yield {}
+      } yield ()
 
     def createIfNotExist(left: L, right: R)(implicit ec: EC, db: DB): DbResultT[Unit] =
       for {
         linkExists ← * <~ filterLeft(left).filter(_.rightId === right.id).exists.result
         _          ← * <~ when(!linkExists, create(build(left, right)).void)
-      } yield {}
+      } yield ()
 
     def build(left: L, right: R): M
   }

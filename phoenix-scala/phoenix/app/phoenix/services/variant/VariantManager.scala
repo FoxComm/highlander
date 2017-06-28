@@ -1,5 +1,6 @@
 package phoenix.services.variant
 
+import cats.implicits._
 import core.db._
 import objectframework.ObjectUtils
 import objectframework.models._
@@ -135,7 +136,7 @@ object VariantManager {
       case Some(commit) ⇒
         Variants.update(variant, variant.copy(shadowId = shadow.id, commitId = commit.id))
       case None ⇒
-        DbResultT.good(variant)
+        variant.pure[DbResultT]
     }
 
   def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
@@ -219,7 +220,7 @@ object VariantManager {
       case Some(commit) ⇒
         VariantValues.update(value, value.copy(shadowId = shadow.id, commitId = commit.id))
       case None ⇒
-        DbResultT.good(value)
+        value.pure[DbResultT]
     }
 
   def findVariantsByProduct(product: Product)(

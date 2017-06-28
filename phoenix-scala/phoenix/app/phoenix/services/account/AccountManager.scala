@@ -57,7 +57,7 @@ object AccountManager {
       updatedResetPw ← * <~ (foundOrCreated match {
                         case Found ⇒
                           UserPasswordResets.update(resetPw, resetPw.updateCode())
-                        case Created ⇒ DbResultT.good(resetPw)
+                        case Created ⇒ resetPw.pure[DbResultT]
                       })
     } yield updatedResetPw
 
@@ -114,7 +114,7 @@ object AccountManager {
                       .findByNameInScope(context.org, scope.id)
                       .mustFindOr(OrganizationNotFound(context.org, scope.path))
 
-      _ ← * <~ when(checkEmail, email.fold(DbResultT.unit)(Users.createEmailMustBeUnique))
+      _ ← * <~ when(checkEmail, email.fold(().pure[DbResultT])(Users.createEmailMustBeUnique))
 
       account ← * <~ Accounts.create(Account())
 
