@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 
 // components
-import { DateTime } from 'components/common/datetime';
+import { DateTime } from 'components/utils/datetime';
 import Modal from 'components/core/modal';
 import { FormField } from '../forms';
 import SaveCancel from 'components/core/save-cancel';
