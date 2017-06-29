@@ -89,6 +89,18 @@ def all_changed_dirs(base_branch):
     stdout = result.stdout.decode('UTF-8')
     return {os.path.dirname(x) for x in stdout.split("\n") if x}
 
+def find_all_deps(project, acc = None, resolved_projects = None):
+    if acc is None:
+        acc = set()
+    if resolved_projects is None:
+        resolved_projects = set()
+    resolved_projects.add(project)
+    for dep in PROJECTS[project]:
+        acc.add(dep)
+        if dep not in resolved_projects:
+            find_all_deps(dep, acc, resolved_projects)
+    return acc
+
 def changed_projects(changed_dirs):
     projects = set()
     for d in changed_dirs:
@@ -100,7 +112,8 @@ def changed_projects(changed_dirs):
 
     # add dependent projects
     for p in projects.copy(): # we need to modify origin set, so we need to copy it
-        for dep in PROJECTS[p]:
+        deps = find_all_deps(p)
+        for dep in deps:
             projects.add(dep)
 
     return projects
