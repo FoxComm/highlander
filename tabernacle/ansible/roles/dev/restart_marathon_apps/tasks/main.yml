@@ -1,5 +1,11 @@
 ---
 
+  - name: Check if machine ip is empty
+    assert:
+      that:
+        - machine_ip != ""
+      msg: "No machine ip was specified"
+
   - name: Restart Applications
     uri:
       url: "{{base_url}}/highlander/{{item.group}}/{{item.app}}/restart"
