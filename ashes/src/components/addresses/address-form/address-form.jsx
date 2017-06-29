@@ -212,7 +212,7 @@ export default class AddressForm extends React.Component {
 
         return res;
       },
-      this.props.address
+      { ...this.props.address }
     );
 
     submitAction(formData);
