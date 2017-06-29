@@ -13,7 +13,7 @@ import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.StoreCreditPayloads._
 import phoenix.responses.StoreCreditBulkResponse._
 import phoenix.responses.StoreCreditResponse._
-import phoenix.responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
+import phoenix.responses.{StoreCreditResponse, StoreCreditSubTypesResponse, StoreCreditTotalsResponse}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money._
@@ -21,7 +21,7 @@ import core.utils.Money._
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
 
-  def getOriginTypes(implicit ec: EC, db: DB): DbResultT[Seq[StoreCreditSubTypesResponse.Root]] =
+  def getOriginTypes(implicit ec: EC, db: DB): DbResultT[Seq[StoreCreditSubTypesResponse]] =
     StoreCreditSubtypes.result.map { subTypes ⇒
       StoreCreditSubTypesResponse.build(StoreCredit.OriginType.publicTypes.toSeq, subTypes)
     }.dbresult
@@ -42,13 +42,13 @@ object StoreCreditService {
         })
     }
 
-  def totalsForCustomer(accountId: Int)(implicit ec: EC, db: DB): DbResultT[StoreCreditResponse.Totals] =
+  def totalsForCustomer(accountId: Int)(implicit ec: EC, db: DB): DbResultT[StoreCreditTotalsResponse] =
     for {
       _      ← * <~ Users.mustFindByAccountId(accountId)
       totals ← * <~ fetchTotalsForCustomer(accountId)
-    } yield totals.getOrElse(Totals(0, 0))
+    } yield totals.getOrElse(StoreCreditTotalsResponse(0, 0))
 
-  def fetchTotalsForCustomer(accountId: Int)(implicit ec: EC): DBIO[Option[Totals]] =
+  def fetchTotalsForCustomer(accountId: Int)(implicit ec: EC): DBIO[Option[StoreCreditTotalsResponse]] =
     StoreCredits
       .findAllActiveByAccountId(accountId)
       .groupBy(_.accountId)
@@ -56,13 +56,14 @@ object StoreCreditService {
       .one
       .map(_.map {
         case (avail, curr) ⇒
-          StoreCreditResponse.Totals(avail.getOrElse(0L), curr.getOrElse(0L))
+          StoreCreditTotalsResponse(avail.getOrElse(0L), curr.getOrElse(0L))
       })
 
-  def createManual(admin: User, accountId: Int, payload: CreateManualStoreCredit)(implicit ec: EC,
-                                                                                  db: DB,
-                                                                                  ac: AC,
-                                                                                  au: AU): DbResultT[Root] = {
+  def createManual(admin: User, accountId: Int, payload: CreateManualStoreCredit)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      au: AU): DbResultT[StoreCreditResponse] = {
     val reason400 = NotFoundFailure400(Reason, payload.reasonId)
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
@@ -89,10 +90,11 @@ object StoreCreditService {
 
   // API routes
 
-  def createFromExtension(
-      admin: User,
-      accountId: Int,
-      payload: CreateExtensionStoreCredit)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Root] =
+  def createFromExtension(admin: User, accountId: Int, payload: CreateExtensionStoreCredit)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      au: AU): DbResultT[StoreCreditResponse] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       scope    ← * <~ Scope.resolveOverride(payload.scope)
@@ -112,12 +114,13 @@ object StoreCreditService {
       _ ← * <~ LogActivity().withScope(scope).scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
 
-  def getById(id: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def getById(id: Int)(implicit ec: EC, db: DB): DbResultT[StoreCreditResponse] =
     for {
       storeCredit ← * <~ StoreCredits.mustFindById404(id)
     } yield StoreCreditResponse.build(storeCredit)
 
-  def getByIdAndCustomer(storeCreditId: Int, customer: User)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def getByIdAndCustomer(storeCreditId: Int, customer: User)(implicit ec: EC,
+                                                             db: DB): DbResultT[StoreCreditResponse] =
     for {
       storeCredit ← * <~ StoreCredits
                      .findByIdAndAccountId(storeCreditId, customer.accountId)
@@ -134,9 +137,9 @@ object StoreCreditService {
                 }.toList)
     } yield response
 
-  def updateStateByCsr(id: Int, payload: StoreCreditUpdateStateByCsr, admin: User)(implicit ec: EC,
-                                                                                   db: DB,
-                                                                                   ac: AC): DbResultT[Root] =
+  def updateStateByCsr(id: Int,
+                       payload: StoreCreditUpdateStateByCsr,
+                       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreCreditResponse] =
     for {
       storeCredit ← * <~ StoreCredits.mustFindById404(id)
       updated     ← * <~ cancelOrUpdate(storeCredit, payload.state, payload.reasonId, admin)

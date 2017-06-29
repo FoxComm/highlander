@@ -15,7 +15,7 @@ class CatalogIntegrationTest
 
   "GET /v1/catalogs/:id" - {
     "succeeeds" in new Catalog_ApiFixture {
-      val response = catalogsApi(catalog.id).get().as[CatalogResponse.Root]
+      val response = catalogsApi(catalog.id).get().as[CatalogResponse]
       response.name must === ("default")
       response.countryName must === ("United States")
     }
@@ -28,7 +28,7 @@ class CatalogIntegrationTest
                                          countryId = 115,
                                          defaultLanguage = "jp")
 
-      val response = catalogsApi.create(payload).as[CatalogResponse.Root]
+      val response = catalogsApi.create(payload).as[CatalogResponse]
       response.name must === ("Japan")
       response.countryName must === ("Japan")
     }
@@ -37,7 +37,7 @@ class CatalogIntegrationTest
       val payload =
         CreateCatalogPayload(name = "default", site = None, countryId = 234, defaultLanguage = "en")
 
-      val response = catalogsApi.create(payload).as[CatalogResponse.Root]
+      val response = catalogsApi.create(payload).as[CatalogResponse]
       response.name must === ("default")
       response.countryName must === ("United States")
     }
@@ -54,7 +54,7 @@ class CatalogIntegrationTest
   "PATCH /v1/catalogs/:id" - {
     "succeeds in changing the name" in new Catalog_ApiFixture {
       val payload  = UpdateCatalogPayload(name = Some("revised"))
-      val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse.Root]
+      val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse]
 
       response.name must === ("revised")
       response.site must === (catalog.site)
@@ -63,13 +63,13 @@ class CatalogIntegrationTest
 
     "succeeds in changing the site" in new Catalog_ApiFixture {
       val payload  = UpdateCatalogPayload(site = Some("tumi.foxcommerce.com"))
-      val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse.Root]
+      val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse]
       response.site must === (Some("tumi.foxcommerce.com"))
     }
 
     "succeeds in deleting the site" in new Catalog_ApiFixture {
       val payload  = UpdateCatalogPayload(site = Some(""))
-      val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse.Root]
+      val response = catalogsApi(catalog.id).update(payload).as[CatalogResponse]
       response.site must === (None)
     }
   }

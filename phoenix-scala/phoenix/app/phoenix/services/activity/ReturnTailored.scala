@@ -6,7 +6,7 @@ import phoenix.models.payment.giftcard.GiftCard
 import phoenix.models.payment.storecredit.StoreCredit
 import phoenix.models.returns._
 import phoenix.payloads.ReturnPayloads.{ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
-import phoenix.responses.ReturnResponse.{Root ⇒ ReturnResponse}
+import phoenix.responses.ReturnResponse
 import phoenix.responses.users.UserResponse
 
 object ReturnTailored {

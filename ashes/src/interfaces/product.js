@@ -18,4 +18,5 @@ declare type Product = ObjectView & {
   productId: ?number,
   skus: Array<Sku>,
   variants: Array<Option>,
+  albums: Array<*>,
 };

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ue
+set -euo pipefail
 
 # Add Buildkite signed apt repo
 sudo sh -c 'echo deb https://apt.buildkite.com/buildkite-agent stable main > /etc/apt/sources.list.d/buildkite-agent.list'

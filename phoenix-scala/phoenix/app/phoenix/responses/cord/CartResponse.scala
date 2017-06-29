@@ -19,11 +19,11 @@ case class CartResponse(referenceNumber: String,
                         paymentState: CordPaymentState.State,
                         lineItems: CordResponseLineItems,
                         lineItemAdjustments: Seq[CordResponseLineItemAdjustment] = Seq.empty,
-                        promotion: Option[PromotionResponse.Root] = None,
+                        promotion: Option[PromotionResponse] = None,
                         coupon: Option[CordResponseCouponPair] = None,
                         totals: CartResponseTotals,
                         customer: Option[CustomerResponse] = None,
-                        shippingMethod: Option[ShippingMethodsResponse.Root] = None,
+                        shippingMethod: Option[ShippingMethodsResponse] = None,
                         shippingAddress: Option[AddressResponse] = None,
                         paymentMethods: Seq[CordResponsePayments] = Seq.empty)
     extends ResponseItem

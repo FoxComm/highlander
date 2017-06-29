@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ue
+set -euo pipefail
 
 # Clean checkout
 rm -rf {{clone_dirname}}

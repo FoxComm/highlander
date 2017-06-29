@@ -12,34 +12,35 @@ import phoenix.utils.aliases._
 
 object ProductResponses {
 
+  case class ProductHeadResponse(id: Int) extends ResponseItem
+
   object ProductHeadResponse {
 
-    case class Root(id: Int) extends ResponseItem
-
     //Product here is a placeholder for future. Using only form
-    def build(p: Product): Root = Root(id = p.formId)
+    def build(p: Product): ProductHeadResponse = ProductHeadResponse(id = p.formId)
   }
 
   // New Product Response
+
+  case class ProductResponse(id: Int,
+                             slug: String,
+                             context: ObjectContextResponse,
+                             attributes: Json,
+                             albums: Seq[AlbumResponse],
+                             skus: Seq[SkuResponse],
+                             variants: Seq[IlluminatedVariantResponse],
+                             archivedAt: Option[Instant],
+                             taxons: Seq[AssignedTaxonsResponse])
+      extends ResponseItem
+
   object ProductResponse {
 
-    case class Root(id: Int,
-                    slug: String,
-                    context: ObjectContextResponse.Root,
-                    attributes: Json,
-                    albums: Seq[AlbumResponse.Root],
-                    skus: Seq[SkuResponse.Root],
-                    variants: Seq[IlluminatedVariantResponse.Root],
-                    archivedAt: Option[Instant],
-                    taxons: Seq[AssignedTaxonsResponse])
-        extends ResponseItem
-
     def build(product: IlluminatedProduct,
-              albums: Seq[AlbumResponse.Root],
-              skus: Seq[SkuResponse.Root],
-              variants: Seq[IlluminatedVariantResponse.Root],
-              taxons: Seq[AssignedTaxonsResponse]): Root =
-      Root(
+              albums: Seq[AlbumResponse],
+              skus: Seq[SkuResponse],
+              variants: Seq[IlluminatedVariantResponse],
+              taxons: Seq[AssignedTaxonsResponse]): ProductResponse =
+      ProductResponse(
         id = product.id,
         slug = product.slug,
         attributes = product.attributes,

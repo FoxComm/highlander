@@ -1,5 +1,7 @@
 package phoenix.responses
 
+import java.time.Instant
+
 import objectframework.IlluminateAlgorithm
 import objectframework.models.FullObject
 import phoenix.models.image.Image
@@ -8,18 +10,25 @@ import phoenix.utils.JsonFormatters
 object ImageResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
+  case class ImageResponse(id: Int,
+                           src: String,
+                           createdAt: Instant,
+                           baseUrl: Option[String],
+                           title: Option[String],
+                           alt: Option[String])
+      extends ResponseItem
+
   object ImageResponse {
-    case class Root(id: Int, src: String, baseUrl: Option[String], title: Option[String], alt: Option[String])
-        extends ResponseItem
 
     def build(id: Int,
               src: String,
+              createdAt: Instant,
               baseUrl: Option[String] = None,
               title: Option[String] = None,
-              alt: Option[String] = None): ImageResponse.Root =
-      Root(id, src, baseUrl, title, alt)
+              alt: Option[String] = None): ImageResponse =
+      ImageResponse(id, src, createdAt, baseUrl, title, alt)
 
-    def build(value: FullObject[Image]): ImageResponse.Root = {
+    def build(value: FullObject[Image]): ImageResponse = {
       val form   = value.form.attributes
       val shadow = value.shadow.attributes
 
@@ -28,7 +37,7 @@ object ImageResponses {
       val title   = IlluminateAlgorithm.get("title", form, shadow).extractOpt[String]
       val alt     = IlluminateAlgorithm.get("alt", form, shadow).extractOpt[String]
 
-      build(value.model.id, src, baseUrl, title, alt)
+      build(value.model.id, src, value.form.createdAt, baseUrl, title, alt)
     }
   }
 }

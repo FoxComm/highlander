@@ -46,7 +46,7 @@ trait PromotionFixtures extends TestFixtureBase {
                                        attributes = promoAttributes,
                                        discounts = Seq(CreateDiscount(attributes = discountAttributes)))
 
-    val (promoRoot: PromotionResponse.Root, promotion: Promotion) = createPromotionFromPayload(promoPayload)
+    val (promoRoot: PromotionResponse, promotion: Promotion) = createPromotionFromPayload(promoPayload)
 
     def createPromotionFromPayload(promoPayload: CreatePromotion) =
       (for {
@@ -63,10 +63,13 @@ trait PromotionFixtures extends TestFixtureBase {
     implicit def au: AuthData[User]
 
     def promotion: Promotion
-    val coupon = CouponManager.create(couponPayload(promotion.formId), ctx.name, None).gimme
+    val coupon = CouponManager.create(couponPayload(promotion.formId), ctx.name, None).gimme.headOption.value
 
     def couponPayload(promoId: Int, attributes: Map[String, Json] = Map()): CreateCoupon =
-      CreateCoupon(attributes = attributes + ("name" → tv("donkey coupon")), promoId)
+      CreateCoupon(attributes = attributes + ("name" → tv("donkey coupon")),
+                   promoId,
+                   singleCode = Some(faker.Lorem.letterify("???????")),
+                   generateCodes = None)
   }
 
 }

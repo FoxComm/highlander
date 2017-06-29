@@ -39,11 +39,11 @@ object TaxonResponses {
     }
   }
 
-  object TaxonResponse {
-    case class Root(id: Int) extends ResponseItem
+  case class TaxonResponse(id: Int) extends ResponseItem
 
+  object TaxonResponse {
     //Taxon here is a placeholder for future. Using only form
-    def build(t: Taxon): Root = Root(id = t.formId)
+    def build(t: Taxon): TaxonResponse = TaxonResponse(id = t.formId)
   }
 
   case class TaxonLocationResponse(parent: Option[Int] = None) extends ResponseItem

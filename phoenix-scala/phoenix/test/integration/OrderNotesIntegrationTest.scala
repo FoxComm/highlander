@@ -2,8 +2,8 @@ import core.failures.NotFoundFailure404
 import phoenix.models._
 import phoenix.models.cord._
 import phoenix.payloads.NotePayloads._
-import phoenix.responses.AdminNotes
-import phoenix.responses.AdminNotes.Root
+import phoenix.responses.AdminNoteResponse
+import phoenix.responses.AdminNoteResponse
 import phoenix.utils.time._
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -18,7 +18,7 @@ class OrderNotesIntegrationTest
 
   "POST /v1/notes/order/:refNum" - {
     "can be created by an admin for an order" in new Order_Baked {
-      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[Root]
+      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[AdminNoteResponse]
       note.body must === ("foo")
       note.author.name.value must === (defaultAdmin.name.value)
       note.author.email.value must === (defaultAdmin.email.value)
@@ -50,27 +50,27 @@ class OrderNotesIntegrationTest
       notesApi
         .order(order.refNum)
         .get()
-        .as[Seq[Root]]
+        .as[Seq[AdminNoteResponse]]
         .map(_.body) must contain theSameElementsAs bodies
     }
   }
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Order_Baked {
-      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[AdminNotes.Root]
+      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[AdminNoteResponse]
 
       notesApi
         .order(order.refNum)
         .note(note.id)
         .update(UpdateNote("donkey"))
-        .as[Root]
+        .as[AdminNoteResponse]
         .body must === ("donkey")
     }
   }
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Order_Baked {
-      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[AdminNotes.Root]
+      val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[AdminNoteResponse]
 
       notesApi.order(order.refNum).note(note.id).delete().mustBeEmpty()
 
@@ -78,7 +78,7 @@ class OrderNotesIntegrationTest
       updatedNote.deletedBy.value must === (defaultAdmin.id)
       updatedNote.deletedAt.value.isBeforeNow mustBe true
 
-      val allNotes = notesApi.order(order.refNum).get().as[Seq[Root]]
+      val allNotes = notesApi.order(order.refNum).get().as[Seq[AdminNoteResponse]]
       allNotes.map(_.id) must not contain note.id
     }
   }

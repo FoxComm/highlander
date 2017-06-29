@@ -28,3 +28,75 @@ begin
     return null;
 end;
 $$ language plpgsql;
+
+create or replace function update_skus_view_image_fn() returns trigger as $$
+declare sku_ids int[];
+begin
+  case tg_table_name
+    when 'product_variant_links' then
+    select array_agg(vsku_link.right_id) into sku_ids
+      from variant_value_sku_links as vsku_link
+      inner join variant_variant_value_links as vvlink on (vsku_link.left_id = vvlink.right_id)
+      inner join product_variant_links as pvlink on (vvlink.left_id = pvlink.right_id)
+      where pvlink.id = new.id;
+    when 'product_sku_links' then
+    select array_agg(product_sku_links.right_id) into sku_ids
+      from product_sku_links
+      where product_sku_links.id = new.id;
+    when 'product_album_links_view' then
+      select array_agg(ids.id) into sku_ids from (
+        select sku.id
+        from skus as sku
+          inner join product_sku_links on sku.id = product_sku_links.right_id
+        where product_sku_links.left_id = new.product_id
+        union
+        select sku.id
+        from skus as sku
+           inner join variant_value_sku_links as vsku_link on (vsku_link.right_id = sku.id)
+           inner join variant_variant_value_links as vvlink on (vsku_link.left_id = vvlink.right_id)
+           inner join product_variant_links as pvlink on (vvlink.left_id = pvlink.right_id) where pvlink.left_id = new.product_id) as ids;
+  end case;
+
+  update sku_search_view
+  set image = subquery.image
+  from (select sku.id as id,
+               sku.code as code,
+               (product_album_links_view.albums #>> '{0, images, 0, src}') as image
+        from skus as sku
+          inner join product_sku_links on sku.id = product_sku_links.right_id
+          inner join product_album_links_view on product_sku_links.left_id = product_album_links_view.product_id
+        where sku.id = any(sku_ids)
+        union
+        select sku.id as id,
+               sku.code as code,
+               (product_album_links_view.albums #>> '{0, images, 0, src}') as image
+         from skus as sku
+           inner join variant_value_sku_links as vsku_link on (vsku_link.right_id = sku.id)
+           inner join variant_variant_value_links as vvlink on (vsku_link.left_id = vvlink.right_id)
+           inner join product_variant_links as pvlink on (vvlink.left_id = pvlink.right_id)
+           inner join product_album_links_view on pvlink.left_id = product_album_links_view.product_id
+         where sku.id = any(sku_ids)) as subquery
+  where subquery.id = sku_search_view.id;
+
+    return null;
+end;
+$$ language plpgsql;
+
+
+drop trigger if exists update_skus_view_image on product_album_links_view;
+create trigger update_skus_view_image
+  after insert or update on product_album_links_view
+  for each row
+  execute procedure update_skus_view_image_fn();
+
+drop trigger if exists update_skus_view_image on product_sku_links;
+create trigger update_skus_view_image
+  after insert or update on product_sku_links
+  for each row
+  execute procedure update_skus_view_image_fn();
+
+drop trigger if exists update_skus_view_image on product_variant_links;
+create trigger update_skus_view_image
+  after insert or update on product_variant_links
+  for each row
+  execute procedure update_skus_view_image_fn();

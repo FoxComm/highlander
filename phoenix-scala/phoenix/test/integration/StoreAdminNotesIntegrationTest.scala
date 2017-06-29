@@ -4,8 +4,8 @@ import core.failures.NotFoundFailure404
 import phoenix.models.Notes
 import phoenix.models.account._
 import phoenix.payloads.NotePayloads._
-import phoenix.responses.AdminNotes
-import phoenix.responses.AdminNotes.Root
+import phoenix.responses.AdminNoteResponse
+import phoenix.responses.AdminNoteResponse
 import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -21,7 +21,7 @@ class StoreAdminNotesIntegrationTest
 
   "POST /v1/notes/store-admins/:adminId" - {
     "can be created by an admin for a customer" in new Fixture {
-      val note = notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote("foo")).as[Root]
+      val note = notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote("foo")).as[AdminNoteResponse]
       note.body must === ("foo")
       note.author.name.value must === (defaultAdmin.name.value)
       note.author.email.value must === (defaultAdmin.email.value)
@@ -54,7 +54,7 @@ class StoreAdminNotesIntegrationTest
       notesApi
         .storeAdmin(storeAdmin.accountId)
         .get()
-        .as[Seq[Root]]
+        .as[Seq[AdminNoteResponse]]
         .map(_.body) must contain theSameElementsAs bodies
     }
   }
@@ -63,13 +63,13 @@ class StoreAdminNotesIntegrationTest
 
     "can update the body text" in new Fixture {
       val note =
-        notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote("foo")).as[AdminNotes.Root]
+        notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote("foo")).as[AdminNoteResponse]
 
       notesApi
         .storeAdmin(storeAdmin.accountId)
         .note(note.id)
         .update(UpdateNote("donkey"))
-        .as[Root]
+        .as[AdminNoteResponse]
         .body must === ("donkey")
     }
   }
@@ -77,7 +77,7 @@ class StoreAdminNotesIntegrationTest
   "DELETE /v1/notes/store-admins/:adminId/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val note = notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote("foo")).as[Root]
+      val note = notesApi.storeAdmin(storeAdmin.accountId).create(CreateNote("foo")).as[AdminNoteResponse]
 
       notesApi.storeAdmin(storeAdmin.accountId).note(note.id).delete().mustBeEmpty()
 
@@ -88,7 +88,7 @@ class StoreAdminNotesIntegrationTest
         updatedNote.deletedAt.value.isBeforeNow mustBe true
       }
 
-      val allNotes = notesApi.storeAdmin(storeAdmin.accountId).get().as[Seq[Root]]
+      val allNotes = notesApi.storeAdmin(storeAdmin.accountId).get().as[Seq[AdminNoteResponse]]
       allNotes.map(_.id) must not contain note.id
     }
   }

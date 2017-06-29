@@ -9,43 +9,50 @@ import phoenix.utils.aliases._
 
 object CouponResponses {
 
-  object CouponFormResponse {
-    case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
+  case class CouponFormResponse(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
 
-    def build(f: ObjectForm): Root =
-      Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
+  object CouponFormResponse {
+
+    def build(f: ObjectForm): CouponFormResponse =
+      CouponFormResponse(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
   }
+
+  case class CouponCodesResponse(code: String, createdAt: Instant) extends ResponseItem
 
   object CouponCodesResponse {
 
-    case class Root(code: String, createdAt: Instant) extends ResponseItem
-
-    def build(codes: Seq[CouponCode]): Seq[Root] =
+    def build(codes: Seq[CouponCode]): Seq[CouponCodesResponse] =
       codes.map { c ⇒
-        Root(code = c.code, createdAt = c.createdAt)
+        CouponCodesResponse(code = c.code, createdAt = c.createdAt)
       }
   }
 
+  case class CouponResponse(id: Int,
+                            context: ObjectContextResponse,
+                            code: String,
+                            attributes: Json,
+                            promotion: Int,
+                            archivedAt: Option[Instant])
+      extends ResponseItem
+
   object CouponResponse {
 
-    case class Root(id: Int,
-                    context: ObjectContextResponse.Root,
-                    attributes: Json,
-                    promotion: Int,
-                    archivedAt: Option[Instant])
-        extends ResponseItem
-
-    def build(coupon: IlluminatedCoupon, originalCoupon: Coupon): Root =
-      Root(
+    def build(coupon: IlluminatedCoupon, code: String, originalCoupon: Coupon): CouponResponse =
+      CouponResponse(
         id = coupon.id,
         context = ObjectContextResponse.build(coupon.context),
+        code = code,
         attributes = coupon.attributes,
         promotion = coupon.promotion,
         archivedAt = originalCoupon.archivedAt
       )
 
-    def build(context: ObjectContext, coupon: Coupon, form: ObjectForm, shadow: ObjectShadow): Root =
-      build(IlluminatedCoupon.illuminate(context, coupon, form, shadow), coupon)
+    def build(context: ObjectContext,
+              code: String,
+              coupon: Coupon,
+              form: ObjectForm,
+              shadow: ObjectShadow): CouponResponse =
+      build(IlluminatedCoupon.illuminate(context, coupon, form, shadow), code, coupon)
 
   }
 }

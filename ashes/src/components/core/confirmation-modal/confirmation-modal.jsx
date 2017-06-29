@@ -37,6 +37,10 @@ type Props = {
   className?: string,
   /** Modal content (in case of plain string `label` can be used instead) */
   children?: Element<any>,
+  /** Set focus on action button when appearing */
+  focusAction?: boolean,
+  /** Set focus on cancel button when appearing */
+  focusCancel?: boolean,
 };
 
 /**
@@ -83,7 +87,9 @@ export default class ConfirmationModal extends Component {
   }
 
   get footer() {
-    const { confirmLabel, cancelLabel, onConfirm, onCancel, saveDisabled, asyncState } = this.props;
+    const {
+      confirmLabel, cancelLabel, onConfirm, onCancel, saveDisabled, asyncState, focusAction, focusCancel
+    } = this.props;
 
     return (
       <SaveCancel
@@ -93,6 +99,8 @@ export default class ConfirmationModal extends Component {
         onCancel={onCancel}
         isLoading={get(asyncState, 'inProgress', false)}
         saveDisabled={saveDisabled}
+        focusAction={focusAction}
+        focusCancel={focusCancel}
       />
     );
   }

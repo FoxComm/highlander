@@ -10,23 +10,22 @@ import objectframework.payloads.ContextPayloads._
 
 object ObjectManager {
 
-  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[ObjectFormResponse.Root] =
+  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[ObjectFormResponse] =
     for {
       form ← * <~ ObjectForms.mustFindById404(id)
     } yield ObjectFormResponse.build(form)
 
-  def getShadow(shadowId: Int)(implicit ec: EC, db: DB): DbResultT[ObjectShadowResponse.Root] =
+  def getShadow(shadowId: Int)(implicit ec: EC, db: DB): DbResultT[ObjectShadowResponse] =
     for {
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
     } yield ObjectShadowResponse.build(shadow)
 
-  def getContextByName(name: String)(implicit ec: EC, db: DB): DbResultT[ObjectContextResponse.Root] =
+  def getContextByName(name: String)(implicit ec: EC, db: DB): DbResultT[ObjectContextResponse] =
     for {
       context ← * <~ mustFindByName404(name)
     } yield ObjectContextResponse.build(context)
 
-  def createContext(payload: CreateObjectContext)(implicit ec: EC,
-                                                  db: DB): DbResultT[ObjectContextResponse.Root] =
+  def createContext(payload: CreateObjectContext)(implicit ec: EC, db: DB): DbResultT[ObjectContextResponse] =
     for {
       context ← * <~ ObjectContexts.create(
                  ObjectContext(name = payload.name, attributes = payload.attributes))
@@ -34,7 +33,7 @@ object ObjectManager {
 
   def updateContextByName(name: String, payload: UpdateObjectContext)(
       implicit ec: EC,
-      db: DB): DbResultT[ObjectContextResponse.Root] =
+      db: DB): DbResultT[ObjectContextResponse] =
     for {
       context ← * <~ mustFindByName404(name)
       update ← * <~ ObjectContexts.update(context,

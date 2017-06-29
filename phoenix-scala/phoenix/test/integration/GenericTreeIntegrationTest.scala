@@ -4,8 +4,7 @@ import org.json4s.JsonDSL._
 import phoenix.failures.TreeFailures._
 import phoenix.models.tree._
 import phoenix.payloads.GenericTreePayloads._
-import phoenix.responses.GenericTreeResponses.FullTreeResponse.Root
-import phoenix.responses.GenericTreeResponses.TreeResponse
+import phoenix.responses.GenericTreeResponses._
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -16,7 +15,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with PhoenixAdminAp
   "GenericTreeIntegrationTest" - {
     "GET /v1/tree/default/test" - {
       "should return full tree" in new TestTree {
-        val responseTree = genericTreesApi(tree.name).get().as[Root].tree.nodes
+        val responseTree = genericTreesApi(tree.name).get().as[FullTreeResponse].tree.nodes
 
         responseTree.children must have size 2
         nodeByPath(responseTree, Seq(1, 3)).get.children must have size 3
@@ -31,7 +30,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with PhoenixAdminAp
                                    List(NodePayload("test", testObjects(1).id, Nil),
                                         NodePayload("test", testObjects(2).id, Nil)))
 
-        val treeResponse = genericTreesApi("test").create(testTree).as[Root].tree
+        val treeResponse = genericTreesApi("test").create(testTree).as[FullTreeResponse].tree
         treeResponse.nodes.children must have size 2
       }
 
@@ -41,7 +40,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with PhoenixAdminAp
                                    List(NodePayload("test", testObjects(1).id, Nil),
                                         NodePayload("test", testObjects(2).id, Nil)))
 
-        val treeResponse = genericTreesApi("test").create(testTree).as[Root].tree
+        val treeResponse = genericTreesApi("test").create(testTree).as[FullTreeResponse].tree
         treeResponse.nodes.children must have size 2
       }
 
@@ -51,7 +50,8 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with PhoenixAdminAp
                                    List(NodePayload("test", testObjects(1).id, Nil),
                                         NodePayload("test", testObjects(2).id, Nil)))
 
-        val treeResponse = genericTreesApi(tree.name).createInPath("1.3.4", testTree).as[Root].tree
+        val treeResponse =
+          genericTreesApi(tree.name).createInPath("1.3.4", testTree).as[FullTreeResponse].tree
 
         treeResponse.nodes.objectId mustEqual testObjects.head.id
         treeResponse.nodes.children must have size 2
@@ -77,7 +77,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with PhoenixAdminAp
     "PATCH /v1/tree/default/tree" - {
       "should move nodes" in new TestTree {
         val treeResponse =
-          genericTreesApi(tree.name).moveNode(MoveNodePayload(Some(2), 4)).as[Root].tree
+          genericTreesApi(tree.name).moveNode(MoveNodePayload(Some(2), 4)).as[FullTreeResponse].tree
 
         treeResponse must not be null
         treeResponse.nodes.objectId must === (testObjects.head.id)
@@ -99,7 +99,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with PhoenixAdminAp
       "should update node content" in new TestTree {
         val treeResponse = genericTreesApi(tree.name)
           .moveNodeInPath("1.2", NodeValuesPayload("test", testObjects.head.id))
-          .as[Root]
+          .as[FullTreeResponse]
           .tree
 
         treeResponse.nodes.kind must === ("test")
@@ -135,7 +135,7 @@ class GenericTreeIntegrationTest extends IntegrationTestBase with PhoenixAdminAp
       } yield (tree, treeNodes)).gimme
   }
 
-  def nodeByPath(tree: TreeResponse.Node, path: Seq[Int]): Option[TreeResponse.Node] = {
+  def nodeByPath(tree: TreeNodeResponse, path: Seq[Int]): Option[TreeNodeResponse] = {
     val headMatches = for {
       tree      ← Option(tree)
       headIndex ← path.headOption

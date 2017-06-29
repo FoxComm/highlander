@@ -9,10 +9,24 @@ import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
 import { createEmptySku } from 'paragons/sku';
+import { actions as imagesActions } from './images';
+import { omitAlbumFields } from 'modules/images';
 
 import { pushStockItemChanges } from '../inventory/warehouses';
 
 const defaultContext = 'default';
+
+function cleanSkuPayload(payload: Sku) {
+  const nextAlbums = payload.albums.map(album => ({
+    ..._.omit(album, omitAlbumFields),
+    images: album.images.filter(img => (img.src && img.src.length < 4000))
+  }));
+
+  return {
+    ...payload,
+    albums: nextAlbums,
+  };
+}
 
 export const skuNew = createAction('SKU_NEW');
 const skuClear = createAction('SKU_CLEAR');
@@ -38,7 +52,7 @@ const _fetchSku = createAsyncActions(
 const _createSku = createAsyncActions(
   'createSku',
   (sku: Sku, context: string = defaultContext) => {
-    return Api.post(`/skus/${context}`, sku);
+    return Api.post(`/skus/${context}`, cleanSkuPayload(sku));
   }
 );
 
@@ -49,7 +63,7 @@ const _updateSku = createAsyncActions(
     const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {
       const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
-      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku);
+      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, cleanSkuPayload(sku));
       return Promise.all([updatePromise, stockItemsPromise]).then(([updateResponse]) => {
         return updateResponse;
       });
@@ -59,7 +73,11 @@ const _updateSku = createAsyncActions(
 
 export const fetchSku = _fetchSku.perform;
 export const createSku = _createSku.perform;
-export const updateSku = _updateSku.perform;
+export const updateSku = (sku: Sku, context: string = defaultContext) => (dispatch: Function) => {
+  dispatch(imagesActions.clearErrors());
+
+  return dispatch(_updateSku.perform(sku, context));
+};
 
 export function clearSubmitErrors() {
   return (dispatch: Function) => {

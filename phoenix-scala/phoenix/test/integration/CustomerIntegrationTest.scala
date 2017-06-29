@@ -22,9 +22,9 @@ import phoenix.payloads.AddressPayloads.CreateAddressPayload
 import phoenix.payloads.CustomerPayloads._
 import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UserPayloads._
-import phoenix.responses.CreditCardsResponse.{Root ⇒ CardResponse}
+import phoenix.responses.CreditCardResponse
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.CreditCardsResponse
+import phoenix.responses.CreditCardResponse
 import phoenix.services.carts.CartPaymentUpdater
 import phoenix.utils.aliases.stripe.StripeCard
 import phoenix.utils.seeds.Factories
@@ -369,11 +369,11 @@ class CustomerIntegrationTest
       val deleted = CreditCards.create(creditCard.copy(id = 0, inWallet = false)).gimme
 
       val creditCards =
-        customersApi(customer.accountId).payments.creditCards.get().as[Seq[CardResponse]]
+        customersApi(customer.accountId).payments.creditCards.get().as[Seq[CreditCardResponse]]
       val ccRegion = Regions.findOneById(creditCard.address.regionId).gimme.value
 
       creditCards must have size 1
-      creditCards.head must === (CreditCardsResponse.build(creditCard, ccRegion))
+      creditCards.head must === (CreditCardResponse.build(creditCard, ccRegion))
       creditCards.head.id must !==(deleted.id)
     }
   }
@@ -385,7 +385,7 @@ class CustomerIntegrationTest
       val ccResp = customersApi(customer.accountId).payments
         .creditCard(creditCard.id)
         .setDefault()
-        .as[CardResponse]
+        .as[CreditCardResponse]
 
       ccResp.isDefault mustBe true
       ccResp.id must === (creditCard.id)
@@ -402,7 +402,7 @@ class CustomerIntegrationTest
       val ccResp = customersApi(customer.accountId).payments
         .creditCard(nonDefault.id)
         .setDefault()
-        .as[CardResponse]
+        .as[CreditCardResponse]
 
       val (prevDefault, currDefault) =
         (CreditCards.refresh(default).gimme, CreditCards.refresh(nonDefault).gimme)
@@ -436,7 +436,7 @@ class CustomerIntegrationTest
         val root = customersApi(customer.accountId).payments
           .creditCard(creditCard.id)
           .edit(EditCreditCard(holderName = "Bob".some))
-          .as[CardResponse]
+          .as[CreditCardResponse]
 
         root.id must !==(creditCard.id)
         root.inWallet mustBe true

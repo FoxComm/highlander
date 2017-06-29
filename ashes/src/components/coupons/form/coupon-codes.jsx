@@ -37,6 +37,7 @@ type Props = {
   couponsGenerationChange: Function,
   couponsGenerationReset: Function,
   codeIsOfValidLength: Function,
+  save: () => Promise<*>,
 };
 
 class CouponCodes extends Component {
@@ -94,17 +95,13 @@ class CouponCodes extends Component {
 
   @autobind
   handleConfirmOfCodeGeneration(): void {
-    const { codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
-
-    this.props
-      .generateCodes(codesPrefix, codesLength, codesQuantity)
-      .then(() => {
-        this.props.couponsGenerationReset();
-      })
-      .then(() => {
-        this.props.refresh();
-        transitionTo('promotion-coupons', { promotionId: this.props.promotionId });
-      });
+    this.props.couponsGenerationHideDialog();
+    this.props.save().then(() => {
+      this.props.couponsGenerationReset();
+    }).then(() => {
+      this.props.refresh();
+      transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
+    });
   }
 
   codeIsOfValidLength(): boolean {
