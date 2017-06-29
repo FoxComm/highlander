@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 <TextMask mask={[/\d/]} />

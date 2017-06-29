@@ -9,7 +9,7 @@ module.exports = {
   ignore: [path.join(__dirname, '../src/components/core/**/*.spec.jsx')],
   webpackConfig: require('./webpack.styleguide.js'),
   styleguideDir: path.resolve('build/admin/styleguide'),
-  highlightTheme: 'railscasts',
+  highlightTheme: 'neo',
   getComponentPathLine: componentPath => {
     const dirname = path.dirname(componentPath, '.jsx');
     const name = dirname.split('/').slice(-1)[0];
@@ -24,11 +24,9 @@ module.exports = {
       name: 'Documentation',
       sections: [
         {
-          name: 'Colors and Typo',
-          content: '../docs/colors-and-typos.md',
+          name: 'Colors and Typography',
           components: () => [
-            path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
-            path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
+            path.resolve(__dirname, '../src/components/docs/colors/colors.jsx'),
             path.resolve(__dirname, '../src/components/docs/fonts/fonts.jsx'),
           ],
         },

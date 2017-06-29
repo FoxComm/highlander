@@ -67,7 +67,7 @@
         }
 
         *, input::placeholder {
-          font-size: 10px;
+          font-size: 12px;
           line-height: 20px;
         }
 
@@ -192,9 +192,14 @@
       }
     }
 
+    .CodeMirror {
+      background: #fafafa;
+    }
+
     .CodeMirror .CodeMirror-lines pre.CodeMirror-line {
       font-size: 12px;
       line-height: 16px;
+      animation: fadeIn .7s;
     }
 
     .root-0-80 > ul.list-0-83 {
@@ -204,6 +209,10 @@
     a.link-0-54.heading-0-87 {
       font-size: 14px;
       font-weight: 600;
+    }
+
+    [class*=table-] {
+      animation: fadeIn .7s;
     }
 
     [class*=table-] [class*=cell-] {
@@ -218,19 +227,23 @@
 
     [class*=tabButtons-] [class*=button-] {
       position: relative;
-      font-size: 16px;
-      color: #363636;
-      text-transform: initial;
       outline: none;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2.4px;
+      text-align: left;
+      color: #888888;
+      text-transform: uppercase;
+
       transition: all .2s;
 
-      &::before {
+      &::after {
         font-family: 'fontello';
         content: '\e805';
         position: absolute;
         top: 12px;
-        left: -18px;
-        font-size: 10px;
+        right: -12px;
+        font-size: 6px;
         transition: transform .2s ease-out;
       }
 
@@ -241,7 +254,7 @@
       &[class*=isActive-] {
         border: none;
 
-        &::before {
+        &::after {
           transform: rotateX(180deg);
         }
       }
@@ -261,7 +274,15 @@
     }
 
     h3[class*=para-], h4[class*=para-] {
-      font-size: 16px;
+      font-size: 20px;
+    }
+
+    h5[class*=para-] {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2.4px;
+      color: #888888;
+      text-transform: uppercase;
     }
 
     [class*=pre-] {
@@ -342,5 +363,14 @@
         display: block;
       }
     }
+  }
+}
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }

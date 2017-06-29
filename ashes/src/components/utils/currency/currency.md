@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import Currency from 'components/utils/currency';

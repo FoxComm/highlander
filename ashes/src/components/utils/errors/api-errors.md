@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import { ApiErrors } from 'components/utils/errors';

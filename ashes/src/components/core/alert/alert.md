@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import Alert from 'components/core/alert';

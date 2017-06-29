@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import { ButtonWithMenu } from 'components/core/button-with-menu';
