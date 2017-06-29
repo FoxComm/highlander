@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // components
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 
 // styles
 import s from './actions-dropdown.css';
@@ -18,20 +18,20 @@ function getActionsHandler(actions, allChecked, toggledIds) {
 
 const ActionsDropdown = ({actions, disabled, allChecked, toggledIds, total}) => {
   const totalSelected = allChecked ? total - toggledIds.length : toggledIds.length;
+  const items = actions.map(([title]) => ({ value: title }));
 
   return (
-    <div className="fc-table-actions">
-      <Dropdown
-        className="fc-table-actions__dropdown"
+    <div className={s.actions}>
+      <TextDropdown
+        className={s.dropdown}
         placeholder="Actions"
-        changeable={false}
         disabled={disabled}
         onChange={getActionsHandler(actions, allChecked, toggledIds)}
-        items={actions.map(([title]) => [title, title])}
-        buttonClassName={s.button}
+        items={items}
+        stateless
       />
       { totalSelected > 0 ? (
-        <span className="fc-table-actions__selected">
+        <span>
           {totalSelected} Selected
         </span>
       ) : null}

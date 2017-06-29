@@ -1,5 +1,9 @@
-/* @todo refactor dropdown */
-.button {
-  padding: 10px !important;
-  width: auto !important;
+.actions {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+}
+
+.dropdown {
+  margin-right: 10px;
 }

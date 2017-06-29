@@ -1,9 +1,5 @@
 @import 'variables.css';
 
-.product-description {
+.description {
   color: var(--color-additional-text);
-}
-
-.full-width {
-  max-width: 100%;
 }

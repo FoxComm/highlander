@@ -1,7 +1,6 @@
 include ../makelib
 header = $(call baseheader, $(1), ashes)
 
-
 export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
 SHELL := env PATH=$(PATH) /bin/sh
 

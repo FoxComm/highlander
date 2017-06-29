@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import _ from 'lodash';
@@ -6,26 +5,33 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { searchProducts } from '../../../elastic/products';
 
-import DropdownSearch from '../../dropdown/dropdown-search';
-import DropdownItem from '../../dropdown/dropdownItem';
+import { SearchDropdown } from 'components/core/dropdown';
 
-import styles from './select-product.css';
+// styles
+import s from './select-product.css';
 
 import type { Context } from '../types';
 
-type RefId = string|number;
+type RefId = string | number;
 
 type ProductSearch = {
-  productSearchId: RefId;
+  productSearchId: RefId,
 };
 
 type Props = {
-  context: Context;
-  name: string;
+  context: Context,
+  name: string,
+};
+
+type State = {
+  products: Array<any>,
 };
 
 export default class SelectProduct extends Component {
   props: Props;
+  state: State = {
+    products: [],
+  };
 
   get search(): Array<ProductSearch> {
     return _.get(this.props.context.params, this.props.name, []);
@@ -41,45 +47,56 @@ export default class SelectProduct extends Component {
     return _.get(this.search, '0.productSearchId');
   }
 
+  @autobind
   handleProductSearch(token: string): Promise<*> {
     return searchProducts(token, {
       omitArchived: true,
-      omitInactive: true
-    }).then((result) => {
-      return result.result;
+      omitInactive: true,
+    }).then(result => {
+      const items = result.result.map(({ id, title }) => [id, title]);
+
+      this.setState({ products: result.result });
+
+      return { items, token };
     });
   }
 
   @autobind
-  renderProductOption(product: Object) {
+  renderProductOption(value: string) {
+    const product = this.state.products.find(item => item.id == value);
+
+    if (!product) {
+      return null;
+    }
+
     return (
-      <DropdownItem value={product.id} key={`${product.id}`}>
-        <span>{ product.title }</span>
-        <span styleName="product-description">• ID: { product.id }</span>
-      </DropdownItem>
+      <span>
+        {product.title}
+        <span className={s.description}> • ID: {product.id}</span>
+      </span>
     );
   }
 
   @autobind
   handleSelectProduct(value: string) {
-    this.updateSearches([{
-      productSearchId: value,
-    }]);
+    this.updateSearches([
+      {
+        productSearchId: value,
+      },
+    ]);
   }
 
   render() {
+    /* @todo initialDisplayText */
     return (
-      <DropdownSearch
-        className="select-product-dd"
+      <SearchDropdown
         name="selectProduct"
         placeholder="- Select Product -"
-        styleName="full-width"
         searchbarPlaceholder="Product name or ID"
-        value={this.selectedProduct}
-        fetchOptions={this.handleProductSearch}
-        renderOption={this.renderProductOption}
+        initialValue={this.selectedProduct}
+        fetch={this.handleProductSearch}
+        renderItem={this.renderProductOption}
         onChange={this.handleSelectProduct}
-        omitSearchIfEmpty
       />
     );
   }

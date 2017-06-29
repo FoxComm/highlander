@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 // components
-import { Dropdown } from 'components/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import { PageTitle } from 'components/section-title';
 import { PrimaryButton } from 'components/core/button';
 import ContentBox from 'components/content-box/content-box';
@@ -115,12 +115,12 @@ class MerchantApplicationDetails extends Component {
     return (
       <div className="fc-col-md-1-3">
         <ContentBox title="State">
-          <Dropdown
+          <TextDropdown
             value={this.state.newState}
             onChange={this.handleStateChange}
             disabled={!this.isStateEditable}
             items={SELECT_STATE}
-            changeable={false}
+            stateless
           />
         </ContentBox>
       </div>

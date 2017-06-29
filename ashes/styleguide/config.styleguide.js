@@ -25,9 +25,11 @@ module.exports = {
           name: 'Colors and Typo',
           sections: [
             {
+              name: 'Conventions',
               content: '../docs/colors-and-typos.md',
             },
             {
+              name: 'Variables',
               components: () => [
                 path.resolve(__dirname, '../src/components/docs/colors/text-colors.jsx'),
                 path.resolve(__dirname, '../src/components/docs/colors/bg-colors.jsx'),
@@ -78,6 +80,14 @@ module.exports = {
                 path.resolve(__dirname, '../src/components/core/button/button.jsx'),
                 path.resolve(__dirname, '../src/components/core/button-with-menu/button-with-menu.jsx'),
                 path.resolve(__dirname, '../src/components/core/save-cancel/save-cancel.jsx'),
+              ],
+            },
+            {
+              name: 'Dropdowns',
+              components: () => [
+                // path.resolve(__dirname, '../src/components/core/dropdown/smart-list/smart-list.jsx'),
+                path.resolve(__dirname, '../src/components/core/dropdown/text-dropdown/text-dropdown.jsx'),
+                path.resolve(__dirname, '../src/components/core/dropdown/search-dropdown/search-dropdown.jsx'),
               ],
             },
             {
@@ -135,19 +145,16 @@ module.exports = {
             },
             {
               name: 'Other',
-              components: () => ([
+              components: () => [
                 path.resolve(__dirname, '../src/components/utils/change/change.jsx'),
                 path.resolve(__dirname, '../src/components/utils/currency/currency.jsx'),
                 path.resolve(__dirname, '../src/components/utils/datetime/datetime.jsx'),
-              ]),
+              ],
             },
           ],
         },
       ],
     },
   ],
-  require: [
-    path.join(__dirname, '../src/images/favicons/favicon.ico'),
-    path.join(__dirname, 'styleguide.css'),
-  ]
+  require: [path.join(__dirname, '../src/images/favicons/favicon.ico'), path.join(__dirname, 'styleguide.css')],
 };

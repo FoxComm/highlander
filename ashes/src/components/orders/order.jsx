@@ -8,7 +8,7 @@ import { trackEvent } from 'lib/analytics';
 import { allowedStateTransitions } from '../../paragons/order';
 
 // components
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import RemorseTimer from './remorseTimer';
 import { DateTime } from 'components/utils/datetime';
 import { PanelList, PanelListItem } from '../panel/panel-list';
@@ -140,7 +140,7 @@ export default class Order extends React.Component {
   @autobind
   confirmStateChange(): void {
     this.setState({
-      newOrderState: null
+      newOrderState: null,
     });
 
     if (this.state.newOrderState == 'shipped') {
@@ -153,16 +153,15 @@ export default class Order extends React.Component {
   @autobind
   cancelStateChange(): void {
     this.setState({
-      newOrderState: null
+      newOrderState: null,
     });
   }
 
-  get orderStateDropdown(): Element<StateComponent|Dropdown> {
+  get orderStateDropdown(): Element<StateComponent | TextDropdown> {
     const order = this.order;
     const claims = getClaims();
 
-    if (order.orderState === 'canceled' ||
-        order.orderState === 'shipped') {
+    if (order.orderState === 'canceled' || order.orderState === 'shipped') {
       return <StateComponent stateId="fct-order-state__value" value={order.shippingState} model="order" />;
     }
 
@@ -171,32 +170,21 @@ export default class Order extends React.Component {
       holdStates = [...holdStates, 'fraudHold'];
     }
 
-    const visibleAndSortedOrderStates = [
-      ...holdStates,
-      'fulfillmentStarted',
-      'shipped',
-      'canceled',
-    ].filter(state => {
-      return order.orderState in allowedStateTransitions &&
-        allowedStateTransitions[order.orderState].indexOf(state) != -1;
+    const visibleAndSortedOrderStates = [...holdStates, 'fulfillmentStarted', 'shipped', 'canceled'].filter(state => {
+      return (
+        order.orderState in allowedStateTransitions && allowedStateTransitions[order.orderState].indexOf(state) != -1
+      );
     });
 
     return (
-      <Dropdown
-        id="fct-order-state-dd"
-        dropdownValueId="fct-order-state__value"
+      <TextDropdown
+        className="at-fct-order-state-dd"
         name="orderState"
         items={_.map(visibleAndSortedOrderStates, state => [state, states.order[state]])}
-        placeholder={'Order state'}
+        placeholder="Order state"
         value={order.orderState}
         onChange={this.onStateChange}
-        changeable={false}
-        renderNullTitle={(value, placeholder) => {
-          if (value in states.order) {
-            return states.order[value];
-          }
-          return placeholder;
-        }}
+        stateless
       />
     );
   }
@@ -205,11 +193,10 @@ export default class Order extends React.Component {
     const order = this.order;
     const claims = getClaims();
     const shippingState = isPermitted(shippingClaims, claims)
-      ? (
-          <PanelListItem title="Shipping State">
-            <StateComponent stateId="order-shipping-state-value" value={order.shippingState} model="shipment" />
-          </PanelListItem>
-        ) : null;
+      ? (<PanelListItem title="Shipping State">
+          <StateComponent stateId="order-shipping-state-value" value={order.shippingState} model="shipment" />
+        </PanelListItem>)
+      : null;
 
     return (
       <div className="fc-grid fc-grid-gutter">

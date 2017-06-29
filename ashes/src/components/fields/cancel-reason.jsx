@@ -12,7 +12,7 @@ import { ReasonType } from '../../lib/reason-utils';
 import { fetchReasons } from '../../modules/reasons';
 
 // components
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 
 
 const mapStateToProps = ({reasons}, {reasonType}) => {
@@ -57,12 +57,12 @@ export default class CancelReason extends React.Component {
             <span className="fc-field-cancel-reason__asterisk">*</span>
           </label>
         </div>
-        <Dropdown className="fc-field-cancel-reason__selector"
-                  name="cancellationReason"
-                  placeholder="- Select -"
-                  value={value}
-                  onChange={onChange}
-                  items={reasons.map(({id, body}) => [id, body])}
+        <TextDropdown
+          className="fc-field-cancel-reason__selector"
+          name="cancellationReason"
+          value={value}
+          onChange={onChange}
+          items={reasons.map(({id, body}) => [id, body])}
         />
       </div>
     );

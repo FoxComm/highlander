@@ -17,7 +17,7 @@ import CurrencyInput from '../forms/currency-input';
 import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import SwatchInput from 'components/core/swatch-input';
 import TextInput from 'components/core/text-input';
 import Icon from 'components/core/icon';
@@ -234,6 +234,7 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, stringInput, options);
   }
 
+  // @todo never used?
   renderOptions(name: string, value: any, options: AttrOptions) {
     const fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
     if (!fieldOptions) throw new Error('You must define fieldOptions for options fields');
@@ -244,7 +245,11 @@ export default class ObjectFormInner extends Component {
     return (
       <div className="fc-object-form_field">
         <div className="fc-object-form__field-label">{options.label}</div>
-        <Dropdown value={value} items={fieldOptions} onChange={onChange} />
+        <TextDropdown
+          value={value}
+          items={fieldOptions}
+          onChange={onChange}
+        />
         {error && <FormFieldError error={error} />}
       </div>
     );

@@ -1,0 +1,62 @@
+@import 'variables.css';
+
+.block {
+  position: relative;
+  font: var(--font-labels);
+  text-align: left; /* in case if dropdown in centered stuff, e.g. Order State */
+  user-select: none;
+
+  &.open {
+    z-index: 1;
+  }
+}
+
+.pivot {
+  display: flex;
+  padding: 10px;
+  background-color: var(--bg-grey-buttons);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--bg-grey-buttons-hover);
+  }
+
+  .block.disabled & {
+    background-color: var(--bg-grey-buttons-hover);
+    color: var(--color-additional-text);
+    cursor: default;
+  }
+}
+
+.displayText {
+  flex: 1 1 auto;
+  margin-right: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .placeholder & {
+    color: var(--color-additional-text);
+  }
+}
+
+.menu {
+  top: 40px;
+  max-height: 264px;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, .2);
+}
+
+.item {
+  padding: 12px 20px;
+  background-color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: var(--font-nav);
+  cursor: default;
+
+  .block:not(.empty) &:hover {
+    background-color: var(--bg-grey-headers);
+    cursor: pointer;
+  }
+}

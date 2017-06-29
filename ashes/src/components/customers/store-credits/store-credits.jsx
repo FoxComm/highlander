@@ -24,7 +24,7 @@ import Summary from './summary';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import { ChangeStateModal, CancelModal } from 'components/bulk-actions/modal';
-import Dropdown from 'components/dropdown/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import ConfirmationModal from 'components/core/confirmation-modal';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import StoreCreditRow from './storecredit-row';
@@ -211,12 +211,11 @@ class StoreCredits extends Component {
             </label>
           </div>
           <div className="fc-store-credit-cancel-reason-selector">
-            <Dropdown
+            <TextDropdown
               name="cancellationReason"
-              placeholder="- Select -"
               items={this.reasons}
               value={value}
-              onChange={value => this.props.stateActions.reasonChange(this.customerId, value)}
+              onChange={(value) => this.props.stateActions.reasonChange(this.customerId, value)}
             />
           </div>
         </div>

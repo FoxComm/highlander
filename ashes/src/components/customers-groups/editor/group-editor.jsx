@@ -1,11 +1,11 @@
-//libs
+// libs
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-//data
+// data
 import operators from 'paragons/customer-groups/operators';
 import {
   setType,
@@ -15,16 +15,22 @@ import {
   GROUP_TYPE_MANUAL,
 } from 'modules/customer-groups/details/group';
 
-//helpers
+// helpers
 import { prefix } from 'lib/text-utils';
 
 //components
 import FormField from 'components/forms/formfield';
-import { Dropdown } from 'components/dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import QueryBuilder from './query-builder';
 import TextInput from 'components/core/text-input';
 
-const SELECT_CRITERIA = [[operators.and, 'all'], [operators.or, 'any']];
+// styles
+import s from './group-editor.css';
+
+const SELECT_CRITERIA = [
+  [operators.and, 'all'],
+  [operators.or, 'any']
+];
 
 const prefixed = prefix('fc-customer-group-edit');
 
@@ -94,7 +100,8 @@ class GroupEditor extends React.Component {
       <div className={prefixed('match-div')}>
         <span className={prefixed('match-span')}>Customers match</span>
         <span className={prefixed('match-dropdown')}>
-          <Dropdown
+          <TextDropdown
+            className={s.dropdown}
             name="matchCriteria"
             value={mainCondition}
             onChange={value => setMainCondition(value)}

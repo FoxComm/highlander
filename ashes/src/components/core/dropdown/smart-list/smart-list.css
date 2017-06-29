@@ -1,0 +1,27 @@
+@import 'variables.css';
+
+.block {
+  position: absolute;
+  min-width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-height: 300px) {
+    max-height: 60vh;
+  }
+}
+
+.list {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  left: 0;
+
+  /* define `top` in the hoist component */
+}
+
+.item {
+  &.active {
+    background-color: var(--bg-grey-headers);
+  }
+}

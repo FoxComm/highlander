@@ -41,7 +41,7 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
     return res;
   }, finale);
 
-export default (props: Props) => {
+const TaxonomyDropdown = (props: Props) => {
   const { taxonomy, linkedTaxonomy = {}, onTaxonClick, onNewValueClick } = props;
 
   const items = buildTaxonsDropDownItems(taxonomy.taxons, '');
@@ -79,3 +79,5 @@ export default (props: Props) => {
     />
   );
 };
+
+export default TaxonomyDropdown;

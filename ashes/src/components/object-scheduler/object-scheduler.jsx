@@ -11,10 +11,9 @@ import { isActive } from 'paragons/common';
 import { trackEvent } from 'lib/analytics';
 
 // components
-import { Dropdown } from '../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
 import Icon from 'components/core/icon';
-
 
 type Props = {
   attributes: Attributes,
@@ -207,9 +206,7 @@ export default class ObjectScheduler extends Component {
     const isDisabled = !this.isActive && this.state.showActiveFromPicker;
 
     return (
-      <Dropdown
-        id="state-dd"
-        dropdownValueId="state-dd-value"
+      <TextDropdown
         className="fc-product-state__active-state"
         disabled={isDisabled}
         value={activeState}

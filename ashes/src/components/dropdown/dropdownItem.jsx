@@ -10,7 +10,7 @@ import s from './dropdown-item.css';
 
 type ItemProps = {
   onSelect?: Function,
-  value: number|string|boolean,
+  value: number | string | boolean,
   children?: Element<any>,
   className?: string,
   isHidden?: boolean,

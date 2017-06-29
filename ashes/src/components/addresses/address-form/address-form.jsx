@@ -7,13 +7,14 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import classNames from 'classnames';
 
 // components
 import FormField from '../../forms/formfield';
 import FoxyForm from '../../forms/foxy-form';
 import { ApiErrors } from 'components/utils/errors';
 import SaveCancel from 'components/core/save-cancel';
-import { Dropdown } from '../../dropdown';
+import { TextDropdown } from 'components/core/dropdown';
 import AutoScroll from 'components/utils/auto-scroll';
 import TextInput from 'components/core/text-input';
 
@@ -248,10 +249,9 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Country">
-                  <Dropdown
-                    id="country-dd"
+                  <TextDropdown
                     name="countryId"
-                    className={s.countryList}
+                    className={classNames(s.countryList, 'at-country-dd')}
                     value={this.state.countryId}
                     onChange={value => this.handleCountryChange(Number(value))}
                     items={this.countryItems}
@@ -275,8 +275,8 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown
-                    id="region-dd"
+                  <TextDropdown
+                    className="at-region-dd"
                     name="regionId"
                     value={this.state.stateId}
                     onChange={value => this.handleStateChange(Number(value))}
