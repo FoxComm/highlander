@@ -2,10 +2,11 @@ package phoenix.routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import phoenix.models.location.Country
+
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import phoenix.models.cord.Cord.cordRefNumRegex
 import phoenix.models.inventory.Sku.skuCodeRegex
+import phoenix.models.location.Country
 import phoenix.models.payment.giftcard.GiftCard
 import phoenix.payloads.AddressPayloads._
 import phoenix.payloads.CartPayloads.CheckoutCart
@@ -322,22 +323,20 @@ object Customer {
               }
             } ~
             pathPrefix("review") {
-              determineObjectContext(db, ec) { implicit ctx ⇒
-                (post & entity(as[CreateProductReviewByCustomerPayload]) & pathEnd) { payload ⇒
+              (post & entity(as[CreateProductReviewByCustomerPayload]) & pathEnd) { payload ⇒
+                mutateOrFailures {
+                  ProductReviewManager.createProductReview(auth.account.id, payload)
+                }
+              } ~
+              (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
+                (reviewId, payload) ⇒
                   mutateOrFailures {
-                    ProductReviewManager.createProductReview(auth.account.id, payload)
+                    ProductReviewManager.updateProductReview(reviewId, payload)
                   }
-                } ~
-                (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
-                  (reviewId, payload) ⇒
-                    mutateOrFailures {
-                      ProductReviewManager.updateProductReview(reviewId, payload)
-                    }
-                } ~
-                (delete & path(IntNumber) & pathEnd) { id ⇒
-                  deleteOrFailures {
-                    ProductReviewManager.archiveByContextAndId(id)
-                  }
+              } ~
+              (delete & path(IntNumber) & pathEnd) { id ⇒
+                deleteOrFailures {
+                  ProductReviewManager.archiveByContextAndId(id)
                 }
               }
             }

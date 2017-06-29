@@ -126,7 +126,7 @@ func (o OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 				return err
 			}
 
-			url := fmt.Sprintf("%s/v1/review/default", o.apiURL)
+			url := fmt.Sprintf("%s/v1/review", o.apiURL)
 			req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 			if err != nil {
 				return err
