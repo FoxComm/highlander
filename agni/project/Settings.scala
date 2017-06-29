@@ -26,6 +26,7 @@ object Settings {
       "-Xfatal-warnings",
       "-Xfuture"
     ),
+    addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.4"),
     wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Any,
                                                              Wart.ImplicitParameter,
                                                              Wart.Nothing,

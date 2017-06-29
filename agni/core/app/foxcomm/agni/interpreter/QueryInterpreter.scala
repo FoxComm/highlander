@@ -1,33 +1,35 @@
 package foxcomm.agni.interpreter
 
 import scala.language.higherKinds
-import cats.Monad
-import cats.data.{Kleisli, NonEmptyList}
-import cats.implicits._
+import cats.data.NonEmptyList
 import foxcomm.agni.dsl.query._
 
-abstract class QueryInterpreter[F[_]: Monad, V] extends Interpreter[F, (V, NonEmptyList[QueryFunction]), V] {
-  final def kleisli: Kleisli[F, (V, NonEmptyList[QueryFunction]), V] = Kleisli(this)
+sealed trait QueryError
+object QueryError {}
 
-  final def eval(v: V, qf: QueryFunction): F[V] = qf match {
-    case qf: QueryFunction.matches ⇒ matchesF(v, qf)
-    case qf: QueryFunction.equals  ⇒ equalsF(v, qf)
-    case qf: QueryFunction.exists  ⇒ existsF(v, qf)
-    case qf: QueryFunction.range   ⇒ rangeF(v, qf)
-    case qf: QueryFunction.raw     ⇒ rawF(v, qf)
+trait QueryInterpreter[F[_], V] extends Interpreter[F, NonEmptyList[QueryFunction], V] {
+  type Result = V
+
+  final def eval(qf: QueryFunction): F[Result] = qf match {
+    case qf: QueryFunction.matches ⇒ matchesF(qf)
+    case qf: QueryFunction.equals  ⇒ equalsF(qf)
+    case qf: QueryFunction.exists  ⇒ existsF(qf)
+    case qf: QueryFunction.range   ⇒ rangeF(qf)
+    case qf: QueryFunction.raw     ⇒ rawF(qf)
+    case qf: QueryFunction.bool    ⇒ boolF(qf)
   }
 
-  final def apply(v: (V, NonEmptyList[QueryFunction])): F[V] = v._2.foldM(v._1)(eval)
+  def matchesF(qf: QueryFunction.matches): F[Result]
 
-  def matchesF(v: V, qf: QueryFunction.matches): F[V]
+  def equalsF(qf: QueryFunction.equals): F[Result]
 
-  def equalsF(v: V, qf: QueryFunction.equals): F[V]
+  def existsF(qf: QueryFunction.exists): F[Result]
 
-  def existsF(v: V, qf: QueryFunction.exists): F[V]
+  def rangeF(qf: QueryFunction.range): F[Result]
 
-  def rangeF(v: V, qf: QueryFunction.range): F[V]
+  def rawF(qf: QueryFunction.raw): F[Result]
 
-  def rawF(v: V, qf: QueryFunction.raw): F[V]
+  def boolF(qf: QueryFunction.bool): F[Result]
 }
 
 object QueryInterpreter {
