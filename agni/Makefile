@@ -9,6 +9,10 @@ SBT_CMD = sbt -DDOCKER_REPO=$(DOCKER_REPO) -DDOCKER_TAG=${DOCKER_TAG}
 autoformat-check:
 	../utils/scalafmt/scalafmt.sh --test
 
+run:
+	$(call header, Run locally)
+	sbt '~api/re-start'
+
 clean:
 	$(call header, Cleaning)
 	${SBT_CMD} '; clean'
