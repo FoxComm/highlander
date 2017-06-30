@@ -10,8 +10,8 @@ function searchURI(uri: string): string {
 
 function request(method: string, uri: string, data: Object): Promise<*> {
   const payload = {
-    "type": "es",
-    "query": {...data},
+    type: 'es',
+    query: {...data},
   };
   return baseRequest(method, searchURI(uri), payload);
 }
