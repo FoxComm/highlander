@@ -21,7 +21,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'customerGroups.details.customers',
   searchTerms,
-  'customers_search_view/_search',
+  'customers_search_view',
   'customersScope',
   {
     skipInitialFetch: true,

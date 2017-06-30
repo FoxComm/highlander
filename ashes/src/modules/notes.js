@@ -13,7 +13,7 @@ function geCurrentEntity(state) {
 const {reducer, actions} = makeLiveSearch(
   'notes.list',
   [],
-  'notes_search_view/_search',
+  'notes_search_view',
   null, {
     processQuery: (query, {getState}) => {
       const currentEntity = geCurrentEntity(getState());

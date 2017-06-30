@@ -7,7 +7,7 @@ import searchTerms from './search-terms';
 const { reducer, actions } = makeLiveSearch(
   'giftCards.list',
   searchTerms,
-  'gift_cards_search_view/_search',
+  'gift_cards_search_view',
   'giftCardsScope',
   {
     initialState: { sortBy: '-createdAt' }

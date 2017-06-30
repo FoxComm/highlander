@@ -6,7 +6,7 @@ import * as dsl from 'elastic/dsl';
 const { reducer, actions } = makeLiveSearch(
   'customers.list',
   searchTerms,
-  'customers_search_view/_search',
+  'customers_search_view',
   'customersScope',
   {
     initialState: { sortBy: '-joinedAt' },

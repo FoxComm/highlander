@@ -5,7 +5,7 @@ import makeLiveSearch from '../live-search';
 const { reducer, actions } = makeLiveSearch(
   'customerGroups.list',
   [],
-  'customer_groups_search_view/_search',
+  'customer_groups_search_view',
   'customerGroupsScope',
   {
     processQuery: (query) => addNativeFilters(query,[dsl.existsFilter('deletedAt', 'missing')]),

@@ -4,7 +4,7 @@ import makeLiveSearch from 'modules/live-search';
 
 const searchTerms = [];
 const storeLocation = 'taxons.list';
-const searchView = 'taxons_search_view/_search';
+const searchView = 'taxons_search_view';
 const scope = 'taxonsScope';
 
 const { reducer, actions } = makeLiveSearch(

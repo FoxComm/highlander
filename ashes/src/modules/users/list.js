@@ -26,7 +26,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'users.list',
   searchTerms,
-  'store_admins_search_view/_search',
+  'store_admins_search_view',
   'storeAdminsScope',
   {
     initialState: { sortBy: '-createdAt' },

@@ -6,7 +6,7 @@ import searchTerms from './search-terms';
 const { reducer, actions } = makeLiveSearch(
   'taxonomies.list',
   searchTerms,
-  'taxonomies_search_view/_search',
+  'taxonomies_search_view',
   'taxonomiesScope',
   {
     initialState: { sortBy: 'name' },

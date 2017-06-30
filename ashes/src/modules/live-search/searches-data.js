@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { dissoc } from 'sprout-data';
-import { post } from '../../lib/search';
+import { post } from '../../lib/agni';
 import { createReducer } from 'redux-act';
 import { createNsAction } from './../utils';
 import { toQuery, addNativeFilters } from '../../elastic/common';

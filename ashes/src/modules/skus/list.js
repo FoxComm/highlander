@@ -39,7 +39,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'skus.list',
   searchTerms,
-  'sku_search_view/_search',
+  'sku_search_view',
   'skusScope',
   {
     rawSorts: ['title'],

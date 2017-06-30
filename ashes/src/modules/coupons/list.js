@@ -1,4 +1,3 @@
-
 import makeLiveSearch from '../live-search';
 
 const searchTerms = [
@@ -26,7 +25,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'coupons.list',
   searchTerms,
-  'coupons_search_view/_search',
+  'coupons_search_view',
   'couponsScope',
   {
     initialState: { sortBy: '-createdAt' }
