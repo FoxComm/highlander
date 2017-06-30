@@ -1,7 +1,7 @@
 package phoenix.services.activity
 
 import phoenix.responses.users.UserResponse
-import phoenix.responses.{AddressResponse, CreditCardsResponse}
+import phoenix.responses.{AddressResponse, CreditCardNoAddressResponse}
 
 object UserTailored {
   case class UserCreated(creator: UserResponse, user: UserResponse) extends ActivityBase[UserCreated]
@@ -44,18 +44,18 @@ object UserTailored {
 
   /* User Credit Cards */
   case class CreditCardAdded(user: UserResponse,
-                             creditCard: CreditCardsResponse.RootSimple,
+                             creditCard: CreditCardNoAddressResponse,
                              admin: Option[UserResponse])
       extends ActivityBase[CreditCardAdded]
 
   case class CreditCardUpdated(user: UserResponse,
-                               oldInfo: CreditCardsResponse.RootSimple,
-                               newInfo: CreditCardsResponse.RootSimple,
+                               oldInfo: CreditCardNoAddressResponse,
+                               newInfo: CreditCardNoAddressResponse,
                                admin: Option[UserResponse])
       extends ActivityBase[CreditCardUpdated]
 
   case class CreditCardRemoved(user: UserResponse,
-                               creditCard: CreditCardsResponse.RootSimple,
+                               creditCard: CreditCardNoAddressResponse,
                                admin: Option[UserResponse])
       extends ActivityBase[CreditCardRemoved]
 }

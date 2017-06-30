@@ -1,4 +1,4 @@
-/* @flow */
+// @flow
 
 // helpers
 import createStore from '../../lib/store-creator';

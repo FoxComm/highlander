@@ -4,7 +4,7 @@ import core.failures.{GeneralFailure, NotFoundFailure404}
 import phoenix.models._
 import phoenix.models.returns._
 import phoenix.payloads.NotePayloads._
-import phoenix.responses.AdminNotes
+import phoenix.responses.AdminNoteResponse
 import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -26,7 +26,7 @@ class ReturnNotesIntegrationTest
       "can be created for return" in new ReturnDefaults {
         val note = api(rma.referenceNumber)
           .create(CreateNote(body = "Hello, FoxCommerce!"))
-          .as[AdminNotes.Root]
+          .as[AdminNoteResponse]
 
         note.author.name.value must === (defaultAdmin.name.value)
         note.author.email.value must === (defaultAdmin.email.value)
@@ -55,7 +55,7 @@ class ReturnNotesIntegrationTest
 
         api(rma.referenceNumber)
           .get()
-          .as[Seq[AdminNotes.Root]]
+          .as[Seq[AdminNoteResponse]]
           .map(_.body) must contain theSameElementsAs bodies
       }
     }
@@ -65,13 +65,13 @@ class ReturnNotesIntegrationTest
       "can update the body text" in new ReturnDefaults {
         val noteCreated = api(rma.referenceNumber)
           .create(CreateNote(body = "Hello, FoxCommerce!"))
-          .as[AdminNotes.Root]
+          .as[AdminNoteResponse]
 
         val updateNote = UpdateNote(body = "donkey")
         api(rma.referenceNumber)
           .note(noteCreated.id)
           .update(updateNote)
-          .as[AdminNotes.Root]
+          .as[AdminNoteResponse]
           .body must === (updateNote.body)
       }
     }
@@ -81,7 +81,7 @@ class ReturnNotesIntegrationTest
       "can soft delete note" in new ReturnDefaults {
         val note = api(rma.referenceNumber)
           .create(CreateNote(body = "Hello, FoxCommerce!"))
-          .as[AdminNotes.Root]
+          .as[AdminNoteResponse]
 
         api(rma.referenceNumber).note(note.id).delete().mustBeEmpty()
 
@@ -92,7 +92,7 @@ class ReturnNotesIntegrationTest
           updatedNote.deletedAt.value.isBeforeNow mustBe true
         }
 
-        api(rma.referenceNumber).get().as[Seq[AdminNotes.Root]].map(_.id) must not contain note.id
+        api(rma.referenceNumber).get().as[Seq[AdminNoteResponse]].map(_.id) must not contain note.id
       }
     }
   }

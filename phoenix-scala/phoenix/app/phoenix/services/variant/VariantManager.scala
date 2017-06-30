@@ -24,7 +24,7 @@ object VariantManager {
 
   def createVariant(
       contextName: String,
-      payload: VariantPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[IlluminatedVariantResponse.Root] =
+      payload: VariantPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[IlluminatedVariantResponse] =
     for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ createVariantInner(context, payload)
@@ -45,7 +45,7 @@ object VariantManager {
       )
 
   def getVariant(contextName: String, variantId: Int)(implicit ec: EC,
-                                                      db: DB): DbResultT[IlluminatedVariantResponse.Root] =
+                                                      db: DB): DbResultT[IlluminatedVariantResponse] =
     for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ ObjectManager.getFullObject(mustFindVariantByContextAndForm(context.id, variantId))
@@ -62,7 +62,7 @@ object VariantManager {
   def updateVariant(contextName: String, variantId: Int, payload: VariantPayload)(
       implicit ec: EC,
       db: DB,
-      au: AU): DbResultT[IlluminatedVariantResponse.Root] =
+      au: AU): DbResultT[IlluminatedVariantResponse] =
     for {
       context     ← * <~ ObjectManager.mustFindByName404(contextName)
       fullVariant ← * <~ updateVariantInner(context, variantId, payload)
@@ -141,7 +141,7 @@ object VariantManager {
   def createVariantValue(contextName: String, variantId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
       db: DB,
-      au: AU): DbResultT[IlluminatedVariantValueResponse.Root] =
+      au: AU): DbResultT[IlluminatedVariantValueResponse] =
     for {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       variant ← * <~ Variants

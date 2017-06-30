@@ -68,7 +68,7 @@ class ProductsCatalogViewIntegrationTest
     "after archival" in go(sku ⇒ skusApi(skuCode(sku.attributes)).archive().mustBeOk)
     "after deactivation" in go(sku ⇒ deactivateSku(skuCode(sku.attributes)))
 
-    def go(deactivate: SkuResponse.Root ⇒ Unit): Unit = {
+    def go(deactivate: SkuResponse ⇒ Unit): Unit = {
       val product   = ProductSku_ApiFixture().product
       val currentDb = implicitly[DB]
       val psv = new ProductsSearchViewIntegrationTest {

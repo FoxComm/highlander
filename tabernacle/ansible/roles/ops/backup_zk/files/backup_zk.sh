@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ue
+set -euo pipefail
 
 LOCK=/var/tmp/backup_zk.lock
 

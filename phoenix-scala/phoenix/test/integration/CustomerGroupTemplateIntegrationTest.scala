@@ -4,7 +4,7 @@ import org.scalatest.mockito.MockitoSugar
 import phoenix.models.customer.CustomerGroup._
 import phoenix.models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
 import phoenix.payloads.CustomerGroupPayloads.CustomerGroupPayload
-import phoenix.responses.GroupResponses.GroupResponse.Root
+import phoenix.responses.GroupResponses.GroupResponse
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -34,7 +34,7 @@ class CustomerGroupTemplateIntegrationTest
       groupType = Template
     )
 
-    val root = customerGroupsApi.create(payload).as[Root]
+    val root = customerGroupsApi.create(payload).as[GroupResponse]
 
     val expected = groupTemplates.tail
     customerGroupTemplateApi.get().as[Seq[CustomerGroupTemplate]] must === (expected)

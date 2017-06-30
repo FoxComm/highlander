@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 source /etc/consul.d/env
 

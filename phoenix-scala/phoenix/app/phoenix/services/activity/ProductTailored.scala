@@ -6,12 +6,12 @@ import phoenix.responses.users.UserResponse
 
 object ProductTailored {
   case class FullProductCreated(admin: Option[UserResponse],
-                                product: ProductResponse.Root,
-                                context: ObjectContextResponse.Root)
+                                product: ProductResponse,
+                                context: ObjectContextResponse)
       extends ActivityBase[FullProductCreated]
 
   case class FullProductUpdated(admin: Option[UserResponse],
-                                product: ProductResponse.Root,
-                                context: ObjectContextResponse.Root)
+                                product: ProductResponse,
+                                context: ObjectContextResponse)
       extends ActivityBase[FullProductUpdated]
 }

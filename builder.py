@@ -16,44 +16,47 @@ global_args = parser.parse_args()
 
 ROOT_DIR=os.path.abspath(os.path.dirname(os.path.basename(__file__)))
 
-PROJECTS = (
-    'agni',    
-    'ashes',
-    'data-import',
-    'demo/peacock',
-    'developer-portal',
-    'green-river',
-    'geronimo',
-    'hyperion',
-    'intelligence/anthill',
-    'intelligence/bernardo',
-    'intelligence/consumers/digger-sphex',
-    'intelligence/consumers/orders-anthill',
-    'intelligence/consumers/orders-reviews',
-    'intelligence/consumers/orders-sphex',
-    'intelligence/consumers/product-activity',
-    'intelligence/eggcrate',
-    'intelligence/river-rock',
-    'intelligence/suggester',
-    'intelligence/user-simulation',
-    'isaac',
-    'messaging',
-    'middlewarehouse',
-    'middlewarehouse/common/db/seeds',
-    'middlewarehouse/consumers/capture',
-    'middlewarehouse/consumers/customer-groups',
-    'middlewarehouse/consumers/gift-cards',
-    'middlewarehouse/consumers/shipments',
-    'middlewarehouse/consumers/shipstation',
-    'middlewarehouse/elasticmanager',
-    'onboarding/service',
-    'onboarding/ui',
-    'phoenix-scala',
-    'phoenix-scala/seeder',
-    'solomon',
-    'tabernacle/docker/neo4j',
-    'tabernacle/docker/neo4j_reset',
-)
+# Structure for now
+# project directory from root is key
+# dependent project directories is a value
+PROJECTS = {
+    'agni': [],
+    'ashes': [],
+    'data-import': [],
+    'demo/peacock': [],
+    'developer-portal': [],
+    'green-river': [],
+    'geronimo': [],
+    'hyperion': [],
+    'intelligence/anthill': [],
+    'intelligence/bernardo': [],
+    'intelligence/consumers/digger-sphex': [],
+    'intelligence/consumers/orders-anthill': [],
+    'intelligence/consumers/orders-reviews': [],
+    'intelligence/consumers/orders-sphex': [],
+    'intelligence/consumers/product-activity': [],
+    'intelligence/eggcrate': [],
+    'intelligence/river-rock': [],
+    'intelligence/suggester': [],
+    'intelligence/user-simulation': [],
+    'isaac': [],
+    'messaging': [],
+    'middlewarehouse': [],
+    'middlewarehouse/common/db/seeds': [],
+    'middlewarehouse/consumers/capture': [],
+    'middlewarehouse/consumers/customer-groups': [],
+    'middlewarehouse/consumers/gift-cards': [],
+    'middlewarehouse/consumers/shipments': [],
+    'middlewarehouse/consumers/shipstation': [],
+    'middlewarehouse/elasticmanager': [],
+    'onboarding/service': [],
+    'onboarding/ui': [],
+    'phoenix-scala': ['phoenix-scala/seeder'],
+    'phoenix-scala/seeder': [],
+    'solomon': [],
+    'tabernacle/docker/neo4j': [],
+    'tabernacle/docker/neo4j_reset': [],
+}
 
 for p in PROJECTS:
     d = os.path.join(ROOT_DIR, p)
@@ -86,6 +89,18 @@ def all_changed_dirs(base_branch):
     stdout = result.stdout.decode('UTF-8')
     return {os.path.dirname(x) for x in stdout.split("\n") if x}
 
+def find_all_deps(project, acc = None, resolved_projects = None):
+    if acc is None:
+        acc = set()
+    if resolved_projects is None:
+        resolved_projects = set()
+    resolved_projects.add(project)
+    for dep in PROJECTS[project]:
+        acc.add(dep)
+        if dep not in resolved_projects:
+            find_all_deps(dep, acc, resolved_projects)
+    return acc
+
 def changed_projects(changed_dirs):
     projects = set()
     for d in changed_dirs:
@@ -94,6 +109,13 @@ def changed_projects(changed_dirs):
             # return project with max overlap in dirs
             detected = max(all_affected, key=lambda v: len(v))
             projects.add(detected)
+
+    # add dependent projects
+    for p in projects.copy(): # we need to modify origin set, so we need to copy it
+        deps = find_all_deps(p)
+        for dep in deps:
+            projects.add(dep)
+
     return projects
 
 def run_process(args, working_dir):

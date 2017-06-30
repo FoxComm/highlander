@@ -11,8 +11,7 @@ import phoenix.models.payment.storecredit._
 import phoenix.models.payment.{giftcard, InStorePaymentStates, PaymentMethod}
 import phoenix.payloads.PaymentPayloads.CreateManualStoreCredit
 import phoenix.payloads.StoreCreditPayloads._
-import phoenix.responses.StoreCreditResponse
-import phoenix.responses.StoreCreditResponse.Root
+import phoenix.responses.{StoreCreditResponse, StoreCreditTotalsResponse}
 import phoenix.responses.giftcards.GiftCardResponse
 import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
@@ -32,7 +31,8 @@ class StoreCreditIntegrationTest
       "when successful" - {
         "responds with the new storeCredit" in new Fixture {
           val payload = CreateManualStoreCredit(amount = 25, reasonId = reason.id)
-          val sc      = customersApi(customer.accountId).payments.storeCredit.create(payload).as[Root]
+          val sc =
+            customersApi(customer.accountId).payments.storeCredit.create(payload).as[StoreCreditResponse]
           sc.state must === (StoreCredit.Active)
 
           // Check that proper link is created
@@ -45,7 +45,7 @@ class StoreCreditIntegrationTest
       "succeeds with valid subTypeId" in new Fixture {
         customersApi(customer.accountId).payments.storeCredit
           .create(CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(scSubType.id)))
-          .as[Root]
+          .as[StoreCreditResponse]
           .subTypeId must === (Some(scSubType.id))
       }
 
@@ -72,7 +72,7 @@ class StoreCreditIntegrationTest
       "returns total available and current store credit for customer" in new Fixture {
         val totals = customersApi(customer.accountId).payments.storeCredit
           .totals()
-          .as[StoreCreditResponse.Totals]
+          .as[StoreCreditTotalsResponse]
 
         val fst = StoreCredits.refresh(storeCredit).gimme
         val snd = StoreCredits.refresh(scSecond).gimme
@@ -116,7 +116,7 @@ class StoreCreditIntegrationTest
 
         val root = storeCreditsApi(storeCredit.id)
           .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(reason.id)))
-          .as[Root]
+          .as[StoreCreditResponse]
         root.canceledAmount must === (Some(storeCredit.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
@@ -133,7 +133,7 @@ class StoreCreditIntegrationTest
 
         val root = storeCreditsApi(storeCredit.id)
           .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(reason.id)))
-          .as[Root]
+          .as[StoreCreditResponse]
         root.canceledAmount must === (Some(0))
 
         // Ensure that cancel adjustment is automatically created

@@ -10,37 +10,36 @@ import phoenix.utils.aliases._
 
 object DiscountResponses {
 
+  case class DiscountFormResponse(id: Int, attributes: Json, createdAt: Instant)
+
   object DiscountFormResponse {
 
-    case class Root(id: Int, attributes: Json, createdAt: Instant)
-
-    def build(f: ObjectForm): Root =
-      Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
+    def build(f: ObjectForm): DiscountFormResponse =
+      DiscountFormResponse(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
   }
+
+  case class DiscountShadowResponse(id: Int, attributes: Json, createdAt: Instant)
 
   object DiscountShadowResponse {
-
-    case class Root(id: Int, attributes: Json, createdAt: Instant)
-
-    //since shadow is always within some context, we will use the form id  for
-    //id here
-    def build(s: ObjectShadow): Root =
-      Root(id = s.formId, attributes = s.attributes, createdAt = s.createdAt)
+    //since shadow is always within some context, we will use the form id for id here
+    def build(s: ObjectShadow): DiscountShadowResponse =
+      DiscountShadowResponse(id = s.formId, attributes = s.attributes, createdAt = s.createdAt)
   }
+
+  case class DiscountResponse(form: DiscountFormResponse, shadow: DiscountShadowResponse)
 
   object DiscountResponse {
-    case class Root(form: DiscountFormResponse.Root, shadow: DiscountShadowResponse.Root)
 
-    def build(f: ObjectForm, s: ObjectShadow): Root =
-      Root(form = DiscountFormResponse.build(f), shadow = DiscountShadowResponse.build(s))
+    def build(f: ObjectForm, s: ObjectShadow): DiscountResponse =
+      DiscountResponse(form = DiscountFormResponse.build(f), shadow = DiscountShadowResponse.build(s))
   }
+
+  case class IlluminatedDiscountResponse(id: Int, context: Option[ObjectContextResponse], attributes: Json)
 
   object IlluminatedDiscountResponse {
 
-    case class Root(id: Int, context: Option[ObjectContextResponse.Root], attributes: Json)
-
-    def build(s: IlluminatedDiscount): Root =
-      Root(id = s.id, context = s.context match {
+    def build(s: IlluminatedDiscount): IlluminatedDiscountResponse =
+      IlluminatedDiscountResponse(id = s.id, context = s.context match {
         case Some(context) ⇒ ObjectContextResponse.build(context).some
         case None          ⇒ None
       }, attributes = s.attributes)

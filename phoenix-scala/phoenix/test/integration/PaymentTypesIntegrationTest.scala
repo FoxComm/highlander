@@ -26,7 +26,7 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase with PhoenixPublic
   "StoreCredits" - {
     "GET /v1/public/store-credits/types" - {
       "should return all SC types and related subtypes" in new StoreCreditFixture {
-        val root = publicApi.storeCreditTypes().as[Seq[StoreCreditSubTypesResponse.Root]]
+        val root = publicApi.storeCreditTypes().as[Seq[StoreCreditSubTypesResponse]]
 
         root.size must === (StoreCredit.OriginType.publicTypes.size)
         root.map(_.originType) must === (StoreCredit.OriginType.publicTypes.toSeq)

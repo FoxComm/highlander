@@ -70,7 +70,10 @@ object Setup extends LazyLogging {
     logger.info("Loading Stripe API key")
     Stripe.apiKey = stripeConfig.key
     logger.info("Successfully set Stripe key")
-    new FoxStripe(new StripeWrapper(stripeConfig.timeout))
+    new FoxStripe(
+      new StripeWrapper(stripeConfig.processingTimeout,
+                        stripeConfig.connectTimeout,
+                        stripeConfig.readTimeout))
   }
 
   def setupMiddlewarehouse(): Middlewarehouse = {

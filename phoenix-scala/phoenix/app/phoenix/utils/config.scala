@@ -96,7 +96,10 @@ object FoxConfig extends StrictLogging {
   case class AWS(accessKey: String, secretKey: String, s3Bucket: String, s3Region: String)
   case class ESConfig(host: String, cluster: String, index: String)
   case class MWH(url: String)
-  case class Stripe(key: String, timeout: FiniteDuration)
+  case class Stripe(key: String,
+                    processingTimeout: FiniteDuration,
+                    connectTimeout: FiniteDuration,
+                    readTimeout: FiniteDuration)
   case class Kafka(schemaRegistryURL: String,
                    bootStrapServersConfig: String,
                    producerTimeout: String,
@@ -107,7 +110,8 @@ object FoxConfig extends StrictLogging {
   case class DB(url: String)
 
   // http
-  case class Http(interface: String, port: Int)
+  case class HttpUpload(maxContentSize: Long, requestTimeout: Int)
+  case class Http(interface: String, port: Int, upload: HttpUpload)
 
   // tax
   case class TaxRules(regionId: Option[Int], rate: Option[Double])

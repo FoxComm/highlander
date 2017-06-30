@@ -2,6 +2,9 @@ package phoenix.services.coupon
 
 import java.time.Instant
 
+import cats._
+import cats.implicits._
+import cats.syntax._
 import core.db._
 import core.failures.NotFoundFailure404
 import objectframework.ObjectFailures._
@@ -28,11 +31,11 @@ object CouponManager {
 
   def create(payload: CreateCoupon,
              contextName: String,
-             admin: Option[User])(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[CouponResponse.Root] = {
-
-    val formAndShadow = FormAndShadow.fromPayload(Coupon.kind, forceActivate(payload.attributes))
-
+             admin: Option[User])(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[Seq[CouponResponse]] =
     for {
+      _ ← * <~ failIf(payload.singleCode.isEmpty && (payload.generateCodes.isEmpty || payload.generateCodes
+                        .exists(_.quantity < 1)),
+                      CouponCreationNoCodes)
       scope ← * <~ Scope.resolveOverride(payload.scope)
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -40,53 +43,55 @@ object CouponManager {
       _ ← * <~ Promotions
            .filterByContextAndFormId(context.id, payload.promotion)
            .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
-      ins ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
-      coupon ← * <~ Coupons.create(
-                Coupon(scope = scope,
-                       contextId = context.id,
-                       formId = ins.form.id,
-                       shadowId = ins.shadow.id,
-                       commitId = ins.commit.id,
-                       promotionId = payload.promotion))
-      response = CouponResponse.build(context, coupon, ins.form, ins.shadow)
-      _ ← * <~ LogActivity().withScope(scope).couponCreated(response, admin)
+      codes: Seq[String] = payload.singleCode.toSeq ++ payload.generateCodes.toSeq.flatMap(gcc ⇒
+        CouponCodes.generateCodes(gcc.prefix, gcc.length, gcc.quantity))
+      couponFormAndShadow = FormAndShadow.fromPayload(Coupon.kind, forceActivate(payload.attributes))
+
+      // create a form & shadow for each future CouponCode
+      // FIXME: how to *effectively* create N forms & shadows? @michalrus
+      formsAndShadows ← codes.toList.traverse(
+                         _ ⇒
+                           ObjectUtils
+                             .insert(couponFormAndShadow.form, couponFormAndShadow.shadow, payload.schema))
+
+      coupons = formsAndShadows.map { fas ⇒
+        Coupon(scope = scope,
+               contextId = context.id,
+               formId = fas.form.id,
+               shadowId = fas.shadow.id,
+               commitId = fas.commit.id,
+               promotionId = payload.promotion)
+      }
+
+      createdCoupons ← Coupons.createAllReturningModels(coupons)
+
+      couponCodes = (codes zip formsAndShadows).map {
+        case (code, fas) ⇒
+          CouponCode(couponFormId = fas.form.id, code = code)
+      }
+
+      _ ← * <~ CouponCodes.createAll(couponCodes)
+
+      response = (createdCoupons zip codes zip formsAndShadows).map {
+        case ((coupon, code), fas) ⇒
+          CouponResponse.build(context, code, coupon, fas.form, fas.shadow)
+      }
+
+      _ ← * <~ coupons.headOption.traverse { firstCoupon ⇒
+           // TODO: Should they override scope? (`LogActivity().withScope(scope)`) @michalrus
+           if (coupons.size > 1)
+             LogActivity().multipleCouponCodesCreated(firstCoupon, admin)
+           else
+             LogActivity().singleCouponCodeCreated(firstCoupon, admin)
+         }
     } yield response
-  }
 
   private def forceActivate(attributes: Map[String, Json]): Map[String, Json] =
     attributes
       .updated("activeFrom", ("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString))
       .updated("activeTo", ("t" → "datetime") ~ ("v" → JNull))
 
-  def update(id: Int, payload: UpdateCoupon, contextName: String, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[CouponResponse.Root] = {
-
-    val formAndShadow = FormAndShadow.fromPayload(Coupon.kind, forceActivate(payload.attributes))
-
-    for {
-      context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
-      _ ← * <~ Promotions
-           .filterByContextAndFormId(context.id, payload.promotion)
-           .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
-      coupon ← * <~ Coupons
-                .filterByContextAndFormId(context.id, id)
-                .mustFindOneOr(CouponNotFoundForContext(id, contextName))
-      updated ← * <~ ObjectUtils.update(coupon.formId,
-                                        coupon.shadowId,
-                                        formAndShadow.form.attributes,
-                                        formAndShadow.shadow.attributes)
-      commit ← * <~ ObjectUtils.commit(updated)
-      coupon ← * <~ updateHead(coupon, payload.promotion, updated.shadow, commit)
-      response = CouponResponse.build(context, coupon, updated.form, updated.shadow)
-      _ ← * <~ LogActivity().couponUpdated(response, Some(admin))
-    } yield response
-  }
-
-  def getIlluminated(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[CouponResponse.Root] =
+  def getIlluminated(id: Int, contextName: String)(implicit ec: EC, db: DB): DbResultT[CouponResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -95,7 +100,7 @@ object CouponManager {
     } yield result
 
   def getIlluminatedByCode(code: String, contextName: String)(implicit ec: EC,
-                                                              db: DB): DbResultT[CouponResponse.Root] =
+                                                              db: DB): DbResultT[CouponResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -107,18 +112,21 @@ object CouponManager {
     } yield result
 
   private def getIlluminatedIntern(id: Int, context: ObjectContext)(implicit ec: EC,
-                                                                    db: DB): DbResultT[CouponResponse.Root] =
+                                                                    db: DB): DbResultT[CouponResponse] =
     for {
       coupon ← * <~ Coupons
                 .filter(_.contextId === context.id)
                 .filter(_.formId === id)
                 .mustFindOneOr(CouponNotFound(id))
-      form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
+      form ← * <~ ObjectForms.mustFindById404(coupon.formId)
+      code ← CouponCodes
+              .filter(_.couponFormId === form.id)
+              .mustFindOneOr(CouponCodeNotFoundForCoupon(form.id))
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-    } yield CouponResponse.build(context, coupon, form, shadow)
+    } yield CouponResponse.build(context, code.code, coupon, form, shadow)
 
   def archiveByContextAndId(contextName: String, formId: Int)(implicit ec: EC,
-                                                              db: DB): DbResultT[CouponResponse.Root] =
+                                                              db: DB): DbResultT[CouponResponse] =
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
@@ -128,31 +136,14 @@ object CouponManager {
                .mustFindOneOr(NotFoundFailure404(Coupon, formId))
       archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
       form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
-      shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
-    } yield CouponResponse.build(context, archiveResult, form, shadow)
+      code ← CouponCodes
+              .filter(_.couponFormId === form.id)
+              .mustFindOneOr(CouponCodeNotFoundForCoupon(form.id))
+      shadow ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
+    } yield CouponResponse.build(context, code.code, archiveResult, form, shadow)
 
-  def generateCode(id: Int, code: String, admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[String] =
-    for {
-      coupon     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
-      couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))
-      _          ← * <~ LogActivity().singleCouponCodeCreated(coupon, Some(admin))
-    } yield couponCode.code
-
-  def generateCodes(id: Int, payload: GenerateCouponCodes, admin: User)(implicit ec: EC,
-                                                                        db: DB,
-                                                                        ac: AC): DbResultT[Seq[String]] =
-    for {
-      _         ← * <~ validateCouponCodePayload(payload)
-      coupon    ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
-      generated ← * <~ CouponCodes.generateCodes(payload.prefix, payload.length, payload.quantity)
-      unsaved = generated.map { c ⇒
-        CouponCode(couponFormId = id, code = c)
-      }
-      _ ← * <~ CouponCodes.createAll(unsaved)
-      _ ← * <~ LogActivity().multipleCouponCodeCreated(coupon, Some(admin))
-    } yield generated
-
-  def getCodes(id: Int)(implicit ec: EC, db: DB): DbResultT[Seq[CouponCodesResponse.Root]] =
+  // FIXME: should be unused @michalrus @bagratinho
+  def getCodes(id: Int)(implicit ec: EC, db: DB): DbResultT[Seq[CouponCodesResponse]] =
     for {
       _     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
       codes ← * <~ CouponCodes.filter(_.couponFormId === id).result

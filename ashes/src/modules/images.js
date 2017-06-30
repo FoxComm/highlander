@@ -9,37 +9,41 @@ import Api from '../lib/api';
 type Module = {
   reducer: Function;
   actions: any;
-}
+};
 
 export type NewAlbum = {
   name: string;
   images: Array<ImageFile>;
-}
+};
 
 export type Album = NewAlbum & {
   id: number;
-}
+  failedImagesCount?: number, // UI specific stuff
+};
 
 export type FileInfo = {
   id?: number;
   src: string;
   file: File;
   loading: boolean;
-  uploadedAt?: string;
-}
+  failed?: boolean;
+  createdAt?: string;
+};
 
 export type ImageInfo = {
   title: string;
+  src: string;
+  baseUrl?: string;
+  createdAt?: string;
   alt: ?string;
   key?: string;
-  src: string;
-}
+};
 
 export type ImageFile = FileInfo & ImageInfo;
 
 type State = {
   albums: Array<Album>;
-}
+};
 
 const initialState: State = {
   albums: [],
@@ -49,6 +53,8 @@ function actionPath(entity: string, action: string) {
   return `${entity}${_.upperFirst(action)}`;
 }
 
+export const omitAlbumFields = ['failedImagesCount'];
+
 /**
  * Generate module for handling images for given entity
  *
@@ -56,7 +62,7 @@ function actionPath(entity: string, action: string) {
  *
  * @returns {{reducer: (), actions: {}}}
  */
-export default function createImagesModule(entity: string): Module {
+export default function createMediaModule(entity: string): Module {
 
   /** Internal actions */
 
@@ -64,8 +70,8 @@ export default function createImagesModule(entity: string): Module {
   // as images actions performed through album
   const _editImageStarted = createAction(`${entity.toUpperCase()}_EDIT_IMAGE_STARTED`, (...args) => [...args]);
 
-  const _uploadImages = createAsyncActions(
-    actionPath(entity, 'uploadImages'),
+  const _uploadMedia = createAsyncActions(
+    actionPath(entity, 'uploadMedia'),
     (context: string, albumId: string, files: Array<ImageFile>) => {
       const formData = new FormData();
 
@@ -76,7 +82,7 @@ export default function createImagesModule(entity: string): Module {
       return Api
         .post(`/albums/${context}/${albumId}/images`, formData)
         .then(response => {
-          // try to associate not uploaded files with uploaded files
+          // try to associate not uploaded files with uploaded files via clien-gen keys
           const index = _.findIndex(response.images, { title: files[0].title });
           if (index != -1) {
             let filesIndex = 0;
@@ -90,7 +96,15 @@ export default function createImagesModule(entity: string): Module {
           return response;
         });
     },
-    (...args) => [...args]
+    (...args) => [...args],
+    { passthrowError: false }
+  );
+
+  const _uploadMediaByUrl = createAsyncActions(
+    actionPath(entity, 'uploadMediaByUrl'),
+    (context: string, albumId: string, url: string) => {
+      return Api.post(`/albums/default/${albumId}/images/by-url`, { src: url });
+    }
   );
 
   const _fetchAlbums = createAsyncActions(
@@ -114,14 +128,6 @@ export default function createImagesModule(entity: string): Module {
     }
   );
 
-  const _moveAlbum = createAsyncActions(
-    actionPath(entity, 'moveAlbum'),
-    (context: string, entityId: string, albumId: number, position: number) => {
-      return Api.post(`/${entity}/${context}/${entityId}/albums/position`, { albumId, position });
-    },
-    (...args) => [...args]
-  );
-
   const _archiveAlbum = createAsyncActions(
     actionPath(entity, 'archiveAlbum'),
     (context: string, albumId: number) => {
@@ -130,6 +136,11 @@ export default function createImagesModule(entity: string): Module {
   );
 
   /** External actions */
+
+  /**
+   * Clear failedImagesCount for all albums
+   */
+  const clearFailedImagesCount = createAction(`${entity.toUpperCase()}_CLEAR_FAILED_IMAGES_COUNT`);
 
   /**
    * Fetch all available albums for given context/entity
@@ -167,18 +178,6 @@ export default function createImagesModule(entity: string): Module {
   };
 
   /**
-   * Move album to new positionx
-   *
-   * @param {String} context System context
-   * @param {Number} entityId Master entity id
-   * @param {Number} albumId Album id
-   * @param {Number} position New album position index
-   */
-  const moveAlbum = (context: string, entityId: string, albumId: number, position: number) => dispatch => {
-    return dispatch(_moveAlbum.perform(context, entityId, albumId, position));
-  };
-
-  /**
    * Delete album (used w/o entity specification)
    *
    * @param {String} context System context
@@ -195,8 +194,19 @@ export default function createImagesModule(entity: string): Module {
    * @param {Number} albumId Album id
    * @param {ImageFile[]} files Array of image files to upload
    */
-  const uploadImages = (context: string, albumId: number, files: Array<ImageFile>) => dispatch => {
-    return dispatch(_uploadImages.perform(context, albumId, files));
+  const uploadMedia = (context: string, albumId: number, files: Array<ImageFile>) => dispatch => {
+    return dispatch(_uploadMedia.perform(context, albumId, files));
+  };
+
+  const uploadMediaByUrl = _uploadMediaByUrl.perform;
+
+  /**
+   * Clear asyncState errors for both multipart and by-url upload
+   */
+  const clearErrors = () => dispatch => {
+    dispatch(clearFailedImagesCount());
+    dispatch(_uploadMedia.clearErrors());
+    dispatch(_uploadMediaByUrl.clearErrors());
   };
 
   /**
@@ -236,60 +246,81 @@ export default function createImagesModule(entity: string): Module {
 
   /** Reducers */
   const reducer = createReducer({
+    [clearFailedImagesCount]: (state) => {
+      const albums = state.albums.map((album: Album) => assoc(album, 'failedImagesCount', 0));
+
+      return assoc(state, 'albums', albums);
+    },
     [_fetchAlbums.succeeded]: (state: State, response: Array<Album>) => {
       return assoc(state, ['albums'], response);
     },
     [_addAlbum.succeeded]: (state: State, response: Album) => {
-      return assoc(state, ['albums'], [response, ...state.albums]);
+      return assoc(state, ['albums'], [...state.albums, response]);
     },
     [_editAlbum.succeeded]: (state: State, response: Album) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
 
       return assoc(state, ['albums', idx], response);
     },
-    [_moveAlbum.started]: (state: State, [context, entityId, albumId, newPosition]) => {
-      const oldPosition = _.findIndex(state.albums, {id: albumId});
-      const albums = [...state.albums];
-      const albumToMove = albums[oldPosition];
-
-      albums.splice(oldPosition, 1);
-      albums.splice(newPosition, 0, albumToMove);
-
-      return assoc(state, ['albums'], albums);
-    },
     [_archiveAlbum.succeeded]: (state: State) => {
       return assoc(state, ['albums'], state.albums);
     },
-    [_uploadImages.started]: (state: State, [context, albumId, images]) => {
+    [_uploadMedia.started]: (state: State, [context, albumId, images]) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === albumId);
-      const album = get(state, ['albums', idx]);
+      const album = state.albums[idx];
 
       images = images.map((image: ImageFile) => assoc(image, 'loading', true));
 
       return assoc(state, ['albums', idx, 'images'], [...album.images, ...images]);
     },
-    [_uploadImages.succeeded]: (state: State, [response]) => {
+    [_uploadMedia.succeeded]: (state: State, [response]) => {
       const idx = _.findIndex(state.albums, (album: Album) => album.id === response.id);
+
       return assoc(state, ['albums', idx], response);
+    },
+    [_uploadMedia.failed]: (state: State, [response, context, albumId, images]) => {
+      const idx = _.findIndex(state.albums, (album: Album) => album.id === albumId);
+      const album = state.albums[idx];
+      const index = _.findIndex(album.images, { key: images[0].key });
+      const rightIndex = index + images.length;
+      const failedCount = rightIndex - index;
+
+      if (index === -1) {
+        return state;
+      }
+
+      const nextImages = [
+        ...album.images.slice(0, index),
+        ...album.images.slice(rightIndex)
+      ];
+
+      return assoc(state, ['albums', idx, 'images'], nextImages, ['albums', idx, 'failedImagesCount'], failedCount);
+    },
+
+    [_uploadMediaByUrl.succeeded]: (state: State, respAlbum: Album) => {
+      const idx = _.findIndex(state.albums, (album: Album) => album.id === respAlbum.id);
+
+      return assoc(state, ['albums', idx], respAlbum);
     },
 
     [_editImageStarted]: (state, [albumId, imageIndex]) => {
       const albumIndex = _.findIndex(state.albums, (album: Album) => album.id === albumId);
 
       return assoc(state, ['albums', albumIndex, 'images', imageIndex, 'loading'], true);
-    }
+    },
   }, initialState);
 
   return {
     reducer,
     actions: {
-      uploadImages,
+      uploadMedia,
+      uploadMediaByUrl,
+      clearErrors,
       editImage,
       deleteImage,
       fetchAlbums,
       addAlbum,
       editAlbum,
-      moveAlbum,
       archiveAlbum
     }
   };

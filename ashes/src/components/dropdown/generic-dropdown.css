@@ -1,5 +1,11 @@
 @import 'colors.css';
 
+.block {
+  &:focus {
+    outline: none;
+  }
+}
+
 .controls {
   &:hover {
     & .downArrowBtn,

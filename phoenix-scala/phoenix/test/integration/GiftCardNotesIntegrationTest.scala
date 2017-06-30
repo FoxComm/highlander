@@ -4,8 +4,8 @@ import core.failures.NotFoundFailure404
 import phoenix.models._
 import phoenix.models.payment.giftcard._
 import phoenix.payloads.NotePayloads._
-import phoenix.responses.AdminNotes
-import phoenix.responses.AdminNotes.Root
+import phoenix.responses.AdminNoteResponse
+import phoenix.responses.AdminNoteResponse
 import phoenix.utils.seeds.Factories
 import phoenix.utils.time.RichInstant
 import testutils._
@@ -22,7 +22,7 @@ class GiftCardNotesIntegrationTest
 
   "POST /v1/notes/gift-card/:code" - {
     "can be created by an admin for a gift card" in new Fixture {
-      val note = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo")).as[Root]
+      val note = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo")).as[AdminNoteResponse]
       note.body must === ("foo")
       note.author.name.value must === (defaultAdmin.name.value)
       note.author.email.value must === (defaultAdmin.email.value)
@@ -55,7 +55,7 @@ class GiftCardNotesIntegrationTest
       notesApi
         .giftCard(giftCard.code)
         .get()
-        .as[Seq[Root]]
+        .as[Seq[AdminNoteResponse]]
         .map(_.body) must contain theSameElementsAs bodies
     }
   }
@@ -63,13 +63,13 @@ class GiftCardNotesIntegrationTest
   "PATCH /v1/notes/gift-card/:code/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val note = notesApi.giftCard(giftCard.code).create(CreateNote("foo")).as[AdminNotes.Root]
+      val note = notesApi.giftCard(giftCard.code).create(CreateNote("foo")).as[AdminNoteResponse]
 
       notesApi
         .giftCard(giftCard.code)
         .note(note.id)
         .update(UpdateNote(body = "donkey"))
-        .as[Root]
+        .as[AdminNoteResponse]
         .body must === ("donkey")
     }
   }
@@ -77,7 +77,7 @@ class GiftCardNotesIntegrationTest
   "DELETE /v1/notes/gift-card/:code/:noteId" - {
 
     "can soft delete note" in new Fixture {
-      val note = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo")).as[Root]
+      val note = notesApi.giftCard(giftCard.code).create(CreateNote(body = "foo")).as[AdminNoteResponse]
 
       notesApi.giftCard(giftCard.code).note(note.id).delete().mustBeEmpty()
 
@@ -88,7 +88,7 @@ class GiftCardNotesIntegrationTest
         updatedNote.deletedAt.value.isBeforeNow must === (true)
       }
 
-      val allNotes = notesApi.giftCard(giftCard.code).get().as[Seq[Root]]
+      val allNotes = notesApi.giftCard(giftCard.code).get().as[Seq[AdminNoteResponse]]
       allNotes.map(_.id) must not contain note.id
     }
   }

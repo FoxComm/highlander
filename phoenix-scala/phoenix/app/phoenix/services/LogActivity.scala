@@ -29,7 +29,7 @@ import phoenix.payloads.ReturnPayloads.{ReturnShippingCostLineItemPayload, Retur
 import phoenix.payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import phoenix.responses.CategoryResponses.FullCategoryResponse
 import phoenix.responses.CouponResponses.CouponResponse
-import phoenix.responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
+import phoenix.responses.CreditCardNoAddressResponse.{build ⇒ buildCc}
 import phoenix.responses.ProductResponses.ProductResponse
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
@@ -361,7 +361,7 @@ class LogActivity(val ac: AC) extends AnyVal {
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(
       CartPaymentMethodAddedCreditCard(cart,
-                                       CreditCardsResponse.build(cc, region),
+                                       CreditCardResponse.build(cc, region),
                                        buildOriginator(originator)))
 
   def orderPaymentMethodAddedGc(originator: User, cart: CartResponse, gc: GiftCard, amount: Long)(
@@ -428,10 +428,10 @@ class LogActivity(val ac: AC) extends AnyVal {
     Activities.log(CartCouponDetached(cart))
 
   /* Returns */
-  def returnCreated(admin: User, rma: ReturnResponse.Root)(implicit ec: EC): DbResultT[Activity] =
+  def returnCreated(admin: User, rma: ReturnResponse)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnCreated(UserResponse.build(admin), rma))
 
-  def returnStateChanged(admin: User, rma: ReturnResponse.Root, oldState: State)(
+  def returnStateChanged(admin: User, rma: ReturnResponse, oldState: State)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnStateChanged(UserResponse.build(admin), rma, oldState))
 
@@ -454,10 +454,10 @@ class LogActivity(val ac: AC) extends AnyVal {
   def returnSkuLineItemsDropped(skus: List[ReturnLineItemSku])(implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnSkuLineItemsDropped(skus))
 
-  def returnPaymentsAdded(rma: ReturnResponse.Root, payments: List[PaymentMethod.Type])(
+  def returnPaymentsAdded(rma: ReturnResponse, payments: List[PaymentMethod.Type])(
       implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnPaymentsAdded(rma, payments))
 
-  def returnPaymentsDeleted(rma: ReturnResponse.Root, payments: List[PaymentMethod.Type])(
+  def returnPaymentsDeleted(rma: ReturnResponse, payments: List[PaymentMethod.Type])(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnPaymentsDeleted(rma, payments))
 
@@ -475,31 +475,31 @@ class LogActivity(val ac: AC) extends AnyVal {
 
   /* Categories */
   def fullCategoryCreated(admin: Option[User],
-                          category: FullCategoryResponse.Root,
-                          context: ObjectContextResponse.Root)(implicit ec: EC): DbResultT[Activity] =
+                          category: FullCategoryResponse,
+                          context: ObjectContextResponse)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(FullCategoryCreated(admin.map(UserResponse.build), category, context))
 
   def fullCategoryUpdated(admin: Option[User],
-                          category: FullCategoryResponse.Root,
-                          context: ObjectContextResponse.Root)(implicit ec: EC): DbResultT[Activity] =
+                          category: FullCategoryResponse,
+                          context: ObjectContextResponse)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(FullCategoryUpdated(admin.map(UserResponse.build), category, context))
 
   /* Catalogs */
   def catalogCreated(
       admin: User,
-      catalog: CatalogResponse.Root
+      catalog: CatalogResponse
   )(implicit ec: EC): DbResultT[Activity] =
     Activities.log(CatalogCreated(UserResponse.build(admin), catalog))
 
   def catalogUpdated(
       admin: User,
-      catalog: CatalogResponse.Root
+      catalog: CatalogResponse
   )(implicit ec: EC): DbResultT[Activity] =
     Activities.log(CatalogUpdated(UserResponse.build(admin), catalog))
 
   def productsAddedToCatalog(
       admin: User,
-      catalog: CatalogResponse.Root,
+      catalog: CatalogResponse,
       productIds: Seq[Int]
   )(implicit ec: EC): DbResultT[Activity] =
     Activities.log(ProductsAddedToCatalog(UserResponse.build(admin), catalog, productIds))
@@ -512,48 +512,38 @@ class LogActivity(val ac: AC) extends AnyVal {
     Activities.log(ProductRemovedFromCatalog(UserResponse.build(admin), catalogId, productId))
 
   /* Products */
-  def fullProductCreated(admin: Option[User],
-                         product: ProductResponse.Root,
-                         context: ObjectContextResponse.Root)(implicit ec: EC): DbResultT[Activity] =
+  def fullProductCreated(admin: Option[User], product: ProductResponse, context: ObjectContextResponse)(
+      implicit ec: EC): DbResultT[Activity] =
     Activities.log(FullProductCreated(admin.map(UserResponse.build), product, context))
 
-  def fullProductUpdated(admin: Option[User],
-                         product: ProductResponse.Root,
-                         context: ObjectContextResponse.Root)(implicit ec: EC): DbResultT[Activity] =
+  def fullProductUpdated(admin: Option[User], product: ProductResponse, context: ObjectContextResponse)(
+      implicit ec: EC): DbResultT[Activity] =
     Activities.log(FullProductUpdated(admin.map(UserResponse.build), product, context))
 
   /* SKUs */
-  def fullSkuCreated(admin: Option[User], product: SkuResponse.Root, context: ObjectContextResponse.Root)(
+  def fullSkuCreated(admin: Option[User], product: SkuResponse, context: ObjectContextResponse)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(FullSkuCreated(admin.map(UserResponse.build), product, context))
 
-  def fullSkuUpdated(admin: Option[User], product: SkuResponse.Root, context: ObjectContextResponse.Root)(
+  def fullSkuUpdated(admin: Option[User], product: SkuResponse, context: ObjectContextResponse)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(FullSkuUpdated(admin.map(UserResponse.build), product, context))
 
   /* Promotions */
-  def promotionCreated(promotionResponse: PromotionResponse.Root, admin: Option[User])(
+  def promotionCreated(promotionResponse: PromotionResponse, admin: Option[User])(
       implicit ec: EC): DbResultT[Activity] =
-    Activities.log(PromotionCreated(promotionResponse, admin.map(UserResponse.build(_))))
+    Activities.log(PromotionCreated(promotionResponse, admin.map(UserResponse.build)))
 
-  def promotionUpdated(promotionResponse: PromotionResponse.Root, admin: Option[User])(
+  def promotionUpdated(promotionResponse: PromotionResponse, admin: Option[User])(
       implicit ec: EC): DbResultT[Activity] =
-    Activities.log(PromotionUpdated(promotionResponse, admin.map(UserResponse.build(_))))
+    Activities.log(PromotionUpdated(promotionResponse, admin.map(UserResponse.build)))
 
   /* Coupons */
-  def couponCreated(couponResponse: CouponResponse.Root, admin: Option[User])(
-      implicit ec: EC): DbResultT[Activity] =
-    Activities.log(CouponCreated(couponResponse, admin.map(UserResponse.build(_))))
-
-  def couponUpdated(couponResponse: CouponResponse.Root, admin: Option[User])(
-      implicit ec: EC): DbResultT[Activity] =
-    Activities.log(CouponUpdated(couponResponse, admin.map(UserResponse.build(_))))
-
   def singleCouponCodeCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
-    Activities.log(SingleCouponCodeGenerated(coupon, admin.map(UserResponse.build(_))))
+    Activities.log(SingleCouponCodeGenerated(coupon, admin.map(UserResponse.build)))
 
-  def multipleCouponCodeCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
-    Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(UserResponse.build(_))))
+  def multipleCouponCodesCreated(coupon: Coupon, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(MultipleCouponCodesGenerated(coupon, admin.map(UserResponse.build)))
 
   /* Store Admin */
   def storeAdminCreated(entity: User, admin: Option[User], code: Option[String])(

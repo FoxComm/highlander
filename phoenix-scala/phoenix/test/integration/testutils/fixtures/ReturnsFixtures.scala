@@ -104,50 +104,50 @@ trait ReturnsFixtures
   trait ReturnFixture {
     def createReturn(orderRef: String, returnType: Return.ReturnType = Return.Standard)(
         implicit sl: SL,
-        sf: SF): ReturnResponse.Root =
+        sf: SF): ReturnResponse =
       returnsApi
         .create(ReturnCreatePayload(orderRef, returnType))(defaultAdminAuth)
-        .as[ReturnResponse.Root]
+        .as[ReturnResponse]
 
     def updateReturnState(refNum: String, returnState: Return.State, reasonId: Option[Int] = None)(
         implicit sl: SL,
-        sf: SF): ReturnResponse.Root =
+        sf: SF): ReturnResponse =
       returnsApi(refNum)
         .update(ReturnUpdateStatePayload(returnState, reasonId))(defaultAdminAuth)
-        .as[ReturnResponse.Root]
+        .as[ReturnResponse]
 
-    def completeReturn(refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root = {
+    def completeReturn(refNum: String)(implicit sl: SL, sf: SF): ReturnResponse = {
       val happyPath =
         NonEmptyList.fromListUnsafe(List(Return.Pending, Return.Processing, Return.Review, Return.Complete))
 
-      transitionEntity(happyPath, returnsApi(refNum).get()(defaultAdminAuth).as[ReturnResponse.Root].some)(
+      transitionEntity(happyPath, returnsApi(refNum).get()(defaultAdminAuth).as[ReturnResponse].some)(
         _.state)(state ⇒ updateReturnState(refNum = refNum, returnState = state))
     }
   }
 
   trait ReturnDefaults extends ReturnFixture with OrderDefaults {
-    val rma: ReturnResponse.Root = createReturn(order.referenceNumber)
+    val rma: ReturnResponse = createReturn(order.referenceNumber)
   }
 
   trait ReturnReasonFixture extends ReturnFixture {
-    def createReturnReason(name: String)(implicit sl: SL, sf: SF): ReturnReasonsResponse.Root =
+    def createReturnReason(name: String)(implicit sl: SL, sf: SF): ReturnReasonsResponse =
       returnsApi.reasons
         .add(ReturnReasonPayload(name))(defaultAdminAuth)
-        .as[ReturnReasonsResponse.Root]
+        .as[ReturnReasonsResponse]
   }
 
   trait ReturnReasonDefaults extends ReturnReasonFixture {
-    val returnReason: ReturnReasonsResponse.Root = createReturnReason("whatever")
+    val returnReason: ReturnReasonsResponse = createReturnReason("whatever")
   }
 
   trait ReturnLineItemFixture extends ReturnReasonFixture {
     def createReturnLineItem(payload: ReturnLineItemPayload, refNum: String)(implicit sl: SL,
-                                                                             sf: SF): ReturnResponse.Root =
-      returnsApi(refNum).lineItems.add(payload)(defaultAdminAuth).as[ReturnResponse.Root]
+                                                                             sf: SF): ReturnResponse =
+      returnsApi(refNum).lineItems.add(payload)(defaultAdminAuth).as[ReturnResponse]
 
     def createReturnSkuLineItems(payloads: List[ReturnSkuLineItemPayload],
-                                 refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
-      returnsApi(refNum).lineItems.addOrReplace(payloads)(defaultAdminAuth).as[ReturnResponse.Root]
+                                 refNum: String)(implicit sl: SL, sf: SF): ReturnResponse =
+      returnsApi(refNum).lineItems.addOrReplace(payloads)(defaultAdminAuth).as[ReturnResponse]
   }
 
   trait ReturnLineItemDefaults extends ReturnLineItemFixture with ReturnReasonDefaults with ReturnDefaults {
@@ -165,17 +165,17 @@ trait ReturnsFixtures
 
   trait ReturnPaymentFixture extends ReturnLineItemFixture {
     def createReturnPayments(payments: Map[PaymentMethod.Type, Long],
-                             refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
+                             refNum: String)(implicit sl: SL, sf: SF): ReturnResponse =
       returnsApi(refNum).paymentMethods
         .addOrReplace(ReturnPaymentsPayload(payments))(defaultAdminAuth)
-        .as[ReturnResponse.Root]
+        .as[ReturnResponse]
 
     def createReturnPayment(payment: PaymentMethod.Type, amount: Long, refNum: String)(
         implicit sl: SL,
-        sf: SF): ReturnResponse.Root =
+        sf: SF): ReturnResponse =
       returnsApi(refNum).paymentMethods
         .add(payment, ReturnPaymentPayload(amount))(defaultAdminAuth)
-        .as[ReturnResponse.Root]
+        .as[ReturnResponse]
 
     val paymentMethodTable =
       Table("paymentMethod", PaymentMethod.CreditCard, PaymentMethod.GiftCard, PaymentMethod.StoreCredit)
