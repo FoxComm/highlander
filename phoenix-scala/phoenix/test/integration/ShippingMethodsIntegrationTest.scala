@@ -184,7 +184,7 @@ class ShippingMethodsIntegrationTest
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       address ← * <~ Addresses.create(
                  Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
+      shipAddress ← * <~ OrderShippingAddresses.createFromAddress(address = address, cordRef = cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))

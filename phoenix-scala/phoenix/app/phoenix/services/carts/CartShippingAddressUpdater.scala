@@ -14,6 +14,8 @@ import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
 import core.db._
+import cats.implicits._
+import OrderShippingAddresses.scope._
 
 object CartShippingAddressUpdater {
 
@@ -22,6 +24,13 @@ object CartShippingAddressUpdater {
 
   def mustFindShipAddressForCart(cart: Cart)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderRef(cart.refNum).mustFindOneOr(NoShipAddress(cart.refNum))
+
+  private def createShippingAddress(cart: Cart, payload: CreateAddressPayload)(
+      implicit ec: EC): DbResultT[(OrderShippingAddress, Address)] =
+    for {
+      newAddress      ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
+      shippingAddress ← * <~ OrderShippingAddresses.createFromAddress(newAddress, cart.refNum)
+    } yield (shippingAddress, newAddress)
 
   def createShippingAddressFromAddressId(originator: User, addressId: Int, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -34,7 +43,7 @@ object CartShippingAddressUpdater {
       _         ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
       (address, _) = addAndReg
       _           ← * <~ address.mustBelongToAccount(cart.accountId)
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, cart.refNum)
+      shipAddress ← * <~ OrderShippingAddresses.createFromAddress(address, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(cart).validate()
       response    ← * <~ CartResponse.buildRefreshed(cart)
@@ -53,7 +62,7 @@ object CartShippingAddressUpdater {
       cart        ← * <~ getCartByOriginator(originator, refNum)
       newAddress  ← * <~ Addresses.create(Address.fromPayload(payload, cart.accountId))
       _           ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).delete
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, cart.refNum)
+      shipAddress ← * <~ OrderShippingAddresses.createFromAddress(newAddress, cart.refNum)
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(cart).validate()
       response    ← * <~ CartResponse.buildRefreshed(cart)
@@ -78,6 +87,40 @@ object CartShippingAddressUpdater {
       response  ← * <~ CartResponse.buildRefreshed(cart)
       _ ← * <~ LogActivity()
            .orderShippingAddressUpdated(originator, response, buildFromOrder(shipAddress, region))
+    } yield TheResponse.validated(response, validated)
+
+  // FIXME !!! @aafa
+  def createOrUpdateShippingAddress(originator: User,
+                                    payload: CreateAddressPayload,
+                                    refNum: Option[String] = None)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+    for {
+      cart ← * <~ getCartByOriginator(originator, refNum)
+
+      shippingTuple ← * <~ OrderShippingAddresses
+                       .findByOrderRef(cart.refNum)
+                       .withCustomerAddress(cart.accountId)
+                       .one
+                       .findOrCreateExtended(createShippingAddress(cart, payload))
+
+      ((shippingAddress, address), foundOrCreated) = shippingTuple
+
+      _ ← * <~ doOrMeh(
+           foundOrCreated == Found,
+           for {
+             _ ← * <~ Addresses.update(address, Address.fromPayload(payload, cart.accountId))
+           } yield DbResultT.unit
+         )
+
+      region    ← * <~ Regions.mustFindById404(shippingAddress.regionId)
+      validated ← * <~ CartValidator(cart).validate()
+      response  ← * <~ CartResponse.buildRefreshed(cart)
+      _ ← * <~ LogActivity().orderShippingAddressUpdated(originator,
+                                                         response,
+                                                         buildFromOrder(shippingAddress, region))
     } yield TheResponse.validated(response, validated)
 
   def removeShippingAddress(originator: User, refNum: Option[String] = None)(

@@ -147,7 +147,7 @@ class CartValidatorIntegrationTest
   trait ShippingMethodFixture extends EmptyCustomerCart_Baked {
     val (shipMethod) = (for {
       address    ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId, regionId = 4129))
-      _          ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
+      _          ← * <~ OrderShippingAddresses.createFromAddress(address = address, cordRef = cart.refNum)
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
     } yield shipMethod).gimme
     val refNum = cart.refNum

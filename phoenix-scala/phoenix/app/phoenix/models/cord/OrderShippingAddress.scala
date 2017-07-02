@@ -87,7 +87,7 @@ object OrderShippingAddresses
 
   import scope._
 
-  def copyFromAddress(address: Address, cordRef: String)(implicit ec: EC): DbResultT[OrderShippingAddress] =
+  def createFromAddress(address: Address, cordRef: String)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     create(OrderShippingAddress.buildFromAddress(address).copy(cordRef = cordRef))
 
   def findByOrderRef(cordRef: String): QuerySeq =
@@ -106,6 +106,14 @@ object OrderShippingAddresses
           shippingAddresses ← q
           regions           ← Regions if regions.id === shippingAddresses.regionId
         } yield (shippingAddresses, regions)
+
+      def withCustomerAddress(
+          accountId: Int): Query[(OrderShippingAddresses, Addresses), (OrderShippingAddress, Address), Seq] =
+        for {
+          shippingAddresses ← q
+          adr               ← Addresses
+          if adr.accountId === accountId && adr.address1 === shippingAddresses.address1 && adr.name === shippingAddresses.name
+        } yield (shippingAddresses, adr) // FIXME when we have fk to Address @aafa
     }
   }
 }

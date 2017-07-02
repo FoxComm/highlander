@@ -153,6 +153,11 @@ object CartRoutes {
                                                                               Some(refNum))
                 }
               } ~
+              (put & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
+                mutateOrFailures {
+                  CartShippingAddressUpdater.createOrUpdateShippingAddress(auth.model, payload, Some(refNum))
+                }
+              } ~
               (delete & pathEnd) {
                 mutateOrFailures {
                   CartShippingAddressUpdater.removeShippingAddress(auth.model, Some(refNum))

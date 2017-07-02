@@ -336,17 +336,17 @@ package object db {
 
   implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
 
-    def findOrCreate(r: DbResultT[R])(implicit ec: EC): DbResultT[R] =
+    def findOrCreate(createAction: ⇒ DbResultT[R])(implicit ec: EC): DbResultT[R] =
       dbio.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good(model)
-        case None        ⇒ r
+        case None        ⇒ createAction
       }
 
     // Last item in tuple determines if cart was created or not
-    def findOrCreateExtended(r: DbResultT[R])(implicit ec: EC): DbResultT[(R, FoundOrCreated)] =
+    def findOrCreateExtended(createAction: ⇒ DbResultT[R])(implicit ec: EC): DbResultT[(R, FoundOrCreated)] =
       dbio.dbresult.flatMap {
         case Some(model) ⇒ DbResultT.good((model, Found))
-        case _           ⇒ r.map(result ⇒ (result, Created))
+        case _           ⇒ createAction.map(result ⇒ (result, Created))
       }
 
     def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] =

@@ -246,7 +246,7 @@ class AddressesIntegrationTest
   trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked
 
   trait NoDefaultAddressFixture extends CustomerAddress_Baked with EmptyCustomerCart_Baked {
-    val shippingAddress = OrderShippingAddresses.copyFromAddress(address, cart.refNum).gimme
+    val shippingAddress = OrderShippingAddresses.createFromAddress(address, cart.refNum).gimme
   }
 
   trait AddressFixture {
