@@ -52,7 +52,7 @@ object PaymentHelper {
                                                 apis: Apis,
                                                 ac: AC): DbResultT[Long] =
     if (payments.isEmpty) {
-      DbResultT.pure(0L)
+      0L.pure[DbResultT]
     } else {
 
       val amounts: Seq[Long] = payments.map { case (payment, _) ⇒ payment.getAmount() }
@@ -195,6 +195,7 @@ object Checkout {
 }
 
 class ExternalCalls {
+  // FIXME: have mercy… @michalrus
   @volatile var authPaymentsSuccess: Boolean    = false
   @volatile var middleWarehouseSuccess: Boolean = false
 }
@@ -240,11 +241,11 @@ case class Checkout(
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
       skusToHold           ← * <~ inventoryTrackedSkus.map(sku ⇒ SkuInventoryHold(sku.code, sku.qty))
-      _ ← * <~ doOrMeh(skusToHold.nonEmpty,
-                       DbResultT.fromResult(
-                         apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
-      mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty
-    } yield {}
+      _ ← * <~ when(skusToHold.nonEmpty,
+                    DbResultT.fromResult(
+                      apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
+      mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty // FIXME: I almost removed that, having read `==` here. Please, don’t… @michalrus
+    } yield ()
 
   private def filterInventoryTrackingSkus(skus: Map[String, Int]) =
     for {
@@ -273,9 +274,9 @@ case class Checkout(
     for {
       maybePromo ← * <~ OrderPromotions.filterByCordRef(cart.refNum).one
       maybeCodeId = maybePromo.flatMap(_.couponCodeId)
-      _ ← * <~ maybePromo.fold(DbResultT.unit)(promotionMustBeActive)
-      _ ← * <~ maybeCodeId.fold(DbResultT.unit)(couponMustBeApplicable)
-    } yield {}
+      _ ← * <~ maybePromo.fold(().pure[DbResultT])(promotionMustBeActive)
+      _ ← * <~ maybeCodeId.fold(().pure[DbResultT])(couponMustBeApplicable)
+    } yield ()
 
   private def promotionMustBeActive(orderPromotion: OrderPromotion)(implicit ctx: OC): DbResultT[Unit] =
     for {
@@ -286,11 +287,11 @@ case class Checkout(
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
       _ ← * <~ promoObject.mustBeActive
-    } yield {}
+    } yield ()
 
   private def couponMustBeApplicable(codeId: Int)(implicit ctx: OC): DbResultT[Unit] =
     for {
-      couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
+      couponCode ← * <~ CouponCodes.findById(codeId).extract.one.unsafeGet
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
                 .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
@@ -299,7 +300,7 @@ case class Checkout(
       couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       _ ← * <~ couponObject.mustBeActive
       _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.accountId)
-    } yield {}
+    } yield ()
 
   private def updateCouponCountersForPromotion(customer: User)(implicit ctx: OC): DbResultT[Unit] =
     for {
@@ -307,7 +308,7 @@ case class Checkout(
       _ ← * <~ maybePromo.map { promo ⇒
            CouponUsageService.updateUsageCounts(promo.couponCodeId, customer)
          }
-    } yield {}
+    } yield ()
 
   private def authPayments(customer: User): DbResultT[Unit] =
     for {
@@ -331,16 +332,16 @@ case class Checkout(
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
-      _ ← * <~ doOrMeh(scTotal > 0, LogActivity().scFundsAuthorized(customer, cart, scIds, scTotal))
-      _ ← * <~ doOrMeh(gcTotal > 0, LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
+      _ ← * <~ when(scTotal > 0, LogActivity().scFundsAuthorized(customer, cart, scIds, scTotal).void)
+      _ ← * <~ when(gcTotal > 0, LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal).void)
 
       grandTotal       = cart.grandTotal
       internalPayments = gcTotal + scTotal
-      _ ← * <~ doOrMeh(grandTotal > internalPayments, // run external payments only if we have to pay more
-                       doExternalPayment(grandTotal - internalPayments))
+      _ ← * <~ when(grandTotal > internalPayments, // run external payments only if we have to pay more
+                    doExternalPayment(grandTotal - internalPayments).void)
 
       mutatingResult = externalCalls.authPaymentsSuccess = true // fixme is this flag used anywhere? @aafa
-    } yield {}
+    } yield ()
 
   private def doExternalPayment(authAmount: Long): DbResultT[Unit] = {
     require(authAmount > 0)
@@ -360,7 +361,7 @@ case class Checkout(
     orderPayment.paymentMethodType match {
       case PaymentMethod.ApplePay   ⇒ authApplePay(authAmount, orderPayment)
       case PaymentMethod.CreditCard ⇒ authCreditCard(authAmount, orderPayment)
-      case _                        ⇒ DbResultT.unit
+      case _                        ⇒ ().pure[DbResultT]
     }
 
   private def authCreditCard(authAmount: Long, orderPayment: OrderPayment): DbResultT[Unit] =

@@ -1,5 +1,6 @@
 package utils
 
+import cats.implicits._
 import core.failures.{DatabaseFailure, Failures, GeneralFailure}
 import phoenix.failures.StateTransitionNotAllowed
 import phoenix.models.account._
@@ -65,12 +66,12 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val customer = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       val success  = "Success"
       val failure  = (_: User#Id) ⇒ GeneralFailure("Should not happen")
-      val delete   = Users.deleteById(customer.id, DbResultT.good(success), failure).gimme
+      val delete   = Users.deleteById(customer.id, success.pure[DbResultT], failure).gimme
       delete must === (success)
     }
 
     "returns failure for unsuccessful delete" in {
-      val success = DbResultT.good("Should not happen")
+      val success = "Should not happen".pure[DbResultT]
       val failure = (_: User#Id) ⇒ GeneralFailure("Boom")
       val delete  = Users.deleteById(13, success, failure).gimmeFailures
       delete must === (failure(13).single)

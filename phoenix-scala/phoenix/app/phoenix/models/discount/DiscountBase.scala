@@ -3,6 +3,7 @@ package phoenix.models.discount
 /**
   * Methods, used across offers and qualifiers
   */
+// FIXME: subtyping (except for ADT/typeclass encoding) is a pretty radical method of solving problems… @michalrus
 trait DiscountBase {
 
   def unitsByProducts(lineItems: Seq[DqLineItem], productIds: Seq[String]): Int =

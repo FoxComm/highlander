@@ -96,7 +96,7 @@ object ImageManager {
                 case Some(imagesPayload) ⇒
                   createImagesForAlbum(album.model, imagesPayload, context)
                 case None ⇒
-                  DbResultT.good(Seq.empty)
+                  Seq.empty.pure[DbResultT]
               })
     } yield (album, images)
 
@@ -290,7 +290,7 @@ object ImageManager {
   def getFirstImageForAlbum(album: Album)(implicit ec: EC, db: DB): DbResultT[Option[String]] =
     for {
       imageLink ← * <~ AlbumImageLinks.filterLeft(album).sortBy(_.position).one.dbresult
-      src ← * <~ imageLink.fold(DbResultT.none[String]) { link ⇒
+      src ← * <~ imageLink.flatTraverse { link ⇒
              for {
                fullImage ← * <~ ObjectManager.getFullObject(Images.mustFindById404(link.rightId))
              } yield

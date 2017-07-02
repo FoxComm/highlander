@@ -1,5 +1,6 @@
 package phoenix.models.activity
 
+import cats.implicits._
 import cats.data.ValidatedNel
 import core.db.ExPostgresDriver.api._
 import core.db._
@@ -58,7 +59,7 @@ object Dimensions
 
   def findOrCreateByName(name: String)(implicit ec: EC): DbResultT[Dimension] =
     findByName(name).one.dbresult.flatMap {
-      case Some(dimension) ⇒ DbResultT.good(dimension)
+      case Some(dimension) ⇒ dimension.pure[DbResultT]
       case None            ⇒ create(Dimension(name = name, description = name.capitalize))
     }
 }

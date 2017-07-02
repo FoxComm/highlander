@@ -121,7 +121,7 @@ object ReturnPaymentManager {
                                                   amount = ccAmount,
                                                   maxAmount = maxCCAmount))
         } yield ()
-      else DbResultT.pure(())
+      else ().pure[DbResultT]
     }
 
     for {
@@ -237,19 +237,20 @@ object ReturnPaymentManager {
       updated           ← * <~ Returns.refresh(rma)
       response          ← * <~ ReturnResponse.fromRma(rma)
 
-      _ ← * <~ doOrMeh(paymentWasDeleted, LogActivity().returnPaymentsDeleted(response, List(paymentMethod)))
+      _ ← * <~ when(paymentWasDeleted,
+                    LogActivity().returnPaymentsDeleted(response, List(paymentMethod)).void)
     } yield response
 
   private def deletePayments(
       rma: Return,
       payments: List[PaymentMethod.Type])(implicit ec: EC, db: DB, ac: AC): DbResultT[ReturnResponse] =
     for {
-      deleted ← * <~ payments.map(pmt ⇒ processDeletePayment(rma.id, pmt).product(DbResultT.pure(pmt)))
+      deleted ← * <~ payments.map(pmt ⇒ processDeletePayment(rma.id, pmt).product(pmt.pure[DbResultT]))
       deletedPayments = deleted.collect { case (true, pmt) ⇒ pmt }
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
-      _ ← * <~ doOrMeh(deletedPayments.nonEmpty,
-                       LogActivity().returnPaymentsDeleted(response, deletedPayments))
+      _ ← * <~ when(deletedPayments.nonEmpty,
+                    LogActivity().returnPaymentsDeleted(response, deletedPayments).void)
     } yield response
 
   private def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(

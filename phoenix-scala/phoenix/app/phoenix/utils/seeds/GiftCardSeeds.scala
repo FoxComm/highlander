@@ -23,7 +23,7 @@ trait GiftCardSeeds {
   def insertCords: DbResultT[Unit] =
     for {
       _ ← * <~ Cords.create(Cord(1, "referenceNumber", true))
-    } yield {}
+    } yield ()
 
   def createGiftCards(implicit au: AU): DbResultT[Unit] =
     for {
@@ -40,7 +40,7 @@ trait GiftCardSeeds {
            build(payload(balance = 10000, reasonId = reason.id), originId = origin.id, scope = scope))
       _ ← * <~ Notes.createAll(
            giftCardNotes.map(_.copy(referenceId = gc1.id, storeAdminId = admin.accountId)))
-    } yield {}
+    } yield ()
 
   def giftCardSubTypes: Seq[GiftCardSubtype] = Seq(
     GiftCardSubtype(title = "Appeasement Subtype A", originType = GiftCard.CsrAppeasement),

@@ -1,5 +1,6 @@
 package phoenix.services
 
+import cats.implicits._
 import core.db._
 import core.failures._
 import de.heikoseeberger.akkasse.scaladsl.model.{ServerSentEvent ⇒ SSE}
@@ -102,15 +103,16 @@ object NotificationManager {
       implicit ec: EC): DbResultT[Unit] =
     for {
       d ← * <~ Dimensions.findByName(dimension).one
-      _ ← * <~ d.fold(DbResultT.unit) { dimension ⇒
+      _ ← * <~ d.fold(().pure[DbResultT]) { dimension ⇒
            Subs
              .filter(_.dimensionId === dimension.id)
              .filter(_.adminId.inSet(adminIds))
              .filter(_.objectId.inSet(objectIds))
              .filter(_.reason === reason)
-             .deleteAll(onSuccess = DbResultT.unit, onFailure = DbResultT.unit)
+             .deleteAll
+             .void
          }
-    } yield {}
+    } yield ()
 
   private def dimensionIdByName(name: String)(implicit ec: EC) =
     Dimensions.findByName(name).map(_.id).mustFindOneOr(NotFoundFailure400(Dimension, name))

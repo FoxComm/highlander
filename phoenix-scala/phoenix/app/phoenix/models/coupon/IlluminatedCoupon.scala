@@ -20,6 +20,7 @@ case class IlluminatedCoupon(id: Int, context: IlluminatedContext, attributes: J
 
   implicit val formats = JsonFormatters.phoenixFormats
 
+  // FIXME: duplicated code with IlluminatedModel? @michalrus
   def mustBeActive: Either[Failures, IlluminatedCoupon] = {
     val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
     val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
@@ -58,7 +59,7 @@ case class IlluminatedCoupon(id: Int, context: IlluminatedContext, attributes: J
           .couponMustBeUsable(id, accountId, rules.usesPerCustomer.getOrElse(0), code.code)
 
       case Some(rules) if rules.isUnlimitedPerCode && rules.isUnlimitedPerCustomer ⇒
-        DbResultT.unit
+        ().pure[DbResultT]
 
       case _ ⇒
         DbResultT.failure(CouponUsageRulesAreEmpty(code.code))

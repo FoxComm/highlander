@@ -59,6 +59,6 @@ object ProductReviewManager {
     for {
       review   ← * <~ ProductReviews.mustFindById404(reviewId)
       archived ← * <~ ProductReviews.update(review, review.copy(archivedAt = Some(Instant.now)))
-    } yield {}
+    } yield ()
 
 }

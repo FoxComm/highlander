@@ -1,5 +1,6 @@
 package phoenix.services.coupon
 
+import cats.implicits._
 import objectframework.models.{ObjectContexts, ObjectForms}
 import phoenix.failures.CouponFailures._
 import phoenix.models.account.User
@@ -26,7 +27,7 @@ object CouponUsageService {
     for {
       count ← * <~ couponCodeUsageCount(couponFormId, couponCodeId)
       _     ← * <~ failIf(usesAvailable <= count, CouponCodeCannotBeUsedAnymore(code))
-    } yield {}
+    } yield ()
 
   def couponMustBeUsable(couponFormId: Int, accountId: Int, usesAvailable: Int, code: String)(
       implicit ec: EC,
@@ -34,7 +35,7 @@ object CouponUsageService {
     for {
       count ← * <~ couponUsageCount(couponFormId, accountId)
       _     ← * <~ failIf(usesAvailable <= count, CouponCodeCannotBeUsedByCustomerAnymore(code, accountId))
-    } yield {}
+    } yield ()
 
   def mustBeUsableByCustomer(couponFormId: Int,
                              couponCodeId: Int,
@@ -45,14 +46,14 @@ object CouponUsageService {
     for {
       _ ← * <~ couponCodeMustBeUsable(couponFormId, couponCodeId, usesAvailableForCustomer, couponCode)
       _ ← * <~ couponMustBeUsable(couponFormId, accountId, usesAvailableForCustomer, couponCode)
-    } yield {}
+    } yield ()
 
   def updateUsageCounts(couponCodeId: Option[Int],
                         customer: User)(implicit ec: EC, db: DB, ctx: OC): DbResultT[Unit] =
     couponCodeId match {
       case Some(codeId) ⇒
         for {
-          couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
+          couponCode ← * <~ CouponCodes.findById(codeId).extract.one.unsafeGet
           context    ← * <~ ObjectContexts.mustFindById400(ctx.id)
           code       ← * <~ CouponCodes.mustFindById400(codeId)
           coupon ← * <~ Coupons
@@ -87,8 +88,8 @@ object CouponUsageService {
           _ ← * <~ CouponCustomerUsages.update(
                couponUsageByCustomer,
                couponUsageByCustomer.copy(count = couponUsageByCustomer.count + 1))
-        } yield {}
+        } yield ()
       case _ ⇒
-        DbResultT.unit
+        ().pure[DbResultT]
     }
 }

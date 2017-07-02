@@ -72,7 +72,7 @@ class CartIntegrationTest
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
         _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
-      } yield {}).gimme
+      } yield ()).gimme
 
       cartsApi(cart.refNum).get().asTheResult[CartResponse].lineItems.skus.onlyElement.imagePath must === (
         imgUrl)

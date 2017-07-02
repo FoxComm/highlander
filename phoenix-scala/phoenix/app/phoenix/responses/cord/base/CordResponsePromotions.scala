@@ -40,7 +40,7 @@ object CordResponsePromotions {
   /** Try `fa` and if it’s `None`, evaluate and fallback to `fb`. Basically, `Option#orElse` lifted to `DbResultT`. */
   private def lazyOrElse[A](fa: DbResultT[Option[A]], fb: ⇒ DbResultT[Option[A]])(
       implicit ec: EC): DbResultT[Option[A]] =
-    fa.flatMap(_.map(a ⇒ DbResultT.pure(a.some)).getOrElse(fb))
+    fa.flatMap(_.map(a ⇒ a.some.pure[DbResultT]).getOrElse(fb))
 
   private def renderPromotionResponse(
       promotion: Promotion)(implicit ec: EC, ctx: OC, db: DB): DbResultT[PromotionResponse] =

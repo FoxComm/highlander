@@ -1,5 +1,6 @@
 package phoenix.services.returns
 
+import cats.implicits._
 import core.failures.{Failure, Failures}
 import phoenix.failures.ReturnFailures.EmptyReturn
 import phoenix.models.returns._
@@ -35,13 +36,13 @@ case class ReturnValidator(rma: Return)(implicit ec: EC) extends ReturnValidatio
     */
   // Query previous completed RMAs, find matches between line items
   private def hasNoPreviouslyRefundedItems(response: ReturnValidatorResponse): DBIO[ReturnValidatorResponse] =
-    lift(response)
+    response.pure[DBIO]
 
   // Has at least one payment method
   // Can refund up to the total charged on that order payment method
   // Can refund up to the total charged on that order
   private def hasValidPaymentMethods(response: ReturnValidatorResponse): DBIO[ReturnValidatorResponse] =
-    lift(response)
+    response.pure[DBIO]
 
   private def warning(response: ReturnValidatorResponse, failure: Failure): ReturnValidatorResponse =
     response.copy(

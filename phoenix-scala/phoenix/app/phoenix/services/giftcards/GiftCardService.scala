@@ -47,7 +47,7 @@ object GiftCardService {
           customer ← * <~ Users.mustFindByAccountId(accountId)
           custData ← * <~ CustomersData.mustFindByAccountId(accountId)
         } yield GiftCardResponse.build(giftCard, Some(CustomerResponse.build(customer, custData)), None)
-      case _ ⇒ DbResultT.good(GiftCardResponse.build(giftCard, None, None))
+      case _ ⇒ GiftCardResponse.build(giftCard, None, None).pure[DbResultT]
     }
 
   def createByAdmin(
@@ -57,11 +57,10 @@ object GiftCardService {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       _     ← * <~ Reasons.mustFindById400(payload.reasonId)
       // If `subTypeId` is absent, don't query. Check for model existence otherwise.
-      subtype ← * <~ payload.subTypeId.fold(DbResultT.none[GiftCardSubtype]) { subId ⇒
+      subtype ← * <~ payload.subTypeId.traverse { subId ⇒
                  GiftCardSubtypes.csrAppeasements
                    .filter(_.id === subId)
                    .mustFindOneOr(NotFoundFailure400(GiftCardSubtype, subId))
-                   .map(Some(_)) // A bit silly but need to rewrap it back
                }
       origin ← * <~ GiftCardManuals.create(
                 GiftCardManual(adminId = admin.accountId, reasonId = payload.reasonId))
@@ -110,7 +109,7 @@ object GiftCardService {
                        payload: GiftCardUpdateStateByCsr,
                        admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[GiftCardResponse] =
     for {
-      _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResultT.unit)
+      _        ← * <~ payload.reasonId.traverse(Reasons.mustFindById400)
       giftCard ← * <~ GiftCards.mustFindByCode(code)
       updated  ← * <~ cancelOrUpdate(giftCard, payload.state, payload.reasonId, admin)
       _        ← * <~ LogActivity().gcUpdated(admin, giftCard, payload)

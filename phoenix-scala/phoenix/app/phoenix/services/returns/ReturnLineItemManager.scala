@@ -49,7 +49,7 @@ object ReturnLineItemManager {
               .to[List]
               .result
       _        ← * <~ skusLiQuery.deleteAll
-      _        ← * <~ doOrMeh(skus.nonEmpty, LogActivity().returnSkuLineItemsDropped(skus))
+      _        ← * <~ when(skus.nonEmpty, LogActivity().returnSkuLineItemsDropped(skus).void)
       _        ← * <~ payload.map(p ⇒ ReturnReasons.mustFindById400(p.reasonId).flatMap(addSkuLineItem(rma, _, p)))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
@@ -166,11 +166,11 @@ object ReturnLineItemManager {
       rma     ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       li      ← * <~ ReturnLineItems.mustFindById404(lineItemId)
       deleted ← * <~ ReturnLineItems.filter(_.id === li.id).deleteAllWithRowsBeingAffected
-      _ ← * <~ doOrMeh(
+      _ ← * <~ when(
            deleted,
            li.originType match {
-             case ReturnLineItem.ShippingCost ⇒ LogActivity().returnShippingCostItemDeleted(li)
-             case ReturnLineItem.SkuItem      ⇒ LogActivity().returnSkuLineItemDeleted(li)
+             case ReturnLineItem.ShippingCost ⇒ LogActivity().returnShippingCostItemDeleted(li).void
+             case ReturnLineItem.SkuItem      ⇒ LogActivity().returnSkuLineItemDeleted(li).void
            }
          )
       updated  ← * <~ Returns.refresh(rma)

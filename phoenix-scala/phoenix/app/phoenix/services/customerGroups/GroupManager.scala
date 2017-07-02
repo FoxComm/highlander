@@ -2,6 +2,7 @@ package phoenix.services.customerGroups
 
 import java.time.Instant
 
+import cats.implicits._
 import core.db.ExPostgresDriver.api._
 import core.db._
 import core.failures.NotFoundFailure404
@@ -62,7 +63,7 @@ object GroupManager {
          }
       _ ← * <~ CustomerGroupMembers.findByGroupId(groupId).delete
       _ ← * <~ LogActivity().customerGroupArchived(group, admin)
-    } yield DbResultT.unit
+    } yield ().pure[DbResultT]
 
   private def createCustom(payload: CustomerGroupPayload,
                            admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[GroupResponse] =

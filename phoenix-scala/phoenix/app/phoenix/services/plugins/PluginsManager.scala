@@ -1,5 +1,6 @@
 package phoenix.services.plugins
 
+import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import core.db.ExPostgresDriver.api._
 import core.db._
@@ -31,7 +32,7 @@ object PluginsManager extends LazyLogging {
           val req = host(apiUrl) / "_settings" / "schema"
           DbResultT.fromF(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
         }
-    }(DbResultT.good(_))
+    }(_.pure[DbResultT])
 
   def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC, formats: Formats): Future[String] =
     plugin.apiUrl().fold(Future.successful("")) { apiUrl ⇒

@@ -45,7 +45,7 @@ object CreditCardManager {
                        .map(_.gatewayCustomerId)
                        .one
       address = Address.fromPayload(payload.billingAddress, customer.accountId)
-      _ ← * <~ doOrMeh(payload.addressIsNew, Addresses.create(address))
+      _ ← * <~ when(payload.addressIsNew, Addresses.create(address).void)
       stripes ← * <~ apis.stripe.createCardFromToken(email = customer.email,
                                                      token = payload.token,
                                                      stripeCustomerId = customerToken,
@@ -71,10 +71,10 @@ object CreditCardManager {
 
     def createCard(customer: User, sCustomer: StripeCustomer, sCard: StripeCard, address: Address) =
       for {
-        _ ← * <~ doOrMeh(address.isNew, Addresses.create(address.copy(accountId = accountId)))
+        _ ← * <~ when(address.isNew, Addresses.create(address.copy(accountId = accountId)).void)
         cc = CreditCard.buildFromSource(accountId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
-        region  ← * <~ Regions.findOneById(newCard.address.regionId).safeGet
+        region  ← * <~ Regions.findOneById(newCard.address.regionId).unsafeGet
         _       ← * <~ LogActivity().ccCreated(customer, cc, admin)
       } yield buildResponse(newCard, region)
 
@@ -105,7 +105,7 @@ object CreditCardManager {
       cc ← * <~ CreditCards.mustFindByIdAndAccountId(cardId, accountId)
       default = cc.copy(isDefault = true)
       _      ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
-      region ← * <~ Regions.findOneById(cc.address.regionId).safeGet
+      region ← * <~ Regions.findOneById(cc.address.regionId).unsafeGet
     } yield buildResponse(default, region)
 
   def removeDefaultCreditCard(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
@@ -146,7 +146,7 @@ object CreditCardManager {
     }
 
     def createNewAddressIfProvided(cc: CreditCard) =
-      payload.address.fold(DbResultT.good(cc)) { _ ⇒
+      payload.address.fold(cc.pure[DbResultT]) { _ ⇒
         for {
           address ← * <~ Addresses.create(Address.fromCreditCard(cc).copy(accountId = accountId))
         } yield cc
@@ -165,7 +165,7 @@ object CreditCardManager {
               .map(_.paymentMethodId)
               .update(updated.id)
               .map(_ ⇒ updated)
-        region ← Regions.findOneById(cc.address.regionId).safeGet
+        region ← Regions.findOneById(cc.address.regionId).unsafeGet
       } yield buildResponse(cc, region)
     }
 

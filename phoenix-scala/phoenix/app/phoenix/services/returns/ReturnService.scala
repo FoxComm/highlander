@@ -1,5 +1,6 @@
 package phoenix.services.returns
 
+import cats.implicits._
 import core.db._
 import phoenix.failures.InvalidCancellationReasonFailure
 import phoenix.failures.ReturnFailures.OrderMustBeShippedForReturn
@@ -41,14 +42,14 @@ object ReturnService {
     for {
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
       _        ← * <~ rma.transitionState(payload.state)
-      reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
+      reason   ← * <~ payload.reasonId.flatTraverse(Reasons.findOneById(_).dbresult)
       _        ← * <~ reason.map(r ⇒ failIfNot(r.reasonType == Cancellation, InvalidCancellationReasonFailure))
       _        ← * <~ update(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
       customer ← * <~ Users.mustFindByAccountId(rma.accountId)
-      _ ← * <~ doOrMeh(rma.state != payload.state,
-                       LogActivity().returnStateChanged(customer, response, payload.state))
+      _ ← * <~ when(rma.state != payload.state,
+                    LogActivity().returnStateChanged(customer, response, payload.state).void)
     } yield response
 
   private def update(rma: Return,
@@ -57,8 +58,8 @@ object ReturnService {
     for {
       rma ← * <~ Returns
              .update(rma, rma.copy(state = payload.state, canceledReasonId = reason.map(_.id)))
-      _ ← * <~ doOrMeh(rma.state == Return.Complete, ReturnPaymentManager.issueRefunds(rma))
-      _ ← * <~ doOrMeh(rma.state == Return.Canceled, ReturnPaymentManager.cancelRefunds(rma))
+      _ ← * <~ when(rma.state == Return.Complete, ReturnPaymentManager.issueRefunds(rma))
+      _ ← * <~ when(rma.state == Return.Canceled, ReturnPaymentManager.cancelRefunds(rma))
     } yield rma
 
   // todo should be available for non-admin as well

@@ -2,6 +2,7 @@ package objectframework.models
 
 import java.time.Instant
 
+import cats.implicits._
 import core.db.ExPostgresDriver.api._
 import core.db._
 import objectframework.services.ObjectManager
@@ -83,13 +84,13 @@ object ObjectHeadLinks {
              case right if !linkedRightIds.contains(right.id) ⇒
                create(build(left, right))
            }
-      } yield {}
+      } yield ()
 
     def createIfNotExist(left: L, right: R)(implicit ec: EC, db: DB): DbResultT[Unit] =
       for {
         linkExists ← * <~ filterLeft(left).filter(_.rightId === right.id).exists.result
-        _          ← * <~ doOrMeh(!linkExists, create(build(left, right)))
-      } yield {}
+        _          ← * <~ when(!linkExists, create(build(left, right)).void)
+      } yield ()
 
     def build(left: L, right: R): M
   }

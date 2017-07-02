@@ -117,7 +117,7 @@ class StripeWrapper(processingTimeout: FiniteDuration,
       case Left(xs) ⇒
         Result.failures(xs)
       case Right(c: StripeCard) if c.getObject.equals("card") ⇒
-        Result.good(c)
+        c.pure[Result]
       case _ ⇒
         Result.failure(GeneralFailure("Not a stripe card: " ++ account.toString))
     }

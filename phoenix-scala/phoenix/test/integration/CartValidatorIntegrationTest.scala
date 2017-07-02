@@ -174,7 +174,7 @@ class CartValidatorIntegrationTest
       _ ← * <~ StoreCredits.create(
            Factories.storeCredit
              .copy(state = StoreCredit.Active, accountId = customer.accountId, originId = manual.id))
-    } yield {}).gimme
+    } yield ()).gimme
     val refNum = cart.refNum
   }
 

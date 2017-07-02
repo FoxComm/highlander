@@ -2,6 +2,7 @@ package phoenix.services.promotion
 
 import java.time.Instant
 
+import cats.implicits._
 import core.db._
 import core.failures.NotFoundFailure404
 import objectframework.ObjectFailures._
@@ -205,6 +206,6 @@ object PromotionManager {
         if (promotion.applyType != payload.applyType)
           Promotions.update(promotion, promotion.copy(applyType = payload.applyType))
         else
-          DbResultT.good(promotion)
+          promotion.pure[DbResultT]
     }
 }

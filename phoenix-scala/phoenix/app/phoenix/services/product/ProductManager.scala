@@ -2,6 +2,7 @@ package phoenix.services.product
 
 import java.time.Instant
 
+import cats._
 import cats.data._
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
@@ -97,14 +98,14 @@ object ProductManager extends LazyLogging {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
       illuminated = IlluminatedProduct
         .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
-      _ ← * <~ doOrMeh(
+      _ ← when(
            checkActive, {
              illuminated.mustBeActive match {
                case Left(err) ⇒ {
                  logger.warn(err.toString)
-                 DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
+                 DbResultT.failure[Unit](NotFoundFailure404(Product, oldProduct.model.slug))
                }
-               case Right(_) ⇒ DbResultT.unit
+               case Right(_) ⇒ ().pure[DbResultT]
              }
            }
          )
@@ -324,7 +325,7 @@ object ProductManager extends LazyLogging {
     val newProduct = withNewSlug.andThen(withCommit)(product)
 
     if (newProduct != product) Products.update(product, newProduct)
-    else DbResultT.good(product)
+    else product.pure[DbResultT]
   }
 
   private def findOrCreateSkusForProduct(
@@ -407,14 +408,14 @@ object ProductManager extends LazyLogging {
   def mustFindFullProductById(productId: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(Products.mustFindById404(productId))
 
-  // This is an inefficient intensely quering method that does the trick
+  // This is an inefficient intensely querying method that does the trick
   private def skusToBeUnassociatedMustNotBePresentInCarts(productId: Int, payloadSkus: Seq[SkuPayload])(
       implicit ec: EC,
       db: DB): DbResultT[Unit] =
     for {
       skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
                           case links @ Seq(_) ⇒
-                            lift(links.map(_.rightId))
+                            links.map(_.rightId).pure[DBIO]
                           case _ ⇒
                             for {
                               variantLinks ← ProductVariantLinks
@@ -437,7 +438,7 @@ object ProductManager extends LazyLogging {
            for {
              skuToUnassociate ← * <~ Skus.mustFindByCode(codeToUnassociate)
              _                ← * <~ skuToUnassociate.mustNotBePresentInCarts
-           } yield {}
+           } yield ()
          })
-    } yield {}
+    } yield ()
 }

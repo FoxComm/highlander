@@ -90,14 +90,14 @@ class PromotionsIntegrationTest
 
     "creation" in new StoreAdmin_Seed with Promotion_Seed {
       ObjectManager
-        .getFullObject(DbResultT.pure(promotion))
+        .getFullObject(promotion.pure[DbResultT])
         .gimme
         .getAttribute("activeFrom") must !==(JNothing)
     }
 
     "updating" in new AutoApplyPromotionSeed {
 
-      var fullPromotion = ObjectManager.getFullObject(DbResultT.pure(promotion)).gimme
+      var fullPromotion = ObjectManager.getFullObject(promotion.pure[DbResultT]).gimme
       fullPromotion.getAttribute("activeFrom") must === (JNothing)
 
       val attributes: List[(String, JValue)] =

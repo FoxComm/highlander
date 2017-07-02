@@ -1,5 +1,6 @@
 package phoenix.utils.seeds
 
+import cats.implicits._
 import core.db._
 import objectframework.models._
 import org.json4s.JValue
@@ -39,10 +40,10 @@ trait ObjectSchemaSeeds {
                ObjectSchemas
                  .update(current,
                          current.copy(schema = newSchema.schema, dependencies = newSchema.dependencies))
-                 .meh
+                 .void
              case _ ⇒
                Console.err.println(s"Schema ${newSchema.name} not found, creating...")
-               ObjectSchemas.create(newSchema).meh
+               ObjectSchemas.create(newSchema).void
            }
          }
     } yield ()

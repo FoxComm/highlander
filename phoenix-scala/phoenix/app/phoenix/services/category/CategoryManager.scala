@@ -1,5 +1,6 @@
 package phoenix.services.category
 
+import cats.implicits._
 import objectframework.ObjectFailures._
 import objectframework.ObjectResponses.ObjectContextResponse
 import objectframework.ObjectUtils
@@ -106,7 +107,7 @@ object CategoryManager {
         Categories
           .update(category, category.copy(shadowId = categoryShadow.id, commitId = commit.id))
       case None ⇒
-        DbResultT.pure(category)
+        category.pure[DbResultT]
     }
 
   private def contextByName(contextName: String)(implicit ec: EC): DbResultT[ObjectContext] =

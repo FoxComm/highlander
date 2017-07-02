@@ -44,7 +44,7 @@ object GroupMemberManager {
       _ ← * <~ forDeletion.map { userId ⇒
            deleteGroupMember(userId, groupId)
          }
-    } yield {}
+    } yield ()
 
   def sync(groupId: Int,
            payload: CustomerGroupMemberSyncPayload)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
@@ -66,7 +66,7 @@ object GroupMemberManager {
       _ ← * <~ forDeletion.intersect(memberIds).toSeq.map { userId ⇒
            deleteGroupMember(userId, groupId)
          }
-    } yield {}
+    } yield ()
 
   def addCustomerToGroups(accountId: Int,
                           groupIds: Seq[Int])(implicit ec: EC, db: DB, ac: AC): DbResultT[CustomerResponse] =
@@ -119,8 +119,8 @@ object GroupMemberManager {
       group        ← * <~ CustomerGroups.mustFindById400(groupId)
       membership = CustomerGroupMember(customerDataId = customerData.id, groupId = groupId)
       result ← * <~ CustomerGroupMembers.create(membership)
-      _ ← * <~ doOrMeh(group.groupType == Manual,
-                       CustomerGroups.update(group, group.copy(customersCount = group.customersCount + 1)))
+      _ ← * <~ when(group.groupType == Manual,
+                    CustomerGroups.update(group, group.copy(customersCount = group.customersCount + 1)).void)
     } yield result
 
   private def deleteGroupMember(userId: Int, groupId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
@@ -131,10 +131,10 @@ object GroupMemberManager {
                     .findByGroupIdAndCustomerDataId(customerData.id, groupId)
                     .mustFindOneOr(NotFoundFailure400(User, userId))
       _ ← * <~ CustomerGroupMembers
-           .deleteById(membership.id, DbResultT.unit, userId ⇒ NotFoundFailure400(User, userId))
-      _ ← * <~ doOrMeh(group.groupType == Manual,
-                       CustomerGroups.update(group, group.copy(customersCount = group.customersCount - 1)))
-    } yield {}
+           .deleteById(membership.id, ().pure[DbResultT], userId ⇒ NotFoundFailure400(User, userId))
+      _ ← * <~ when(group.groupType == Manual,
+                    CustomerGroups.update(group, group.copy(customersCount = group.customersCount - 1)).void)
+    } yield ()
 
   def isMemberOfAny(groupIds: Set[Int], customer: User)(implicit ec: EC, apis: Apis): DbResultT[Boolean] =
     for {
@@ -161,7 +161,7 @@ object GroupMemberManager {
              }
         // FIXME: make sure the warning bubbles up to the final response — monad stack order should be different, we don’t want to lose warnings when a Failure happens @michalrus
       } yield (num > 0)
-    else DbResultT.pure(false)
+    else false.pure[DbResultT]
 
   private def narrowDownWithUserId(userId: Int)(elasticRequest: Json): Json = {
     val term      = JObject(JField("term", JObject(JField("id", JInt(userId)))))

@@ -28,7 +28,7 @@ import phoenix.utils.seeds.Factories
 import slick.jdbc.PostgresProfile.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import core.db._
+import core.db.{when ⇒ ifM, _}
 import core.utils.Money._
 import phoenix.services.carts.CartLineItemUpdater
 
@@ -43,10 +43,10 @@ class CheckoutTest
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
-    when(m.validate(isCheckout = false, fatalWarnings = true)).thenReturn(DbResultT.good(resp))
-    when(m.validate(isCheckout = false, fatalWarnings = false)).thenReturn(DbResultT.good(resp))
-    when(m.validate(isCheckout = true, fatalWarnings = true)).thenReturn(DbResultT.good(resp))
-    when(m.validate(isCheckout = true, fatalWarnings = false)).thenReturn(DbResultT.good(resp))
+    when(m.validate(isCheckout = false, fatalWarnings = true)).thenReturn(resp.pure[DbResultT])
+    when(m.validate(isCheckout = false, fatalWarnings = false)).thenReturn(resp.pure[DbResultT])
+    when(m.validate(isCheckout = true, fatalWarnings = true)).thenReturn(resp.pure[DbResultT])
+    when(m.validate(isCheckout = true, fatalWarnings = false)).thenReturn(resp.pure[DbResultT])
     m
   }
 
@@ -165,7 +165,7 @@ class CheckoutTest
             // If any of checkouts fail, rest of for comprehension is ignored and scalacheck just starts a new one.
             // Hence you have an attempt to create a second cart for customer which is prohibited.
             // This is a silly guard to see real errors, not customer_has_only_one_cart constraint.
-            _ ← * <~ Carts.deleteAll(DbResultT.unit, DbResultT.unit)
+            _ ← * <~ Carts.deleteAll(().pure[DbResultT], ().pure[DbResultT])
 
             cart ← * <~ Carts.create(Cart(accountId = customer.accountId, scope = Scope.current))
 
@@ -250,6 +250,6 @@ class CheckoutTest
     (for {
       _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
-    } yield {}).gimme
+    } yield ()).gimme
   }
 }

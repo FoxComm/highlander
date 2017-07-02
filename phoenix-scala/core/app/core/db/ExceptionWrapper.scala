@@ -11,7 +11,7 @@ object ExceptionWrapper {
     import scala.util.{Failure, Success}
 
     dbio.asTry.dbresult.flatMap {
-      case Success(value) ⇒ DbResultT.good(value)
+      case Success(value) ⇒ value.pure[DbResultT]
       case Failure(e)     ⇒ DbResultT.failure(DatabaseFailure(e.getMessage))
     }
   }

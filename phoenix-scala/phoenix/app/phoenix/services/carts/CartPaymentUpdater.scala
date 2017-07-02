@@ -97,9 +97,9 @@ object CartPaymentUpdater {
           _ ← * <~ OrderPayments
                .filter(_.cordRef === cart.refNum)
                .storeCredits
-               .deleteAll(onSuccess = DbResultT.unit, onFailure = DbResultT.unit)
+               .deleteAll
           _ ← * <~ OrderPayments.createAll(payments)
-        } yield {}
+        } yield ()
       }
 
     for {
@@ -122,7 +122,7 @@ object CartPaymentUpdater {
       cc     ← * <~ CreditCards.mustFindById400(id)
       _      ← * <~ cc.mustBelongToAccount(cart.accountId)
       _      ← * <~ cc.mustBeInWallet
-      region ← * <~ Regions.findOneById(cc.address.regionId).safeGet
+      region ← * <~ Regions.findOneById(cc.address.regionId).unsafeGet
       _      ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).creditCards.delete
       _      ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = None))
       valid  ← * <~ CartValidator(cart).validate()

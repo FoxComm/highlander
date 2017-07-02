@@ -1,5 +1,6 @@
 package phoenix.utils.seeds
 
+import cats.implicits._
 import core.db._
 import org.json4s.JObject
 import org.json4s.jackson.JsonMethods.parse
@@ -9,9 +10,7 @@ import phoenix.utils.aliases._
 trait GroupTemplatesSeeds {
 
   def createGroupTemplates(scopeId: Int)(implicit db: DB, ac: AC, ec: EC): DbResultT[Unit] =
-    for {
-      _ ← CustomerGroupTemplates.create(abandonedCartsTemplate)
-    } yield DbResultT.unit
+    CustomerGroupTemplates.create(abandonedCartsTemplate).void
 
   private def abandonedCartsTemplate() =
     CustomerGroupTemplate(

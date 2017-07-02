@@ -63,7 +63,7 @@ case class Product(id: Int = 0,
       skus        ← * <~ ProductSkuLinks.filter(_.leftId === id).result
       inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
       _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(formId))
-    } yield {}
+    } yield ()
 
   def reference: ProductReference = ProductId(formId)
 

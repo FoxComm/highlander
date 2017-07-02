@@ -86,9 +86,6 @@ package object db {
     def fold[B](ra: Failures ⇒ B, rb: A ⇒ B)(implicit F: Monad[F]): FoxyT[F, B] = // TODO: this is not fold… Find a better name or remove it? @michalrus
       fa.map(rb).handleError(ra)
 
-    def meh(implicit M: Monad[F]): FoxyT[F, Unit] =
-      fa.void // TODO: remove me? But it’s cute… @michalrus
-
     def failuresToWarnings(valueIfWasFailed: A)(pf: PartialFunction[Failure, Boolean])(
         implicit F: Monad[F]): FoxyT[F, A] =
       fa.handleErrorWith { fs ⇒
@@ -105,21 +102,6 @@ package object db {
   }
 
   trait FoxyTFunctions[F[_]] {
-    def apply[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
-      pure(a)
-
-    def pure[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] =
-      Monad[FoxyT[F, ?]].pure(a)
-
-    def good[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me @michalrus
-      pure(a)
-
-    def unit(implicit F: Monad[F]): FoxyT[F, Unit] =
-      pure(()) // TODO: remove me? @michalrus
-
-    def none[A](implicit F: Monad[F]): FoxyT[F, Option[A]] =
-      pure(None) // TODO: remove me? @michalrus
-
     def uiWarning(f: Failure)(implicit F: Monad[F]): FoxyT[F, Unit] =
       StateT.modify(MetaResponse.Warning(f) :: _)
 
@@ -155,13 +137,15 @@ package object db {
             case _       ⇒ EitherT.right(F.pure((s, ())))
         })
 
+    // TODO: maybe move the quasi-`sequence`-s from Functions to Ops? @michalrus
+
     /** Just like ``sequence`` but—in case of a failure—unlawful, as it will join failures from all Foxies. */
     def seqCollectFailures[L[_], A](lfa: L[FoxyT[F, A]])(implicit L: TraverseFilter[L],
                                                          F: Monad[F]): FoxyT[F, L[A]] =
       L.map(lfa)(_.fold(Either.left(_), Either.right(_))).sequence.flatMap { xa ⇒
         val failures = L.collect(xa) { case Left(f) ⇒ f.toList }.toList.flatten
         val values   = L.collect(xa) { case Right(a) ⇒ a }
-        NonEmptyList.fromList(failures).fold(FoxyT[F].pure(values))(FoxyT[F].failures(_))
+        NonEmptyList.fromList(failures).fold(values.pure[FoxyT[F, ?]])(FoxyT[F].failures(_))
       }
 
     /** A bit like ``sequence`` but will ignore failed Foxies. */
@@ -276,35 +260,40 @@ package object db {
   def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] =
     sql.overrideStatements(sql.statements.map(_ + " for update"))
 
-  def lift[A](value: A): DBIO[A] = DBIO.successful(value)
-
-  def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
-
+  // TODO: Is this more readable than inlining? @michalrus
   def ifElse[A](condition: Boolean, ifBranch: ⇒ DbResultT[A], elseBranch: ⇒ DbResultT[A]) =
     if (condition) ifBranch else elseBranch
 
-  def doOrMeh(condition: Boolean, action: ⇒ DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
-    if (condition) action.meh else DbResultT.unit
+  def when[F[_]: Applicative](p: Boolean, s: ⇒ F[Unit]): F[Unit] =
+    if (p) s else ().pure[F]
 
-  def doOrGood[A](condition: Boolean, action: ⇒ DbResultT[A], good: ⇒ A)(implicit ec: EC): DbResultT[A] =
-    if (condition) action else DbResultT.good(good)
+  // TODO: Is this more readable than inlining? @michalrus
+  def doOrGood[F[_]: Applicative, A](p: Boolean, action: ⇒ F[A], good: ⇒ A)(implicit ec: EC): F[A] =
+    if (p) action else good.pure[F]
 
-  def doOrFail[A](condition: Boolean, action: ⇒ DbResultT[A], failure: ⇒ Failure)(
-      implicit ec: EC): DbResultT[A] =
-    if (condition) action else DbResultT.failure(failure)
+  // TODO: Is this more readable than inlining? @michalrus
+  def doOrFail[F[_]: Monad, A](p: Boolean, action: ⇒ FoxyT[F, A], failure: ⇒ Failure)(
+      implicit ec: EC): FoxyT[F, A] =
+    if (p) action else FoxyT[F].failure(failure)
 
+  // TODO: Is this more readable than inlining? @michalrus
+  // FIXME: should be defined over FoxyT, but inference fails then… @michalrus
   def failIf(condition: Boolean, failure: ⇒ Failure)(implicit ec: EC): DbResultT[Unit] =
-    if (condition) DbResultT.failure(failure) else DbResultT.unit
+    if (condition) DbResultT.failure(failure) else ().pure[DbResultT]
 
+  // TODO: Is this more readable than inlining? @michalrus
+  // FIXME: should be defined over FoxyT, but inference fails then… @michalrus
   def failIfNot(condition: Boolean, failure: ⇒ Failure)(implicit ec: EC): DbResultT[Unit] =
     failIf(!condition, failure)
 
-  def failIfFailures(failures: Seq[Failure])(implicit ec: EC): DbResultT[Unit] =
+  // TODO: Is this more readable than inlining? @michalrus
+  // TODO: There’s only one usage in the whole codebase. @michalrus
+  def failIfFailures[F[_]: Monad](failures: Seq[Failure]): FoxyT[F, Unit] =
     failures match {
       case head :: tail ⇒
-        DbResultT.failures(NonEmptyList.of(head, tail: _*))
+        FoxyT[F].failures(NonEmptyList.of(head, tail: _*))
       case _ ⇒
-        DbResultT.unit
+        ().pure[FoxyT[F, ?]]
     }
 
   implicit class EnrichedSQLActionBuilder(val action: SQLActionBuilder) extends AnyVal {
@@ -338,33 +327,32 @@ package object db {
 
     def findOrCreate(r: DbResultT[R])(implicit ec: EC): DbResultT[R] =
       dbio.dbresult.flatMap {
-        case Some(model) ⇒ DbResultT.good(model)
+        case Some(model) ⇒ model.pure[DbResultT]
         case None        ⇒ r
       }
 
     // Last item in tuple determines if cart was created or not
     def findOrCreateExtended(r: DbResultT[R])(implicit ec: EC): DbResultT[(R, FoundOrCreated)] =
       dbio.dbresult.flatMap {
-        case Some(model) ⇒ DbResultT.good((model, Found))
+        case Some(model) ⇒ (model, Found: FoundOrCreated).pure[DbResultT]
         case _           ⇒ r.map(result ⇒ (result, Created))
       }
 
     def mustFindOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[R] =
       dbio.dbresult.flatMap {
-        case Some(model) ⇒ DbResultT.good(model)
+        case Some(model) ⇒ model.pure[DbResultT]
         case None        ⇒ DbResultT.failure(notFoundFailure)
       }
 
     def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: EC): DbResultT[Unit] =
       dbio.dbresult.flatMap {
-        case None    ⇒ DbResultT.unit
+        case None    ⇒ ().pure[DbResultT]
         case Some(_) ⇒ DbResultT.failure(shouldNotBeHere)
       }
 
-    // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which
+    // we only use this when we *know* we can call head unsafely on a query. (e.g., you've created a record which
     // has a FK constraint to another table and you then fetch that associated record -- we already *know* it must
     // exist.
-    // FIXME: if you know it, prove it. Or s/safe/unsafe/ in the name *AND* comment. @michalrus
-    def safeGet(implicit ec: EC): DBIO[R] = dbio.map(_.get)
+    def unsafeGet(implicit ec: EC): DBIO[R] = dbio.map(_.get)
   }
 }
