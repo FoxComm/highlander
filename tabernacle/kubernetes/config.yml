@@ -1,0 +1,58 @@
+---
+# Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-config
+  namespace: default
+  selfLink: /api/v1/namespaces/default/configmaps/core-config
+data:
+  ashes.behind_nginx: "true"
+  ashes.ga_tracking_id: UA-79356556-1
+  ashes.node_env: production
+  bernardo.host: localhost
+  bernardo.port: "6666"
+  consumers.topic: scoped_activities
+  consul.db_host: route-db.default.svc.cluster.local
+  consul.elasticsearch_url: elasticsearch://elasticsearch.service.consul:9300
+  consul.kafka_address: kafka.service.consul:9092
+  consul.schema_registry_url: http://schema-registry.service.consul:8081
+  consul.zookeeper_address: zookeeper.service.consul:2181
+  db.ssl_mode: disable
+  google.oauth.admin_client_id: ""
+  google.oauth.admin_client_secret: ""
+  google.oauth.admin_hosted_domain: ""
+  google.oauth.admin_redirect_uri: ""
+  google.oauth.customer_client_id: ""
+  google.oauth.customer_client_secret: ""
+  google.oauth.customer_redirect_uri: ""
+  greenriver.java_opts: -Denv=localhost -Dlocalhost.kafka.broker=kafka.service.consul:9092 -Dlocalhost.elastic.host=elasticsearch://elasticsearch.service.consul:9300 -Dlocalhost.activity.phoenix.url=http://phoenix.service.consul:9090/v1 -Dlocalhost.avro.schemaRegistryUrl=http://schema-registry.service.consul:8081 -Dlocalhost.consume.restart=false
+  hyperion.create_ashes_plugin: "true"
+  hyperion.push_check_interval: "5"
+  isaac.port: "9190"
+  jwt.backend_private_key: /keys/private_key.der
+  jwt.backend_public_key: /keys/public_key.der
+  jwt.frontend_private_key: /keys/private_key.pem
+  jwt.frontend_public_key: /keys/public_key.pem
+  lb.middlewarehouse_url: http://middlewarehouse-lb.default.svc.cluster.local:9292
+  lb.phoenix_host: phoenix-lb.default.svc.cluster.local
+  lb.phoenix_url: http://phoenix-lb.default.svc.cluster.local:9090
+  middlewarehouse.log_level: info
+  middlewarehouse.port: "9292"
+  peacock.contact_email: pavel@foxcommerce.com
+  peacock.node_env: production
+  phoenix.auth_method: jwt
+  phoenix.cookie_secure: "off"
+  phoenix.java_opts: -Dphoenix.env=staging -Dhttp.interface=0.0.0.0 -Ddb.host=db.service.consul -Ddb.url=jdbc:postgresql://db.service.consul/phoenix?user=phoenix -Ddb.name=phoenix -Dakka.tracing.host=localhost -Dakka.tracing.enabled=false -Dauth.tokenTTL=525600
+  phoenix.port: "9090"
+  phoenix.s3_bucket_name: foxcomm-images
+  phoenix.s3_bucket_region: us-west-1
+  phoenix.tax_rule_rate: "7.5"
+  phoenix.tax_rule_region: "4129"
+  river_rock.bernardo_host: route-db.default.svc.cluster.local
+  river_rock.port: "31895"
+  river_rock.upstream_url: http://balancer.service.consul:8888
+  solomon.port: "4002"
+  solomon.token_ttl: "365"
+  stripe.publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
+---

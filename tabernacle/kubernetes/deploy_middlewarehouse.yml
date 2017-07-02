@@ -1,0 +1,95 @@
+---
+# Ashes
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: middlewarehouse
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: middlewarehouse
+        language: go
+        tag: master
+        tier: backend
+    spec:
+      containers:
+      - name: middlewarehouse
+        image: docker-stage.foxcommerce.com:5000/middlewarehouse:master
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.db_host
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: middlewarehouse.db_name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: middlewarehouse.db_user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: middlewarehouse.db_password
+        - name: DB_SSLMODE
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: db.ssl_mode
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: middlewarehouse.log_level
+        - name: KAFKA_BROKER
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.kafka_address
+        - name: PHOENIX_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: lb.phoenix_url
+        - name: PHOENIX_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.api_user
+        - name: PHOENIX_PASS
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.api_password
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: middlewarehouse.port
+        - name: SCHEMA_REGISTRY_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.schema_registry_url
+        - name: ZOOKEEPER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.zookeeper_address
+        ports:
+         - name: liveness-port
+           containerPort: 9292
+        livenessProbe:
+          httpGet:
+            path: /v1/public/ping
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+---

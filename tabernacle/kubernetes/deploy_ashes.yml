@@ -1,0 +1,62 @@
+---
+# Ashes
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ashes
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ashes
+        language: javascript
+        tag: master
+        tier: frontend
+    spec:
+      containers:
+      - name: ashes
+        image: docker-stage.foxcommerce.com:5000/ashes:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
+        env:
+        - name: BEHIND_NGINX
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: ashes.behind_nginx
+        - name: GA_TRACKING_ID
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: ashes.ga_tracking_id
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: ashes.node_env
+        - name: PHOENIX_PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.frontend_public_key
+        - name: STRIPE_PUBLISHABLE_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: stripe.publishable_key
+        ports:
+         - name: liveness-port
+           containerPort: 4000
+        livenessProbe:
+          httpGet:
+            path: /admin/login
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /Users/pavel/secret_keys
+---
