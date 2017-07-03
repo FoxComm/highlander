@@ -11,6 +11,7 @@ import styles from '../object-page/object-details.css';
 
 import ObjectDetails from '../object-page/object-details';
 import Modal from './modal';
+import Form from './form';
 import { FormField } from '../forms';
 import RadioButton from 'components/core/radio-button';
 import DiscountAttrs from './discount-attrs';
@@ -33,7 +34,8 @@ export default class ContentTypeForm extends ObjectDetails {
     tabs: {},
     sections: {},
     properties: {},
-    'property-settings': {}
+    'property-settings': {},
+    currentPropertyIndex: 0
   }
 
   renderApplyType() {
@@ -195,17 +197,29 @@ export default class ContentTypeForm extends ObjectDetails {
   }
 
   @autobind
-  onSave(key) {
+  onSave(key, index) {
     return object => {
-      this.props.onUpdateObject({
-        ...this.props.object,
-        [key]: [
-          ...this.props.object[key],
-          {
-            attributes: object
-          }
-        ]
-      });
+      if (index !== undefined) {
+        this.props.object[key][index].attributes = object;
+        const newArray = this.props.object[key].filter((item, itemIndex) => itemIndex !== index);
+        newArray[index] = {
+          attributes: object
+        };
+        this.props.onUpdateObject({
+          ...this.props.object,
+          [key]: newArray
+        });
+      } else {
+        this.props.onUpdateObject({
+          ...this.props.object,
+          [key]: [
+            ...this.props.object[key],
+            {
+              attributes: object
+            }
+          ]
+        });
+      }
     };
   }
 
@@ -214,34 +228,91 @@ export default class ContentTypeForm extends ObjectDetails {
     return this.setIsVisible(key, false);
   }
 
-  modal(key: string, title: string): Element<*> {
-    const schema = {
-      "type": "object",
-      "required": [
-        "title"
-      ],
-      "properties": {
-        "title": {
-          "type": "string",
-          "minLength": 1
-        },
-        "slug": {
-          "type": "string",
-          "minLength": 1
-        },
-        "custom-properties": {
-          "title": "Custom Properties can be added to this section",
-          "type": "boolean"
+  formData(key: string) {
+    const schemes = {
+      tabs: {
+        fieldsToRender: ['title'],
+        schema: {
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "custom-properties": {
+              "title": "Custom Properties can be added to this section",
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      sections: {
+        fieldsToRender: ['title', 'slug', 'custom-properties'],
+        schema: {
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "custom-properties": {
+              "title": "Custom Properties can be added to this section",
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      properties: {
+        fieldsToRender: ['title', 'slug'],
+        schema: {
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "custom-properties": {
+              "title": "Custom Properties can be added to this section",
+              "type": "boolean"
+            }
+          }
         }
       }
     };
 
+    return _.get(schemes, key, {});
+  }
+
+  modal({ key, title, index = 0 }): Element<*> {
+    const formData = this.formData(key);
+
     return (
       <Modal
         title={`New ${title}`}
-        schema={schema}
-        object={this.props.object[key][0] || {}}
-        fieldsToRender={['title', 'slug', 'custom-properties']}
+        schema={formData.schema}
+        object={_.get(this.props.object[key][index], 'attributes', {})}
+        fieldsToRender={formData.fieldsToRender}
         isVisible={this.state[key].showModal}
         onCancel={this.onCancel(key)}
         onSave={this.onSave(key)}
@@ -249,27 +320,25 @@ export default class ContentTypeForm extends ObjectDetails {
     );
   }
 
-  column(key: string, title: string, children): Element<*> {
-    const onAdd = this.setIsVisible(key, true);
+  form({ key, index = 0 }): Element<*> {
+    const formData = this.formData(key);
 
-    const footer = (
-      <div styleName="column-footer">
-        <Button
-          icon="add"
-          onClick={onAdd}
-        >
-          {title}
-        </Button>
-      </div>
+    if (!this.state[key].showModal) return null;
+
+    return (
+      <Form
+        schema={formData.schema}
+        object={_.get(this.props.object[key][index], 'attributes', {})}
+        fieldsToRender={formData.fieldsToRender}
+        onCancel={this.onCancel(key)}
+        onSave={this.onSave(key, index)}
+      />
     );
+  }
 
-    const isEmpty = !children;
 
-    const emptyBody = !isEmpty ? null : (
-      <span>
-        {`Add a ${title.toLowerCase()}`}
-      </span>
-    );
+  column({ key, title, children, footer, emptyBody }): Element<*> {
+    const isEmpty = _.isEmpty(children);
 
     const bodyClassName = classNames(
       styles['column-body'],
@@ -282,12 +351,16 @@ export default class ContentTypeForm extends ObjectDetails {
         bodyClassName={bodyClassName}
         title={title}
         actionBlock={this.actions}
-        footer={footer}
+        footer={(
+          <div styleName="column-footer">
+            {footer}
+          </div>
+        )}
         indentContent={false}
       >
         {children}
-        {emptyBody}
-        {this.modal(key, title)}
+        {isEmpty && emptyBody}
+        {key === 'properties' ? null : this.modal({ key, title })}
       </ContentBox>
     );
   }
@@ -295,10 +368,99 @@ export default class ContentTypeForm extends ObjectDetails {
   renderColumns(): Element<*> {
     return (
       <div styleName="columns">
-        {this.column('tabs', 'Tab', _.map(this.props.object.tabs, (tab) => <Button>{tab.attributes.title.v}</Button>))}
-        {this.column('sections', 'Section', _.map(this.props.object.sections, (section) => <Button>{section.attributes.title.v}</Button>))}
-        {this.column('properties', 'Properties')}
-        {this.column('property-settings', 'Property Settings')}
+        {this.column(
+          {
+            key: 'tabs',
+            title: 'Tab',
+            emptyBody: (
+              <span>
+                Add a tab!
+              </span>
+            ),
+            footer: (
+              <Button
+                icon="add"
+                onClick={this.setIsVisible('tabs', true)}
+              >
+                Tab
+              </Button>
+            ),
+            children: _.map(this.props.object.tabs, (tab) => <Button>{tab.attributes.title.v}</Button>)
+          }
+        )}
+        {this.column(
+          {
+            key: 'sections',
+            title: 'Section',
+            emptyBody: (
+              <span>
+                Add a section!
+              </span>
+            ),
+            footer: (
+              <Button
+                icon="add"
+                onClick={this.setIsVisible('sections', true)}
+              >
+                Section
+              </Button>
+            ),
+            children: _.map(this.props.object.sections, (section) => <Button>{section.attributes.title.v}</Button>)
+          }
+        )}
+        {this.column(
+          {
+            key: 'properties',
+            title: 'Properties',
+            emptyBody: (
+              <span>
+                Add a property!
+              </span>
+            ),
+            footer: (
+              <Button
+                icon="add"
+                onClick={() => {
+                  this.onSave('properties')({ title: { t: 'string', v: '' } });
+                  this.setState({ currentPropertyIndex: this.props.object.properties.length });
+                  this.setIsVisible('properties', true)();
+                }}
+              >
+                Property
+              </Button>
+            ),
+            children: _.map(this.props.object.properties, (property, index) => (
+              <Button
+                onClick={() => {
+                  this.setState({ currentPropertyIndex: index });
+                  this.setIsVisible('properties', true)();
+                }}
+              >
+                {_.get(property.attributes, 'title.v') || 'New property'}
+              </Button>
+            ))
+          }
+        )}
+        {this.column(
+          {
+            key: 'properties',
+            title: 'Property Settings',
+            footer: this.state.properties.showModal ? (
+              <Button
+                onClick={() => {
+                }}
+              >
+                Delete
+              </Button>
+            ) : null,
+            children: this.form(
+              {
+                key: 'properties',
+                index: this.state.currentPropertyIndex
+              }
+            )
+          }
+        )}
       </div>
     );
   }
