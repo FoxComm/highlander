@@ -7,11 +7,11 @@
 }
 
 .title {
-  composes: title from '../../pages/catalog/pdp.css';
+  composes: title from '../catalog/pdp.css';
 }
 
 .description {
-  composes: description from '../../pages/catalog/pdp.css';
+  composes: description from '../catalog/pdp.css';
 }
 
 .recipient-block {

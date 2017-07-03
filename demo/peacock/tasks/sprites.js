@@ -7,7 +7,7 @@ const through = require('through2');
 const spriteHead = new Buffer(`<svg
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
-    id="fc-sprite" style="display:none">`);
+    id="app-sprite" style="display:none">`);
 
 const spriteTail = new Buffer('</svg>');
 
@@ -37,7 +37,7 @@ function svgoOpts(file) {
               name: 'id',
               local: 'id',
               prefix: '',
-              value: `fc-${path.basename(file.path, '.svg').toLowerCase()}-icon`,
+              value: `ic-${path.basename(file.path, '.svg').toLowerCase()}`,
             });
           }
         },
@@ -54,7 +54,7 @@ module.exports = function(gulp, $) {
   gulp.task('sprites', function() {
     return gulp.src(src)
       .pipe($.svgmin(svgoOpts))
-      .pipe($.concat('fc-sprite.svg'))
+      .pipe($.concat('app-sprite.svg'))
       .pipe(through.obj((file, enc, cb) => {
         file.contents = Buffer.concat([spriteHead, file.contents, spriteTail]);
         cb(null, file);

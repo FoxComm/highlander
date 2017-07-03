@@ -2,19 +2,19 @@ import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 import Site from './components/layout/site';
 import StoreFront from './components/layout/storefront';
-import Products from './pages/catalog/products';
-import Pdp from './pages/catalog/pdp';
-import Search from './pages/search/search';
+import Products from './components/catalog/products';
+import Pdp from './components/catalog/pdp';
+import Search from './components/search-results/search-results';
 
 import Profile from './components/profile/profile';
 
-import MensCatPage from './pages/category/men';
-import WomensCatPage from './pages/category/women';
+import MensCatPage from './components/category/men';
+import WomensCatPage from './components/category/women';
 
-import HomePage from './pages/home/home-page';
+import HomePage from './components/home/home-page';
 
-import Checkout from './pages/checkout/checkout';
-import OrderPlaced from './pages/checkout/order-placed/order-placed';
+import Checkout from './components/checkout/checkout';
+import OrderPlaced from './components/checkout/order-placed/order-placed';
 
 import { isAuthorizedUser } from 'paragons/auth';
 

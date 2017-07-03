@@ -16,7 +16,7 @@ import { FormField } from 'ui/forms';
 import Select from 'ui/select/select';
 
 // types
-import type { TProductView } from 'pages/catalog/types';
+import type { TProductView } from 'components/catalog/types';
 import type { Sku } from 'modules/product-details';
 
 type Props = {

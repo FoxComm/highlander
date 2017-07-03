@@ -5,7 +5,6 @@ const _if = require('gulp-if');
 module.exports = function(gulp, $) {
   const src = [
     'public/css/fonts.css',
-    'node_modules/evil-icons/assets/evil-icons.css',
     'public/css/reset.css',
     'public/css/inputs.css',
     'node_modules/react-image-gallery/styles/css/image-gallery.css',

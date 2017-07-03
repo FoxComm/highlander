@@ -1,0 +1,161 @@
+@import "css/media-queries.css";
+@import "css/colors.css";
+@import "css/variables.css";
+
+.checkout {
+  width: 100vw;
+  counter-reset: item;
+
+  & :global(.fc-errors) > div:first-child {
+    /* 50px - height of sticky header */
+    padding-top: 50px;
+    margin-top: -50px;
+  }
+}
+
+.wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+.shipping, .delivery, .payment {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.content-container-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+}
+
+.content-container-overlay._with-overlay {
+  display: block;
+}
+
+@media (--small-only), (--medium-only) {
+  .wrapper {
+    flex-direction: column;
+  }
+
+  .column {
+    margin-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .delivery {
+    margin-top: 15px;
+  }
+
+  .payment, .order-summary {
+    margin: 15px 15px 0;
+  }
+
+  .payment {
+    order: 2;
+  }
+
+  .order-summary {
+    order: 3;
+  }
+
+  .total-cost {
+    order: 4;
+    font-size: 12px;
+  }
+
+  .totals-list {
+    padding: 15px 15px 15px;
+  }
+
+  .shipping, .delivery {
+    max-height: 150px;
+  }
+
+  .place-order-button {
+    border-radius: 0;
+  }
+}
+
+@media (--large) {
+  .content {
+    display: flex;
+    flex-direction: column;
+    lost-column: 10/12;
+    lost-offset: -1/12;
+  }
+
+  .wrapper {
+    margin-top: 25px;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .main-container {
+    lost-column: 7/11;
+  }
+
+  .side-container {
+    lost-column: 4/11;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 48%;
+  }
+
+  .payment {
+    width: 48%;
+  }
+
+  .shipping, .delivery, .total-cost, .payment {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 12px 15px 0;
+  }
+
+  .shipping {
+    margin-bottom: 20px;
+  }
+
+  .total-cost {
+    padding: 7px 20px 0;
+  }
+
+  .totals-list {
+    margin: 0;
+  }
+
+  .place-order-block {
+    margin: 20px 0;
+    height: 58px;
+  }
+
+  .place-order-button {
+    border-radius: 4px;
+    height: 58px;
+  }
+
+  .order-summary {
+    margin-top: 40px;
+  }
+
+  .order-content {
+    padding: 0;
+  }
+}

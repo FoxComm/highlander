@@ -4,7 +4,7 @@ import React, { Element } from 'react';
 
 import styles from './css/buttons.css';
 
-import Icon from 'ui/icon';
+import { Icon } from '@foxcomm/storefront-react';
 
 type ButtonProps = {
   icon?: string,

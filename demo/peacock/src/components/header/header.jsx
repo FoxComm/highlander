@@ -10,7 +10,7 @@ import { toggleSidebar } from 'modules/sidebar';
 // components
 import Icon from 'ui/icon';
 import ActionLink from 'ui/action-link/action-link';
-import Search from 'components/search/search';
+import Search from 'search-form.jsx';
 import UserTools from 'components/usertools/usertools';
 import Navigation from 'components/navigation/navigation';
 import Cart from 'components/cart/cart';

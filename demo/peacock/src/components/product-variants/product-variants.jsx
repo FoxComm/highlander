@@ -13,7 +13,7 @@ import Facets from 'components/facets/facets';
 import styles from './product-variants.css';
 
 // types
-import type { TProductView } from 'pages/catalog/types';
+import type { TProductView } from 'components/catalog/types';
 import type { ProductResponse, ProductVariant, VariantValue, Sku } from 'modules/product-details';
 import type { Facet as TFacet } from 'types/facets';
 

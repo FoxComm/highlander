@@ -1,0 +1,81 @@
+@import "css/colors.css";
+@import "css/media-queries.css";
+
+.title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.helpful-hints {
+  font-size: 12px;
+  text-align: right;
+  padding-bottom: 10px;
+}
+
+.action-link-delivery {
+  composes: action-link from "../../../ui/action-link/action-link.css";
+  font-size: 14px;
+}
+
+.delivery {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  padding-bottom: 10px;
+
+  & .method {
+    line-height: 1.33;
+    color: var(--text-color);
+  }
+
+  & .cost {
+    font-weight: 900;
+    line-height: 1.33;
+    color: var(--text-color);
+  }
+}
+
+.shipping-methods {
+  padding: 15px 10px 15px 15px;
+}
+
+.shipping-method {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  line-height: 1.33;
+  font-size: 12px;
+}
+
+.chosen {
+  background: var(--select-active-background);
+  border-color: transparent;
+}
+
+.method-name {
+  font-weight: 900;
+  line-height: 1.6;
+}
+
+@media (--large) {
+  .delivery {
+    padding-right: 0;
+  }
+
+  .action-link-delivery {
+    margin-right: 0;
+  }
+}

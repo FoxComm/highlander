@@ -1,0 +1,29 @@
+@import "css/media-queries.css";
+@import "css/colors.css";
+
+.credit-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  padding: 10px 10px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.chosen {
+  background: var(--select-active-background);
+  border-color: transparent;
+}
+
+
+.action-link-remove-card {
+  composes: action-link from "../../../ui/action-link/action-link.css";
+  font-size: 14px;
+}
+
+@media (--large) {
+  .credit-card {
+    padding-bottom: 10px;
+  }
+}

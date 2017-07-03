@@ -3,7 +3,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import Icon from 'ui/icon';
+import { Icon } from '@foxcomm/storefront-react';
 
 import styles from './top-banner.css';
 
@@ -28,7 +28,7 @@ const TopBanner = (props: Props) => {
       </div>
       <div styleName="button">
         <a styleName="close" onClick={props.onClose}>
-          <Icon name="fc-close" className="close-icon" />
+          <Icon name="close" className="close-icon" />
         </a>
       </div>
     </div>

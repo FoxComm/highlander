@@ -3508,10 +3508,6 @@ events@^1.0.0, events@^1.1.1, events@~1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/events/-/events-1.1.1.tgz#9ebdb7635ad099c70dcc4c2a1f5004288e8bd924"
 
-evil-icons@^1.8.0:
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/evil-icons/-/evil-icons-1.9.0.tgz#0f15d6295cb2ef9bf21dda69a5aedb98e2ac6b92"
-
 evp_bytestokey@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/evp_bytestokey/-/evp_bytestokey-1.0.0.tgz#497b66ad9fef65cd7c08a6180824ba1476b66e53"

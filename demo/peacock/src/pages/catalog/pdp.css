@@ -1,9 +1,0 @@
-@import "colors.css";
-@import "layout.css";
-@import "variables.css";
-@import "media-queries.css";
-@import "typography.css";
-
-.share-image {
-  width: 100%;
-}

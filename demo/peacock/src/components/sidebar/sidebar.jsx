@@ -18,7 +18,7 @@ import * as actions from 'modules/sidebar';
 
 // components
 import SidebarNavigation from 'components/navigation/sidebar-navigation';
-import Search from 'components/search/search';
+import Search from 'search-form.jsx';
 import Overlay from 'ui/overlay/overlay';
 import ActionLink from 'ui/action-link/action-link';
 
