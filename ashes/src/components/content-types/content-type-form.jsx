@@ -200,7 +200,6 @@ export default class ContentTypeForm extends ObjectDetails {
   onSave(key, index) {
     return object => {
       if (index !== undefined) {
-        this.props.object[key][index].attributes = object;
         const newArray = this.props.object[key].filter((item, itemIndex) => itemIndex !== index);
         newArray[index] = {
           attributes: object
@@ -220,6 +219,17 @@ export default class ContentTypeForm extends ObjectDetails {
           ]
         });
       }
+    };
+  }
+
+  @autobind
+  onDelete(key, index) {
+    return () => {
+      const newArray = this.props.object[key].filter((item, itemIndex) => itemIndex !== index);
+      this.props.onUpdateObject({
+        ...this.props.object,
+        [key]: newArray
+      });
     };
   }
 
@@ -447,8 +457,10 @@ export default class ContentTypeForm extends ObjectDetails {
             title: 'Property Settings',
             footer: this.state.properties.showModal ? (
               <Button
-                onClick={() => {
-                }}
+                onClick={_.compose(
+                  this.onDelete('properties', this.state.currentPropertyIndex),
+                  this.setIsVisible('properties', false)
+                )}
               >
                 Delete
               </Button>
