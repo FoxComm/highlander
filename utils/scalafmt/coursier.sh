@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 # Once coursier is installed, you can use binary directly if you need it.
 # If calling from other scripts, call this one to ensure binary is installed.

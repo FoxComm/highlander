@@ -2,7 +2,7 @@ package phoenix.services
 
 import core.db._
 import core.failures._
-import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
+import de.heikoseeberger.akkasse.scaladsl.model.{ServerSentEvent ⇒ SSE}
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.JsonMethods._
 import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
@@ -19,10 +19,8 @@ import slick.jdbc.PostgresProfile.api._
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def createNotification(payload: CreateNotification)(implicit ac: AC,
-                                                      au: AU,
-                                                      ec: EC,
-                                                      db: DB): DbResultT[ActivityResponse.Root] =
+  def createNotification(
+      payload: CreateNotification)(implicit ac: AC, au: AU, ec: EC, db: DB): DbResultT[ActivityResponse] =
     for {
       dimension ← * <~ Dimensions.findOrCreateByName(payload.sourceDimension)
       activity = Activity(

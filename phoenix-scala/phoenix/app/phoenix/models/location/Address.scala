@@ -6,10 +6,10 @@ import cats.implicits._
 import core.db._
 import core.failures.{Failures, NotFoundFailure404}
 import core.utils.Validation
-import phoenix.models.cord.OrderShippingAddress
+import phoenix.models.location.Addresses.scope
 import phoenix.models.payment.creditcard.CreditCard
 import phoenix.models.traits.Addressable
-import phoenix.payloads.AddressPayloads.CreateAddressPayload
+import phoenix.payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 
@@ -36,31 +36,47 @@ case class Address(id: Int = 0,
   def mustBelongToAccount(accountId: Int): Either[Failures, Address] =
     if (this.isNew || this.accountId == accountId) Either.right(this)
     else Either.left(NotFoundFailure404(Address, this.id).single)
+
+  // we gonna have only one address bound to an order for now
+  def bindToCart(cartRef: String)(implicit ec: EC): DbResultT[AddressCord] =
+    for {
+      _           ← * <~ AddressCords.findByCordRef(cartRef).deleteAll
+      addressCord ← * <~ AddressCords.create(AddressCord(cordRef = cartRef, addressId = this.id))
+    } yield addressCord
+
+  def unbindFromCart()(implicit ec: EC): DbResultT[Unit] =
+    AddressCords.findByAddressId(this.id).deleteAll.void
+
 }
 
 object Address {
   val zipPattern   = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
   val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
 
-  def fromPayload(p: CreateAddressPayload, accountId: Int): Address =
-    Address(accountId = accountId,
-            regionId = p.regionId,
-            name = p.name,
-            address1 = p.address1,
-            address2 = p.address2,
-            city = p.city,
-            zip = p.zip,
-            phoneNumber = p.phoneNumber)
+  def fromPayload(p: CreateAddressPayload, accountId: Int) =
+    Address(
+      accountId = accountId,
+      regionId = p.regionId,
+      name = p.name,
+      address1 = p.address1,
+      address2 = p.address2,
+      city = p.city,
+      zip = p.zip,
+      phoneNumber = p.phoneNumber
+    )
 
-  def fromOrderShippingAddress(osa: OrderShippingAddress): Address =
-    Address(accountId = 0,
-            regionId = osa.regionId,
-            name = osa.name,
-            address1 = osa.address1,
-            address2 = osa.address2,
-            city = osa.city,
-            zip = osa.zip,
-            phoneNumber = osa.phoneNumber)
+  def fromPatchPayload(existingAddress: Address, incomingPayload: UpdateAddressPayload): Address =
+    Address(
+      id = existingAddress.id,
+      accountId = existingAddress.accountId,
+      regionId = incomingPayload.regionId.getOrElse(existingAddress.regionId),
+      name = incomingPayload.name.getOrElse(existingAddress.name),
+      address1 = incomingPayload.address1.getOrElse(existingAddress.address1),
+      address2 = incomingPayload.address2.fold(existingAddress.address2)(Some(_)),
+      city = incomingPayload.city.getOrElse(existingAddress.city),
+      zip = incomingPayload.zip.getOrElse(existingAddress.zip),
+      phoneNumber = incomingPayload.phoneNumber.fold(existingAddress.phoneNumber)(Some(_))
+    )
 
   def fromCreditCard(cc: CreditCard): Address =
     Address(
@@ -73,6 +89,16 @@ object Address {
       zip = cc.address.zip,
       phoneNumber = cc.address.phoneNumber
     )
+
+  import scope._
+  def mustFindByAddressId(id: Int)(implicit ec: EC): DbResultT[(Address, Region)] =
+    Addresses.findById(id).extract.withRegions.mustFindOneOr(NotFoundFailure404(Address, id))
+
+  def mustFindByCordRef(cordRef: String)(implicit ec: EC): DbResultT[(Address, Region)] =
+    Addresses
+      .findByCordRef(cordRef)
+      .withRegions
+      .mustFindOneOr(NotFoundFailure404(Address, cordRef))
 }
 
 class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses") {
@@ -114,6 +140,15 @@ object Addresses
 
   def findAllActiveByAccountIdWithRegions(accountId: Int): AddressesWithRegionsQuery =
     findAllActiveByAccountId(accountId).withRegions
+
+  def findByCordRef(cordRef: String): QuerySeq =
+    for {
+      addressCord ← AddressCords.filter(_.cordRef === cordRef)
+      address     ← Addresses if address.id === addressCord.addressId
+    } yield address
+
+  def findByCordRefWithRegions(cordRef: String): AddressesWithRegionsQuery =
+    findByCordRef(cordRef).withRegions
 
   def findShippingDefaultByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId).filter(_.isDefaultShipping === true)

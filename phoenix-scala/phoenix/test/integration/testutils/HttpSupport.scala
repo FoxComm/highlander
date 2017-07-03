@@ -3,6 +3,7 @@ package testutils
 import java.net.ServerSocket
 
 import akka.actor.ActorSystem
+import akka.NotUsed
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
@@ -17,8 +18,8 @@ import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
-import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
-import de.heikoseeberger.akkasse.ServerSentEvent
+import de.heikoseeberger.akkasse.scaladsl.unmarshalling.EventStreamUnmarshalling._
+import de.heikoseeberger.akkasse.scaladsl.model.ServerSentEvent
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
@@ -35,12 +36,19 @@ import scala.concurrent.duration._
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
-  @volatile var akkaConfigured = false
 
-  protected var system: ActorSystem             = _
-  protected var materializer: ActorMaterializer = _
-  protected var service: Service                = _
-  var serverBinding: ServerBinding              = _
+  implicit lazy val system: ActorSystem =
+    ActorSystem("phoenix-integration-tests", actorSystemConfig)
+
+  private def actorSystemConfig =
+    ConfigFactory.parseString("""
+                                 |akka {
+                                 |  log-dead-letters = off
+                                 |}
+                               """.stripMargin).withFallback(ConfigFactory.load())
+
+  implicit lazy val materializer: ActorMaterializer = ActorMaterializer()
+
 }
 
 trait HttpSupport
@@ -50,30 +58,17 @@ trait HttpSupport
     with BeforeAndAfterAll
     with TestObjectContext { self: FoxSuite ⇒
 
-  import HttpSupport._
-
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   private val validResponseContentTypes =
     Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
-  protected implicit lazy val mat: ActorMaterializer   = materializer
-  protected implicit lazy val actorSystem: ActorSystem = system
+  protected implicit def mat: ActorMaterializer   = HttpSupport.materializer
+  protected implicit def actorSystem: ActorSystem = HttpSupport.system
 
-  protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
-
-  override protected def beforeAll(): Unit = {
-    super.beforeAll()
-    if (!akkaConfigured) {
-      system = ActorSystem("system", actorSystemConfig)
-      materializer = ActorMaterializer()
-
-      akkaConfigured = true
-    }
-
-    service = makeService
-
-    serverBinding = service
+  private[this] lazy val service: Service = makeService
+  private[this] lazy val serverBinding: ServerBinding = {
+    service
       .bind(
         FoxConfig.http.modify(config)(
           _.copy(
@@ -83,31 +78,44 @@ trait HttpSupport
       .futureValue
   }
 
-  override protected def afterAll: Unit = {
-    super.afterAll
-    Await.result(for {
-      _ ← Http().shutdownAllConnectionPools()
-      _ ← service.close()
-    } yield {}, 1.minute)
+  protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
+
+  override protected def beforeAll(): Unit = {
+    super.beforeAll()
+    // init
+    HttpSupport.system
+    HttpSupport.materializer
+    serverBinding
   }
 
-  private def actorSystemConfig =
-    ConfigFactory.parseString("""
-        |akka {
-        |  log-dead-letters = off
-        |}
-      """.stripMargin).withFallback(ConfigFactory.load())
+  override protected def afterAll: Unit = {
+    super.afterAll()
+    for {
+      _ ← service.close()
+    } yield ()
+  }
 
   def apisOverride: Option[Apis]
 
   private def makeService: Service =
     new Service(dbOverride = Some(db),
-                systemOverride = Some(system),
+                systemOverride = Some(actorSystem),
                 apisOverride = apisOverride,
                 addRoutes = additionalRoutes) {}
 
   def POST(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.POST,
+                              uri = pathToAbsoluteUrl(path),
+                              entity = HttpEntity.Strict(
+                                ContentTypes.`application/json`,
+                                ByteString(rawBody)
+                              ))
+
+    dispatchRequest(request, jwtCookie)
+  }
+
+  def PUT(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
+    val request = HttpRequest(method = HttpMethods.PUT,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
                                 ContentTypes.`application/json`,
@@ -139,6 +147,9 @@ trait HttpSupport
 
   def POST[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
     POST(path, writeJson(payload), jwtCookie)
+
+  def PUT[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    PUT(path, writeJson(payload), jwtCookie)
 
   def PATCH[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
     PATCH(path, writeJson(payload), jwtCookie)
@@ -194,22 +205,22 @@ trait HttpSupport
         if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path, jwtCookie))
         else sseSource(path, jwtCookie))
 
-    def sseSource(path: String, jwtCookie: Cookie): Source[String, Any] = {
+    def sseSource(path: String, jwtCookie: Cookie): Source[String, NotUsed] = {
       val localAddress = serverBinding.localAddress
 
       Source
         .single(Get(pathToAbsoluteUrl(path)).addHeader(jwtCookie))
         .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
-        .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
+        .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, NotUsed]])
         .runWith(Sink.head)
         .futureValue
         .map(_.data)
     }
 
-    def skipHeartbeatsAndAdminCreated(sse: Source[String, Any]): Source[String, Any] =
+    def skipHeartbeatsAndAdminCreated(sse: Source[String, NotUsed]): Source[String, NotUsed] =
       sse.via(Flow[String].filter(n ⇒ n.nonEmpty && !n.contains("store_admin_created")))
 
-    def probe(source: Source[String, Any]): Probe[String] =
+    def probe(source: Source[String, NotUsed]): Probe[String] =
       source.runWith(TestSink.probe[String])
   }
 }

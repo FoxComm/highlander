@@ -53,17 +53,6 @@ class NotificationIntegrationTest
       }
     }
 
-    "streams error and closes stream if admin not found" in {
-      pending
-      // Umm if we have JWT cookie, admin exists...
-
-      val message = s"Error! User with account id=1 not found"
-
-      sseProbe(notificationsApi.notificationsPrefix, defaultAdminAuth.jwtCookie)
-        .request(2)
-        .expectNext(message)
-        .expectComplete()
-    }
   }
 
   "POST v1/notifications/last-seen/:activityId" - {
@@ -92,7 +81,7 @@ class NotificationIntegrationTest
     "creates notification" in new Fixture {
       subscribeToNotifications()
 
-      val activity = notificationsApi.create(newNotificationPayload).as[ActivityResponse.Root]
+      val activity = notificationsApi.create(newNotificationPayload).as[ActivityResponse]
       activity.id must === ("test")
     }
   }
@@ -108,7 +97,7 @@ class NotificationIntegrationTest
         sub.dimensionId must === (dimension.id)
         sub.objectId must === (randomObjectId)
         sub.reason must === (Watching)
-        val activity = notificationsApi.create(newNotificationPayload).as[ActivityResponse.Root]
+        val activity = notificationsApi.create(newNotificationPayload).as[ActivityResponse]
         activity.id must === ("test")
       }
 

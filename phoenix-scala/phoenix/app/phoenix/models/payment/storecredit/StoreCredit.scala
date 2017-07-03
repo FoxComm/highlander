@@ -14,6 +14,7 @@ import core.utils.Money._
 import core.utils.Validation
 import core.utils.Validation._
 import phoenix.failures.StoreCreditFailures
+import phoenix.failures.StoreCreditFailures.{CustomerHasInsufficientStoreCredit, StoreCreditIsInactive}
 import phoenix.models.account._
 import phoenix.models.cord.OrderPayment
 import phoenix.models.payment.storecredit.StoreCredit._
@@ -73,6 +74,13 @@ case class StoreCredit(id: Int = 0,
   )
 
   def isActive: Boolean = state == Active
+
+  def mustBeActive: Either[Failures, StoreCredit] =
+    if (isActive) Either.right(this) else Either.left(StoreCreditIsInactive(this).single)
+
+  def mustHaveEnoughBalance(amount: Long): Either[Failures, StoreCredit] =
+    if (availableBalance >= amount) Either.right(this)
+    else Either.left(CustomerHasInsufficientStoreCredit(this.id, availableBalance, amount).single)
 }
 
 object StoreCredit {

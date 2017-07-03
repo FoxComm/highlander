@@ -2,13 +2,14 @@ import cats.implicits._
 import core.failures.NotFoundFailure404
 import phoenix.failures.AddressFailures.NoRegionFound
 import phoenix.models.account._
-import phoenix.models.cord.OrderShippingAddresses
 import phoenix.models.location.{Address, Addresses, Country, Region}
 import phoenix.payloads.AddressPayloads.CreateAddressPayload
-import phoenix.responses.AddressResponse
+import phoenix.payloads.CartPayloads.CreateCart
+import phoenix.responses.{AddressResponse, TheResponse}
 import phoenix.responses.PublicResponses.CountryWithRegions
+import phoenix.responses.cord.CartResponse
 import testutils._
-import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
+import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.{randomAddress, ApiFixtureHelpers}
 
@@ -18,6 +19,7 @@ class AddressesIntegrationTest
     with DefaultJwtAdminAuth
     with ApiFixtureHelpers
     with PhoenixAdminApi
+    with PhoenixStorefrontApi
     with PhoenixPublicApi
     with BakedFixtures {
 
@@ -31,15 +33,10 @@ class AddressesIntegrationTest
   }
 
   "POST /v1/customers/:customerId/addresses" - {
-    "creates an address" in new Customer_Seed {
-      val payload = CreateAddressPayload(name = "Home Office",
-                                         regionId = 1,
-                                         address1 = "3000 Coolio Dr",
-                                         city = "Seattle",
-                                         zip = "55555")
+    "creates an address" in new Customer_Seed with AddressFixture {
       val newAddress =
-        customersApi(customer.accountId).addresses.create(payload).as[AddressResponse]
-      newAddress.name must === (payload.name)
+        customersApi(customer.accountId).addresses.create(addressPayload).as[AddressResponse]
+      newAddress.name must === (addressPayload.name)
       newAddress.isDefault must === (Some(false))
     }
   }
@@ -74,31 +71,23 @@ class AddressesIntegrationTest
   }
 
   "PATCH /v1/customers/:customerId/addresses/:addressId" - {
-    "can be edited" in new CustomerAddress_Baked {
-      val payload = CreateAddressPayload(name = "Home Office",
-                                         regionId = 1,
-                                         address1 = "3000 Coolio Dr",
-                                         city = "Seattle",
-                                         zip = "55555")
-      (payload.name, payload.address1) must !==((address.name, address.address1))
+    "can be edited" in new CustomerAddress_Baked with AddressFixture {
+      (addressPayload.name, addressPayload.address1) must !==((address.name, address.address1))
 
-      val updated =
-        customersApi(customer.accountId).address(address.id).edit(payload).as[AddressResponse]
+      val updated = customersApi(customer.accountId)
+        .address(address.id)
+        .edit(addressPayload)
+        .as[AddressResponse]
 
-      (updated.name, updated.address1) must === ((payload.name, payload.address1))
+      (updated.name, updated.address1) must === ((addressPayload.name, addressPayload.address1))
     }
   }
 
   "DELETE /v1/customers/:customerId/addresses/:addressId" - {
-    "can be deleted" in new CustomerAddress_Baked {
+    "can be deleted" in new CustomerAddress_Baked with AddressFixture {
 
       //notice the payload is a default shipping address. Delete should make it not default.
-      val payload = CreateAddressPayload(name = "Delete Me",
-                                         regionId = 1,
-                                         address1 = "5000 Delete Dr",
-                                         city = "Deattle",
-                                         zip = "666",
-                                         isDefault = true)
+      val payload = addressPayload.copy(isDefault = true)
 
       val newAddress: AddressResponse =
         customersApi(customer.accountId).addresses.create(payload).as[AddressResponse]
@@ -141,6 +130,57 @@ class AddressesIntegrationTest
         .address(address.id)
         .delete()
         .mustFailWith404(NotFoundFailure404(User, 65536))
+    }
+  }
+
+  "Create /v1/my/addresses" - {
+    "POST shipping addresses into a cart adds it to customer details as well" in new AddressFixture {
+      withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        val cart = cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
+
+        storefrontCartsApi.shippingAddress.create(addressPayload).as[TheResponse[CartResponse]]
+
+        customersApi(auth.customerId).addresses.get
+          .as[Seq[AddressResponse]]
+          .onlyElement
+          .address1 must === (addressPayload.address1)
+
+        cartsApi(cart.referenceNumber)
+          .get()
+          .asTheResult[CartResponse]
+          .shippingAddress
+          .value
+          .address1 must === (addressPayload.address1)
+      }
+    }
+
+    "PUT for shipping addresses must be idempotent" in new AddressFixture {
+      pending // PR #2036
+      withNewCustomerAuth(TestLoginData.random) { implicit auth ⇒
+        val cart = cartsApi.create(CreateCart(customerId = auth.customerId.some)).as[CartResponse]
+
+        storefrontCartsApi.shippingAddress.createOrUpdate(addressPayload).mustBeOk()
+        storefrontCartsApi.shippingAddress.createOrUpdate(addressPayload).mustBeOk()
+        storefrontCartsApi.shippingAddress
+          .createOrUpdate(addressPayload.copy(address1 = "My New address"))
+          .mustBeOk()
+
+        val shippingAddress = cartsApi(cart.referenceNumber)
+          .get()
+          .asTheResult[CartResponse]
+          .shippingAddress
+          .value match {
+          case adr ⇒ (adr.address1, adr.city, adr.zip)
+        }
+
+        val customerAddress =
+          customersApi(auth.customerId).addresses.get.as[Seq[AddressResponse]].onlyElement match {
+            case adr ⇒ (adr.address1, adr.city, adr.zip)
+          }
+
+        shippingAddress must === (("My New address", addressPayload.city, addressPayload.zip))
+        customerAddress must === (("My New address", addressPayload.city, addressPayload.zip))
+      }
     }
   }
 
@@ -204,7 +244,14 @@ class AddressesIntegrationTest
 
   trait ShippingAddressFixture extends EmptyCartWithShipAddress_Baked
 
-  trait NoDefaultAddressFixture extends CustomerAddress_Baked with EmptyCustomerCart_Baked {
-    val shippingAddress = OrderShippingAddresses.copyFromAddress(address, cart.refNum).gimme
+  trait NoDefaultAddressFixture extends CustomerAddress_Baked with EmptyCustomerCart_Baked
+
+  trait AddressFixture {
+    val addressPayload = CreateAddressPayload(name = "Home Office",
+                                              regionId = 1,
+                                              address1 = "3000 Coolio Dr",
+                                              city = "Seattle",
+                                              zip = "55555")
   }
+
 }

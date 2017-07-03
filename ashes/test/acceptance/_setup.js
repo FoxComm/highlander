@@ -10,11 +10,7 @@ hook({
   generateScopedName: '[local]',
 });
 
-const unexpectedReactShallow = require('unexpected-react-shallow');
-
-global.unexpected = global.unexpected.clone()
-  .installPlugin(unexpectedReactShallow);
-
+global.unexpected = require('unexpected').clone().installPlugin(require('unexpected-react-shallow'));
 
 global.requireComponent = function(componentPath, returnDefault = true) {
   const result = require(path.resolve('src/components/' + componentPath));
@@ -29,14 +25,14 @@ global.shallowRender = function(element) {
   Object.defineProperty(renderer, 'instance', {
     get: function() {
       return _.get(this, '_instance._instance');
-    }
+    },
   });
 
   ['type', 'props', '$$typeof', 'key', 'ref', '_store', '_owner'].map(property => {
     Object.defineProperty(renderer, property, {
       get: function() {
         return this.getRenderOutput() && this.getRenderOutput()[property];
-      }
+      },
     });
   });
 
@@ -62,11 +58,15 @@ global.createContainer = function(tagName = 'div', attachToDom = false) {
 global.renderIntoDocument = function(element, attachToDom = false) {
   return new Promise((resolve, reject) => {
     const container = global.createContainer(void 0, attachToDom);
-    const instance = ReactDOM.render(element, container, later(function() {
-      instance.unmount = container.unmount;
-      instance.container = container;
-      resolve(instance);
-    }));
+    const instance = ReactDOM.render(
+      element,
+      container,
+      later(function() {
+        instance.unmount = container.unmount;
+        instance.container = container;
+        resolve(instance);
+      })
+    );
   });
 };
 
@@ -75,4 +75,3 @@ global.wait = function(ms) {
     setTimeout(resolve, ms);
   });
 };
-

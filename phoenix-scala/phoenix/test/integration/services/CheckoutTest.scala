@@ -21,7 +21,7 @@ import phoenix.models.payment.storecredit._
 import phoenix.models.product.{Mvp, SimpleContext}
 import phoenix.models.shipping.ShippingMethods
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
-import phoenix.services.{CartValidation, CartValidatorResponse, Checkout, LineItemUpdater}
+import phoenix.services.{CartValidation, CartValidatorResponse, Checkout}
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import phoenix.utils.seeds.Factories
@@ -30,6 +30,8 @@ import testutils._
 import testutils.fixtures.BakedFixtures
 import core.db._
 import core.utils.Money._
+import phoenix.services.carts.CartLineItemUpdater
+
 import scala.concurrent.Future
 
 class CheckoutTest
@@ -167,12 +169,14 @@ class CheckoutTest
 
             cart ← * <~ Carts.create(Cart(accountId = customer.accountId, scope = Scope.current))
 
-            _ ← * <~ LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, lineItemPayload(total))
+            _ ← * <~ CartLineItemUpdater.updateQuantitiesOnCart(storeAdmin,
+                                                                cart.refNum,
+                                                                lineItemPayload(total))
 
             c ← * <~ Carts.refresh(cart)
 
             _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-            _ ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
+            _ ← * <~ address.bindToCart(cart.refNum)
 
             gcIds ← * <~ generateGiftCards(gcData.map(_.cardAmount))
             scIds ← * <~ generateStoreCredits(scData.map(_.cardAmount))
@@ -245,7 +249,7 @@ class CheckoutTest
     override val cart = super.cart.copy(grandTotal = 1000)
     (for {
       _ ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(cart.refNum, shipMethod))
-      _ ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
+      _ ← * <~ address.bindToCart(cart.refNum)
     } yield {}).gimme
   }
 }

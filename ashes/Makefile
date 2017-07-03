@@ -4,9 +4,13 @@ header = $(call baseheader, $(1), ashes)
 export PATH := $(CURDIR)/node_modules/.bin:$(PATH)
 SHELL := env PATH=$(PATH) /bin/sh
 
-GIT_REVISION = $(shell git describe --tags --always)
-GIT_COMMIT = $(shell git rev-parse --short HEAD)
+export GIT_REVISION = $(shell git describe --tags --always)
+export GIT_COMMIT = $(shell git rev-parse --short HEAD)
+export URL_PREFIX = /admin
 WEBPACK_PORT = 4001
+
+notify:
+	$(call header, $(MSG))
 
 # Docker stuff ###
 
@@ -22,13 +26,17 @@ CFLAGS = -c -g -D $(NODE_ENV)
 version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('package.json')).version)")
 
 .PHONY: docker
-docker:
-	$(call header, Dockerizing)
-	docker build --squash --compress -t $(DOCKER_IMAGE) .
+docker: MSG=Dockerizing
+docker: notify
+	docker build --squash --compress -t $(DOCKER_IMAGE) . --build-arg NPM_TOKEN=${NPM_TOKEN}
+
+.PHONY: docker-run
+docker-run:
+	docker run -it -p 4000:4000 ashes:latest
 
 .PHONY: docker-push
-docker-push:
-	$(call header, Registering)
+docker-push: MSG=Registering
+docker-push: notify
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
@@ -45,44 +53,61 @@ clean:
 	rm -rf ./build/admin
 
 .PHONY: test
-test: flow lint
-	$(call header, Testing)
-	rm -rf ./node_modules
-	make install
-	@NODE_ENV=$(NODE_ENV) gulp test
+test: MSG=Testing
+test: notify flow lint mocha
 
 .PHONY: t
-t: flow lint
-	@NODE_ENV=$(NODE_ENV) gulp test
+t: flow lint mocha
 
-.PHONY: mocha-main
-mocha-main:
-	@NODE_ENV=$(NODE_ENV) gulp mocha.main
+.PHONY: mocha-spec
+mocha-spec:
+	mocha --require test/acceptance/_setup --recursive ./src/**/*.spec.jsx
+
+.PHONY: mocha-acc
+mocha-acc:
+	@NODE_ENV=$(NODE_ENV) mocha --require test/acceptance/_setup --recursive ./test/acceptance/**/*.jsx
 
 .PHONY: mocha-unit
 mocha-unit:
-	@NODE_ENV=$(NODE_ENV) gulp mocha.unit
+	@NODE_ENV=$(NODE_ENV) mocha --recursive ./test/unit/**/*.js
+
+.PHONY: mocha
+mocha: mocha-acc mocha-spec mocha-unit
+
+.PHONY: stylelint
+stylelint:
+	stylelint "./src/**/*.css"
 
 .PHONY: lint
-lint:
-	 eslint --ext .js --ext .jsx ./
+lint: stylelint
+	eslint --ext .js --ext .jsx ./
 
 .PHONY: flow
 flow:
 	flow check
 
+# run prettier against js(x)/css files in git diff that are not formatted in Prettier style
+.PHONY: fmt
+fmt:
+	../utils/prettier/fmt.sh
+
+# prettierify target directory. usage: make fmt-config
+fmt-%:
+	../utils/prettier/fmt.sh $*
+
 .PHONY: build-styleguide
 build-styleguide:
-	GIT_COMMIT=$(GIT_COMMIT) styleguidist build --config styleguide/config.styleguide.js
+	styleguidist build --config styleguide/config.styleguide.js
 
 .PHONY: styleguide sg
 styleguide sg:
-	GIT_COMMIT=$(GIT_COMMIT) styleguidist server --config styleguide/config.styleguide.js
+	styleguidist server --config styleguide/config.styleguide.js
 
 # Base ###
 
 .PHONY: install i
 install i:
+	rm -rf ./node_modules
 	yarn cache clean
 	yarn --pure-lockfile
 
@@ -95,7 +120,7 @@ nodemon:
 
 .PHONY: build-dev
 build-dev:
-	GIT_REVISION=$(GIT_REVISION) webpack-dev-server \
+	webpack-dev-server \
 	--inline --watch --hot --progress --content-base=build/ --port $(WEBPACK_PORT)
 
 .PHONY: dev d
@@ -105,20 +130,15 @@ dev d:
 # Production ###
 
 .PHONY: build-prod
-build-prod: clean
-	GIT_REVISION=$(GIT_REVISION) NODE_ENV=production webpack --progress
+build-prod:
+	NODE_ENV=production webpack --progress
 
 .PHONY: prod p
-prod p: build-prod
+prod p: clean build-prod
 	NODE_ENV=production node -r dotenv/config ./server/index.js
 
 # Buildkite ###
 
 .PHONY: build
-build:
-	$(call header, Building)
-	make install
-	BEHIND_NGINX=true make build-prod
-ifeq ($(ASHES_BUILD_STYLEGUIDE), true)
-	make build-styleguide
-endif
+build: MSG=Building
+build: notify clean install build-styleguide build-prod

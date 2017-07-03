@@ -22,7 +22,7 @@ import phoenix.payloads.ProductPayloads._
 import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import phoenix.responses.ProductResponses.ProductResponse
-import phoenix.responses.ProductResponses.ProductResponse.Root
+import phoenix.responses.ProductResponses.ProductResponse
 import phoenix.responses.cord.CartResponse
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
@@ -64,20 +64,23 @@ class ProductIntegrationTest
   "GET v1/products/:context" - {
     "returns assigned taxonomies" in new ProductAndSkus_Baked with FlatTaxons_Baked {
       taxonsApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
-      val product = productsApi(simpleProduct.formId).get().as[ProductResponse.Root]
+      val product = productsApi(simpleProduct.formId).get().as[ProductResponse]
       product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
     }
 
-    "queries product by slug (incl. ignoring case)" in new ProductSku_ApiFixture {
+    "queries product by slug (incl. ignoring case)" in {
       val slug = "simple-product"
+      val (product, productAttrs) = {
+        val fixture = ProductSku_ApiFixture()
+        (fixture.product, fixture.productPayload.attributes)
+      }
 
       productsApi(product.id)
-        .update(
-          UpdateProductPayload(productPayload.attributes, slug = Some(slug), skus = None, variants = None))
+        .update(UpdateProductPayload(productAttrs, slug = Some(slug), skus = None, variants = None))
         .mustBeOk()
 
       List(slug, "Simple-Product").foreach { slugToQuery ⇒
-        productsApi(slugToQuery).get().as[ProductResponse.Root].id must === (product.id)
+        productsApi(slugToQuery).get().as[ProductResponse].id must === (product.id)
       }
     }
   }
@@ -135,22 +138,22 @@ class ProductIntegrationTest
     "Successful if product has variants" in new ProductVariants_ApiFixture {
       val slug = "simple-product"
 
-      val getProductResult = productsApi(product.id).get().as[Root]
+      val getProductResult = productsApi(product.id).get().as[ProductResponse]
       getProductResult must === (product)
 
       val storefrontResult = withRandomCustomerAuth { implicit auth ⇒
-        storefrontProductsApi(slug).get().as[Root]
+        storefrontProductsApi(slug).get().as[ProductResponse]
       }
       storefrontResult must === (product)
 
-      val publicResult = publicApi.getProduct(slug).as[Root]
+      val publicResult = publicApi.getProduct(slug).as[ProductResponse]
       publicResult must === (product)
     }
   }
 
   "POST v1/products/:context" - {
     def doQuery(productPayload: CreateProductPayload) =
-      productsApi.create(productPayload).as[Root]
+      productsApi.create(productPayload).as[ProductResponse]
 
     "Creates a product with" - {
       val skuName = "SKU-NEW-TEST"
@@ -163,7 +166,7 @@ class ProductIntegrationTest
           val productResponse = doQuery(productPayload.copy(slug = slug))
           productResponse.slug must === (slug.toLowerCase).withClue(slugClue)
 
-          val getProductResponse = productsApi(slug).get().as[Root]
+          val getProductResponse = productsApi(slug).get().as[ProductResponse]
           getProductResponse.slug must === (slug.toLowerCase).withClue(slugClue)
           getProductResponse.id must === (productResponse.id).withClue(slugClue)
         }
@@ -176,7 +179,7 @@ class ProductIntegrationTest
         productResponse.slug.isEmpty must === (false)
 
         val generatedSlug      = productResponse.slug
-        val getProductResponse = productsApi(generatedSlug).get().as[Root]
+        val getProductResponse = productsApi(generatedSlug).get().as[ProductResponse]
         getProductResponse.slug must === (generatedSlug)
         getProductResponse.id must === (productResponse.id)
       }
@@ -232,8 +235,8 @@ class ProductIntegrationTest
         val redSkuPayload = makeSkuPayload("SKU-RED-SMALL", skuAttrMap, None)
         val payload       = productPayload.copy(skus = Seq(redSkuPayload))
 
-        val productResponse    = productsApi.create(payload).as[Root]
-        val getProductResponse = productsApi(productResponse.id).get().as[Root]
+        val productResponse    = productsApi.create(payload).as[ProductResponse]
+        val getProductResponse = productsApi(productResponse.id).get().as[ProductResponse]
         getProductResponse.skus.length must === (1)
 
         val getFirstSku :: Nil = getProductResponse.skus
@@ -309,7 +312,7 @@ class ProductIntegrationTest
         productResponse.albums.head.images.length must === (1)
         productResponse.albums.head.images.head.src must === (src)
 
-        val getProductResponse = productsApi(productResponse.id).get().as[Root]
+        val getProductResponse = productsApi(productResponse.id).get().as[ProductResponse]
         getProductResponse.albums.length must === (1)
         getProductResponse.albums.head.images.length must === (1)
         getProductResponse.albums.head.images.head.src must === (src)
@@ -327,7 +330,7 @@ class ProductIntegrationTest
         productResponse.skus.length must === (1)
         productResponse.skus.head.albums.length must === (1)
 
-        val getProductResponse = productsApi(productResponse.id).get().as[Root]
+        val getProductResponse = productsApi(productResponse.id).get().as[ProductResponse]
         getProductResponse.skus.length must === (1)
 
         val album :: Nil = getProductResponse.skus.head.albums
@@ -431,7 +434,7 @@ class ProductIntegrationTest
     "Creates a product then requests is successfully" in new Fixture {
       val productId = doQuery(productPayload).id
 
-      val response = productsApi(productId).get().as[Root]
+      val response = productsApi(productId).get().as[ProductResponse]
       response.skus.length must === (1)
       response.skus.head.attributes.code must === ("SKU-NEW-TEST")
     }
@@ -439,7 +442,7 @@ class ProductIntegrationTest
 
   "PATCH v1/products/:context/:id" - {
     def doQuery(formId: Int, productPayload: UpdateProductPayload)(implicit sl: SL, sf: SF) =
-      productsApi(formId).update(productPayload).as[Root]
+      productsApi(formId).update(productPayload).as[ProductResponse]
 
     "Doesn't complain if you do update w/o any changes" in new Customer_Seed with Fixture {
       private val cartRef =
@@ -510,7 +513,7 @@ class ProductIntegrationTest
       val response = doQuery(simpleProduct.formId, payload)
       response.skus.length must === (1)
 
-      val getProductResponse = productsApi(response.id).get().as[Root]
+      val getProductResponse = productsApi(response.id).get().as[ProductResponse]
       getProductResponse.skus.length must === (1)
 
       val sku :: Nil = getProductResponse.skus
@@ -533,10 +536,10 @@ class ProductIntegrationTest
                                          variants = Seq.empty.some,
                                          albums = Seq(albumPayload).some)
 
-      val productResponse = productsApi(product.formId).update(payload).as[Root]
+      val productResponse = productsApi(product.formId).update(payload).as[ProductResponse]
       productResponse.albums.length must === (1)
 
-      val getProductResponse = productsApi(productResponse.id).get().as[Root]
+      val getProductResponse = productsApi(productResponse.id).get().as[ProductResponse]
       getProductResponse.albums.length must === (1)
 
       val album :: Nil = getProductResponse.albums
@@ -575,16 +578,16 @@ class ProductIntegrationTest
                                skus = Seq.empty.some,
                                albums = None,
                                variants = Seq.empty.some))
-        .as[Root]
+        .as[ProductResponse]
         .skus mustBe empty
     }
 
     "Removes some SKUs from product" in new RemovingSkusFixture {
-      productsApi(product.formId).get().as[Root].skus must have size 4
+      productsApi(product.formId).get().as[ProductResponse].skus must have size 4
 
       val remainingSkus: Seq[String] = productsApi(product.formId)
         .update(twoSkuProductPayload)
-        .as[Root]
+        .as[ProductResponse]
         .skus
         .map(sku ⇒ (sku.attributes \ "code" \ "v").extract[String])
 
@@ -715,7 +718,7 @@ class ProductIntegrationTest
       }
 
       "slug is invalid" in new Fixture {
-        val createdProduct = productsApi.create(productPayload).as[Root]
+        val createdProduct = productsApi.create(productPayload).as[ProductResponse]
 
         val invalidSlugValues = Seq("1", "-1", "+1", "_", "-")
         for (slug ← invalidSlugValues) {
@@ -734,7 +737,7 @@ class ProductIntegrationTest
         val slug = "simple-product"
 
         productsApi.create(productPayload.copy(slug = slug)).mustBeOk()
-        val product2 = productsApi.create(productPayload).as[Root]
+        val product2 = productsApi.create(productPayload).as[ProductResponse]
 
         private val updateResponse: HttpResponse = productsApi(product2.id).update(
           UpdateProductPayload(attributes = productPayload.attributes,
@@ -749,14 +752,14 @@ class ProductIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives product successfully" in new Fixture {
-      val result = productsApi(product.formId).archive().as[Root]
+      val result = productsApi(product.formId).archive().as[ProductResponse]
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow must === (true)
       }
     }
 
     "Archived product must be inactive" in new Fixture {
-      val attributes = productsApi(product.formId).archive().as[Root].attributes
+      val attributes = productsApi(product.formId).archive().as[ProductResponse].attributes
 
       val activeTo   = (attributes \ "activeTo" \ "v").extractOpt[Instant]
       val activeFrom = (attributes \ "activeFrom" \ "v").extractOpt[Instant]
@@ -778,15 +781,15 @@ class ProductIntegrationTest
     }
 
     "SKUs must be unlinked" in new VariantFixture {
-      productsApi(product.formId).archive().as[Root].skus mustBe empty
+      productsApi(product.formId).archive().as[ProductResponse].skus mustBe empty
     }
 
     "Variants must be unlinked" in new VariantFixture {
-      productsApi(product.formId).archive().as[Root].variants mustBe empty
+      productsApi(product.formId).archive().as[ProductResponse].variants mustBe empty
     }
 
     "Albums must be unlinked" in new VariantFixture {
-      productsApi(product.formId).archive().as[Root].albums mustBe empty
+      productsApi(product.formId).archive().as[ProductResponse].albums mustBe empty
     }
 
     "Responds with NOT FOUND when wrong product is requested" in new VariantFixture {

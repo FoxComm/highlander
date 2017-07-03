@@ -15,7 +15,9 @@ function addEmptyDiscount(promotion) {
       offer: {
         t: 'offer',
         v: {
-          orderPercentOff: {}
+          orderPercentOff: {
+            discount: 0,
+          }
         }
       }
     },
@@ -29,7 +31,6 @@ export function createEmptyPromotion() {
   const promotion = {
     id: null,
     applyType: 'auto',
-    isExclusive: true,
     createdAt: null,
     attributes: {
       storefrontName: {
@@ -40,6 +41,12 @@ export function createEmptyPromotion() {
         t: 'tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v',
         v: null,
       },
+      usageRules: {
+        t: 'PromoUsageRules',
+        v: {
+          isExclusive: true,
+        }
+      }
     },
     discounts: [],
   };

@@ -7,7 +7,7 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import TextInput from 'components/forms/text-input';
+import TextInput from 'components/core/text-input';
 
 // styles
 import s from './swatch-input.css';
@@ -46,14 +46,7 @@ class SwatchInput extends Component {
 
     return (
       <div className={s.swatchInput}>
-        <TextInput
-          id="swatch-fld"
-          type="text"
-          maxLength="6"
-          className={s.input}
-          onChange={this.handleChange}
-          value={hexCode}
-        />
+        <TextInput id="swatch-fld" maxLength="6" className={s.input} onChange={this.handleChange} value={hexCode} />
         <span className={s.swatch} style={colorStyle} key={hexCode} />
       </div>
     );

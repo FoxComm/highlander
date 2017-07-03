@@ -7,6 +7,7 @@ import _ from 'lodash';
 
 // components
 import MultiSelectRow from 'components/table/multi-select-row';
+import Icon from 'components/core/icon';
 
 type Props = {
   item: Object,
@@ -28,7 +29,7 @@ const CustomerItemsRow = (props: Props) => {
 
     switch (field) {
       case 'savedForLaterAt':
-        return value ? <i className="icon-heart" /> : null;
+        return value ? <Icon name="heart" /> : null;
       case 'image':
         return 'https://placeholdit.imgix.net/~text?txtsize=8&txt=IMAGE&w=50&h=50';
       default:
@@ -40,10 +41,11 @@ const CustomerItemsRow = (props: Props) => {
     <MultiSelectRow
       columns={columns}
       linkTo="sku-inventory-details"
-      linkParams={{skuCode: item.skuCode}}
+      linkParams={{ skuCode: item.skuCode }}
       row={item}
       setCellContents={setCellContents}
-      params={params} />
+      params={params}
+    />
   );
 };
 

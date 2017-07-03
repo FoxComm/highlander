@@ -22,6 +22,3 @@
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{phoenix_dir}}"
-
-- name: Setup Update Materialized Views SQL
-  copy: src={{role_path}}/../../dev/db/files/update_materialized_views.sql dest={{update_materialized_views_sql}}

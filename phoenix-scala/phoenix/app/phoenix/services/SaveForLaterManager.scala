@@ -13,9 +13,7 @@ import slick.jdbc.PostgresProfile.api._
 
 object SaveForLaterManager {
 
-  type SavedForLater = Seq[SaveForLaterResponse.Root]
-
-  def findAll(accountId: Int, contextId: Int)(implicit db: DB, ec: EC): DbResultT[SavedForLater] =
+  def findAll(accountId: Int, contextId: Int)(implicit db: DB, ec: EC): DbResultT[Seq[SaveForLaterResponse]] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       response ← * <~ findAllDbio(customer, contextId)
@@ -23,7 +21,7 @@ object SaveForLaterManager {
 
   def saveForLater(accountId: Int, skuCode: String, context: ObjectContext)(
       implicit db: DB,
-      ec: EC): DbResultT[SavedForLater] =
+      ec: EC): DbResultT[Seq[SaveForLaterResponse]] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       sku      ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, skuCode)
@@ -37,7 +35,8 @@ object SaveForLaterManager {
   def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
     SaveForLaters.deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(SaveForLater, i))
 
-  private def findAllDbio(customer: User, contextId: Int)(implicit ec: EC, db: DB): DbResultT[SavedForLater] =
+  private def findAllDbio(customer: User, contextId: Int)(implicit ec: EC,
+                                                          db: DB): DbResultT[Seq[SaveForLaterResponse]] =
     for {
       sfls ← * <~ SaveForLaters.filter(_.accountId === customer.accountId).result
       r ← * <~ DbResultT.seqFailuresToWarnings(

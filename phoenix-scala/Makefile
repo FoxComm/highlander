@@ -10,10 +10,16 @@ build:
 	$(call header, Building)
 	make build-phoenix
 
-build-phoenix:
+fmt:
+	../utils/scalafmt/scalafmt.sh --diff
+
+fmt-check:
+	../utils/scalafmt/scalafmt.sh --test
+
+build-phoenix: fmt-check
 	sbt 'phoenix/assembly'
 
-build-seeder:
+build-seeder: fmt-check
 	sbt 'seeder/assembly'
 
 clean:
@@ -21,7 +27,7 @@ clean:
 
 test:
 	$(call header, Testing)
-	../utils/scalafmt/scalafmt.sh --test && sbt '; test; seedDemo'
+	SBT_OPTS="-XX:+UseConcMarkSweepGC -Dphoenix.env=test" sbt -mem 3072 '; test; seedDemo'
 
 docker:
 	$(call header, Dockerizing)
@@ -48,4 +54,4 @@ docker-push-seeder:
 update-app:
 	cd ../tabernacle && ansible-playbook -v -i inventory/static/dev ansible/goldrush_update_app.yml --extra-vars "app_name=phoenix branch_name='$(GIT_BRANCH)' auto_build=y instance_ip=$(INSTANCE)"
 
-.PHONY: build test clean docker docker-push update-app
+.PHONY: build test clean docker docker-push update-app fmt-check fmt

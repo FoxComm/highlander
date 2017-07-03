@@ -9,6 +9,7 @@ import phoenix.models.cord._
 import phoenix.models.cord.lineitems._
 import phoenix.utils.FoxConfig.config
 import core.utils.Money._
+import phoenix.models.location.Addresses
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -56,7 +57,7 @@ object CartTotaler {
   def taxesTotal(cordRef: String, subTotal: Long, shipping: Long, adjustments: Long)(
       implicit ec: EC): DbResultT[Long] =
     for {
-      maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cordRef).one
+      maybeAddress ← * <~ Addresses.findByCordRef(cordRef).one
       optionalCustomRate = for {
         address     ← maybeAddress
         taxRegionId ← config.taxRules.regionId

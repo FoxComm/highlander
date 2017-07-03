@@ -16,8 +16,8 @@ import styles from './object-page.css';
 
 // components
 import { PageTitle } from '../section-title';
-import WaitAnimation from '../common/wait-animation';
-import ErrorAlerts from '../alerts/error-alerts';
+import Spinner from 'components/core/spinner';
+import { ApiErrors } from 'components/utils/errors';
 import ButtonWithMenu from 'components/core/button-with-menu';
 import { Button } from 'components/core/button';
 import Error from '../errors/error';
@@ -66,14 +66,12 @@ export function connectPage(namespace, actions, options = {}) {
       createError: _.get(state.asyncActions, `${actionNames.create}.err`, null),
       updateError: _.get(state.asyncActions, `${actionNames.update}.err`, null),
       archiveState: _.get(state.asyncActions, actionNames.archive, {}),
-      isSaving: (
-        _.get(state.asyncActions, `${actionNames.create}.inProgress`, false)
-        || _.get(state.asyncActions, `${actionNames.update}.inProgress`, false)
-      ),
-      submitError: (
+      isSaving:
+        _.get(state.asyncActions, `${actionNames.create}.inProgress`, false) ||
+          _.get(state.asyncActions, `${actionNames.update}.inProgress`, false),
+      submitError:
         _.get(state.asyncActions, `${actionNames.create}.err`) ||
-        _.get(state.asyncActions, `${actionNames.update}.err`)
-      ),
+          _.get(state.asyncActions, `${actionNames.update}.err`),
       hasAmazon: status,
     };
   }
@@ -83,7 +81,7 @@ export function connectPage(namespace, actions, options = {}) {
   function generalizeActions(actions) {
     const result = {
       ...actions,
-      ...schemaActions
+      ...schemaActions,
     };
 
     _.each(actionNames, (name, key) => {
@@ -95,10 +93,13 @@ export function connectPage(namespace, actions, options = {}) {
 
   function mapDispatchToProps(dispatch) {
     return {
-      actions: bindActionCreators({
-        ...generalizeActions(actions),
-        fetchAmazonStatus: amazonActions.fetchAmazonStatus,
-      }, dispatch),
+      actions: bindActionCreators(
+        {
+          ...generalizeActions(actions),
+          fetchAmazonStatus: amazonActions.fetchAmazonStatus,
+        },
+        dispatch
+      ),
       dispatch,
     };
   }
@@ -153,7 +154,7 @@ export class ObjectPage extends Component {
       emitter.setMaxListeners(20);
 
       this._context = {
-        validationDispatcher: emitter
+        validationDispatcher: emitter,
       };
     }
 
@@ -213,14 +214,12 @@ export class ObjectPage extends Component {
     if (this.isNew) {
       this.props.actions.newEntity();
     } else {
-      this.fetchEntity()
-        .then(({ payload }) => {
-          if (isArchived(payload)) this.transitionToList();
-        });
+      this.fetchEntity().then(({ payload }) => {
+        if (isArchived(payload)) this.transitionToList();
+      });
     }
 
-    this.props.actions.fetchAmazonStatus()
-      .catch(() => {}); // pass
+    this.props.actions.fetchAmazonStatus().catch(() => {}); // pass
   }
 
   get unsaved(): boolean {
@@ -235,7 +234,7 @@ export class ObjectPage extends Component {
     transitionTo(`${this.props.namespace}-details`, {
       ...this.detailsRouteProps(),
       ...props,
-      [this.entityIdName]: id
+      [this.entityIdName]: id,
     });
   }
 
@@ -264,20 +263,26 @@ export class ObjectPage extends Component {
   receiveNewObject(nextObject) {
     const nextObjectId = this.getObjectId(nextObject);
     const wasNew = this.isNew;
-    this.setState({
-      object: nextObject
-    }, () => {
-      if (wasNew && nextObjectId) {
-        this.setState({
-          justSaved: true,
-        }, () => {
-          this.transitionTo(nextObjectId);
-        });
+    this.setState(
+      {
+        object: nextObject,
+      },
+      () => {
+        if (wasNew && nextObjectId) {
+          this.setState(
+            {
+              justSaved: true,
+            },
+            () => {
+              this.transitionTo(nextObjectId);
+            }
+          );
+        }
+        if (!wasNew && !nextObjectId) {
+          this.transitionTo('new');
+        }
       }
-      if (!wasNew && !nextObjectId) {
-        this.transitionTo('new');
-      }
-    });
+    );
   }
 
   componentWillUnmount() {
@@ -332,9 +337,7 @@ export class ObjectPage extends Component {
    * @returns {boolean} true if there is at least one errors are handled at client side
    */
   validate(): boolean {
-    const errors = this.validateObject(
-      supressTV(this.prepareObjectForValidation(this.state.object))
-    );
+    const errors = this.validateObject(supressTV(this.prepareObjectForValidation(this.state.object)));
     let preventSave = false;
     const event = {
       preventSave() {
@@ -430,11 +433,7 @@ export class ObjectPage extends Component {
   get cancelButton(): ?Element<*> {
     if (this.isNew) {
       return (
-        <Button
-          key="cancelButton"
-          type="button"
-          onClick={this.handleCancel}
-          styleName="cancel-button">
+        <Button key="cancelButton" type="button" onClick={this.handleCancel} styleName="cancel-button">
           Cancel
         </Button>
       );
@@ -452,16 +451,18 @@ export class ObjectPage extends Component {
 
   @autobind
   titleBar() {
-    return (<PageTitle title={this.pageTitle}>
-      {this.renderHead()}
-      <ButtonWithMenu
-        title="Save"
-        onPrimaryClick={this.handleSubmit}
-        onSelect={this.handleSelectSaving}
-        isLoading={this.props.isSaving}
-        items={SAVE_COMBO_ITEMS}
-      />
-    </PageTitle>);
+    return (
+      <PageTitle title={this.pageTitle}>
+        {this.renderHead()}
+        <ButtonWithMenu
+          title="Save"
+          onPrimaryClick={this.handleSubmit}
+          onSelect={this.handleSelectSaving}
+          isLoading={this.props.isSaving}
+          items={SAVE_COMBO_ITEMS}
+        />
+      </PageTitle>
+    );
   }
 
   childrenProps() {
@@ -509,7 +510,7 @@ export class ObjectPage extends Component {
     const { actions, namespace } = props;
 
     if (this.isFetching) {
-      return <WaitAnimation className={styles.waiting} />;
+      return <Spinner className={styles.spinner} />;
     }
 
     if (!object) {
@@ -520,15 +521,12 @@ export class ObjectPage extends Component {
 
     return (
       <div>
-        <Prompt
-          message="You have unsaved changes. Are you sure you want to leave this page?"
-          when={this.unsaved}
-        />
+        <Prompt message="You have unsaved changes. Are you sure you want to leave this page?" when={this.unsaved} />
         {this.titleBar()}
         {this.subNav()}
         <div styleName="object-details">
-          <ErrorAlerts
-            error={this.props.submitError}
+          <ApiErrors
+            response={this.props.submitError}
             closeAction={actions.clearSubmitErrors}
             sanitizeError={this.sanitizeError}
           />

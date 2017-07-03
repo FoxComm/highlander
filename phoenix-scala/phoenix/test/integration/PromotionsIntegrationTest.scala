@@ -48,13 +48,13 @@ class PromotionsIntegrationTest
 
   "DELETE /v1/promotions/:context/:id" - {
     "archive existing promotion with attached coupons" in new Fixture {
-      val promotionResponse = promotionsApi(promotion.formId).delete().as[PromotionResponse.Root]
+      val promotionResponse = promotionsApi(promotion.formId).delete().as[PromotionResponse]
 
       withClue(promotionResponse.archivedAt.value → Instant.now) {
         promotionResponse.archivedAt.value.isBeforeNow mustBe true
       }
 
-      val couponRoot = couponsApi(coupon.id).get().as[CouponResponse.Root]
+      val couponRoot = couponsApi(coupon.id).get().as[CouponResponse]
       withClue(couponRoot.archivedAt.value → Instant.now) {
         couponRoot.archivedAt.value.isBeforeNow mustBe true
       }
@@ -82,7 +82,7 @@ class PromotionsIntegrationTest
                         attributes = promoAttributes,
                         discounts = Seq(UpdatePromoDiscount(formDiscount.id, attributes = newDiscountAttrs)))
 
-      promotionsApi(promotion.formId).update(disablePromoPayload).as[PromotionResponse.Root]
+      promotionsApi(promotion.formId).update(disablePromoPayload).as[PromotionResponse]
     }
   }
 
@@ -122,9 +122,9 @@ class PromotionsIntegrationTest
     val DefaultDiscountPercent = 40
 
     // Yields (CouponResponse.Root, coupon code)
-    def setupPromoAndCoupon(extraPromoAttrs: Map[String, Json] = Map.empty)(
-        implicit sl: SL,
-        sf: SF): (CouponResponse.Root, String) = {
+    def setupPromoAndCoupon(extraPromoAttrs: Map[String, Json] = Map.empty)(implicit sl: SL,
+                                                                            sf: SF): CouponResponse = {
+      // TODO: try to reuse PromotionPayloadBuilder? @michalrus
       val promoId = {
         val promotionPayload = {
           val discountPayload = {
@@ -146,18 +146,16 @@ class PromotionsIntegrationTest
                           attributes = promoAttrs ++ extraPromoAttrs)
         }
 
-        promotionsApi.create(promotionPayload).as[PromotionResponse.Root].id
+        promotionsApi.create(promotionPayload).as[PromotionResponse].id
       }
 
       val coupon = {
         val couponPayload = {
-          val usageRules = JObject(
-            JField("isExclusive", false),
-            JField("isUnlimitedPerCode", false),
-            JField("usesPerCode", 1),
-            JField("isUnlimitedPerCustomer", false),
-            JField("usesPerCustomer", 1)
-          )
+          val usageRules = Map("isExclusive" → false,
+                               "isUnlimitedPerCode"     → false,
+                               "usesPerCode"            → 1,
+                               "isUnlimitedPerCustomer" → false,
+                               "usesPerCustomer"        → 1)
 
           val attrs = Map(
             "usageRules"     → tv(usageRules, "usageRules"),
@@ -166,16 +164,19 @@ class PromotionsIntegrationTest
             "activeFrom"     → tv(Instant.now, "datetime"),
             "activeTo"       → tv(JNull, "datetime")
           )
-          CreateCoupon(promotion = promoId, attributes = attrs)
+          CreateCoupon(promotion = promoId,
+                       attributes = attrs,
+                       singleCode = Some(faker.Lorem.letterify("???????")),
+                       generateCodes = None)
         }
-        couponsApi.create(couponPayload).as[CouponResponse.Root]
+        couponsApi.create(couponPayload).as[Seq[CouponResponse]].headOption.value
       }
-      (coupon, couponsApi(coupon.id).codes.generate("boom").as[String])
+      coupon
     }
 
     "from admin UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
 
-      private val (_, couponCode) = setupPromoAndCoupon()
+      private val couponCode = setupPromoAndCoupon().code
 
       private val cartRefNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
@@ -198,7 +199,7 @@ class PromotionsIntegrationTest
 
     "from storefront UI" in new StoreAdmin_Seed with ProductAndSkus_Baked {
 
-      private val (_, couponCode) = setupPromoAndCoupon()
+      private val couponCode = setupPromoAndCoupon().code
 
       withRandomCustomerAuth { implicit auth ⇒
         val cartTotal = POST("v1/my/cart/line-items",
@@ -216,8 +217,10 @@ class PromotionsIntegrationTest
       }
     }
 
-    "should update coupon discount when cart becomes clean" in new Fixture with ProductSku_ApiFixture {
-      private val (_, couponCode) = setupPromoAndCoupon()
+    "should update coupon discount when cart becomes clean" in new Fixture {
+      val skuCode = ProductSku_ApiFixture().skuCode
+
+      private val couponCode = setupPromoAndCoupon().code
 
       withRandomCustomerAuth { implicit auth ⇒
         POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 1)), auth.jwtCookie.some)
@@ -236,70 +239,76 @@ class PromotionsIntegrationTest
       }
     }
 
-    "but not after archiving the coupon" in new ProductSku_ApiFixture {
-      val (coupon, couponCode) = setupPromoAndCoupon()
-      val cart                 = api_newGuestCart
+    "but not after archiving the coupon" in {
+      val skuCode = ProductSku_ApiFixture().skuCode
+
+      val coupon = setupPromoAndCoupon()
+      val cart   = api_newGuestCart
       couponsApi(coupon.id).archive
       cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
       cartsApi(cart.referenceNumber).coupon
-        .add(couponCode)
-        .mustFailWith404(CouponWithCodeCannotBeFound(couponCode))
+        .add(coupon.code)
+        .mustFailWith404(CouponWithCodeCannotBeFound(coupon.code))
       cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
     }
 
-    "and not after archiving its promotion" in new ProductSku_ApiFixture {
-      val (coupon, couponCode) = setupPromoAndCoupon()
-      val cart                 = api_newGuestCart
+    "and not after archiving its promotion" in {
+      val coupon = setupPromoAndCoupon()
+      val cart   = api_newGuestCart
       promotionsApi(coupon.promotion).delete.mustBeOk()
+      val skuCode = ProductSku_ApiFixture().skuCode
       cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
-      cartsApi(cart.referenceNumber).coupon.add(couponCode).mustHaveStatus(StatusCodes.NotFound)
+      cartsApi(cart.referenceNumber).coupon.add(coupon.code).mustHaveStatus(StatusCodes.NotFound)
       cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
     }
 
-    "and archived promotions ought to be removed from carts" in new ProductSku_ApiFixture {
-      val (coupon, couponCode) = setupPromoAndCoupon()
-      val cart                 = api_newGuestCart
+    "and archived promotions ought to be removed from carts" in {
+      val coupon  = setupPromoAndCoupon()
+      val cart    = api_newGuestCart
+      val skuCode = ProductSku_ApiFixture().skuCode
       cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
       cartsApi(cart.referenceNumber).coupon
-        .add(couponCode)
+        .add(coupon.code)
         .asTheResult[CartResponse]
         .promotion mustBe 'defined
       promotionsApi(coupon.promotion).delete.mustBeOk()
       cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
     }
 
-    "but not when the promotion is inactive" in new ProductSku_ApiFixture {
-      val (coupon, couponCode) =
+    "but not when the promotion is inactive" in {
+      val coupon =
         setupPromoAndCoupon(Map("activeFrom" → tv(Instant.now.plus(10, DAYS), "datetime")))
-      val cart = api_newGuestCart
+      val cart    = api_newGuestCart
+      val skuCode = ProductSku_ApiFixture().skuCode
       cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
-      cartsApi(cart.referenceNumber).coupon.add(couponCode).mustFailWith400(PromotionIsNotActive)
+      cartsApi(cart.referenceNumber).coupon.add(coupon.code).mustFailWith400(PromotionIsNotActive)
     }
 
-    "but not if there’s an auto-promo already applied" in new ProductSku_ApiFixture {
+    "but not if there’s an auto-promo already applied" in {
       val percentOff = 37
 
       val autoPromo = promotionsApi
         .create(PromotionPayloadBuilder
           .build(Promotion.Auto, PromoOfferBuilder.CartPercentOff(percentOff), PromoQualifierBuilder.CartAny))
-        .as[PromotionResponse.Root]
+        .as[PromotionResponse]
 
-      val (coupon, couponCode) = setupPromoAndCoupon()
+      val coupon = setupPromoAndCoupon()
 
       val refNum = api_newGuestCart.referenceNumber
 
-      def percentOff(p: PromotionResponse.Root): Int =
+      def getPercentOff(p: PromotionResponse): Int =
         (p.discounts.head.attributes \ "offer" \ "v" \ "orderPercentOff" \ "discount").extract[Int]
 
+      val skuCode = ProductSku_ApiFixture().skuCode
       val woCoupon = cartsApi(refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
         .asTheResult[CartResponse]
 
-      percentOff(woCoupon.promotion.value) must === (percentOff)
+      getPercentOff(woCoupon.promotion.value) must === (percentOff)
 
-      val withCoupon = cartsApi(refNum).coupon.add(couponCode).asTheResult[CartResponse]
+      val withCoupon = cartsApi(refNum).coupon.add(coupon.code).asTheResult[CartResponse]
 
-      percentOff(withCoupon.promotion.value) must === (DefaultDiscountPercent)
+      getPercentOff(withCoupon.promotion.value) must === (DefaultDiscountPercent)
     }
   }
 

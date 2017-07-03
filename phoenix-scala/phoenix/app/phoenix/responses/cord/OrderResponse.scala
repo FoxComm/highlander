@@ -11,17 +11,18 @@ import phoenix.models.customer.CustomersData
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses._
 import phoenix.responses.cord.base._
+import phoenix.responses.users.CustomerResponse
 import phoenix.services.orders.OrderQueries
 
 case class OrderResponse(referenceNumber: String,
                          paymentState: CordPaymentState.State,
                          lineItems: CordResponseLineItems,
                          lineItemAdjustments: Seq[CordResponseLineItemAdjustment] = Seq.empty,
-                         promotion: Option[PromotionResponse.Root] = None,
+                         promotion: Option[PromotionResponse] = None,
                          coupon: Option[CordResponseCouponPair] = None,
                          totals: OrderResponseTotals,
-                         customer: Option[CustomerResponse.Root] = None,
-                         shippingMethod: ShippingMethodsResponse.Root,
+                         customer: Option[CustomerResponse] = None,
+                         shippingMethod: ShippingMethodsResponse,
                          shippingAddress: AddressResponse,
                          billingAddress: Option[AddressResponse] = None,
                          billingCreditCardInfo: Option[CordResponseCreditCardPayment] = None,

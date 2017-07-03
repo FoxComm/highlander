@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 FLYWAY="/usr/local/share/flyway/flyway -configFile=sql/flyway.conf -locations=filesystem:sql/"
 CONNECTION_STRING=$(cat sql/flyway.conf | grep 'flyway.url' | awk -F ':' '{print $3}')

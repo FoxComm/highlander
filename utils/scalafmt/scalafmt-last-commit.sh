@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 SCALAFMT_DIR="$(cd -P -- "$(dirname "$0")" && pwd -P)"
+cd "$SCALAFMT_DIR"
 
 # shellcheck source=./shared-functions.sh
 source "${SCALAFMT_DIR}"/shared-functions.sh

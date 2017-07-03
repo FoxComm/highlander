@@ -1,0 +1,55 @@
+@import 'colors.css';
+
+.block {
+  width: 85px;
+  text-align: center;
+  height: 100%;
+
+  & :global .fc-activity__customer-icon {
+    line-height: 30px;
+
+    & :global .icon-customer {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  .initials {
+    margin-right: 12px;
+  }
+}
+
+.indicator {
+  position: absolute;
+  top: 15px;
+  left: 8px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-light-text);
+  background-color: var(--bg-nav-pink);
+}
+
+.toggle {
+  position: relative;
+  color: var(--color-additional-text);
+  background-color: transparent;
+  height: 100%;
+
+  & i {
+    vertical-align: sub;
+    font-size: 20px;
+  }
+
+  &:hover {
+    background-color: var(--bg-grey-headers);
+    color: var(--color-text);
+  }
+
+  &.active {
+    color: var(--color-text);
+  }
+}

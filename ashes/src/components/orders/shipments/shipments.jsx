@@ -9,7 +9,7 @@ import { bindActionCreators } from 'redux';
 import { getStore } from 'lib/store-creator';
 
 // components
-import WaitAnimation from 'components/common/wait-animation';
+import Spinner from 'components/core/spinner';
 import { PrimaryButton } from 'components/core/button';
 import SectionTitle from 'components/section-title/section-title';
 import Shipment from './shipment';
@@ -19,17 +19,16 @@ import UnshippedItems from './unshipped-items';
 import type AsyncState from 'lib/async-action-creator';
 import type { TShipment, TUnshippedLineItem } from 'paragons/shipment';
 
-
 type Props = {
-  shipments: Array<TShipment>;
-  unshippedItems: Array<TUnshippedLineItem>;
-  fetchShipments: AsyncState;
+  shipments: Array<TShipment>,
+  unshippedItems: Array<TUnshippedLineItem>,
+  fetchShipments: AsyncState,
   actions: {
-    fetchShipments: Function;
-  };
+    fetchShipments: Function,
+  },
   entity: {
-    referenceNumber: string;
-  };
+    referenceNumber: string,
+  },
 };
 
 const mapStateToProps = state => state.orders.shipments;
@@ -56,7 +55,7 @@ class Shipments extends Component {
     const { fetchShipments, unshippedItems } = this.props;
 
     if (fetchShipments.isRunning) {
-      return <WaitAnimation />;
+      return <Spinner />;
     }
 
     return (
@@ -75,13 +74,9 @@ class Shipments extends Component {
 
     return (
       <div>
-        {shipments.map((shipment, index) => (
-          <Shipment
-            key={index}
-            index={index + 1}
-            total={shipments.length}
-            details={shipment} />
-        ))}
+        {shipments.map((shipment, index) =>
+          <Shipment key={index} index={index + 1} total={shipments.length} details={shipment} />
+        )}
       </div>
     );
   }

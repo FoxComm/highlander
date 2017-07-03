@@ -2,21 +2,20 @@ package testutils
 
 import akka.http.scaladsl.model.headers.Cookie
 import cats.implicits._
+import core.db._
 import org.scalatest._
 import phoenix.models.account.{Accounts, Users}
 import phoenix.models.auth.UserToken
 import phoenix.payloads.CustomerPayloads.CreateCustomerPayload
 import phoenix.payloads.LoginPayload
 import phoenix.payloads.StoreAdminPayloads.CreateStoreAdminPayload
-import phoenix.responses.StoreAdminResponse.Root
-import phoenix.responses.{CustomerResponse, StoreAdminResponse}
+import phoenix.responses.users.{CustomerResponse, StoreAdminResponse}
 import phoenix.services.StoreAdminManager
 import phoenix.services.account.AccountManager
 import phoenix.utils.aliases.{SF, SL}
 import phoenix.utils.seeds.generators.GeneratorUtils.randomString
-import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
+import testutils.apis._
 import utils.MockedApis
-import core.db._
 
 case class TestLoginData(email: String, password: String)
 object TestLoginData {
@@ -50,7 +49,7 @@ trait JwtTestAuth
 
   val defaultAdminLoginData: TestLoginData = TestLoginData("default@admin.com")
 
-  def defaultAdmin: Root =
+  def defaultAdmin: StoreAdminResponse =
     Users.findByEmail(defaultAdminLoginData.email).one.gimme match {
       case Some(admin) ⇒
         StoreAdminManager.getById(admin.accountId).gimme
@@ -84,7 +83,7 @@ trait JwtTestAuth
                                 password = loginData.password.some,
                                 name = faker.Name.name,
                                 roles = List("admin")))(defaultAdminAuth)
-      .as[StoreAdminResponse.Root]
+      .as[StoreAdminResponse]
       .id
     withAdminAuth(loginData, adminId)(testCode)
   }
@@ -112,7 +111,7 @@ trait JwtTestAuth
         CreateCustomerPayload(email = loginData.email,
                               password = loginData.password.some,
                               name = faker.Name.name.some))(defaultAdminAuth)
-      .as[CustomerResponse.Root]
+      .as[CustomerResponse]
       .id
 
     withCustomerAuth(loginData, customerId)(testCode)

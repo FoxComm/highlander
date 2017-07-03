@@ -2,7 +2,7 @@ package phoenix.routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkasse.EventStreamMarshalling._
+import de.heikoseeberger.akkasse.scaladsl.marshalling.EventStreamMarshalling._
 import phoenix.facades.NotificationFacade
 import phoenix.models.account.User
 import phoenix.payloads.CreateNotification
@@ -26,19 +26,19 @@ object NotificationRoutes {
       pathPrefix("notifications") {
         (get & pathEnd) {
           complete {
-            NotificationFacade.streamByAdminId(auth.account.id)
+            NotificationFacade.streamForCurrentAdmin()
           }
         } ~
-          (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
-            mutateOrFailures {
-              NotificationManager.createNotification(payload)
-            }
-          } ~
-          (post & path("last-seen" / IntNumber) & pathEnd) { notificationId ⇒
-            mutateOrFailures {
-              NotificationManager.updateLastSeen(auth.account.id, notificationId)
-            }
+        (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
+          mutateOrFailures {
+            NotificationManager.createNotification(payload)
           }
+        } ~
+        (post & path("last-seen" / IntNumber) & pathEnd) { notificationId ⇒
+          mutateOrFailures {
+            NotificationManager.updateLastSeen(auth.account.id, notificationId)
+          }
+        }
       }
     }
 }

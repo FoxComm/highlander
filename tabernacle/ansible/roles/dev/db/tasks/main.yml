@@ -8,9 +8,6 @@
     - onboarding
   when: item != 'onboarding' or with_onboarding
 
-- name: Kill Materialized Views
-  shell: systemctl stop materialized_views || true
-
 - name: Restart Postgres
   service: name=postgresql state=restarted
 
@@ -21,6 +18,7 @@
     - "{{middlewarehouse_db_name}}"
     - "{{hyperion_db_name}}"
     - "{{onboarding_service_db_name}}"
+    - "{{geronimo_db_name}}"
   when: item != "{{onboarding_service_db_name}}" or with_onboarding
 
 - name: Enable Bottledwater Extensions in Postgres
@@ -31,6 +29,12 @@
     - "{{onboarding_service_db_name}}"
   when: item != "{{onboarding_service_db_name}}" or with_onboarding
 
+- name: Install Temporal Tables
+  shell: sudo easy_install pgxnclient&& pgxn install temporal_tables
+
+- name: Enable Temporal Tables in Postgres
+  postgresql_ext: name=temporal_tables db={{geronimo_db_name}}
+
 - name: Configure Database Users
   postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
   with_items:
@@ -40,25 +44,11 @@
     - middlewarehouse
     - hyperion
     - onboarding
+    - geronimo
   when: item != "onboarding_service" or with_onboarding
-
-- name: Setup Update Materialized Views SQL
-  copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
-
-- name: Setup Materialized Views Command
-  template: src=update_materialized_views_forever.sh dest="{{usr_local}}/bin/update_materialized_views_forever.sh" mode="u+x,g+x,o+x"
-
-- name: Setup Materialized Views Service
-  copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
 
 - name: Setup Cron to Refresh Customers Ranking View
   cron: name="refresh customer ranking" minute="*/5" job="{{usr_local}}/bin/refresh_customer_ranks.sh > /dev/null"
-
-- name: Reload Systemd for Materialized Views
-  command: systemctl daemon-reload
-
-- name: Start Materialized Views Service
-  service: name=materialized_views state=started enabled=yes
 
 - name: Start Bottledwater Services
   service: name=bottledwater_{{item}} state=started enabled=yes

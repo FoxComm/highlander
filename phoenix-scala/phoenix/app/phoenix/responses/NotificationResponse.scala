@@ -8,15 +8,23 @@ import phoenix.payloads.NotificationActivity
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 
+case class NotificationResponse(id: Int,
+                                kind: String,
+                                data: Json,
+                                context: ActivityContext,
+                                createdAt: Instant)
+    extends ResponseItem
+
 object NotificationResponse {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  case class Root(id: Int, kind: String, data: Json, context: ActivityContext, createdAt: Instant)
-      extends ResponseItem
-
-  def build(n: Notification): Root = {
+  def build(n: Notification): NotificationResponse = {
     val a = n.activity.extract[NotificationActivity]
 
-    Root(id = n.id, kind = a.kind, data = a.data, context = a.context, createdAt = n.createdAt)
+    NotificationResponse(id = n.id,
+                         kind = a.kind,
+                         data = a.data,
+                         context = a.context,
+                         createdAt = n.createdAt)
   }
 }

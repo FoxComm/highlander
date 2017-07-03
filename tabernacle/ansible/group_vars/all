@@ -43,7 +43,7 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170609-213643
+gce_image: appliance-base-170619-082441
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
@@ -64,11 +64,11 @@ docker_tags:
     gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master', true) }}"
     shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
     shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
-    stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
     customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master', true) }}"
     storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
     storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
     hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
+    geronimo: "{{ lookup('env', 'DOCKER_TAG_GERONIMO') | default('master', true) }}"
     bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARDO') | default('master', true) }}"
     henhouse: "{{ lookup('env', 'DOCKER_TAG_HENHOUSE') | default('master', true) }}"
     eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master', true) }}"
@@ -101,13 +101,13 @@ marathon_restart:
     gift_card_consumer: "{{ lookup('env', 'MARATHON_GIFT_CARD_CONSUMER') | default(true, true) | bool }}"
     shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
-    stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
     customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
     onboarding_service: "{{ lookup('env', 'MARATHON_ONBOARDING_SERVICE') | default(true, true) | bool }}"
     onboarding_ui: "{{ lookup('env', 'MARATHON_ONBOARDING_UI') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TOPDRAWER') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
     hyperion: "{{ lookup('env', 'MARATHON_HYPERION') | default(true, true) | bool }}"
+    geronimo: "{{ lookup('env', 'MARATHON_GERONIMO') | default(true, true) | bool }}"
     bernardo: "{{ lookup('env', 'MARATHON_BERNARDO') | default(true, true) | bool }}"
     henhouse: "{{ lookup('env', 'MARATHON_HENHOUSE') | default(true, true) | bool }}"
     eggcrate: "{{ lookup('env', 'MARATHON_EGGCRATE') | default(true, true) | bool }}"
@@ -226,6 +226,10 @@ hyperion_host: "hyperion.{{consul_suffix}}"
 hyperion_port: 8880
 hyperion_server: "{{hyperion_host}}:{{hyperion_port}}"
 
+geronimo_host: "geronimo.{{consul_suffix}}"
+geronimo_port: 8881
+geronimo_server: "{{geronimo_host}}:{{geronimo_port}}"
+
 # Database & bottledwater
 db_user: phoenix
 db_name: phoenix
@@ -294,6 +298,18 @@ hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{db_host}}/{{
 hyperion_test_db_name: hyperion_test
 hyperion_push_check_interval: 5
 hyperion_create_plugin_in_ashes_on_start: true
+
+# Geronimo
+geronimo_env: prod
+geronimo_src: ../../geronimo/
+geronimo_dir: /geronimo
+geronimo_db_name: geronimo
+geronimo_db_test_name: geronimo_test
+geronimo_db_user: geronimo
+geronimo_db_connection_string: "postgresql://{{geronimo_db_user}}@{{db_host}}/{{geronimo_db_name}}"
+geronimo_db_password: ""
+geronimo_start_worker: true
+geronimo_kafka_consumer_group: geronimo
 
 # Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
@@ -395,6 +411,15 @@ google_oauth_frontend_client_id: ""
 google_oauth_frontend_secret: ""
 google_oauth_frontend_redirect_uri: ""
 
+# FB OAuth
+fb_oauth_admin_client_id: ""
+fb_oauth_admin_secret: ""
+fb_oauth_admin_redirect_uri: ""
+
+fb_oauth_frontend_client_id: ""
+fb_oauth_frontend_secret: ""
+fb_oauth_frontend_redirect_uri: ""
+
 # VM swap size
 swap_file: /swap
 swap_size_mb: 2000
@@ -420,10 +445,6 @@ retailer_name: "FoxCommerce"
 contact_email: "pavel@foxcommerce.com"
 mailchimp_api_key: ""
 messaging_env: "production"
-
-# Materialized views
-update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
-update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
 
 # External analytics
 facebook_pixel_id: "433654337026546"

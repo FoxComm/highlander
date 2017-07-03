@@ -1,0 +1,32 @@
+---
+# Green River
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: greenriver
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: greenriver
+        language: scala
+        tag: master
+        tier: consumers
+    spec:
+      containers:
+      - name: greenriver
+        image: docker-stage.foxcommerce.com:5000/greenriver:master
+        env:
+        - name: JAVA_OPTS
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: greenriver.java_opts
+        livenessProbe:
+          exec:
+            command:
+            - "ps -ef | grep -v grep | grep green-river-assembly-1.0.jar"
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---

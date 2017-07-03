@@ -1,7 +1,6 @@
 package phoenix.server
 
 import akka.actor.{ActorSystem, Props}
-import akka.agent.Agent
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
@@ -13,6 +12,8 @@ import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
 import core.db._
 import java.util.Properties
+import java.util.concurrent.atomic.AtomicReference
+
 import org.apache.avro.generic.GenericData
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig}
 import org.json4s._
@@ -27,6 +28,7 @@ import phoenix.utils.apis._
 import phoenix.utils.http.CustomHandlers
 import phoenix.utils.http.HttpLogger.logFailedRequests
 import phoenix.utils.{ElasticsearchApi, Environment, FoxConfig}
+
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -36,6 +38,8 @@ object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
 
   try {
+    FoxStripe.ping()
+
     val service = new Service()
     service.performSelfCheck()
     service.bind()
@@ -62,10 +66,14 @@ object Setup extends LazyLogging {
     Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch(), setupKafka())
 
   def setupStripe(): FoxStripe = {
+    val stripeConfig = config.apis.stripe
     logger.info("Loading Stripe API key")
-    Stripe.apiKey = config.apis.stripe.key
+    Stripe.apiKey = stripeConfig.key
     logger.info("Successfully set Stripe key")
-    new FoxStripe(new StripeWrapper())
+    new FoxStripe(
+      new StripeWrapper(stripeConfig.processingTimeout,
+                        stripeConfig.connectTimeout,
+                        stripeConfig.readTimeout))
   }
 
   def setupMiddlewarehouse(): Middlewarehouse = {
@@ -131,47 +139,51 @@ class Service(systemOverride: Option[ActorSystem] = None,
   val defaultRoutes: Route = {
     pathPrefix("v1") {
       phoenix.routes.AuthRoutes.routes(scope.ltree) ~
-        phoenix.routes.Public.routes(customerCreateContext, scope.ltree) ~
-        phoenix.routes.Customer.routes ~
+      phoenix.routes.Public.routes(customerCreateContext, scope.ltree) ~
+      phoenix.routes.Customer.routes ~
+      pathPrefixTest(!"my") {
         requireAdminAuth(userAuth) { implicit auth ⇒
           phoenix.routes.admin.AdminRoutes.routes ~
-            phoenix.routes.admin.NotificationRoutes.routes ~
-            phoenix.routes.admin.AssignmentsRoutes.routes ~
-            phoenix.routes.admin.OrderRoutes.routes ~
-            phoenix.routes.admin.CartRoutes.routes ~
-            phoenix.routes.admin.CustomerRoutes.routes ~
-            phoenix.routes.admin.CustomerGroupsRoutes.routes ~
-            phoenix.routes.admin.GiftCardRoutes.routes ~
-            phoenix.routes.admin.ReturnRoutes.routes ~
-            phoenix.routes.admin.ProductRoutes.routes ~
-            phoenix.routes.admin.SkuRoutes.routes ~
-            phoenix.routes.admin.VariantRoutes.routes ~
-            phoenix.routes.admin.DiscountRoutes.routes ~
-            phoenix.routes.admin.PromotionRoutes.routes ~
-            phoenix.routes.admin.ImageRoutes.routes ~
-            phoenix.routes.admin.CouponRoutes.routes ~
-            phoenix.routes.admin.CategoryRoutes.routes ~
-            phoenix.routes.admin.GenericTreeRoutes.routes ~
-            phoenix.routes.admin.StoreAdminRoutes.routes ~
-            phoenix.routes.admin.ObjectRoutes.routes ~
-            phoenix.routes.admin.PluginRoutes.routes ~
-            phoenix.routes.admin.TaxonomyRoutes.routes ~
-            phoenix.routes.admin.CatalogRoutes.routes ~
-            phoenix.routes.admin.ProductReviewRoutes.routes ~
-            phoenix.routes.admin.ShippingMethodRoutes.routes ~
-            phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
-            pathPrefix("service") {
-              phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-                phoenix.routes.service.CustomerGroupRoutes.routes
-            }
+          phoenix.routes.admin.NotificationRoutes.routes ~
+          phoenix.routes.admin.AssignmentsRoutes.routes ~
+          phoenix.routes.admin.OrderRoutes.routes ~
+          phoenix.routes.admin.CartRoutes.routes ~
+          phoenix.routes.admin.CustomerRoutes.routes ~
+          phoenix.routes.admin.CustomerGroupsRoutes.routes ~
+          phoenix.routes.admin.GiftCardRoutes.routes ~
+          phoenix.routes.admin.ReturnRoutes.routes ~
+          phoenix.routes.admin.ProductRoutes.routes ~
+          phoenix.routes.admin.SkuRoutes.routes ~
+          phoenix.routes.admin.VariantRoutes.routes ~
+          phoenix.routes.admin.DiscountRoutes.routes ~
+          phoenix.routes.admin.PromotionRoutes.routes ~
+          phoenix.routes.admin.ImageRoutes.routes ~
+          phoenix.routes.admin.CouponRoutes.routes ~
+          phoenix.routes.admin.CategoryRoutes.routes ~
+          phoenix.routes.admin.GenericTreeRoutes.routes ~
+          phoenix.routes.admin.StoreAdminRoutes.routes ~
+          phoenix.routes.admin.ObjectRoutes.routes ~
+          phoenix.routes.admin.PluginRoutes.routes ~
+          phoenix.routes.admin.TaxonomyRoutes.routes ~
+          phoenix.routes.admin.CatalogRoutes.routes ~
+          phoenix.routes.admin.ProductReviewRoutes.routes ~
+          phoenix.routes.admin.ShippingMethodRoutes.routes ~
+          phoenix.routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
+          pathPrefix("service") {
+            phoenix.routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
+            phoenix.routes.service.CustomerGroupRoutes.routes
+          }
         }
+      }
     }
   }
 
   lazy val devRoutes: Route = {
     pathPrefix("v1") {
-      requireAdminAuth(userAuth) { implicit auth ⇒
-        phoenix.routes.admin.DevRoutes.routes
+      pathPrefixTest(!"my") {
+        requireAdminAuth(userAuth) { implicit auth ⇒
+          phoenix.routes.admin.DevRoutes.routes
+        }
       }
     }
   }
@@ -189,23 +201,22 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   implicit def exceptionHandler: ExceptionHandler = CustomHandlers.jsonExceptionHandler
 
-  private final val serverBinding = Agent[Option[ServerBinding]](None)
+  private final val serverBinding =
+    new AtomicReference[Option[ServerBinding]](Option.empty[ServerBinding])
 
   def bind(config: FoxConfig = config): Future[ServerBinding] = {
     val host = config.http.interface
     val port = config.http.port
-    val bind = Http().bindAndHandle(allRoutes, host, port).flatMap { binding ⇒
-      serverBinding.alter(Some(binding)).map(_ ⇒ binding)
+    val bind = Http().bindAndHandle(allRoutes, host, port).map { binding ⇒
+      serverBinding.set(Some(binding))
+      binding
     }
     logger.info(s"Bound to $host:$port")
     bind
   }
 
   def close(): Future[Unit] =
-    serverBinding.future.flatMap {
-      case Some(b) ⇒ b.unbind()
-      case None    ⇒ Future.successful(())
-    }
+    serverBinding.getAndSet(Option.empty[ServerBinding]).fold(Future.successful({}))(_.unbind())
 
   def setupRemorseTimers(): Unit = {
     logger.info("Scheduling remorse timer")

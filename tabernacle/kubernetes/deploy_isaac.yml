@@ -1,0 +1,67 @@
+---
+# Isaac
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: isaac
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: isaac
+        language: cpp
+        tag: master
+        tier: backend
+    spec:
+      containers:
+      - name: isaac
+        image: docker-stage.foxcommerce.com:5000/isaac:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.db_host
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_password
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: isaac.port
+        - name: PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.frontend_public_key
+        ports:
+         - name: liveness-port
+           containerPort: 9190
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /Users/pavel/secret_keys
+---

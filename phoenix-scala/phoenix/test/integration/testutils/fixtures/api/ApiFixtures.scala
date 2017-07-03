@@ -18,7 +18,6 @@ import phoenix.payloads.SkuPayloads.SkuPayload
 import phoenix.payloads.CatalogPayloads._
 import phoenix.responses.CatalogResponse
 import phoenix.responses.CouponResponses.CouponResponse
-import phoenix.responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import phoenix.responses.ProductReviewResponses.ProductReviewResponse
 import phoenix.responses.PromotionResponses.PromotionResponse
 import phoenix.responses.SkuResponses.SkuResponse
@@ -27,9 +26,10 @@ import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
-import scala.util.Random
 
+import scala.util.Random
 import phoenix.payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
+import phoenix.responses.ProductResponses.ProductResponse
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with JwtTestAuth { self: FoxSuite ⇒
 
@@ -64,31 +64,33 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
                                                      countryId = 234,
                                                      defaultLanguage = "en")
 
-    val catalog: CatalogResponse.Root =
-      catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse.Root]
+    val catalog: CatalogResponse =
+      catalogsApi.create(createPayload)(defaultAdminAuth).as[CatalogResponse]
   }
 
-  trait ProductSku_ApiFixture {
-    val productCode: String = s"testprod_${Lorem.numerify("####")}"
-    val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
-    def skuPrice: Long      = Random.nextInt(20000).toLong + 100
+  def randomProductName: String = s"testprod_${Lorem.numerify("####")}"
+  def randomSkuCode: String     = s"sku_${Lorem.letterify("????").toUpperCase}"
+  def randomSkuPrice: Long      = Random.nextInt(20000).toLong + 100
 
-    private val skuPayload = SkuPayload(
+  case class ProductSku_ApiFixture(productName: String = randomProductName,
+                                   skuCode: String = randomSkuCode,
+                                   skuPrice: Long = randomSkuPrice) {
+    val skuPayload = SkuPayload(
       attributes = Map("code"        → tv(skuCode),
                        "title"       → tv(skuCode.capitalize),
                        "salePrice"   → usdPrice(skuPrice),
                        "retailPrice" → usdPrice(skuPrice)) ++ eternalActivity())
 
     val productPayload =
-      CreateProductPayload(
-        attributes =
-          Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)) ++ eternalActivity(),
-        skus = Seq(skuPayload),
-        variants = None)
+      CreateProductPayload(attributes =
+                             Map("name" → tv(productName), "title" → tv(productName)) ++ eternalActivity(),
+                           skus = Seq(skuPayload),
+                           variants = None)
 
-    val product: ProductRoot =
-      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]
-    val sku: SkuResponse.Root = product.skus.onlyElement
+    val product: ProductResponse =
+      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductResponse]
+
+    val sku: SkuResponse = product.skus.onlyElement
   }
 
   trait ProductVariants_ApiFixture {
@@ -123,8 +125,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
         variants = Some(Seq(variant))
       )
 
-    val product: ProductRoot =
-      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductRoot]
+    val product: ProductResponse =
+      productsApi.create(productPayload)(implicitly, defaultAdminAuth).as[ProductResponse]
   }
 
   trait Coupon_AnyQualifier_PercentOff extends CouponFixtureBase {
@@ -136,7 +138,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       PromoQualifierBuilder.CartAny)
 
     def promotion =
-      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse.Root]
+      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse]
   }
 
   trait Coupon_TotalQualifier_PercentOff extends CouponFixtureBase {
@@ -149,7 +151,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       PromoQualifierBuilder.CartTotalAmount(qualifiedSubtotal))
 
     def promotion =
-      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse.Root]
+      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse]
   }
 
   trait Coupon_NumItemsQualifier_PercentOff extends CouponFixtureBase {
@@ -162,28 +164,32 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
       PromoQualifierBuilder.CartNumUnits(qualifiedNumItems))
 
     lazy val promotion =
-      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse.Root]
+      promotionsApi.create(promoPayload)(implicitly, defaultAdminAuth).as[PromotionResponse]
   }
 
   trait CouponFixtureBase {
     def couponActiveFrom: Instant       = Instant.now.minus(1, DAYS)
     def couponActiveTo: Option[Instant] = None
 
-    def promotion: PromotionResponse.Root
+    def promotion: PromotionResponse
 
     lazy val coupon = couponsApi
-      .create(CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo), promotion.id))(implicitly,
-                                                                                         defaultAdminAuth)
-      .as[CouponResponse.Root]
+      .create(
+        CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo),
+                     promotion.id,
+                     singleCode = Some(Lorem.letterify("?????")),
+                     generateCodes = None))(implicitly, defaultAdminAuth)
+      .as[Seq[CouponResponse]]
+      .headOption
+      .value
 
-    lazy val couponCode =
-      couponsApi(coupon.id).codes.generate(Lorem.letterify("?????"))(defaultAdminAuth).as[String]
+    lazy val couponCode = coupon.code
 
     protected def couponAttrs(activeFrom: Instant, activeTo: Option[Instant]): Map[String, Json] = {
       val usageRules = {
-        ("isExclusive"              → true) ~
-          ("isUnlimitedPerCode"     → true) ~
-          ("isUnlimitedPerCustomer" → true)
+        ("isExclusive"            → true) ~
+        ("isUnlimitedPerCode"     → true) ~
+        ("isUnlimitedPerCustomer" → true)
       }.asShadowVal(t = "usageRules")
 
       val commonAttrs = Map[String, Any](

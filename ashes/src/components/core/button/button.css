@@ -1,5 +1,5 @@
-@import "common.css";
-@import "colors.css";
+@import 'common.css';
+@import 'colors.css';
 
 /*
  * General Button Styles
@@ -9,8 +9,8 @@
   align-items: center;
   justify-content: center;
   padding: 11px 20px;
-  color: var(--button-color);
-  background-color: var(--button-bg);
+  color: var(--color-text);
+  background: var(--bg-grey-buttons);
   font-size: 14px;
   font-weight: 600;
   line-height: 18px;
@@ -18,31 +18,31 @@
   vertical-align: top;
   user-select: none;
   cursor: pointer;
-  transition: background .2s;
+  transition: all .2s;
 
   &:focus {
     outline: 0;
   }
 
   &:hover {
-    background-color: var(--button-bg-hover);
+    background-color: var(--bg-grey-buttons-hover);
   }
 
   &:disabled,
   &:disabled:hover {
     cursor: default;
-    color: var(--button-color-disabled);
-    background-color: var(--button-bg-disabled);
-  }
-
-  &.fullWidth {
-    display: block;
-    width: 100%;
+    color: var(--color-additional-text);
+    background-color: var(--bg-grey-buttons-hover);
   }
 
   &.onlyIcon {
     width: 40px;
     padding: 11px 0;
+  }
+
+  &.fullWidth {
+    display: block;
+    width: 100%;
   }
 
   &.small {
@@ -54,8 +54,7 @@
   }
 }
 
-.button i[class*="icon-"],
-.button.small.onlyIcon i[class*="icon-"] {
+.icon {
   font-size: 10px;
   transition: all .2s;
 }
@@ -64,7 +63,7 @@
   margin-bottom: -1px;
 }
 
-.button.onlyIcon i[class*="icon-"] {
+.only {
   font-size: 14px;
   margin: 0 auto;
 }
@@ -72,10 +71,6 @@
 .button i[class*="icon-"] + span,
 span + i[class*="icon-"] {
   margin-left: 8px;
-}
-
-.text {
-
 }
 
 .loading {
@@ -86,26 +81,26 @@ span + i[class*="icon-"] {
  * Primary Button Styles
  */
 .primary {
-  color: var(--primary-button-color);
-  background-color: var(--primary-button-bg);
+  color: var(--color-light-text);
+  background-color: var(--bg-green-buttons);
 }
 
 .primary:hover {
-  background-color: var(--primary-button-bg-hover);
+  background-color: var(--bg-green-buttons-hover);
 }
 
 .primary:disabled,
 .primary:disabled:hover {
   cursor: default;
-  color: var(--primary-button-color-disabled);
-  background-color: var(--primary-button-bg-disabled);
+  color: var(--color-light-text-hover);
+  background-color: var(--bg-green-buttons);
 }
 
 /*
  * Delete Button Styles
  */
 .delete:hover {
-  background-color: #ff9796;
+  background-color: var(--bg-message-error);
 }
 
 /*
@@ -120,15 +115,15 @@ span + i[class*="icon-"] {
  */
 .socialButton {
   &.google {
-    background-color: #f65554;
-    color: #f2f2f2;
+    background-color: #f65554; /* exception color */
+    color: var(--color-light-text);
 
     &:hover {
-      background-color: #f66564;
+      background-color: var(--bg-field-error);
     }
 
     &:disabled {
-      color: #ddd;
+      color: var(--color-additional-text);
     }
   }
 }

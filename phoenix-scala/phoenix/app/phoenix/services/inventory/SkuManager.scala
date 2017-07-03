@@ -15,7 +15,7 @@ import phoenix.models.inventory._
 import phoenix.models.objects._
 import phoenix.payloads.ImagePayloads.AlbumPayload
 import phoenix.payloads.SkuPayloads._
-import phoenix.responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
+import phoenix.responses.AlbumResponses.AlbumResponse
 import phoenix.responses.AlbumResponses._
 import phoenix.responses.SkuResponses._
 import phoenix.services.LogActivity
@@ -23,14 +23,19 @@ import phoenix.services.image.ImageManager
 import phoenix.services.image.ImageManager.FullAlbumWithImages
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
+import phoenix.utils.apis.CreateSku
 import slick.jdbc.PostgresProfile.api._
+import phoenix.utils.apis.Apis
 
 object SkuManager {
   implicit val formats = JsonFormatters.DefaultFormats
 
-  def createSku(
-      admin: User,
-      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC, au: AU): DbResultT[SkuResponse.Root] = {
+  def createSku(admin: User, payload: SkuPayload)(implicit ec: EC,
+                                                  db: DB,
+                                                  ac: AC,
+                                                  oc: OC,
+                                                  au: AU,
+                                                  apis: Apis): DbResultT[SkuResponse] = {
     val albumPayloads = payload.albums.getOrElse(Seq.empty)
 
     for {
@@ -44,7 +49,7 @@ object SkuManager {
     } yield response
   }
 
-  def getSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+  def getSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse] =
     for {
       sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
@@ -55,7 +60,7 @@ object SkuManager {
   def updateSku(
       admin: User,
       code: String,
-      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC, au: AU): DbResultT[SkuResponse.Root] =
+      payload: SkuPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC, au: AU): DbResultT[SkuResponse] =
     for {
       sku        ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
       updatedSku ← * <~ updateSkuInner(sku, payload)
@@ -64,7 +69,7 @@ object SkuManager {
       _ ← * <~ LogActivity().fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
-  def archiveByCode(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+  def archiveByCode(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse] =
     for {
       fullSku      ← * <~ ObjectManager.getFullObject(SkuManager.mustFindSkuByContextAndCode(oc.id, code))
       _            ← * <~ fullSku.model.mustNotBePresentInCarts
@@ -80,8 +85,9 @@ object SkuManager {
                           FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
                         albums)
 
-  def createSkuInner(context: ObjectContext,
-                     payload: SkuPayload)(implicit ec: EC, db: DB, au: AU): DbResultT[FullObject[Sku]] = {
+  def createSkuInner(
+      context: ObjectContext,
+      payload: SkuPayload)(implicit ec: EC, db: DB, au: AU, apis: Apis): DbResultT[FullObject[Sku]] = {
 
     val form   = ObjectForm.fromPayload(Sku.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
@@ -97,6 +103,7 @@ object SkuManager {
                  formId = ins.form.id,
                  shadowId = ins.shadow.id,
                  commitId = ins.commit.id))
+      _ ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
@@ -118,7 +125,7 @@ object SkuManager {
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
 
-  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU, apis: Apis) =
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
@@ -159,7 +166,7 @@ object SkuManager {
       implicit ec: EC,
       db: DB,
       oc: OC,
-      au: AU): DbResultT[Seq[AlbumRoot]] =
+      au: AU): DbResultT[Seq[AlbumResponse]] =
     albumsPayload match {
       case Some(payloads) ⇒
         findOrCreateAlbumsForSku(sku, payloads).map(_.map(AlbumResponse.build))
@@ -185,7 +192,7 @@ object SkuManager {
       sku    ← * <~ Skus.mustFindById404(skuId)
     } yield FullObject(sku, form, shadow)
 
-  def illuminateSku(fullSku: FullObject[Sku])(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
+  def illuminateSku(fullSku: FullObject[Sku])(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse] =
     ImageManager
       .getAlbumsBySku(fullSku.model)
       .map(albums ⇒ SkuResponse.buildLite(IlluminatedSku.illuminate(oc, fullSku), albums))

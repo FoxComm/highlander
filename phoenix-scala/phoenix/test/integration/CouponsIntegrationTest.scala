@@ -34,11 +34,11 @@ class CouponsIntegrationTest
     with BakedFixtures {
 
   "POST /v1/coupons/:context" - {
-    "create coupon" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
+    "create coupon" in new Coupon_TotalQualifier_PercentOff {
       coupon
     }
 
-    "created coupon should always be active" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
+    "created coupon should always be active" in new Coupon_TotalQualifier_PercentOff {
       override def couponActiveFrom = Instant.now.plus(10, DAYS)
       override def couponActiveTo   = Some(Instant.now.plus(20, DAYS))
 
@@ -55,19 +55,19 @@ class CouponsIntegrationTest
   }
 
   "DELETE /v1/coupons/:context/:id" - {
-    "archive existing coupon" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
-      val archiveResp = couponsApi(coupon.id).archive().as[CouponResponse.Root]
+    "archive existing coupon" in new Coupon_TotalQualifier_PercentOff {
+      val archiveResp = couponsApi(coupon.id).archive().as[CouponResponse]
 
       withClue(archiveResp.archivedAt.value → now) {
         archiveResp.archivedAt.value.isBeforeNow mustBe true
       }
     }
 
-    "404 for not existing coupon" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
+    "404 for not existing coupon" in new Coupon_TotalQualifier_PercentOff {
       couponsApi(666).archive.mustFailWith404(NotFoundFailure404(Coupon, 666))
     }
 
-    "404 when context not found" in new StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
+    "404 when context not found" in new Coupon_TotalQualifier_PercentOff {
       couponsApi(coupon.id)(ObjectContext(name = "donkeyContext", attributes = JNothing))
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
@@ -141,7 +141,7 @@ class CouponsIntegrationTest
       "because purchased gift card is excluded from qualifier judgement" - {
 
         "for `carts any` qualifier (cart only has gift card line items)" in new Coupon_AnyQualifier_PercentOff {
-          val skuCode = new ProductSku_ApiFixture {}.skuCode
+          val skuCode = ProductSku_ApiFixture().skuCode
           val cartRef = api_newGuestCart().referenceNumber
 
           cartsApi(cartRef).lineItems
@@ -173,12 +173,10 @@ class CouponsIntegrationTest
     }
   }
 
-  trait CartCouponFixture
-      extends StoreAdmin_Seed
-      with Coupon_TotalQualifier_PercentOff
-      with ProductSku_ApiFixture {
+  trait CartCouponFixture extends StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {
 
-    override def skuPrice: Long          = 3100
+    val skuCode = ProductSku_ApiFixture(skuPrice = 3100).skuCode
+
     override def qualifiedSubtotal: Long = 3000
 
     val cartRef: String = {
@@ -198,12 +196,12 @@ class CouponsIntegrationTest
   trait RegularAndGiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
-    private val skuCode   = new ProductSku_ApiFixture { override def skuPrice = 3000 }.skuCode
-    private val gcSkuCode = new ProductSku_ApiFixture { override def skuPrice = 2000 }.skuCode
+    private val skuCode   = ProductSku_ApiFixture(skuPrice = 3000).skuCode
+    private val gcSkuCode = ProductSku_ApiFixture(skuPrice = 2000).skuCode
 
     cartsApi(cartRef).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, randomGiftCardLineItemAttributes)))
+               UpdateLineItemsPayload(gcSkuCode, 1, randomGiftCardLineItemAttributes())))
       .mustBeOk()
   }
 }

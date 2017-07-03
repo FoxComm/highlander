@@ -29,7 +29,7 @@ object ReturnPaymentManager {
   def updatePayments(
       refNum: String,
       payments: Map[PaymentMethod.Type, Long],
-      overwrite: Boolean)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[ReturnResponse.Root] = {
+      overwrite: Boolean)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[ReturnResponse] = {
 
     @inline
     def addPayment(rma: Return, payment: OrderPayment, paymentMethodAmount: (PaymentMethod.Type, Long)) = {
@@ -228,9 +228,9 @@ object ReturnPaymentManager {
                            paymentMethodType = PaymentMethod.StoreCredit))
     } yield pmt
 
-  def deletePayment(
-      refNum: String,
-      paymentMethod: PaymentMethod.Type)(implicit ec: EC, ac: AC, db: DB): DbResultT[ReturnResponse.Root] =
+  def deletePayment(refNum: String, paymentMethod: PaymentMethod.Type)(implicit ec: EC,
+                                                                       ac: AC,
+                                                                       db: DB): DbResultT[ReturnResponse] =
     for {
       rma               ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       paymentWasDeleted ← * <~ processDeletePayment(rma.id, paymentMethod)
@@ -242,7 +242,7 @@ object ReturnPaymentManager {
 
   private def deletePayments(
       rma: Return,
-      payments: List[PaymentMethod.Type])(implicit ec: EC, db: DB, ac: AC): DbResultT[ReturnResponse.Root] =
+      payments: List[PaymentMethod.Type])(implicit ec: EC, db: DB, ac: AC): DbResultT[ReturnResponse] =
     for {
       deleted ← * <~ payments.map(pmt ⇒ processDeletePayment(rma.id, pmt).product(DbResultT.pure(pmt)))
       deletedPayments = deleted.collect { case (true, pmt) ⇒ pmt }

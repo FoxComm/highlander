@@ -12,29 +12,29 @@
   }
 
   &__label, .fc-form-field-label {
-    font-weight: @semibold;
+    font-weight: 600;
     font-size: 14px;
   }
 
   &__balance-value {
     .inline-block();
     cursor: pointer;
-    background: @color-white;
-    box-shadow: 0 0 0 2px @color-decor7, 0 0 0 2px @color-transparent;
+    background: @bg-white;
+    box-shadow: 0 0 0 2px @bg-grey-buttons;
     padding: 8px 16px;
     border-radius: 3px;
     margin-right: 10px;
 
     &._selected {
-      box-shadow: 0 0 0 4px @color-decor39;
+      box-shadow: 0 0 0 4px @bg-green-buttons;
     }
   }
 
   &__send-to-customers {
-    background-color: @color-white;
+    background-color: @bg-white;
     padding: 15px;
     margin-top: 10px;
-    border: 1px solid @color-decor9;
+    border: 1px solid @color-border;
 
     textarea {
       width: 100%;
@@ -47,7 +47,7 @@
   }
 
   &__counter {
-    color: @color-decor6;
+    color: @color-additional-text;
     .font-spec(14px, 20px);
   }
 
@@ -65,7 +65,7 @@
 
   &__amount input.fc-prepend-input__input-field {
     font-size: 20px;
-    font-weight: @semibold;
+    font-weight: 600;
     line-height: 27px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -75,8 +75,8 @@
 
   &__amount .fc-prepend-input__icon {
     font-size: 20px;
-    font-weight: @semibold;
-    line-height: 42px;
+    font-weight: 600;
+    line-height: 46px;
     height: @amount-field-height;
   }
 

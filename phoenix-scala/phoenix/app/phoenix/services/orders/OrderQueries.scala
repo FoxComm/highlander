@@ -14,7 +14,7 @@ import slick.jdbc.PostgresProfile.api._
 object OrderQueries extends CordQueries {
 
   def findAllByQuery(query: Orders.QuerySeq = Orders)(
-      implicit ec: EC): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
+      implicit ec: EC): DbResultT[TheResponse[Seq[AllOrders]]] = {
 
     def build(order: Order, customer: User) =
       for {
@@ -35,10 +35,9 @@ object OrderQueries extends CordQueries {
       response ← * <~ OrderResponse.fromOrder(order, grouped)
     } yield TheResponse.build(response)
 
-  def findAllByUser(customer: User, grouped: Boolean = true)(
-      implicit ec: EC,
-      db: DB,
-      ctx: OC): DbResultT[TheResponse[Seq[AllOrders.Root]]] =
+  def findAllByUser(
+      customer: User,
+      grouped: Boolean = true)(implicit ec: EC, db: DB, ctx: OC): DbResultT[TheResponse[Seq[AllOrders]]] =
     for {
       response ← * <~ findAllByQuery(Orders.findByAccountId(customer.accountId))
     } yield response

@@ -1,0 +1,77 @@
+---
+# River Rock
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: river-rock
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: river-rock
+        language: go
+        tag: master
+        tier: backend
+    spec:
+      containers:
+      - name: river-rock
+        image: docker-stage.foxcommerce.com:5000/river-rock:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
+        env:
+        - name: BERNARDO_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: bernardo.host
+        - name: BERNARDO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: bernardo.port
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.db_host
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: bernardo.db_name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: bernardo.db_user
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: bernardo.db_password
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: river_rock.port
+        - name: UPSTREAM_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: river_rock.upstream_url
+        ports:
+         - name: liveness-port
+           containerPort: 31895
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /Users/pavel/secret_keys
+---

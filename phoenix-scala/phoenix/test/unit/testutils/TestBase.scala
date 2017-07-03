@@ -57,6 +57,7 @@ trait TestBase
 }
 
 object TestBase {
+  System.setProperty("phoenix.env", "test")
   val bareConfig: Config = FoxConfig.unsafe
   val config: FoxConfig  = FoxConfig.config
 }

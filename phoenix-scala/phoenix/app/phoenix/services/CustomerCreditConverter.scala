@@ -1,23 +1,23 @@
 package phoenix.services
 
-import cats.instances.map
+import core.db._
 import phoenix.failures.GiftCardFailures.GiftCardConvertFailure
 import phoenix.failures.OpenTransactionsFailure
 import phoenix.failures.StoreCreditFailures.StoreCreditConvertFailure
 import phoenix.models.account._
-import phoenix.models.admin.AdminsData
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.storecredit._
-import phoenix.responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
-import slick.jdbc.PostgresProfile.api._
+import phoenix.responses.StoreCreditResponse
+import phoenix.responses.giftcards.GiftCardResponse
+import phoenix.responses.users.UserResponse
 import phoenix.utils.aliases._
-import core.db._
+import slick.jdbc.PostgresProfile.api._
 
 object CustomerCreditConverter {
 
   def toStoreCredit(giftCardCode: String,
                     accountId: Int,
-                    admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreCreditResponse.Root] =
+                    admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[StoreCreditResponse] =
     for {
       giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
       _        ← * <~ failIf(!giftCard.isActive, GiftCardConvertFailure(giftCard))
@@ -51,7 +51,7 @@ object CustomerCreditConverter {
 
   def toGiftCard(storeCreditId: Int,
                  accountId: Int,
-                 admin: User)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[GiftCardResponse.Root] =
+                 admin: User)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[GiftCardResponse] =
     for {
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
       _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit))

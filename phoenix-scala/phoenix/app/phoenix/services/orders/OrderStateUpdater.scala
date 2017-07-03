@@ -16,29 +16,32 @@ import phoenix.responses.cord.{AllOrders, OrderResponse}
 import phoenix.responses.{BatchMetadata, BatchMetadataSource}
 import phoenix.services.LogActivity
 import phoenix.utils.aliases._
+import phoenix.utils.apis.Apis
 import responses.BatchResponse
 import slick.jdbc.PostgresProfile.api._
 
 object OrderStateUpdater {
 
-  def updateState(admin: User, refNum: String, newState: Order.State)(implicit ec: EC,
-                                                                      db: DB,
-                                                                      ac: AC): DbResultT[OrderResponse] =
+  def updateState(
+      admin: User,
+      refNum: String,
+      newState: Order.State)(implicit ec: EC, db: DB, ac: AC, apis: Apis, au: AU): DbResultT[OrderResponse] =
     for {
-      order    ← * <~ Orders.mustFindByRefNum(refNum)
-      _        ← * <~ order.transitionState(newState)
-      _        ← * <~ updateQueries(admin, Seq(refNum), newState)
-      updated  ← * <~ Orders.mustFindByRefNum(refNum)
+      order   ← * <~ Orders.mustFindByRefNum(refNum)
+      _       ← * <~ order.transitionState(newState)
+      _       ← * <~ updateQueries(admin, Seq(refNum), newState)
+      updated ← * <~ Orders.mustFindByRefNum(refNum)
+      _ ← * <~ doOrMeh(updated.state == Order.Canceled,
+                       DbResultT.fromResult(apis.middlewarehouse.cancelHold(refNum)))
       response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
       _        ← * <~ doOrMeh(order.state != newState, LogActivity().orderStateChanged(admin, response, order.state))
     } yield response
 
-  def updateStates(admin: User,
-                   refNumbers: Seq[String],
-                   newState: Order.State,
-                   skipActivity: Boolean = false)(implicit ec: EC,
-                                                  db: DB,
-                                                  ac: AC): DbResultT[BatchResponse[AllOrders.Root]] =
+  def updateStates(
+      admin: User,
+      refNumbers: Seq[String],
+      newState: Order.State,
+      skipActivity: Boolean = false)(implicit ec: EC, db: DB, ac: AC): DbResultT[BatchResponse[AllOrders]] =
     for {
       // Turn failures into errors
       batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)

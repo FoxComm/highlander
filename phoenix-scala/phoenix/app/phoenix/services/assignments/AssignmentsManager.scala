@@ -9,10 +9,10 @@ import phoenix.models.Assignment._
 import phoenix.models._
 import phoenix.models.account._
 import phoenix.payloads.AssignmentPayloads._
-import phoenix.responses.AssignmentResponse.{Root, build ⇒ buildAssignment}
+import phoenix.responses.AssignmentResponse
 import phoenix.responses.BatchMetadata._
-import phoenix.responses.UserResponse.{build ⇒ buildUser}
 import phoenix.responses._
+import phoenix.responses.users.UserResponse
 import phoenix.services._
 import phoenix.utils.FoxConfig.config
 import phoenix.utils.aliases._
@@ -45,16 +45,17 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
   val notifyReason: NotificationSubscription.Reason
 
   // Use methods below in your endpoints
-  def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] =
+  def list(key: K)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[AssignmentResponse]] =
     for {
       entity      ← * <~ fetchEntity(key)
       assignments ← * <~ fetchAssignments(entity)
-      response = assignments.map((buildAssignment _).tupled)
+      response = assignments.map((AssignmentResponse.build _).tupled)
     } yield response
 
-  def assign(key: K,
-             payload: AssignmentPayload,
-             originator: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[TheResponse[Seq[Root]]] =
+  def assign(key: K, payload: AssignmentPayload, originator: User)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC): DbResultT[TheResponse[Seq[AssignmentResponse]]] =
     for {
       // Validation + assign
       entity    ← * <~ fetchEntity(key)
@@ -62,10 +63,10 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       assignees ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result
       newAssigneeIds = admins.map(_.accountId).diff(assignees.map(_.accountId))
       _ ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
-      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.accountId)).map(buildUser)
+      assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.accountId)).map(UserResponse.build)
       // Response builder
       assignments ← * <~ fetchAssignments(entity)
-      response       = assignments.map((buildAssignment _).tupled)
+      response       = assignments.map((AssignmentResponse.build _).tupled)
       notFoundAdmins = diffToFailures(payload.assignees, admins.map(_.accountId), User)
       // Activity log + notifications subscription
       _ ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
@@ -76,7 +77,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
 
   def unassign(key: K, assigneeId: Int, originator: User)(implicit ec: EC,
                                                           db: DB,
-                                                          ac: AC): DbResultT[Seq[Root]] =
+                                                          ac: AC): DbResultT[Seq[AssignmentResponse]] =
     for {
       // Validation + unassign
       entity ← * <~ fetchEntity(key)
@@ -86,7 +87,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       _          ← * <~ querySeq.delete
       // Response builder
       assignments ← * <~ fetchAssignments(entity)
-      response = assignments.map((buildAssignment _).tupled)
+      response = assignments.map((AssignmentResponse.build _).tupled)
       // Activity log + notifications subscription
       responseItem = buildResponse(entity)
       _ ← * <~ LogActivity()
