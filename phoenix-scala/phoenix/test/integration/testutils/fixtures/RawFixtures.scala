@@ -69,11 +69,11 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
     def cart: Cart
     def storeAdmin: User
 
-    val shippingAddress: OrderShippingAddress = {
+    val shippingAddress: Address = {
       CartShippingAddressUpdater
         .createShippingAddressFromAddressId(storeAdmin, address.id, cart.refNum.some)
         .gimme
-      OrderShippingAddresses.findByOrderRef(cart.refNum).gimme.head
+      Addresses.findByCordRef(cart.refNum).gimme.head
     }
   }
 

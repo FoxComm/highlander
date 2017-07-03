@@ -10,7 +10,7 @@ import phoenix.failures.ShippingMethodFailures.ShippingMethodNotApplicableToCart
 import phoenix.models.account._
 import phoenix.models.cord._
 import phoenix.models.cord.lineitems._
-import phoenix.models.location.{Countries, Region}
+import phoenix.models.location.{Address, Addresses, Countries, Region}
 import phoenix.models.rules.{Condition, QueryStatement}
 import phoenix.models.shipping._
 import phoenix.services.carts.getCartByOriginator
@@ -27,7 +27,7 @@ object ShippingManager {
   case class ShippingData(cart: Cart,
                           cartTotal: Long,
                           cartSubTotal: Long,
-                          shippingAddress: Option[OrderShippingAddress] = None,
+                          shippingAddress: Option[Address] = None,
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData] = Seq())
 
@@ -117,8 +117,8 @@ object ShippingManager {
 
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
     for {
-      orderShippingAddress ← * <~ OrderShippingAddresses
-                              .findByOrderRefWithRegions(cart.refNum)
+      orderShippingAddress ← * <~ Addresses
+                              .findByCordRefWithRegions(cart.refNum)
                               .result
                               .headOption
 

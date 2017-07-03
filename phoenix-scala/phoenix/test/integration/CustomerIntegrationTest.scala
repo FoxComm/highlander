@@ -13,7 +13,7 @@ import phoenix.models.account._
 import phoenix.models.cord.OrderPayments.scope._
 import phoenix.models.cord._
 import phoenix.models.customer._
-import phoenix.models.location.{Addresses, Regions}
+import phoenix.models.location.{Address, Addresses, Regions}
 import phoenix.models.payment.ExternalCharge
 import phoenix.models.payment.creditcard._
 import phoenix.models.shipping.Shipment.Shipped
@@ -141,11 +141,12 @@ class CustomerIntegrationTest
 
         val defaultAddress = Factories.address.copy(isDefaultShipping = true, phoneNumber = None)
 
-        def shippingAddresses(orders: Seq[(Order, String)]) = orders.map {
-          case (order, phone) ⇒
-            OrderShippingAddress
-              .buildFromAddress(defaultAddress)
-              .copy(cordRef = order.refNum, phoneNumber = phone.some)
+        def shippingAddresses(orders: Seq[(Order, String)]): Seq[Address] = orders.map {
+          case (order, phone) ⇒ {
+            val address = defaultAddress.copy(phoneNumber = phone.some, isDefaultShipping = false)
+            address.bindToCart(order.refNum)
+            address
+          }
         }
 
         val (customer, region, shipments) = (for {
@@ -166,12 +167,11 @@ class CustomerIntegrationTest
           order2 ← Orders.update(order2, order2.copy(state = Order.FulfillmentStarted))
           order2 ← Orders.update(order2, order2.copy(state = Order.Shipped))
           orders = Seq(order1, order2)
-          addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒
-                       OrderShippingAddresses.create(a))
+          addresses ← * <~ shippingAddresses(orders.zip(phoneNumbers)).map(a ⇒ Addresses.create(a))
           shipments ← * <~ addresses.map(
                        address ⇒
                          Shipments.create(
-                           Factories.shipment.copy(cordRef = address.cordRef,
+                           Factories.shipment.copy(cordRef = order1.refNum,
                                                    shippingAddressId = address.id.some,
                                                    orderShippingMethodId = None,
                                                    state = Shipped)))
@@ -182,7 +182,6 @@ class CustomerIntegrationTest
 
         def runTest(expectedPhone: String) = {
           val customerResponse = customersApi(customer.accountId).get().as[CustomerResponse]
-          customerResponse.shippingRegion must === (region)
           customerResponse.phoneNumber must === (expectedPhone.some)
         }
 

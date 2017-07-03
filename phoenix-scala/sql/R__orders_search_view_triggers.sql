@@ -19,7 +19,7 @@ create or replace function update_orders_view_from_orders_insert_fn() returns tr
             new.scope as scope,
             new.reference_number as reference_number,
             new.state as state,
-            to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as placed_at,
+            to_json_timestamp(new.placed_at) as placed_at,
             new.currency as currency,
             -- totals
             new.sub_total as sub_total,
@@ -84,3 +84,77 @@ begin
     return null;
 end;
 $$ language plpgsql;
+
+create or replace function update_orders_view_from_shipping_addresses_fn() returns trigger as $$
+declare cord_refs text[];
+begin
+  case tg_table_name
+    when 'addresses' then
+    select array_agg(ac.cord_ref) into strict cord_refs
+    from address_cord as ac where ac.address_id = new.id;
+    when 'regions' then
+    select array_agg(ac.cord_ref) into strict cord_refs
+    from addresses as osa
+      inner join regions as r on (r.id = osa.region_id)
+      inner join address_cord as ac on osa.id = ac.address_id
+    where r.id = new.id;
+    when 'countries' then
+    select array_agg(ac.cord_ref) into strict cord_refs
+    from addresses as osa
+      inner join regions as r1 on (r1.id = osa.region_id)
+      inner join countries as c1 on (r1.country_id = c1.id)
+      inner join address_cord as ac on osa.id = ac.address_id
+    where c1.id = new.id;
+  end case;
+
+  update orders_search_view set
+    shipping_addresses_count = subquery.count,
+    shipping_addresses = subquery.addresses
+  from (select
+          o.id,
+          count(osa) as count,
+          case when count(osa) = 0
+            then
+              '[]'
+          else
+            json_agg((
+                       osa.address1,
+                       osa.address2,
+                       osa.city,
+                       osa.zip,
+                       r1.name,
+                       c1.name,
+                       c1.continent,
+                       c1.currency
+                     )::export_addresses)::jsonb
+          end as addresses
+        from orders as o
+          left join address_cord as ac on ac.cord_ref = o.reference_number
+          left join addresses as osa on (o.reference_number = ac.cord_ref)
+          left join regions as r1 on (osa.region_id = r1.id)
+          left join countries as c1 on (r1.country_id = c1.id)
+        where o.reference_number = any(cord_refs)
+        group by o.id) as subquery
+  where orders_search_view.id = subquery.id;
+
+  return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_orders_view_from_order_shipping_addresses on addresses;
+create trigger update_orders_view_from_addresses
+after update or insert on addresses
+for each row
+execute procedure update_orders_view_from_shipping_addresses_fn();
+
+drop trigger if exists existsupdate_orders_view_from_regions on regions;
+create trigger update_orders_view_from_regions
+after update or insert on regions
+for each row
+execute procedure update_orders_view_from_shipping_addresses_fn();
+
+drop trigger if exists update_orders_view_from_countries on countries;
+create trigger update_orders_view_from_countries
+after update or insert on countries
+for each row
+execute procedure update_orders_view_from_shipping_addresses_fn();

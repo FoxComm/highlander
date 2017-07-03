@@ -12,7 +12,7 @@ import phoenix.models.Reasons
 import phoenix.models.cord.Order.RemorseHold
 import phoenix.models.cord._
 import phoenix.models.inventory._
-import phoenix.models.location.Region
+import phoenix.models.location.{Addresses, Region}
 import phoenix.models.payment.giftcard._
 import phoenix.models.payment.{InStorePaymentStates, PaymentMethod}
 import phoenix.models.shipping._
@@ -86,18 +86,16 @@ class CheckoutIntegrationTest
           'type (PaymentMethod.CreditCard)
         )
 
-        // FIXME: Add Address#id to OrderShippingAddress? @michalrus
-        // FIXME: And, afterwards, check just IDs. @michalrus
-        val orderShippingAddress =
-          OrderShippingAddresses.findOneById(order.shippingAddress.id).gimme.value
-        val expectedAddressResponse = AddressResponse.buildFromOrder(
+        val orderShippingAddress = Addresses.findOneById(order.shippingAddress.id).gimme.value
+        val expectedAddressResponse = AddressResponse.build(
           orderShippingAddress,
           order.shippingAddress.region
         )
 
         // Compare all significant fields.
         expectedAddressResponse must === (
-          customerAddress.copy(id = expectedAddressResponse.id, isDefault = None))
+          customerAddress.copy(id = expectedAddressResponse.id,
+                               isDefault = orderShippingAddress.isDefaultShipping.some))
         order.shippingAddress must === (expectedAddressResponse)
         order.shippingMethod.id must === (shipMethod.id)
       }

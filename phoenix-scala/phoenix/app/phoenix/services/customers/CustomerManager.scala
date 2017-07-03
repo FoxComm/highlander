@@ -12,7 +12,7 @@ import phoenix.failures.CustomerFailures._
 import phoenix.failures.UserFailures.AccessMethodNotFound
 import phoenix.models.account._
 import phoenix.models.auth.UserToken
-import phoenix.models.cord.{OrderShippingAddresses, Orders}
+import phoenix.models.cord.Orders
 import phoenix.models.customer.CustomersData.scope._
 import phoenix.models.customer._
 import phoenix.models.location.Addresses
@@ -37,7 +37,7 @@ object CustomerManager {
         order    ← Orders if order.accountId === accountId
         shipment ← Shipments if shipment.cordRef === order.referenceNumber &&
           shipment.shippingAddressId.isDefined
-        address ← OrderShippingAddresses if address.id === shipment.shippingAddressId &&
+        address ← Addresses if address.id === shipment.shippingAddressId &&
           address.phoneNumber.isDefined
       } yield (address.phoneNumber, shipment.updatedAt))
         .sortBy {
