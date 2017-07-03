@@ -42,4 +42,4 @@ docker-push:
 docker-all:
 	${SBT_CMD} '; api/dockerBuildAndPush'
 
-.PHONY: clean build fmt fmt-check test docker docker-push docker-build
+.PHONY: clean build fmt fmt-check test docker docker-push docker-all

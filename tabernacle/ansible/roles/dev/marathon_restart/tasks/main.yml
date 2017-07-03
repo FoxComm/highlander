@@ -12,6 +12,7 @@
     - { group: core-backend, app: middlewarehouse, id: middlewarehouse }
     - { group: core-backend, app: isaac, id: isaac }
     - { group: core-backend, app: solomon, id: solomon }
+    - { group: core-backend, app: agni, id: agni }
     - { group: core-frontend, app: ashes, id: ashes }
     - { group: core-frontend, app: peacock, id: peacock }
     - { group: core-frontend, app: perfect-gourmet, id: storefront_tpg }
