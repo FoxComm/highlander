@@ -1,0 +1,18 @@
+---
+
+- name: Get Nixy
+  get_url: url={{nixy_url}} dest=/tmp/nixy.tar.gz
+
+- name: Unpack Nixy
+  unarchive: src="/tmp/nixy.tar.gz" dest="/usr/local/bin/" copy=no
+  args:
+    creates: "/usr/local/bin/nixy"
+
+- name: Install Nixy Service
+  template: src=nixy.service dest="{{dest_services}}/nixy.service"
+
+- name: Copy Nixy Config File
+  template: src=nixy.toml dest="/etc/nixy.toml"
+
+- name: Copy Nixy Service File
+  template: src=nixy.json dest=/etc/consul.d/nixy.json

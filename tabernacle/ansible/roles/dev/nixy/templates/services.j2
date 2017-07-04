@@ -1,0 +1,53 @@
+<<- range $id, $app := .Apps >>
+  <<- $host_name := index $app.Hosts 0 >>
+
+  upstream <<index $app.Hosts 0 >> {
+    <<- range $app.Tasks >>
+      <<- if eq $host_name "phoenix" >>
+        server << .Host >>:9090 max_fails=10 fail_timeout=30s weight=1;
+      <<- end >>
+
+      <<- if eq $host_name "isaac" >>
+        server << .Host >>:9190 max_fails=10 fail_timeout=30s weight=1;
+      <<- end >>
+
+      <<- if eq $host_name "middlewarehouse" >>
+        server << .Host >>:9292 max_fails=10 fail_timeout=30s weight=1;
+      <<- end >>
+
+      <<- if eq $host_name "solomon" >>
+        server << .Host >>:4002 max_fails=10 fail_timeout=30s weight=1;
+      <<- end >>
+
+      <<- if and (ne $host_name "phoenix") (ne $host_name "isaac") (ne $host_name "middlewarehouse") (ne $host_name "solomon") >>
+        server << .Host >>:<< index .Ports 0 >> max_fails=10 fail_timeout=30s weight=1;
+      <<- end >>
+    <<- end >>
+  }
+  server {
+    <<- range $app.Hosts >>
+    server_name << . >> << . >>.*;
+    <<- end >>
+
+    location / {
+      proxy_set_header HOST $host;
+      proxy_connect_timeout 30;
+      proxy_http_version 1.1;
+      proxy_pass http://<< $host_name >>;
+    }
+  }
+<<- end >>
+
+{% if is_appliance %}
+upstream dashboard {
+   server {{dashboard_server}} max_fails=10 fail_timeout=30s weight=1;
+}
+
+upstream marathon {
+   server {{marathon_server}} max_fails=10 fail_timeout=30s weight=1;
+}
+
+upstream pgweb {
+   server {{pgweb_server}} max_fails=10 fail_timeout=30s weight=1;
+}
+{% endif %}

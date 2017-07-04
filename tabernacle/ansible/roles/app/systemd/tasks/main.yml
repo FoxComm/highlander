@@ -4,7 +4,7 @@
   service: name={{item}} enabled=yes
   with_items:
     - consul_agent
-    - consul_template
+    - nixy
     - dashboard
     - zookeeper
     - kafka

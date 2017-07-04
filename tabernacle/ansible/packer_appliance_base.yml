@@ -27,11 +27,11 @@
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
     - { role: base/mesos_consul }
+    - { role: base/nixy }
     - { role: base/elasticsearch }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }
     - { role: base/nginx }
-    - { role: base/consul_template }
     - { role: base/dashboard }
     - { role: base/pgweb }
     - { role: dev/db }

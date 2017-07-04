@@ -10,13 +10,13 @@
     - { role: base/mesos_worker }
     - { role: base/rsyslog }
     - { role: base/nginx }
-    - { role: base/consul_template }
+    - { role: base/nixy }
   post_tasks:
     - name: Enable Services
       service: name={{item}} enabled=yes
       with_items:
         - consul_agent
-        - consul_template
+        - nixy
         - mesos_worker
 
     - name: Reload Systemd Daemon
