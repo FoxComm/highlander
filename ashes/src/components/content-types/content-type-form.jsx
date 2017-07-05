@@ -21,7 +21,11 @@ import qualifiers from './qualifiers';
 import ContentBox from 'components/content-box/content-box';
 import { Button } from 'components/core/button';
 
-import { setDiscountAttr } from 'paragons/promotion';
+import {
+  addContentTypeObject,
+  updateContentTypeObject,
+  removeContentTypeObject
+} from 'paragons/content-type';
 import { setObjectAttr, omitObjectAttr } from 'paragons/object';
 import { customerGroups } from 'paragons/object-types';
 const layout = require('./layout.json');
@@ -34,8 +38,6 @@ export default class ContentTypeForm extends ObjectDetails {
     tabs: {},
     sections: {},
     properties: {},
-    'property-settings': {},
-    currentPropertyIndex: 0
   }
 
   renderApplyType() {
@@ -186,50 +188,37 @@ export default class ContentTypeForm extends ObjectDetails {
 
   @autobind
   setIsVisible(key, value) {
-    return () => {
+    return id => {
       this.setState({
         [key]: {
           ...this.state[key],
-          showModal: value
+          showModal: value,
+          id,
         }
       });
     };
   }
 
   @autobind
-  onSave(key, index) {
-    return object => {
-      if (index !== undefined) {
-        const newArray = this.props.object[key].filter((item, itemIndex) => itemIndex !== index);
-        newArray[index] = {
-          attributes: object
-        };
-        this.props.onUpdateObject({
-          ...this.props.object,
-          [key]: newArray
-        });
+  onSave(key, id) {
+    return attributes => {
+      const { object: contentType } = this.props;
+      if (id > 0) {
+        this.props.onUpdateObject(updateContentTypeObject(contentType, key, id, attributes));
+        return id;
       } else {
-        this.props.onUpdateObject({
-          ...this.props.object,
-          [key]: [
-            ...this.props.object[key],
-            {
-              attributes: object
-            }
-          ]
-        });
+        const object = addContentTypeObject(contentType, key, attributes);
+        this.props.onUpdateObject(object);
+        return _.last(object[key].allIds);
       }
     };
   }
 
   @autobind
-  onDelete(key, index) {
+  onDelete(key, id) {
     return () => {
-      const newArray = this.props.object[key].filter((item, itemIndex) => itemIndex !== index);
-      this.props.onUpdateObject({
-        ...this.props.object,
-        [key]: newArray
-      });
+      const { object: contentType } = this.props;
+      this.props.onUpdateObject(removeContentTypeObject(contentType, key, id));
     };
   }
 
@@ -314,34 +303,38 @@ export default class ContentTypeForm extends ObjectDetails {
     return _.get(schemes, key, {});
   }
 
-  modal({ key, title, index = 0 }): Element<*> {
+  modal({ key, title }): Element<*> {
     const formData = this.formData(key);
+    const { object: contentType } = this.props;
+    const { id, showModal } = this.state[key];
 
     return (
       <Modal
         title={`New ${title}`}
         schema={formData.schema}
-        object={_.get(this.props.object[key][index], 'attributes', {})}
+        object={_.get(contentType[key].byId[id], 'attributes', {})}
         fieldsToRender={formData.fieldsToRender}
-        isVisible={this.state[key].showModal}
+        isVisible={showModal}
         onCancel={this.onCancel(key)}
-        onSave={this.onSave(key)}
+        onSave={this.onSave(key, id)}
       />
     );
   }
 
-  form({ key, index = 0 }): Element<*> {
+  form({ key }): Element<*> {
     const formData = this.formData(key);
+    const { object: contentType } = this.props;
+    const { id, showModal } = this.state[key];
 
-    if (!this.state[key].showModal) return null;
+    if (!showModal) return null;
 
     return (
       <Form
         schema={formData.schema}
-        object={_.get(this.props.object[key][index], 'attributes', {})}
+        object={_.get(contentType[key].byId[id], 'attributes', {})}
         fieldsToRender={formData.fieldsToRender}
         onCancel={this.onCancel(key)}
-        onSave={this.onSave(key, index)}
+        onSave={this.onSave(key, id)}
       />
     );
   }
@@ -376,6 +369,7 @@ export default class ContentTypeForm extends ObjectDetails {
   }
 
   renderColumns(): Element<*> {
+    const { object: contentType } = this.props;
     return (
       <div styleName="columns">
         {this.column(
@@ -395,7 +389,7 @@ export default class ContentTypeForm extends ObjectDetails {
                 Tab
               </Button>
             ),
-            children: _.map(this.props.object.tabs, (tab) => <Button>{tab.attributes.title.v}</Button>)
+            children: _.map(contentType.tabs.byId, (tab) => <Button>{tab.attributes.title.v}</Button>)
           }
         )}
         {this.column(
@@ -415,7 +409,12 @@ export default class ContentTypeForm extends ObjectDetails {
                 Section
               </Button>
             ),
-            children: _.map(this.props.object.sections, (section) => <Button>{section.attributes.title.v}</Button>)
+            children: _.map(contentType.sections.byId, (section, id) => (
+              <div>
+                {section.attributes.title.v}
+                <Button icon="edit" onClick={() => this.setIsVisible('sections', true)(id)}>Edit</Button>
+              </div>
+            ))
           }
         )}
         {this.column(
@@ -431,19 +430,17 @@ export default class ContentTypeForm extends ObjectDetails {
               <Button
                 icon="add"
                 onClick={() => {
-                  this.onSave('properties')({ title: { t: 'string', v: '' } });
-                  this.setState({ currentPropertyIndex: this.props.object.properties.length });
-                  this.setIsVisible('properties', true)();
+                  const id = this.onSave('properties')({ title: { t: 'string', v: '' } });
+                  this.setIsVisible('properties', true)(id);
                 }}
               >
                 Property
               </Button>
             ),
-            children: _.map(this.props.object.properties, (property, index) => (
+            children: _.map(this.props.object.properties.byId, (property, id) => (
               <Button
                 onClick={() => {
-                  this.setState({ currentPropertyIndex: index });
-                  this.setIsVisible('properties', true)();
+                  this.setIsVisible('properties', true)(id);
                 }}
               >
                 {_.get(property.attributes, 'title.v') || 'New property'}
@@ -458,7 +455,7 @@ export default class ContentTypeForm extends ObjectDetails {
             footer: this.state.properties.showModal ? (
               <Button
                 onClick={_.compose(
-                  this.onDelete('properties', this.state.currentPropertyIndex),
+                  this.onDelete('properties', this.state.properties.id),
                   this.setIsVisible('properties', false)
                 )}
               >
@@ -468,7 +465,6 @@ export default class ContentTypeForm extends ObjectDetails {
             children: this.form(
               {
                 key: 'properties',
-                index: this.state.currentPropertyIndex
               }
             )
           }
