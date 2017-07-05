@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { createReducer } from 'redux-act';
-import { post } from '../lib/search';
+import Agni from 'lib/search';
 import { update } from 'sprout-data';
 import { toQuery } from '../elastic/common';
 import SearchTerm from '../paragons/search-term';
@@ -38,7 +38,7 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, phr
   function fetcher(phrase, queryFilters = filters, options = {}) {
     options.phrase = phrase;
     const esQuery = toQuery(queryFilters, options);
-    return post(addPaginationParams(url, this.searchState), esQuery);
+    return Agni.search(addPaginationParams(url, this.searchState), esQuery);
   }
 
   const {reducer, ...actions} = makePagination(namespace, fetcher, state => _.get(state, `${namespace}.results`));

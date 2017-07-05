@@ -2,7 +2,7 @@ import _ from 'lodash';
 import Api from 'lib/api';
 import stripe from 'lib/stripe';
 import { createAction, createReducer } from 'redux-act';
-import { post } from 'lib/search';
+import Agni from 'lib/agni';
 import { getBillingAddress } from 'lib/credit-card-utils';
 import { toQuery } from '../../elastic/common';
 import { createAsyncActions } from '@foxcomm/wings';
@@ -75,7 +75,7 @@ const _giftCardSearch = createAsyncActions(
       },
     }];
 
-    return post('gift_cards_search_view/_search', toQuery(filters));
+    return Agni.search('gift_cards_search_view', toQuery(filters));
   }
 );
 

@@ -1,10 +1,10 @@
 /* @flow */
 
-import { post } from '../lib/search';
+import Agni from 'lib/agni';
 import * as dsl from './dsl';
 
 const MAX_RESULTS = 1000;
-const taxonomiesSearchUrl = `taxonomies_search_view/_search?size=${MAX_RESULTS}`;
+const taxonomiesSearchUrl = `taxonomies_search_view?size=${MAX_RESULTS}`;
 
 export function searchTaxonomies(token: string): Promise<*> {
   const filters = [];
@@ -26,6 +26,5 @@ export function searchTaxonomies(token: string): Promise<*> {
     },
   });
 
-  return post(taxonomiesSearchUrl, matchRule);
+  return Agni.search(taxonomiesSearchUrl, matchRule);
 }
-

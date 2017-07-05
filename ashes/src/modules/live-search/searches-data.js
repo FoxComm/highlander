@@ -59,7 +59,8 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
 
     dispatch(saveRawQuery(jsonQuery));
 
-    const promise = Agni.search(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }))
+    const promise =
+      Agni.search(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }))
       .then(response => {
         if (skipProcessingFetch(getState, fetchingSearchIdx)) {
           promise.abort();

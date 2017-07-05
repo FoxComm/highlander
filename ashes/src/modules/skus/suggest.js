@@ -3,7 +3,7 @@
 
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { post } from 'lib/search';
+import Agni from 'lib/agni';
 import * as dsl from 'elastic/dsl';
 import { createAsyncActions } from '@foxcomm/wings';
 
@@ -30,7 +30,7 @@ const _suggestSkus = createAsyncActions(
       })];
     }
 
-    return post('sku_search_view/_search', dsl.query({
+    return Agni.search('sku_search_view', dsl.query({
       bool: {
         filter: filters,
         should: [
