@@ -39,6 +39,7 @@ export default class MyModal extends Component {
   handleSave() {
     this.props.onSave(this.state.object);
     this.props.onCancel();
+    this.setState({ object: {} });
   }
 
   get footer() {
