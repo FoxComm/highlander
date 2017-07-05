@@ -1,50 +1,103 @@
 
 import { assoc } from 'sprout-data';
 
-function addEmptyDiscount(contentType) {
-  const discount = {
-    id: null,
+let id = 0;
+function uniqId() {
+  return id++;
+}
+
+export function addContentTypeObject(contentType, key, attributes) {
+  const object = {
+    id: uniqId(),
     createdAt: null,
-    attributes: {
-      qualifier: {
-        t: 'qualifier',
-        v: {
-          orderAny: {}
-        }
-      },
-      offer: {
-        t: 'offer',
-        v: {
-          orderPercentOff: {}
-        }
-      }
-    },
+    attributes,
   };
 
-  contentType.discounts.push(discount);
-  return contentType;
+  return {
+    ...contentType,
+    [key]: {
+      ...contentType[key],
+      byId: {
+        ...contentType[key].byId,
+        [object.id]: object,
+      },
+      allIds: [
+        ...contentType[key].allIds,
+        object.id,
+      ],
+    },
+  };
+}
+
+export function updateContentTypeObject(contentType, key, id, attributes) {
+  const object = {
+    id: id,
+    createdAt: null,
+    attributes,
+  };
+
+  return {
+    ...contentType,
+    [key]: {
+      ...contentType[key],
+      byId: {
+        ...contentType[key].byId,
+        [object.id]: object,
+      },
+      allIds: [
+        ...contentType[key].allIds,
+        object.id,
+      ],
+    },
+  };
+}
+
+export function removeContentTypeObject(contentType, key, id) {
+  const byId = contentType[key].byId;
+  delete byId[id];
+  return {
+    ...contentType,
+    [key]: {
+      ...contentType[key],
+      byId,
+      allIds: contentType[key].allIds.filter(itemId => itemId !== id),
+    },
+  };
+}
+
+function addEmptyTab(contentType) {
+  return addContentTypeObject(contentType, 'tabs', {
+    title: {
+      t: 'string',
+      v: 'Details',
+    },
+  });
 }
 
 export function createEmptyContentType() {
   const contentType = {
     id: null,
-    applyType: 'auto',
-    isExclusive: true,
     createdAt: null,
     attributes: {
-      storefrontName: {
-        t: 'richText',
-        v: 'Storefront name'
-      },
-      customerGroupIds: {
-        t: 'tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v',
-        v: null,
-      },
+      title: null,
+      description: null,
+      slug: null,
     },
-    discounts: [],
+    tabs: {
+      byId: {},
+      allIds: [],
+    },
+    sections: {
+      byId: {},
+      allIds: [],
+    },
+    properties: {
+      byId: {},
+      allIds: [],
+    },
   };
 
-  return addEmptyDiscount(contentType);
+  return addEmptyTab(contentType);
 }
 
 export function setDiscountAttr(contentType, label, value) {

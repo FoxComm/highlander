@@ -6,6 +6,15 @@
   flex-wrap: wrap;
 }
 
+.full-page {
+  width: 100%;
+  min-width: 400px;
+
+  & > div {
+    margin-bottom: 20px;
+  }
+}
+
 .main {
   width: calc(67% - 1.85%);
   margin-right: 1.85%;
@@ -38,4 +47,46 @@
 
 .customer-groups {
   margin-top: 20px;
+}
+
+.columns {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+.column {
+  flex-grow: 1;
+  margin-top: 20px;
+  margin-right: 0;
+  border-left: 0;
+
+  &:first-child {
+    border-left: 1px solid #d9d9d9;
+  }
+}
+
+.column-body {
+  min-height: 600px;
+}
+
+.column-body > * {
+  width: 100%;
+}
+
+.column-body-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.column-footer {
+  padding: 10px;
+  border-top: 1px solid #d9d9d9;
+}
+
+.column-footer > button {
+  width: 100%;
 }

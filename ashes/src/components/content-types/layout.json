@@ -5,11 +5,13 @@
       "title": "General",
       "content": [
         {
-          "canAddProperty": true,
+          "canAddProperty": false,
           "includeRest": true,
           "type": "fields",
           "value": [
-            "name"
+            "title",
+            "description",
+            "slug"
           ],
           "omit": [
             "storefrontName",
@@ -25,46 +27,7 @@
       ]
     },
     {
-      "type": "group",
-      "title": "Discounts",
-      "content": [
-        {
-          "type": "discounts"
-        },
-        {
-          "type": "customers"
-        }
-      ]
-    },
-    {
-      "type": "group",
-      "title": "Usage Rules",
-      "content": [
-        {
-          "type": "usage-rules"
-        }
-      ]
-    },
-    {
-      "type": "group",
-      "showIfNew": true,
-      "title": "Apply Type",
-      "content": [
-        {
-          "type": "apply-type"
-        }
-      ]
-    }
-  ],
-  "aside": [
-    {
-      "type": "state"
-    },
-    {
-      "type": "tags"
-    },
-    {
-      "type": "watchers"
+      "type": "columns"
     }
   ]
 }

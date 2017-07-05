@@ -5,25 +5,40 @@ import _ from 'lodash';
 import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
+import classNames from 'classnames';
 
 import styles from '../object-page/object-details.css';
 
 import ObjectDetails from '../object-page/object-details';
+import Modal from './modal';
+import Form from './form';
 import { FormField } from '../forms';
 import RadioButton from 'components/core/radio-button';
-import SelectCustomerGroups from '../customers-groups/select-groups';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
 import qualifiers from './qualifiers';
 
-import { setDiscountAttr } from 'paragons/promotion';
+import ContentBox from 'components/content-box/content-box';
+import { Button } from 'components/core/button';
+
+import {
+  addContentTypeObject,
+  updateContentTypeObject,
+  removeContentTypeObject
+} from 'paragons/content-type';
 import { setObjectAttr, omitObjectAttr } from 'paragons/object';
 import { customerGroups } from 'paragons/object-types';
 const layout = require('./layout.json');
 
-export default class PromotionForm extends ObjectDetails {
+export default class ContentTypeForm extends ObjectDetails {
 
   layout = layout;
+
+  state = {
+    tabs: {},
+    sections: {},
+    properties: {},
+  }
 
   renderApplyType() {
     const promotion = this.props.object;
@@ -171,18 +186,289 @@ export default class PromotionForm extends ObjectDetails {
     this.props.onUpdateObject(newPromotion);
   }
 
-  renderCustomers(): Element<*> {
-    const promotion = this.props.object;
+  @autobind
+  setIsVisible(key, value) {
+    return id => {
+      this.setState({
+        [key]: {
+          ...this.state[key],
+          showModal: value,
+          id,
+        }
+      });
+    };
+  }
+
+  @autobind
+  onSave(key, id) {
+    return attributes => {
+      const { object: contentType } = this.props;
+      if (id > 0) {
+        this.props.onUpdateObject(updateContentTypeObject(contentType, key, id, attributes));
+        return id;
+      } else {
+        const object = addContentTypeObject(contentType, key, attributes);
+        this.props.onUpdateObject(object);
+        return _.last(object[key].allIds);
+      }
+    };
+  }
+
+  @autobind
+  onDelete(key, id) {
+    return () => {
+      const { object: contentType } = this.props;
+      this.props.onUpdateObject(removeContentTypeObject(contentType, key, id));
+    };
+  }
+
+  @autobind
+  onCancel(key) {
+    return this.setIsVisible(key, false);
+  }
+
+  formData(key: string) {
+    const schemes = {
+      tabs: {
+        fieldsToRender: ['title'],
+        schema: {
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "custom-properties": {
+              "title": "Custom Properties can be added to this section",
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      sections: {
+        fieldsToRender: ['title', 'slug', 'custom-properties'],
+        schema: {
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "custom-properties": {
+              "title": "Custom Properties can be added to this section",
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      properties: {
+        fieldsToRender: ['title', 'slug'],
+        schema: {
+          "type": "object",
+          "required": [
+            "title"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "custom-properties": {
+              "title": "Custom Properties can be added to this section",
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    };
+
+    return _.get(schemes, key, {});
+  }
+
+  modal({ key, title }): Element<*> {
+    const formData = this.formData(key);
+    const { object: contentType } = this.props;
+    const { id, showModal } = this.state[key];
+
     return (
-      <div styleName="customer-groups">
-        <div styleName="sub-title" >Customers</div>
-        <SelectCustomerGroups
-          parent="Promotions"
-          selectedGroupIds={_.get(promotion, 'attributes.customerGroupIds.v', null)}
-          qualifyAll={_.get(promotion, 'attributes.customerGroupIds.v', null) == null}
-          qualifyAllChange={this.handleQualifyAllChange}
-          updateSelectedIds={this.handleQualifierGroupChange}
-        />
+      <Modal
+        title={`New ${title}`}
+        schema={formData.schema}
+        object={_.get(contentType[key].byId[id], 'attributes', {})}
+        fieldsToRender={formData.fieldsToRender}
+        isVisible={showModal}
+        onCancel={this.onCancel(key)}
+        onSave={this.onSave(key, id)}
+      />
+    );
+  }
+
+  form({ key }): Element<*> {
+    const formData = this.formData(key);
+    const { object: contentType } = this.props;
+    const { id, showModal } = this.state[key];
+
+    if (!showModal) return null;
+
+    return (
+      <Form
+        schema={formData.schema}
+        object={_.get(contentType[key].byId[id], 'attributes', {})}
+        fieldsToRender={formData.fieldsToRender}
+        onCancel={this.onCancel(key)}
+        onSave={this.onSave(key, id)}
+      />
+    );
+  }
+
+
+  column({ key, title, children, footer, emptyBody }): Element<*> {
+    const isEmpty = _.isEmpty(children);
+
+    const bodyClassName = classNames(
+      styles['column-body'],
+      {[styles['column-body-empty']]: isEmpty}
+    );
+
+    return (
+      <ContentBox
+        className={styles['column']}
+        bodyClassName={bodyClassName}
+        title={title}
+        actionBlock={this.actions}
+        footer={(
+          <div styleName="column-footer">
+            {footer}
+          </div>
+        )}
+        indentContent={false}
+      >
+        {children}
+        {isEmpty && emptyBody}
+        {key === 'properties' ? null : this.modal({ key, title })}
+      </ContentBox>
+    );
+  }
+
+  renderColumns(): Element<*> {
+    const { object: contentType } = this.props;
+    return (
+      <div styleName="columns">
+        {this.column(
+          {
+            key: 'tabs',
+            title: 'Tab',
+            emptyBody: (
+              <span>
+                Add a tab!
+              </span>
+            ),
+            footer: (
+              <Button
+                icon="add"
+                onClick={this.setIsVisible('tabs', true)}
+              >
+                Tab
+              </Button>
+            ),
+            children: _.map(contentType.tabs.byId, (tab) => <Button>{tab.attributes.title.v}</Button>)
+          }
+        )}
+        {this.column(
+          {
+            key: 'sections',
+            title: 'Section',
+            emptyBody: (
+              <span>
+                Add a section!
+              </span>
+            ),
+            footer: (
+              <Button
+                icon="add"
+                onClick={this.setIsVisible('sections', true)}
+              >
+                Section
+              </Button>
+            ),
+            children: _.map(contentType.sections.byId, (section, id) => (
+              <div>
+                {section.attributes.title.v}
+                <Button icon="edit" onClick={() => this.setIsVisible('sections', true)(id)}>Edit</Button>
+              </div>
+            ))
+          }
+        )}
+        {this.column(
+          {
+            key: 'properties',
+            title: 'Properties',
+            emptyBody: (
+              <span>
+                Add a property!
+              </span>
+            ),
+            footer: (
+              <Button
+                icon="add"
+                onClick={() => {
+                  const id = this.onSave('properties')({ title: { t: 'string', v: '' } });
+                  this.setIsVisible('properties', true)(id);
+                }}
+              >
+                Property
+              </Button>
+            ),
+            children: _.map(this.props.object.properties.byId, (property, id) => (
+              <Button
+                onClick={() => {
+                  this.setIsVisible('properties', true)(id);
+                }}
+              >
+                {_.get(property.attributes, 'title.v') || 'New property'}
+              </Button>
+            ))
+          }
+        )}
+        {this.column(
+          {
+            key: 'properties',
+            title: 'Property Settings',
+            footer: this.state.properties.showModal ? (
+              <Button
+                onClick={_.compose(
+                  this.onDelete('properties', this.state.properties.id),
+                  this.setIsVisible('properties', false)
+                )}
+              >
+                Delete
+              </Button>
+            ) : null,
+            children: this.form(
+              {
+                key: 'properties',
+              }
+            )
+          }
+        )}
       </div>
     );
   }
