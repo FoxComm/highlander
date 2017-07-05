@@ -5,7 +5,7 @@ import com.twitter.finagle.http.Status
 import com.twitter.util.Await
 import foxcomm.agni._
 import foxcomm.agni.dsl.query._
-import foxcomm.agni.interpreter.es.queryInterpreter
+import foxcomm.agni.interpreter.es._
 import foxcomm.utils.finch._
 import io.circe.generic.extras.auto._
 import io.finch._
@@ -44,7 +44,7 @@ object Api extends App {
 
   implicit val s: Scheduler = Scheduler.global
   val config                = AppConfig.load()
-  val svc                   = SearchService.fromConfig(config, queryInterpreter)
+  val svc                   = SearchService.fromConfig(config, queryInterpreter, sortInterpreter)
 
   Await.result(
     Http.server

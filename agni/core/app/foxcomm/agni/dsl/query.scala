@@ -145,8 +145,6 @@ object query {
 
   sealed trait QueryFunction
   object QueryFunction {
-    val Discriminator = "type"
-
     private def buildQueryFunctionDecoder[A <: QueryFunction](expectedTpe: String, decoder: Decoder[A])(
         onBoost: (Float, HCursor, Decoder[A]) ⇒ Decoder.Result[A]) =
       Decoder.instance { c ⇒

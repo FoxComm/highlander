@@ -15,7 +15,7 @@ import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHit
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-class SearchService private (client: Client, qi: ESQueryInterpreter) {
+class SearchService private (client: Client, qi: ESQueryInterpreter, si: ESSortInterpreter) {
   import SearchService.ExtractJsonObject
 
   def translate(searchPayload: SearchPayload.fc): Task[Json] = {
@@ -56,8 +56,15 @@ class SearchService private (client: Client, qi: ESQueryInterpreter) {
     def evalQuery(builder: SearchRequestBuilder): Coeval[SearchRequestBuilder] = searchPayload match {
       case SearchPayload.es(query, _) ⇒
         Coeval.eval(builder.setQuery(Json.fromJsonObject(query).toBytes))
-      case SearchPayload.fc(query, _) ⇒
-        qi(query).map(builder.setQuery)
+      case SearchPayload.fc(query, sort, _) ⇒
+        for {
+          query ← qi(query)
+          sorts ← si(sort)
+        } yield {
+          builder.setQuery(query)
+          sorts.foreach(builder.addSort)
+          builder
+        }
     }
 
     def setupBuilder: Task[SearchRequestBuilder] = (prepareBuilder flatMap evalQuery).task
@@ -90,10 +97,10 @@ object SearchService {
         .flatMap(_.asObject)
   }
 
-  def apply(client: Client, qi: ESQueryInterpreter): SearchService =
-    new SearchService(client, qi)
+  def apply(client: Client, qi: ESQueryInterpreter, si: ESSortInterpreter): SearchService =
+    new SearchService(client, qi, si)
 
-  def fromConfig(config: AppConfig, qi: ESQueryInterpreter): SearchService = {
+  def fromConfig(config: AppConfig, qi: ESQueryInterpreter, si: ESSortInterpreter): SearchService = {
     val esConfig = config.elasticsearch
     val settings =
       Settings.settingsBuilder().put("cluster.name", esConfig.cluster).build()
@@ -103,6 +110,6 @@ object SearchService {
       .build()
       .addTransportAddresses(esConfig.host.toList.map(new InetSocketTransportAddress(_)): _*)
 
-    apply(client, qi)
+    apply(client, qi, si)
   }
 }
