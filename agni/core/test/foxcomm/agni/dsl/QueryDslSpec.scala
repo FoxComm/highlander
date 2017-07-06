@@ -2,8 +2,8 @@ package foxcomm.agni.dsl
 
 import cats.data.NonEmptyVector
 import foxcomm.agni.dsl.query._
-import io.circe.{Json, JsonObject}
 import io.circe.parser._
+import io.circe.{Json, JsonObject}
 import org.scalatest.EitherValues._
 import org.scalatest.OptionValues._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
@@ -28,6 +28,7 @@ class QueryDslSpec extends FlatSpec with Matchers {
         Source
           .fromInputStream(getClass.getResourceAsStream("/query/multiple.json"))
           .mkString).right.value
+
     val queries =
       json.as[FCQuery].right.value.query.map(_.toList).getOrElse(Nil)
     assertQueryFunction[QueryFunction.equals](queries.head) { equals ⇒
@@ -100,7 +101,7 @@ class QueryDslSpec extends FlatSpec with Matchers {
                    )))
       else Json.fromJsonObject(embed)
 
-    deepBool(boolDepth = QueryFunction.bool.MaxDepth - 1, embed = leaf).as[FCQuery].isLeft should === (false)
-    deepBool(boolDepth = QueryFunction.bool.MaxDepth, embed = leaf).as[FCQuery].isLeft should === (true)
+    deepBool(boolDepth = QueryFunction.MaxDepth, embed = leaf).as[FCQuery].isLeft should === (false)
+    deepBool(boolDepth = QueryFunction.MaxDepth + 1, embed = leaf).as[FCQuery].isLeft should === (true)
   }
 }
