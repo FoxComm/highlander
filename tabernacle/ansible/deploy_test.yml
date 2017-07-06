@@ -27,5 +27,6 @@
     with_onboarding: true
   roles:
     - { role: dev/marathon_groups }
-    - { role: dev/nixy }
+    - { role: dev/nginx }
+    - { role: demo/balancer }
     - { role: hotfix/nginx }
