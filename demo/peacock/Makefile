@@ -9,7 +9,7 @@ dev d:
 	export eval `cat .env` && yarn dev
 
 setup: clean
-	yarn --pure-lockfile
+	yarn --pure-lockfile		
 
 build:
 	$(call header, Building)
@@ -18,7 +18,7 @@ build:
 
 docker:
 	$(call header, Dockerizing)
-	docker build --squash --compress -t $(DOCKER_IMAGE) .
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
 	$(call header, Registering)

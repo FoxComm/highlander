@@ -28,7 +28,7 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 .PHONY: docker
 docker: MSG=Dockerizing
 docker: notify
-	docker build --squash --compress -t $(DOCKER_IMAGE) . --build-arg NPM_TOKEN=${NPM_TOKEN}
+	docker build -t $(DOCKER_IMAGE) . --build-arg NPM_TOKEN=${NPM_TOKEN}
 
 .PHONY: docker-run
 docker-run:
