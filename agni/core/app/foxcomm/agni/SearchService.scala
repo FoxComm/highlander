@@ -15,7 +15,10 @@ import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHit
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-class SearchService private (client: Client, qi: ESQueryInterpreter, si: ESSortInterpreter) {
+class SearchService private (client: Client,
+                             ai: ESAggregationInterpreter,
+                             qi: ESQueryInterpreter,
+                             si: ESSortInterpreter) {
   import SearchService.ExtractJsonObject
 
   def translate(searchPayload: SearchPayload.fc): Task[Json] = {
@@ -56,11 +59,13 @@ class SearchService private (client: Client, qi: ESQueryInterpreter, si: ESSortI
     def evalQuery(builder: SearchRequestBuilder): Coeval[SearchRequestBuilder] = searchPayload match {
       case SearchPayload.es(query, _) ⇒
         Coeval.eval(builder.setQuery(Json.fromJsonObject(query).toBytes))
-      case SearchPayload.fc(query, sort, _) ⇒
+      case SearchPayload.fc(aggs, query, sort, _) ⇒
         for {
+          aggs  ← ai(aggs)
           query ← qi(query)
           sorts ← si(sort)
         } yield {
+          aggs.foreach(builder.addAggregation)
           builder.setQuery(query)
           sorts.foreach(builder.addSort)
           builder
@@ -97,10 +102,16 @@ object SearchService {
         .flatMap(_.asObject)
   }
 
-  def apply(client: Client, qi: ESQueryInterpreter, si: ESSortInterpreter): SearchService =
-    new SearchService(client, qi, si)
+  def apply(client: Client,
+            ai: ESAggregationInterpreter,
+            qi: ESQueryInterpreter,
+            si: ESSortInterpreter): SearchService =
+    new SearchService(client, ai, qi, si)
 
-  def fromConfig(config: AppConfig, qi: ESQueryInterpreter, si: ESSortInterpreter): SearchService = {
+  def fromConfig(config: AppConfig,
+                 ai: ESAggregationInterpreter,
+                 qi: ESQueryInterpreter,
+                 si: ESSortInterpreter): SearchService = {
     val esConfig = config.elasticsearch
     val settings =
       Settings.settingsBuilder().put("cluster.name", esConfig.cluster).build()
@@ -110,6 +121,6 @@ object SearchService {
       .build()
       .addTransportAddresses(esConfig.host.toList.map(new InetSocketTransportAddress(_)): _*)
 
-    apply(client, qi, si)
+    apply(client, ai, qi, si)
   }
 }

@@ -2,8 +2,7 @@ package foxcomm.agni.interpreter.es
 
 import cats.data._
 import foxcomm.agni._
-import foxcomm.agni.dsl.sort.SortFunction
-import foxcomm.agni.dsl.sort.SortFunction.RawSortValue
+import foxcomm.agni.dsl.sort._
 import foxcomm.agni.interpreter.SortInterpreter
 import org.elasticsearch.common.xcontent.{ToXContent, XContentBuilder}
 import org.elasticsearch.search.sort.{SortBuilder, SortOrder}
@@ -14,6 +13,11 @@ import scala.collection.mutable.ListBuffer
   Array("org.wartremover.warts.MutableDataStructures", "org.wartremover.warts.NonUnitStatements"))
 private[es] object ESSortInterpreter extends SortInterpreter[() ⇒ ?, NonEmptyList[SortBuilder]] {
   type State = () ⇒ NonEmptyList[SortBuilder]
+  object State {
+    def single(sort: ⇒ SortBuilder): State = () ⇒ NonEmptyList.of(sort)
+
+    def apply(sorts: ⇒ List[SortBuilder]): State = () ⇒ NonEmptyList.fromListUnsafe(sorts)
+  }
 
   private final case class RawSortBuilder(content: RawSortValue) extends SortBuilder {
     @compileTimeOnly("forbidden method to call")
@@ -34,12 +38,11 @@ private[es] object ESSortInterpreter extends SortInterpreter[() ⇒ ?, NonEmptyL
     }
   }
 
-  def apply(sfs: NonEmptyList[SortFunction]): State = () ⇒ {
-    NonEmptyList.fromListUnsafe(
-      sfs.foldLeft(ListBuffer.empty[SortBuilder])((acc, sf) ⇒ acc ++= eval(sf)().toList).toList)
+  def apply(sfs: NonEmptyList[SortFunction]): State = State {
+    sfs.foldLeft(ListBuffer.empty[SortBuilder])((acc, sf) ⇒ acc ++= eval(sf)().toList).toList
   }
 
-  def rawF(qf: SortFunction.raw): State = () ⇒ {
-    NonEmptyList.of(RawSortBuilder(qf.value))
+  def rawF(sf: SortFunction.raw): State = State.single {
+    RawSortBuilder(sf.value)
   }
 }

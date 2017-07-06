@@ -173,23 +173,11 @@ private[query] trait QueryFunctions { this: QueryData ⇒
 
   sealed case class FCQuery(query: Option[NonEmptyList[QueryFunction]])
   object FCQuery {
-    implicit val decodeFCQuery: Decoder[FCQuery] = {
-      val qfsDecode = Decoder.decodeNonEmptyList[QueryFunction]
-      val qfDecode  = Decoder[QueryFunction].map(NonEmptyList.of(_))
-
-      Decoder.instance { c ⇒
-        if (c.value.isNull) Either.right(FCQuery(None))
-        else if (c.value.isArray) qfsDecode.map(qfs ⇒ FCQuery(Some(qfs)))(c)
-        else if (c.value.isObject) qfDecode.map(qfs ⇒ FCQuery(Some(qfs)))(c)
-        else
-          Either.left(
-            DecodingFailure(
-              "Query DSL must be either empty or " +
-                "a non-empty array of query functions or " +
-                "a single query function object",
-              c.history
-            ))
-      }
-    }
+    implicit val decodeFCQuery: Decoder[FCQuery] =
+      Decoder
+        .decodeOption(
+          Decoder.decodeNonEmptyList[QueryFunction] or
+            Decoder[QueryFunction].map(NonEmptyList.of(_)))
+        .map(FCQuery(_))
   }
 }

@@ -2,7 +2,7 @@ package foxcomm.agni.interpreter
 
 import scala.language.higherKinds
 import cats.data.NonEmptyList
-import foxcomm.agni.dsl.query._
+import foxcomm.agni.dsl.query.QueryFunction
 
 trait QueryInterpreter[F[_], V] extends Interpreter[F, NonEmptyList[QueryFunction], V] {
   final def eval(qf: QueryFunction): F[V] = qf match {

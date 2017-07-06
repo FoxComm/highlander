@@ -1,9 +1,13 @@
 package foxcomm.agni.dsl
 
 import cats.data.NonEmptyVector
+import foxcomm.agni.SearchPayload
+import foxcomm.agni.dsl.aggregations.AggregationFunction
 import foxcomm.agni.dsl.query._
+import foxcomm.agni.dsl.sort.{RawSortValue, SortFunction}
 import io.circe.parser._
 import io.circe.{Json, JsonObject}
+import io.circe.generic.extras.auto._
 import org.scalatest.EitherValues._
 import org.scalatest.OptionValues._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
@@ -12,7 +16,7 @@ import scala.io.Source
 import shapeless._
 import shapeless.syntax.typeable._
 
-class QueryDslSpec extends FlatSpec with Matchers {
+class DslSpec extends FlatSpec with Matchers {
   implicit class RichRangeBound[A](val rb: RangeBound[A]) {
     implicit def toMap: Map[RangeFunction, A] = Map.empty ++ rb.lower ++ rb.upper
   }
@@ -23,14 +27,16 @@ class QueryDslSpec extends FlatSpec with Matchers {
       .fold(fail(s"Cannot cast query function ${qf.getClass.getName} to ${Typeable[T].describe}"))(assertion)
 
   "DSL" should "parse multiple queries" in {
-    val json =
+    val payload =
       parse(
         Source
-          .fromInputStream(getClass.getResourceAsStream("/query/multiple.json"))
-          .mkString).right.value
+          .fromInputStream(getClass.getResourceAsStream("/queries.json"))
+          .mkString).right.value.as[SearchPayload.fc].right.value
 
-    val queries =
-      json.as[FCQuery].right.value.query.map(_.toList).getOrElse(Nil)
+    payload.aggregations.aggs.isEmpty should === (true)
+    payload.sort.sorts.isEmpty should === (true)
+
+    val queries = payload.query.query.map(_.toList).getOrElse(Nil)
     assertQueryFunction[QueryFunction.equals](queries.head) { equals ⇒
       equals.field.toList should === (List(Coproduct[Field]("slug")))
       equals.ctx should === (QueryContext.must)
@@ -80,6 +86,44 @@ class QueryDslSpec extends FlatSpec with Matchers {
         }
       }
     }
+  }
+
+  it should "parse raw aggregation definitions" in {
+    val payload =
+      parse(
+        Source
+          .fromInputStream(getClass.getResourceAsStream("/aggs.json"))
+          .mkString).right.value.as[SearchPayload.fc].right.value
+
+    payload.query.query.isEmpty should === (true)
+    payload.sort.sorts.isEmpty should === (true)
+
+    val aggs = payload.aggregations.aggs.map(_.toList).getOrElse(Nil)
+    aggs.head should === (
+      AggregationFunction
+        .raw("some_name", "some_type", meta = Some(JsonObject.empty), value = JsonObject.empty))
+    aggs(1) should === (
+      AggregationFunction.raw("some_other_name",
+                              "some_type",
+                              meta = None,
+                              value = JsonObject.singleton("some_key", Json.fromString("some_value"))))
+  }
+
+  it should "parse raw sort definitions" in {
+    val payload =
+      parse(
+        Source
+          .fromInputStream(getClass.getResourceAsStream("/sorts.json"))
+          .mkString).right.value.as[SearchPayload.fc].right.value
+
+    payload.aggregations.aggs.isEmpty should === (true)
+    payload.query.query.isEmpty should === (true)
+
+    val sorts = payload.sort.sorts.map(_.toList).getOrElse(Nil)
+    sorts.head should === (SortFunction.raw(Coproduct[RawSortValue]("price")))
+    sorts(1) should === (
+      SortFunction.raw(
+        Coproduct[RawSortValue](JsonObject.singleton("date", Json.obj("order" → Json.fromString("desc"))))))
   }
 
   it should "limit max depth for bool query" in {
