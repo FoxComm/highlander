@@ -18,7 +18,7 @@ build:
 
 docker:
 	$(call header, Dockerizing)
-	docker build --compress -t $(DOCKER_IMAGE) .
+	docker build --squash --compress -t $(DOCKER_IMAGE) .
 
 docker-push:
 	$(call header, Registering)

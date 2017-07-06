@@ -70,28 +70,28 @@ docker:
 	make docker-middlewarehouse
 
 docker-middlewarehouse:
-	$(DOCKER) build -t --compress $(DOCKER_IMAGE) .
+	$(DOCKER) build -t --squash --compress $(DOCKER_IMAGE) .
 
 docker-middlewarehouse-seeder:
-	$(DOCKER) build -t --compress middlewarehouse-seeder -f Dockerfile.seeder .
+	$(DOCKER) build -t --squash --compress middlewarehouse-seeder -f Dockerfile.seeder .
 
 docker-capture-consumer:
-	$(DOCKER) build -t --compress capture-consumer -f Dockerfile.capture .
+	$(DOCKER) build -t --squash --compress capture-consumer -f Dockerfile.capture .
 
 docker-gift-card-consumer:
-	$(DOCKER) build -t --compress gift-card-consumer -f Dockerfile.gift-cards .
+	$(DOCKER) build -t --squash --compress gift-card-consumer -f Dockerfile.gift-cards .
 
 docker-shipments-consumer:
-	$(DOCKER) build -t --compress shipments-consumer -f Dockerfile.shipments .
+	$(DOCKER) build -t --squash --compress shipments-consumer -f Dockerfile.shipments .
 
 docker-shipstation-consumer:
-	$(DOCKER) build -t --compress shipstation-consumer -f Dockerfile.shipstation .
+	$(DOCKER) build -t --squash --compress shipstation-consumer -f Dockerfile.shipstation .
 
 docker-stock-items-consumer:
-	$(DOCKER) build -t --compress stock-items-consumer -f Dockerfile.stock-items .
+	$(DOCKER) build -t --squash --compress stock-items-consumer -f Dockerfile.stock-items .
 
 docker-customer-groups-consumer:
-	$(DOCKER) build -t --compress customer-groups-consumer -f Dockerfile.customer-groups .
+	$(DOCKER) build -t --squash --compress customer-groups-consumer -f Dockerfile.customer-groups .
 
 docker-elasticmanager:
 	true
