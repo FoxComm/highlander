@@ -173,11 +173,11 @@ class CouponCodes extends Component {
               />
             </div>
           </FormField>
-          {!this.codeIsOfValidLength() && this.codeLengthValidationError}
           <div styleName="field-comment">
             Excludes prefix
           </div>
         </div>
+        {!this.codeIsOfValidLength() && this.codeLengthValidationError}
       </div>
     );
   }
