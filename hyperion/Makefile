@@ -46,10 +46,10 @@ docker:
 	make docker-hyperion-seeder
 
 docker-hyperion:
-	docker build --squash --compress -t $(DOCKER_IMAGE) .
+	docker build --compress -t $(DOCKER_IMAGE) .
 
 docker-hyperion-seeder:
-	docker build --squash --compress -t hyperion-seeder -f Dockerfile.seed .
+	docker build --compress -t hyperion-seeder -f Dockerfile.seed .
 
 ####################################################################
 # Docker build targets                                             #

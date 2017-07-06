@@ -22,7 +22,7 @@ build: prepare
 
 docker:
 	$(call header, Dockerizing)
-	docker build --squash --compress -t $(DOCKER_IMAGE) .
+	docker build --compress -t $(DOCKER_IMAGE) .
 
 docker-push:
 	$(call header, Registering)
