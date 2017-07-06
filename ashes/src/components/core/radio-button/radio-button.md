@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import RadioButton from 'components/core/radio-button';
@@ -19,6 +19,5 @@ import RadioButton from 'components/core/radio-button';
   <RadioButton label="disabled" id="disabled" disabled />
   <RadioButton label="clickable #1" name="value" id="id1" />
   <RadioButton label="clickable #2" name="value" id="id2" />
-  <RadioButton label="checked" id="id2" checked />
 </div>
 ```

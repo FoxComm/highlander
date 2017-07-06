@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import Alert from 'components/core/alert';
@@ -29,7 +29,7 @@ class Alerts extends React.Component {
 
   render() {
     return (
-      <div className="demo-blocked">
+      <div className="demo">
         <Alert type={Alert.SUCCESS}>
           Fetched successfully
         </Alert>

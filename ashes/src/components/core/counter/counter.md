@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import Counter from 'components/core/counter';
@@ -27,7 +27,7 @@ class CounterExample extends React.Component {
 
   render() {
     return  (
-    <div className="demo-blocked">
+    <div className="demo">
       <Counter
         value={this.state.value1}
         onChange={v => this.handleChange('value1', v)}

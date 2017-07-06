@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import { ButtonWithMenu } from 'components/core/button-with-menu';
@@ -26,12 +26,16 @@ import { ButtonWithMenu } from 'components/core/button-with-menu';
 const items=[['id1', 'Save and Exit'], ['id2', 'Save and Duplicate']];
 
 <div className="demo">
-  <ButtonWithMenu title="Save" items={items} />
-  <ButtonWithMenu title="Save" items={items} buttonDisabled />
-  <ButtonWithMenu title="Save" items={items} menuDisabled />
-  <ButtonWithMenu title="Save" items={items} isLoading /><br />
-  <ButtonWithMenu icon="edit" items={items} />
-  <ButtonWithMenu title="Edit" items={items} icon="edit" />
-  <ButtonWithMenu title="Edit" items={items} icon="edit" />
+  <div className="demo-inline">
+    <ButtonWithMenu title="Save" items={items} />
+    <ButtonWithMenu title="Save" items={items} buttonDisabled />
+    <ButtonWithMenu title="Save" items={items} menuDisabled />
+    <ButtonWithMenu title="Save" items={items} isLoading /><br />
+  </div>
+
+  <div className="demo-inline">
+    <ButtonWithMenu title="Edit" items={items} icon="edit" />
+    <ButtonWithMenu icon="edit" items={items} />
+  </div>
 </div>
 ```

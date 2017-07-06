@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 <SwatchInput onChange={handleChange} value="ff0000" />

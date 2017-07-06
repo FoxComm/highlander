@@ -24,3 +24,15 @@ To use variables, just import them to your css file:
   color: var(--color-action-text);
 }
 ```
+
+### Text colors
+
+```
+<Colors.Colors />
+```
+
+### Backgrounds/borders
+
+```
+<Colors.Backgrounds />
+```
