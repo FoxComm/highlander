@@ -4,12 +4,9 @@ import java.time.Instant
 
 import cats.implicits._
 import core.db._
-import core.failures.NotFoundFailure404
 import phoenix.models.account._
-import phoenix.models.cord.{OrderShippingAddress, OrderShippingAddresses}
 import phoenix.models.location._
 import phoenix.models.payment.creditcard.CreditCard
-import slick.jdbc.PostgresProfile.api._
 
 case class AddressResponse(id: Int,
                            customer: Option[User] = None,
@@ -65,39 +62,9 @@ object AddressResponse {
   def buildMulti(records: Seq[(Address, Region)]): Seq[AddressResponse] =
     records.map((build _).tupled)
 
-  def buildFromOrder(address: OrderShippingAddress, region: Region): AddressResponse =
-    // FIXME: so AddressResponse#id is OrderShippingAddress#id, but *sometimes* also Address#id? o_O’ @michalrus
-    AddressResponse(
-      id = address.id,
-      region = region,
-      name = address.name,
-      address1 = address.address1,
-      address2 = address.address2,
-      city = address.city,
-      zip = address.zip,
-      isDefault = None,
-      phoneNumber = address.phoneNumber,
-      deletedAt = None
-    )
-
-  def forCordRef(cordRef: String)(implicit ec: EC): DbResultT[AddressResponse] = {
-    val fullAddressDetails = for {
-      shipAddress ← OrderShippingAddresses.findByOrderRef(cordRef)
-      region      ← shipAddress.region
-    } yield (shipAddress, region)
-
+  def forCordRef(cordRef: String)(implicit ec: EC): DbResultT[AddressResponse] =
     for {
-      fullAddress ← * <~ fullAddressDetails.result
-      (addresses, regions) = fullAddress.unzip
-      response ← * <~ ((addresses.headOption, regions.headOption) match {
-                  case (Some(address), Some(region)) ⇒
-                    DbResultT.good(buildFromOrder(address, region))
-                  case (None, _) ⇒
-                    DbResultT.failure(
-                      NotFoundFailure404(s"No addresses found for order with refNum=$cordRef"))
-                  case (Some(address), None) ⇒
-                    DbResultT.failure(NotFoundFailure404(Region, address.regionId))
-                })
-    } yield response
-  }
+      fullAddress ← * <~ Address.mustFindByCordRef(cordRef)
+      (address, region) = fullAddress
+    } yield build(address, region)
 }

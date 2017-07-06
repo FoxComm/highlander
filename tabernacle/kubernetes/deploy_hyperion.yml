@@ -1,0 +1,87 @@
+---
+# Hyperion
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hyperion
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hyperion
+        language: elixir
+        tag: master
+        tier: backend
+    spec:
+      containers:
+      - name: hyperion
+        image: docker-stage.foxcommerce.com:5000/hyperion:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: aws.access_key
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: aws.secret_key
+        - name: HYPERION_DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.db_host
+        - name: HYPERION_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: hyperion.db_name
+        - name: HYPERION_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: hyperion.db_user
+        - name: HYPERION_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: hyperion.db_password
+        - name: MWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: mws.access_key
+        - name: MWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: mws.secret_key
+        - name: PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.frontend_public_key
+        - name: PUSH_CHECK_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: hyperion.push_check_interval
+        ports:
+         - name: liveness-port
+           containerPort: 8880
+        livenessProbe:
+          httpGet:
+            path: /v1/public/health
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /Users/pavel/secret_keys
+---

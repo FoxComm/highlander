@@ -7,10 +7,11 @@ import java.sql.Connection
 import slick.jdbc.PostgresProfile.api._
 import com.typesafe.scalalogging.LazyLogging
 import slick.jdbc.JdbcBackend.{BaseSession, DatabaseDef}
-import slick.jdbc.{JdbcBackend, JdbcDataSource}
+import slick.jdbc._
 import slick.util.AsyncExecutor
 
 import scala.concurrent.ExecutionContextExecutor
+import scala.io.Source
 
 abstract class FlywayMigrationsTest(migrationVersion: String)
     extends BaseFlywayCallback
@@ -43,11 +44,21 @@ abstract class FlywayMigrationsTest(migrationVersion: String)
   def testBeforeMigration(implicit db: Database): Unit
   def testAfterMigration(implicit db: Database): Unit
 
+  def runSql(fileName: String)(implicit db: Database): Unit = {
+    val sqlQuery =
+      Source.fromInputStream(getClass.getResourceAsStream(fileName)).mkString
+    SQLActionBuilder(sqlQuery, BlankParameter).asUpdate.gimme
+  }
+
+  case object BlankParameter extends SetParameter[Unit] {
+    override def apply(v1: Unit, v2: PositionedParameters): Unit = {}
+  }
 }
 
 object FlywayMigrationsTest {
   def list: Seq[FlywayMigrationsTest] = Seq(
-    PluginsMigrationTest
+    PluginsMigrationTest,
+    AddressesMigrationTest
   )
 }
 

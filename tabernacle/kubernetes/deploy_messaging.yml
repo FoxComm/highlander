@@ -1,0 +1,57 @@
+---
+# Messaging
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: messaging
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: messaging
+        language: clojure
+        tag: master
+        tier: consumers
+    spec:
+      containers:
+      - name: messaging
+        image: docker-stage.foxcommerce.com:5000/messaging:master
+        env:
+        - name: API_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: lb.phoenix_host
+        - name: KAFKA_BROKER
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.kafka_address
+        - name: PHOENIX_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.phoenix_url
+        - name: PHOENIX_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.api_user
+        - name: PHOENIX_PASS
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.api_password
+        - name: SCHEMA_REGISTRY_URL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.schema_registry_url
+        livenessProbe:
+          exec:
+            command:
+            - "ps -ef | grep -v grep | grep messaging.jar"
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---

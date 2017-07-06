@@ -4,17 +4,18 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strconv"
+	"time"
 
-	"github.com/labstack/echo"
-	//"net/http"
 	"github.com/FoxComm/highlander/intelligence/river-rock/channels"
 	"github.com/FoxComm/highlander/intelligence/river-rock/clustering"
 	"github.com/FoxComm/highlander/intelligence/river-rock/selection"
 	"github.com/FoxComm/highlander/intelligence/river-rock/utils"
+	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 )
 
@@ -30,6 +31,17 @@ type RiverRock struct {
 	Config   *ProxyConfig
 	Db       *sql.DB
 	Upstream *url.URL
+}
+
+var timeout = 30 * time.Second
+var tlsTimeout = 10 * time.Second
+var DefaultTransport http.RoundTripper = &http.Transport{
+	Proxy: http.ProxyFromEnvironment,
+	Dial: (&net.Dialer{
+		Timeout:   timeout,
+		KeepAlive: timeout,
+	}).Dial,
+	TLSHandshakeTimeout: tlsTimeout,
 }
 
 func NewProxy(c *ProxyConfig) (*RiverRock, error) {
@@ -90,6 +102,11 @@ func (p *RiverRock) StartProxy() error {
 	selector := selection.NewSelector(p.Db)
 
 	e := echo.New()
+	s := &http.Server{
+		Addr:         ":" + p.Config.Port,
+		ReadTimeout:  timeout,
+		WriteTimeout: timeout,
+	}
 
 	ch, err := channels.NewChannels(p.Db)
 	if err != nil {
@@ -133,6 +150,7 @@ func (p *RiverRock) StartProxy() error {
 		}
 
 		proxy := httputil.NewSingleHostReverseProxy(p.Upstream)
+		proxy.Transport = DefaultTransport
 
 		//If we have a cluster id, return it in a response header
 		if clusterId != -1 {
@@ -165,5 +183,5 @@ func (p *RiverRock) StartProxy() error {
 		return nil
 	})
 
-	return e.Start(":" + p.Config.Port)
+	return e.StartServer(s)
 }

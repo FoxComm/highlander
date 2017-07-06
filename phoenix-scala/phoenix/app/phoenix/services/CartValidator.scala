@@ -14,6 +14,7 @@ import phoenix.models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import core.utils.Money._
+import phoenix.models.location.Addresses
 
 trait CartValidation {
   def validate(isCheckout: Boolean = false, fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse]
@@ -79,7 +80,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
     } yield response
 
   private def hasShipAddress(response: CartValidatorResponse): DBIO[CartValidatorResponse] =
-    OrderShippingAddresses.findByOrderRef(cart.refNum).one.map { shipAddress ⇒
+    Addresses.findByCordRef(cart.refNum).one.map { shipAddress ⇒
       shipAddress.fold(warning(response, NoShipAddress(cart.refNum))) { _ ⇒
         response
       }

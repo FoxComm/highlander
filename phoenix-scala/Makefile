@@ -34,10 +34,10 @@ docker:
 	make docker-phoenix
 
 docker-phoenix:
-	docker build -t phoenix .
+	docker build --squash --compress -t phoenix .
 
 docker-seeder:
-	docker build -t phoenix-seeder -f seeder/Dockerfile .
+	docker build --squash --compress -t phoenix-seeder -f seeder/Dockerfile .
 
 docker-push:
 	$(call header, Registering)

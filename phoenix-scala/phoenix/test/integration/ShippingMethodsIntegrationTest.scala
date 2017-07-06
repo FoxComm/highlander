@@ -1,7 +1,6 @@
 import objectframework.models.ObjectContexts
 import org.json4s.jackson.JsonMethods._
 import phoenix.failures.AddressFailures.NoCountryFound
-import phoenix.models.cord.OrderShippingAddresses
 import phoenix.models.cord.lineitems._
 import phoenix.models.location.Addresses
 import phoenix.models.product.{Mvp, SimpleContext}
@@ -180,16 +179,16 @@ class ShippingMethodsIntegrationTest
     val oregonId     = 4164
     val washingtonId = 4177
 
-    val (address, orderShippingAddress) = (for {
+    val address = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       address ← * <~ Addresses.create(
                  Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
-      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, cordRef = cart.refNum)
+      _ ← * <~ address.bindToCart(cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
       _ ← * <~ CartTotaler.saveTotals(cart)
-    } yield (address, shipAddress)).gimme
+    } yield address).gimme
   }
 
   trait WestCoastShippingMethodsFixture extends ShippingMethodsFixture {

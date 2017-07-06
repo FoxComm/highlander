@@ -1,0 +1,8 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: route-db
+spec:
+  type: ExternalName
+  externalName: db.service.consul

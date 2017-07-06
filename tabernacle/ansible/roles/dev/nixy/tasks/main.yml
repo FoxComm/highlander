@@ -1,0 +1,27 @@
+---
+
+- name: Install Service Locations Upstreams
+  template: src=service_locations.j2 dest=/etc/nginx/service_locations.conf
+
+- name: Install Service Upstreams
+  template: src=services.j2 dest=/etc/nginx/services.template
+
+- name: Install Web UI Hosts
+  template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
+
+- name: Enable Web UI Hosts
+  file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link force=true
+
+- name: Restart Nixy
+  service: name=nixy state=restarted
+
+- name: Restart Consul Agent
+  service: name=consul_agent state=restarted enabled=yes
+
+- name: Wait for nixy service to be up
+  uri:
+    url: http://localhost:6000/
+  register: result
+  until: result.status == 200
+  retries: 5
+  delay: 2

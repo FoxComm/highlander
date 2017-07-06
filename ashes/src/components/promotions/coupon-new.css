@@ -4,7 +4,7 @@
   width: 800px;
 }
 
-.promotion-coupons-new :global .fc-content-box .fc-content-box-header {
+.promotion-coupons-new :global .fc-content-box .content-box⁄content-box__header {
   height: auto;
   margin: 0 0 10px;
   background: transparent;
@@ -15,41 +15,24 @@
   margin: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box-indent {
-  margin: 20px;
-}
-
-.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box-header {
+.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .content-box⁄content-box__header {
   height: 60px;
   margin: 0;
   background: var(--bg-grey-headers);
   padding-bottom: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box .fc-content-box-header .fc-title {
+.promotion-coupons-new :global .fc-content-box .content-box⁄content-box__header .content-box⁄content-box__title {
   padding-left: 0;
 }
 
-.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box-header .fc-title {
-  padding-left: 20px;
-}
-
-.promotion-coupons-new :global ._lib_components_object_page_object_page__object-details {
+.promotion-coupons-new :global .object-page⁄object-page__object-details {
   margin: 0;
 }
 
 .promotion-coupons-new :global .fc-content-box {
   border: 0;
   margin-bottom: 30px;
-}
-
-.promotion-coupons-new :global .fc-content-box .fc-content-box-indent .fc-content-box {
-  border: 1px solid var(--color-border);
-  margin-bottom: 0;
-}
-
-.promotion-coupons-new :global ._lib_components_coupons_form_styles__form-subset {
-  margin: 0;
 }
 
 .promotion-coupons-new :global .fc-coupon-inline-row {

@@ -1,0 +1,83 @@
+---
+# Solomon
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: solomon
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: solomon
+        language: elixir
+        tag: master
+        tier: backend
+    spec:
+      containers:
+      - name: solomon
+        image: docker-stage.foxcommerce.com:5000/solomon:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: consul.db_host
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: phoenix.db_password
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: solomon.port
+        - name: PRIVATE_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.frontend_private_key
+        - name: PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.frontend_public_key
+        - name: SOLOMON_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: solomon.secret
+        - name: TOKEN_TTL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: solomon.token_ttl
+        ports:
+         - name: liveness-port
+           containerPort: 4002
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /Users/pavel/secret_keys
+
+---

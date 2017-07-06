@@ -3,8 +3,11 @@
 // libs
 import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
+import _ from 'lodash';
 
 // actions - private
+const cleanUpReviews = createAction('CLEAN_UP_REVIEWS');
+
 const _fetchReviewsForUser = createAsyncActions(
   'fetchReviews',
   function(userId: number) {
@@ -42,8 +45,18 @@ const _fetchReviewsForSku = createAsyncActions(
 
 const _updateReview = createAsyncActions(
   'updateReview',
-  function(reviewId: Number, payload: Object) {
+  function(reviewId: number, payload: Object) {
     return this.api.reviews.update(reviewId, payload);
+  }
+);
+
+const _removeReview = createAsyncActions(
+  'removeReview',
+  function(reviewId: number) {
+    const { dispatch } = this;
+    return this.api.reviews.delete(reviewId).then(() => {
+      dispatch(cleanUpReviews(reviewId));
+    });
   }
 );
 
@@ -51,31 +64,36 @@ const _updateReview = createAsyncActions(
 export const fetchReviewsForUser = _fetchReviewsForUser.perform;
 export const fetchReviewsForSku = _fetchReviewsForSku.perform;
 export const updateReview = _updateReview.perform;
+export const removeReview = _removeReview.perform;
 export const clearReviews = createAction('REVIEWS_CLEAR');
+export const toggleReviewsModal = createAction('TOGGLE_REVIEWS_MODAL');
 
 // redux
 const initialState = {
   current: null,
   list: [],
   paginationTotal: 0,
+  reviewsModalVisible: false,
 };
 
 const reducer = createReducer({
   [_fetchReviewsForUser.succeeded]: (state, response) => {
+    const filteredList = _.filter(response.result, review => review.archivedAt == null);
+
     return {
       ...state,
-      list: response.result,
+      list: filteredList,
     };
   },
   [_fetchReviewsForSku.succeeded]: (state, response) => {
     const currentList = state.list;
-    const mergedList = (Object.getOwnPropertyNames(response.result).length === 0)
-      ? currentList
-      : currentList.concat(response.result);
+    const mergedList = _.isEmpty(response.result) ? currentList : _.concat(currentList, response.result);
+
+    const filteredList = _.filter(mergedList, review => review.archivedAt == null);
 
     return {
       ...state,
-      list: mergedList,
+      list: filteredList,
       paginationTotal: response.pagination.total,
     };
   },
@@ -88,6 +106,21 @@ const reducer = createReducer({
       current: initialState.current,
       list: initialState.list,
       paginationTotal: initialState.paginationTotal,
+    };
+  },
+  [toggleReviewsModal]: (state) => {
+    const current = _.get(state, 'reviewsModalVisible', false);
+    return {
+      ...state,
+      reviewsModalVisible: !current,
+    };
+  },
+  [cleanUpReviews]: (state, reviewId) => {
+    const newList = _.filter(state.list, review => review.id !== reviewId);
+
+    return {
+      ...state,
+      list: newList,
     };
   },
 }, initialState);

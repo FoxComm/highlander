@@ -1,0 +1,57 @@
+---
+# Peacock
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: peacock
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: peacock
+        language: javascript
+        tag: master
+        tier: frontend
+    spec:
+      containers:
+      - name: peacock
+        image: docker-stage.foxcommerce.com:5000/peacock:master
+        volumeMounts:
+        - mountPath: /keys
+          name: secret-keys
+        env:
+        - name: CONTACT_EMAIL
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: peacock.contact_email
+        - name: MAILCHIMP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: core-secrets
+              key: mailchimp.api_key
+        - name: PHOENIX_PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: jwt.frontend_public_key
+        - name: STRIPE_PUBLISHABLE_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: core-config
+              key: stripe.publishable_key
+        ports:
+         - name: liveness-port
+           containerPort: 4041
+        livenessProbe:
+          httpGet:
+            path: /
+            port: liveness-port
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+      volumes:
+        - name: secret-keys
+          hostPath:
+            path: /Users/pavel/secret_keys
+---
