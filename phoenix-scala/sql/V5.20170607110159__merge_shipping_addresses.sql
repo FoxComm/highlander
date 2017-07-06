@@ -9,7 +9,7 @@ create index on address_cord (cord_ref);
 
 -- populate mapping table with data from order_shipping_addresses
 insert into address_cord (cord_ref, address_id)
-  select
+  select distinct on (osa.cord_ref)
     osa.cord_ref,
     a.id
   from order_shipping_addresses as osa
