@@ -31,7 +31,7 @@ class DslSpec extends FlatSpec with Matchers {
       parse(
         Source
           .fromInputStream(getClass.getResourceAsStream("/queries.json"))
-          .mkString).right.value.as[SearchPayload.fc].right.value
+          .mkString).right.value.as[SearchPayload].right.value
 
     payload.aggregations.aggs.isEmpty should === (true)
     payload.sort.sorts.isEmpty should === (true)
@@ -93,7 +93,7 @@ class DslSpec extends FlatSpec with Matchers {
       parse(
         Source
           .fromInputStream(getClass.getResourceAsStream("/aggs.json"))
-          .mkString).right.value.as[SearchPayload.fc].right.value
+          .mkString).right.value.as[SearchPayload].right.value
 
     payload.query.query.isEmpty should === (true)
     payload.sort.sorts.isEmpty should === (true)
@@ -114,7 +114,7 @@ class DslSpec extends FlatSpec with Matchers {
       parse(
         Source
           .fromInputStream(getClass.getResourceAsStream("/sorts.json"))
-          .mkString).right.value.as[SearchPayload.fc].right.value
+          .mkString).right.value.as[SearchPayload].right.value
 
     payload.aggregations.aggs.isEmpty should === (true)
     payload.query.query.isEmpty should === (true)

@@ -5,38 +5,25 @@ import foxcomm.agni.interpreter.es._
 import io.circe._
 import io.circe.jawn.parseByteBuffer
 import monix.eval.{Coeval, Task}
-import org.elasticsearch.action.search.{SearchAction, SearchRequestBuilder, SearchResponse}
+import org.elasticsearch.action.search.{SearchAction, SearchRequest, SearchRequestBuilder, SearchResponse}
 import org.elasticsearch.client.Client
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
-import org.elasticsearch.common.xcontent.{ToXContent, XContentFactory}
-import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.search.SearchHit
 
 @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-class SearchService private (client: Client,
-                             ai: ESAggregationInterpreter,
-                             qi: ESQueryInterpreter,
-                             si: ESSortInterpreter) {
+class SearchService private (client: Client, interpreter: ESSearchInterpreter) {
   import SearchService.ExtractJsonObject
 
-  def translate(searchPayload: SearchPayload.fc): Task[Json] = {
-    def buildJson(qb: QueryBuilder): Coeval[Json] =
-      Coeval.eval {
-        val builder = XContentFactory.jsonBuilder()
-        builder.prettyPrint()
-        builder.startObject()
-        builder.field("query")
-        qb.toXContent(builder, ToXContent.EMPTY_PARAMS)
-        builder.endObject()
-        parseByteBuffer(builder.bytes().toChannelBuffer.toByteBuffer)
-          .fold(Coeval.raiseError(_), Coeval.eval(_))
-      }.flatten
+  def translate(searchPayload: SearchPayload): Task[Json] = {
+    def buildJson(req: SearchRequest): Coeval[Json] =
+      parseByteBuffer(req.source().toChannelBuffer.toByteBuffer)
+        .fold(Coeval.raiseError(_), Coeval.eval(_))
 
     for {
-      builder ← qi(searchPayload.query).task
-      json    ← buildJson(builder).task
+      req  ← interpreter(searchPayload → new SearchRequestBuilder(client, SearchAction.INSTANCE)).task
+      json ← buildJson(req).task
     } yield json
   }
 
@@ -52,31 +39,13 @@ class SearchService private (client: Client,
         .setTypes(searchType)
         .setSize(searchSize)
       searchFrom.foreach(builder.setFrom)
-      searchPayload.fields.foreach(fs ⇒ builder.setFetchSource(fs.toList.toArray, Array.empty[String]))
       builder
     }
 
-    def evalQuery(builder: SearchRequestBuilder): Coeval[SearchRequestBuilder] = searchPayload match {
-      case SearchPayload.es(query, _) ⇒
-        Coeval.eval(builder.setQuery(Json.fromJsonObject(query).toBytes))
-      case SearchPayload.fc(aggs, query, sort, _) ⇒
-        for {
-          aggs  ← ai(aggs)
-          query ← qi(query)
-          sorts ← si(sort)
-        } yield {
-          aggs.foreach(builder.addAggregation)
-          builder.setQuery(query)
-          sorts.foreach(builder.addSort)
-          builder
-        }
-    }
-
-    def setupBuilder: Task[SearchRequestBuilder] = (prepareBuilder flatMap evalQuery).task
+    def searchRequest: Task[SearchRequest] = prepareBuilder.flatMap(b ⇒ interpreter(searchPayload → b)).task
 
     for {
-      builder ← setupBuilder
-      request = builder.request()
+      request  ← searchRequest
       response ← async[SearchResponse, SearchResult](client.search(request, _))
     } yield {
       val hits = response.getHits
@@ -102,16 +71,10 @@ object SearchService {
         .flatMap(_.asObject)
   }
 
-  def apply(client: Client,
-            ai: ESAggregationInterpreter,
-            qi: ESQueryInterpreter,
-            si: ESSortInterpreter): SearchService =
-    new SearchService(client, ai, qi, si)
+  def apply(client: Client, interpreter: ESSearchInterpreter): SearchService =
+    new SearchService(client, interpreter)
 
-  def fromConfig(config: AppConfig,
-                 ai: ESAggregationInterpreter,
-                 qi: ESQueryInterpreter,
-                 si: ESSortInterpreter): SearchService = {
+  def fromConfig(config: AppConfig, interpreter: ESSearchInterpreter): SearchService = {
     val esConfig = config.elasticsearch
     val settings =
       Settings.settingsBuilder().put("cluster.name", esConfig.cluster).build()
@@ -121,6 +84,6 @@ object SearchService {
       .build()
       .addTransportAddresses(esConfig.host.toList.map(new InetSocketTransportAddress(_)): _*)
 
-    apply(client, ai, qi, si)
+    apply(client, interpreter)
   }
 }

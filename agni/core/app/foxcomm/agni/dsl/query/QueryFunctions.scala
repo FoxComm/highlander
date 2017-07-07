@@ -1,6 +1,5 @@
 package foxcomm.agni.dsl.query
 
-import cats.data.NonEmptyList
 import cats.implicits._
 import foxcomm.agni.dsl._
 import io.circe._
@@ -169,15 +168,5 @@ private[query] trait QueryFunctions { this: QueryData ⇒
         }
       }
     }
-  }
-
-  sealed case class FCQuery(query: Option[NonEmptyList[QueryFunction]])
-  object FCQuery {
-    implicit val decodeFCQuery: Decoder[FCQuery] =
-      Decoder
-        .decodeOption(
-          Decoder.decodeNonEmptyList[QueryFunction] or
-            Decoder[QueryFunction].map(NonEmptyList.of(_)))
-        .map(FCQuery(_))
   }
 }
