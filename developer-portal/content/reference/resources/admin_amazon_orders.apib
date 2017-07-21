@@ -1,0 +1,21 @@
+## Amazon Orders
+
+All orders from Amazon sales channel duplicated in Fox platform.
+Orders are fetched by platform automatically but also can be added via API.
+
+`CREATE` call is idempotent — if order with such `amazonOrderId` has
+been created already — previously created order will return.
+
+### Create [POST /v1/amazon-orders]
+
++ Request (application/json)
+    + Attributes (AmazonOrderPayload)
++ Response 200 (application/json)
+    + Attributes (AmazonOrderResponse)
+
+### Update [PATCH /v1/amazon-orders/{amazonOrderId}]
+
++ Request (application/json)
+  + Attributes(AmazonOrderUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (AmazonOrderResponse)

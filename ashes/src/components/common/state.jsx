@@ -59,7 +59,7 @@ export const states = {
 const State = (props): Element<*> => {
   return (
     <span id={props.stateId} className="fc-model-state">
-      {get(states, [props.model, props.value], '[Invalid]')}
+      {get(states, [props.model, props.value], props.value)}
     </span>
   );
 };

@@ -12,13 +12,20 @@ const notesClaims = readAction(frn.note.order);
 const shippingClaims = readAction(frn.mdl.shipment);
 const activityClaims = readAction(frn.activity.order);
 
-const SubNav = (props) => {
-  const { order } = props;
-  const params = {order: order.referenceNumber};
+const SubNav = ({ order, isAmazon, className = '' }) => {
+  const params = { order: order.referenceNumber };
   const claims = getClaims();
 
+  if (isAmazon) {
+    return (
+      <PageNav className={className}>
+        <IndexLink to="amazon-order-details" params={params}>Details</IndexLink>
+      </PageNav>
+    );
+  }
+
   return (
-    <PageNav className={props.className}>
+    <PageNav className={className}>
       <IndexLink to="order-details" params={params}>Details</IndexLink>
       <Link to="order-shipments" expectedClaims={shippingClaims} actualClaims={claims} params={params}>Shipments</Link>
       <Link to="order-notes" expectedClaims={notesClaims} actualClaims={claims} params={params}>Notes</Link>

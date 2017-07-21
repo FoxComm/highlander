@@ -32,6 +32,7 @@ object Dimension {
   val giftCard     = "giftCard"
   val notification = "notification"
   val order        = "order"
+  val amazonOrder  = "amazonOrder"
   val product      = "product"
   val promotion    = "promotion"
   val rma          = "return"

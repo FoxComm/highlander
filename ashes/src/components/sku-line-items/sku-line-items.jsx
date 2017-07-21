@@ -16,7 +16,7 @@ export const defaultColumns = [
   {
     field: 'sku',
     text: 'SKU',
-    render: (code: string) => <Link to="sku-details" params={{ skuCode: code }}>{code}</Link>
+    render: (code: string) => <Link to="sku-details" params={{ skuCode: code }}>{code}</Link>,
   },
   { field: 'price', text: 'Price', type: 'currency' },
   { field: 'quantity', text: 'Qty' },
@@ -24,11 +24,11 @@ export const defaultColumns = [
 ];
 
 const attributesColumns = {
-  'giftCard': [
+  giftCard: [
     {
       field: 'code',
       text: 'Gift Card Number',
-      render: code => !_.isEmpty(code) ? <Link to="giftcard" params={{ giftCard: code }}>{code}</Link> : 'N/A'
+      render: code => (!_.isEmpty(code) ? <Link to="giftcard" params={{ giftCard: code }}>{code}</Link> : 'N/A'),
     },
     { field: 'recipientName', text: 'Recipient Name' },
     { field: 'recipientEmail', text: 'Recipient Email' },
@@ -42,6 +42,7 @@ type Props = {
   items: Array<SkuItem>,
   renderRow?: Function,
   withAttributes?: boolean,
+  withLink?: boolean,
   className?: string,
 };
 
@@ -49,14 +50,16 @@ const lineItemAttributes = (item: SkuItem, columns: Columns): Array<?Element<*>>
   const attributes = _.get(item, 'attributes', {});
 
   if (!_.isEmpty(attributes)) {
-    return Object.keys(attributes).map((name: string) => (
-      _.get(attributesColumns, name) ?
-        <SkuLineItemAttributes
-          spanNumber={columns.length}
-          columns={attributesColumns[name]}
-          data={{rows: [attributes[name]]}}
-        /> : null
-    ));
+    return Object.keys(attributes).map(
+      (name: string) =>
+        _.get(attributesColumns, name)
+          ? <SkuLineItemAttributes
+              spanNumber={columns.length}
+              columns={attributesColumns[name]}
+              data={{ rows: [attributes[name]] }}
+            />
+          : null
+    );
   }
 
   return [];
@@ -71,10 +74,7 @@ const SkuLineItems = (props: Props) => {
       const attributes = _.get(items[index], 'attributes');
       const className = classNames({ '_with-attributes': !_.isEmpty(attributes) });
 
-      return [
-        React.cloneElement(row, { className }),
-        lineItemAttributes(items[index], columns),
-      ];
+      return [React.cloneElement(row, { className }), lineItemAttributes(items[index], columns)];
     });
 
   if (items.length > 0) {
@@ -84,14 +84,14 @@ const SkuLineItems = (props: Props) => {
         className={className}
         columns={columns}
         emptyMessage="No items yet."
-        data={{rows: items}}
+        data={{ rows: items }}
         renderRow={renderRow}
         processRows={withAttributes ? processRows : _.identity}
       />
     );
   } else {
     return (
-      <div className='fc-content-box__empty-text'>
+      <div className="fc-content-box__empty-text">
         No items yet.
       </div>
     );

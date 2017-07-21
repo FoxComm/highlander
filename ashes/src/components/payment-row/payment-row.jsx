@@ -24,6 +24,7 @@ import styles from './payment-row.css';
 // redux
 import { deleteCreditCardPayment, deleteGiftCardPayment, deleteStoreCreditPayment } from 'modules/carts/details';
 
+import OrderParagon, { isAmazonOrder } from 'paragons/order';
 import type { PaymentMethod } from 'paragons/order';
 
 type Props = {
@@ -31,6 +32,7 @@ type Props = {
   editMode: boolean,
   orderReferenceNumber: string,
   paymentMethod: PaymentMethod,
+  order: OrderParagon,
   deleteCreditCardPayment: (refNum: string) => Promise<*>,
   deleteGiftCardPayment: (refNum: string, code: string) => Promise<*>,
   deleteStoreCreditPayment: (refNum: string) => Promise<*>,
@@ -71,6 +73,10 @@ class PaymentRow extends Component {
   }
 
   get details(): ?Element<*> {
+    if (isAmazonOrder(this.props.order)) {
+      return null;
+    }
+
     if (this.state.showDetails) {
       const { customerId, orderReferenceNumber, paymentMethod } = this.props;
       const detailsProps = {
@@ -94,8 +100,10 @@ class PaymentRow extends Component {
           break;
       }
 
-      if (DetailsElement == null) {
-        throw `Unexpected payment method ${paymentMethod.type}`;
+      if (DetailsElement === null) {
+        console.warn(`Unexpected payment method ${paymentMethod.type}`);
+
+        return null;
       }
 
       return (
@@ -122,14 +130,17 @@ class PaymentRow extends Component {
   }
 
   get summary(): Element<*> {
-    const { paymentMethod } = this.props;
+    const { order, paymentMethod } = this.props;
     const dir = this.state.showDetails ? 'up' : 'down';
     const iconClass = `chevron-${dir}`;
+
+    const toggler =
+      !isAmazonOrder(order) && <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />;
 
     return (
       <TableRow key="summary" styleName="payment-row">
         <TableCell styleName="toggle-column">
-          <Icon styleName="row-toggle" name={iconClass} onClick={this.toggleDetails} />
+          {toggler}
           <PaymentMethodDetails paymentMethod={paymentMethod} />
         </TableCell>
         <TableCell>

@@ -33,6 +33,7 @@ import phoenix.payloads.TaxonPayloads._
 import phoenix.payloads.TaxonomyPayloads._
 import phoenix.payloads.UserPayloads._
 import phoenix.payloads.VariantPayloads._
+import phoenix.payloads.AmazonOrderPayloads._
 import phoenix.payloads._
 import phoenix.utils.aliases.OC
 import testutils._
@@ -45,11 +46,28 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   private val rootPrefix = "v1"
 
+  object amazonOrdersApi {
+    val amazonOrdersPrefix = s"$rootPrefix/amazon-orders"
+
+    def create(payload: CreateAmazonOrderPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      POST(amazonOrdersPrefix, payload, aa.jwtCookie.some)
+  }
+
+  case class amazonOrdersApi(refNum: String) {
+    val amazonOrdersPath = s"${amazonOrdersApi.amazonOrdersPrefix}/$refNum"
+
+    def update(payload: UpdateAmazonOrderPayload)(implicit aa: TestAdminAuth): HttpResponse =
+      PATCH(amazonOrdersPath, payload, aa.jwtCookie.some)
+  }
+
   object customersApi {
     val customersPrefix = s"$rootPrefix/customers"
 
     def create(payload: CreateCustomerPayload)(implicit aa: TestAdminAuth): HttpResponse =
       POST(customersPrefix, payload, aa.jwtCookie.some)
+
+    def getByEmail(customerEmail: String)(implicit aa: TestAdminAuth): HttpResponse =
+      GET(s"$customersPrefix/email/$customerEmail", aa.jwtCookie.some)
   }
 
   case class customersApi(id: Int) {

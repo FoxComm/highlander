@@ -5,12 +5,7 @@ import React from 'react';
 import { Checkbox } from 'components/core/checkbox';
 
 type Props = {
-  customer: {
-    id: number,
-    email: string,
-    phoneNumber?: string,
-    name: string,
-  },
+  customer: Customer,
   checked?: boolean,
   onToggle?: (id: number) => void,
 };

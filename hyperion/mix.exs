@@ -44,6 +44,7 @@ defmodule Hyperion.Mixfile do
      {:mws_client, github: "FoxComm/elixir-amazon-mws-client"},
      {:json_web_token, "~> 0.2"},
      {:envy, "~> 1.0.0"},
+     {:timex_ecto, "~> 3.0"},
      {:exsync, "~> 0.1", only: :dev},
      {:espec, "~> 1.3.2", only: :test},
      {:ex_machina, "~> 2.0", only: :test}]

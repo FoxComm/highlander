@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import { isEmpty } from 'lodash';
 import React, { Component } from 'react';
 
 //components
@@ -11,25 +12,11 @@ import Icon from 'components/core/icon';
 import styles from 'components/customers/title-block.css';
 
 type Props = {
-  customer: {
-    id: number,
-    name: string,
-    email: string,
-    isGuest: boolean,
-    groups: Array<string>,
-    avatarUrl?: string,
-    rank: number,
-    phoneNumber: string,
-    location: string,
-  },
+  customer: Customer,
 };
 
 export default class CustomerInfo extends Component {
   props: Props;
-
-  ensureNotEmpty(val: number | string) {
-    return val ? <span>{val}</span> : <span>&nbsp;</span>;
-  }
 
   customerLink(text: string) {
     const params = { customerId: this.props.customer.id };
@@ -44,14 +31,14 @@ export default class CustomerInfo extends Component {
       return <div styleName="guest">Guest</div>;
     } else if (customer.groups) {
       return (
-        <div>
-          {customer.groups.map(customer => {
-            return <div styleName="group">{customer}</div>;
+        <div styleName="groups">
+          {customer.groups.map(group => {
+            return <div styleName="group" key={group.id}>{group.name}</div>;
           })}
         </div>
       );
     } else {
-      return <div>None</div>;
+      return <div styleName="value">None</div>;
     }
   }
 
@@ -87,22 +74,26 @@ export default class CustomerInfo extends Component {
         </div>
         <article styleName="body">
           <ul styleName="fields">
-            <li>
-              <Icon name="customer" />
-              <div>{this.ensureNotEmpty(customer.id)}</div>
-            </li>
-            <li>
-              <Icon name="phone" />
-              <div>{this.ensureNotEmpty(customer.phoneNumber)}</div>
-            </li>
-            <li>
-              <Icon name="location" />
-              <div>{this.ensureNotEmpty(customer.location)}</div>
-            </li>
-            <li styleName="groups">
-              <Icon name="customers" />
-              {this.customerGroups}
-            </li>
+            {customer.id &&
+              <li>
+                <Icon name="customer" />
+                <div styleName="value">{customer.id}</div>
+              </li>}
+            {customer.phoneNumber &&
+              <li>
+                <Icon name="phone" />
+                <div styleName="value">{customer.phoneNumber}</div>
+              </li>}
+            {customer.location &&
+              <li>
+                <Icon name="location" />
+                <div styleName="value">{customer.location}</div>
+              </li>}
+            {!isEmpty(customer.groups) &&
+              <li>
+                <Icon name="customers" />
+                {this.customerGroups}
+              </li>}
           </ul>
         </article>
       </div>

@@ -147,6 +147,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
           phoenix.routes.admin.NotificationRoutes.routes ~
           phoenix.routes.admin.AssignmentsRoutes.routes ~
           phoenix.routes.admin.OrderRoutes.routes ~
+          phoenix.routes.admin.AmazonOrderRoutes.routes ~
           phoenix.routes.admin.CartRoutes.routes ~
           phoenix.routes.admin.CustomerRoutes.routes ~
           phoenix.routes.admin.CustomerGroupsRoutes.routes ~

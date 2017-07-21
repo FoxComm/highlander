@@ -742,6 +742,43 @@ object AssignmentsRoutes {
             }
           }
         }
+      } ~
+      // Amazon Order Single Assignments
+      pathPrefix("amazon-orders" / cordRefNumRegex) { refNum ⇒
+        pathPrefix("assignees") {
+          (get & pathEnd) {
+            getOrFailures {
+              AmazonOrderAssignmentsManager.list(refNum)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              AmazonOrderAssignmentsManager.assign(refNum, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              AmazonOrderAssignmentsManager.unassign(refNum, assigneeId, auth.model)
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (get & pathEnd) {
+            getOrFailures {
+              AmazonOrderWatchersManager.list(refNum)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              AmazonOrderWatchersManager.assign(refNum, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              AmazonOrderWatchersManager.unassign(refNum, assigneeId, auth.model)
+            }
+          }
+        }
       }
     }
   }

@@ -32,6 +32,11 @@ class ChooseCustomers extends Component {
   renderCustomer(item: ItemType) {
     // Cast the ItemType to a customer row.
     const customer = ((item: any): Customer);
+
+    if (!customer.id) {
+      return null;
+    }
+
     return <CustomerRow customer={customer} key={customer.id} />;
   }
 

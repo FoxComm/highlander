@@ -297,6 +297,7 @@ hyperion_db_password: hyperion
 hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{db_host}}/{{hyperion_db_name}}"
 hyperion_test_db_name: hyperion_test
 hyperion_push_check_interval: 5
+hyperion_orders_fetch_interval: 24
 hyperion_create_plugin_in_ashes_on_start: true
 
 # Geronimo

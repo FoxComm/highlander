@@ -78,6 +78,8 @@ defmodule Hyperion.Amazon.Workers.PushCheckerWorker do
 
   defp schedule_work do
     mins = Application.fetch_env!(:hyperion, :push_check_interval) |> String.to_integer
+    next_run = Timex.shift(Timex.now, minutes: mins) |> Timex.format!("{ISO:Extended}")
+    Logger.info "Scheduling #{__MODULE__} for next run at: #{next_run}. Run Interval is set to #{mins} minute(s)"
     Process.send_after(self(), :work, mins * 60 * 1000)
   end
 end

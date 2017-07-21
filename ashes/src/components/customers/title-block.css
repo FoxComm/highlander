@@ -6,7 +6,7 @@
 }
 
 :root {
-  --avatar-margin-top: calc( -var(--circle-size) / 3); /* stylelint-disable-line */
+  --avatar-margin-top: calc(-var(--circle-size) / 3); /* stylelint-disable-line */
 }
 
 .block {
@@ -103,9 +103,9 @@
   width: 50%;
 
   & > li {
-    height: 40px;
     display: flex;
     align-items: center;
+    padding: 7px 0 8px;
 
     & > i {
       width: 40px;
@@ -122,6 +122,17 @@
       line-height: 20px;
     }
   }
+}
+
+.value {
+  margin-left: 8px;
+  width: 90%;
+  word-wrap: break-word;
+}
+
+.groups {
+  display: flex;
+  padding: 10px;
 }
 
 .group {

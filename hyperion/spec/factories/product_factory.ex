@@ -204,25 +204,58 @@ defmodule Hyperion.ProductFactory do
            saleprice: %{"currency" => "USD", "value" => 0}], 2}]
       end
 
-      def submit_images_feed_data do
-        [[{[sku: "SKU-ABC", type: "Main",
-            location: "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/487/DeathStar_400x390.jpg"],
-           1},
-          {[sku: "SKU-ABC", type: "PT",
-            location: "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/487/CuCeQ0IXEAAnpVx.jpg",
-            id: 1], 2}],
-         [[sku: "SKU-ABC", type: "Swatch",
-           location: "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/490/DeathStar2-1-1.jpg",
-           idx: 3],
-          [sku: "SKU-ABC", type: "Swatch",
-           location: "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/490/DeathStar2-2-0.jpg",
-           idx: 4],
-          [sku: "SKU-ABC", type: "Swatch",
-           location: "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/490/DeathStar2-2-2.jpg",
-           idx: 5],
-          [sku: "SKU-ABC", type: "Swatch",
-           location: "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/490/DeathStar2-0-1.jpg",
-           idx: 6]]]
+      def one_image_per_sku_data do
+        [{{"SKU-TRL1", "Main",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/232/81B6PnROB1L._UX522_.jpg"},
+          1},
+         {{"SKU-TRL3", "Main",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/237/DeathStar2.jpg"},
+          2},
+         {{"SKU-TRL2", "Main",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/235/DeathStar2.jpg"},
+          3},
+         {{"SKU-TRL", "Main",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/221/DeathStar2.jpg"},
+          4}]
+      end
+
+      def many_images_per_sku_data do
+        [{{"SKU-ABC", "Main",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/243/20170321_234255.jpg"},
+          1},
+         {{"SKU-ABC", "PT",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/243/DeathStar2.jpg",
+           1}, 2},
+         {{"SKU-ABC", "Swatch",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/256/DeathStar2-0-1.jpg"},
+          3},
+         {{"SKU-ABC", "Swatch",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/256/DeathStar2-1-0.jpg"},
+          4},
+         {{"SKU-ABC", "Swatch",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/256/DeathStar2-1-1.jpg"},
+          5},
+         {{"SKU-ABC", "Swatch",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/256/DeathStar2-2-0.jpg"},
+          6},
+         {{"SKU-CBA", "Main",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/248/4620266368976559_big.jpg"},
+          7},
+         {{"SKU-CBA", "PT",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/248/2krWC11Pfko.jpg",
+           1}, 8},
+         {{"SKU-CBA", "Swatch",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/261/DeathStar2-0-1.jpg"},
+          9},
+         {{"SKU-CBA", "Swatch",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/261/DeathStar2-1-0.jpg"},
+          10},
+         {{"SKU-CBA", "Swatch",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/261/DeathStar2-1-1.jpg"},
+          11},
+         {{"SKU-CBA", "Swatch",
+           "http://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/261/DeathStar2-2-0.jpg"},
+          12}]
       end
     end
   end

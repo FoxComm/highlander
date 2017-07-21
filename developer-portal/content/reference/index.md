@@ -252,6 +252,7 @@ in the `5xx` range indicate an error with Fox's platform.
 <!-- include(objects/stock_item.apib) -->
 <!-- include(objects/shipment.apib) -->
 <!-- include(objects/export.apib) -->
+<!-- include(objects/amazon_order.apib) -->
 
 <!-- include(public.apib) -->
 <!-- include(customers.apib) -->
@@ -260,3 +261,5 @@ in the `5xx` range indicate an error with Fox's platform.
 <!-- include(inventory.apib) -->
 <!-- include(transactions.apib) -->
 <!-- include(discounts.apib) -->
+<!-- include(amazon_orders.apib) -->
+

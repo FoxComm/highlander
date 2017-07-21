@@ -1,6 +1,5 @@
 defmodule Hyperion.Amazon do
   alias Hyperion.PhoenixScala.Client, warn: true
-  alias Hyperion.JwtAuth, warn: true
   alias Hyperion.Amazon.Credentials, warn: true
   require Logger
 
@@ -76,11 +75,17 @@ defmodule Hyperion.Amazon do
   def fetch_config do
     token = Client.login
     fetch_config(token)
-    # Credentials.mws_config(jwt.scope)
   end
 
   def fetch_config(token) do
     Credentials.mws_config(token)
+  end
+
+  def safe_fetch_config() do
+    case Client.safe_login() do
+      token -> Credentials.safe_mws_config(token)
+      nil -> nil
+    end
   end
 
   def get_full_order(order_id, token) do
@@ -110,7 +115,7 @@ defmodule Hyperion.Amazon do
       result: %{
         referenceNumber: order["AmazonOrderId"],
         paymentState: "Captured",
-        line_items: %{
+        lineItems: %{
           skus: get_sku_map(items, token),
         },
         lineItemAdjustments: [],
@@ -121,10 +126,7 @@ defmodule Hyperion.Amazon do
          adjustments: 0,
          total: String.to_float(order["OrderTotal"]["Amount"]) * 100 |> round
         },
-        customer: %{
-          email: order["BuyerEmail"],
-          name: order["BuyerName"]
-        },
+        customer: Client.get_customer_by_email(order["BuyerEmail"], token).body,
         shippingMethod: %{
           id: 0,
           name: order["ShipmentServiceLevelCategory"],
@@ -146,14 +148,14 @@ defmodule Hyperion.Amazon do
           zip: order["ShippingAddress"]["PostalCode"],
           isDefault: false
         },
-        paymentMethods: %{
+        paymentMethods: [%{
           id: 0,
           amount: (String.to_float(order["OrderTotal"]["Amount"]) * 100 |> round),
           currentBalance: 0,
           availableBalance: 0,
           createdAt: order["PurchaseDate"],
-          type: order["PaymentMethodDetails"]["PaymentMethodDetail"]
-        },
+          type: lower_first(order["PaymentMethodDetails"]["PaymentMethodDetail"])
+        }],
         orderState: order["OrderStatus"],
         shippingState: "---",
         fraudScore: 0,
@@ -222,6 +224,20 @@ defmodule Hyperion.Amazon do
     }]
   end
 
+  def get_sku_image(sku, token) do
+    try do
+      sku = Client.get_sku(sku, token)
+      case sku.body["errors"] do
+        nil ->
+          first_image = hd(sku.body["albums"])["images"] |> hd
+          first_image["src"]
+        err -> raise %AmazonError{message: "#{err}"}
+      end
+    rescue _e in PhoenixError ->
+      nil
+    end
+  end
+
   defp get_country_id(code, token) do
     resp = Client.get_countries(token)
     Enum.filter(resp.body, fn(cnt) -> cnt["alpha2"] == code end)
@@ -229,35 +245,32 @@ defmodule Hyperion.Amazon do
     |> get_in(["id"])
   end
 
-  defp get_sku_image(sku, token) do
-    sku = Client.get_sku(sku, token)
-    case sku.body["errors"] do
-      nil ->
-        first_image = hd(sku.body["albums"])["images"] |> hd
-        first_image["src"]
-      err -> raise %AmazonError{message: "#{err}"}
-    end
-  end
 
-  # gets the albums and images for skus,
+
+  # Gets the albums and images for amazon enabled skus,
   # adds the SKU for matching
   # renders main, pt and swatch images
   defp process_images(response) do
     r = response.body
-    albums = Enum.map(r["skus"], fn(sku)->
-      Enum.map(sku["albums"], fn(album) ->
+    amazon_skus = Enum.filter(r["skus"], fn (sku) ->
+                    sku["attributes"]["amazon"]["v"] == true
+                  end)
+
+    case amazon_skus do
+      [] -> raise "No images for product #{r["id"]}"
+      _ -> amazon_skus
+    end
+    |> Enum.map(fn(sku)->
+      images = Enum.map(sku["albums"], fn(album) ->
         {String.to_atom(album["name"]), album["images"]}
       end)
-    end) |> Enum.reject(fn(list) -> list == [] end)
-
-    case albums do
-      [] -> raise "No images for product #{r["id"]}"
-      _ -> Enum.map(r["skus"], fn(x)-> [albums: hd(albums), code: x["attributes"]["code"]["v"]] end)
-    end
-    |> Enum.flat_map(fn(product) ->
-        main = render_main_section(hd(product[:albums]), product[:code])
-        [main, render_swatch_section(product[:albums][:swatches], product[:code], Enum.count(main))]
-       end) |> Enum.reject(fn el -> el == nil end)
+      [albums: images, code: sku["attributes"]["code"]["v"]]
+    end)
+    |> Enum.map(fn(sku) ->
+        main = render_main_section(hd(sku[:albums]), sku[:code], 1)
+        [main, render_swatch_section(sku[:albums][:swatches], sku[:code], Enum.count(main))]
+       end)
+    |> List.flatten |> Enum.reject(fn el -> el == nil end) |> Enum.with_index(1)
   end
 
   # renders main images section as:
@@ -266,19 +279,20 @@ defmodule Hyperion.Amazon do
   # {[type: "PT",
   #   location: "http:", id: 1],
   #   2}],
-  defp render_main_section({_, [h|[]]}, sku) do
-    [{[sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")], 1}]
+  defp render_main_section({_, [h|t]}, sku, _idx) when t == [] do
+    IO.puts("t is []")
+    [{sku, "Main", String.replace(h["src"], "https", "http")}]
   end
 
-  defp render_main_section({_, [h|t]}, sku) do
-    main = [sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")]
+  defp render_main_section({_, [h|t]}, sku, _idx) do
+    main = {sku, "Main", String.replace(h["src"], "https", "http")}
 
     pt = Enum.with_index(t, 1)
-         |> Enum.flat_map(fn({img, idx}) ->
-              [sku: sku, type: "PT", location: String.replace(img["src"], "https", "http"), id: idx]
+         |> Enum.map(fn({img, idx}) ->
+              {sku, "PT", String.replace(img["src"], "https", "http"), idx}
             end)
     [main, pt]
-    |> Enum.with_index(1)
+    # |> Enum.with_index(idx)
   end
 
   def render_swatch_section(nil, _, _), do: nil
@@ -287,8 +301,8 @@ defmodule Hyperion.Amazon do
   # [[type: Swatch, lication: http://, id: id]]
   def render_swatch_section(list, sku, initial) do
     Enum.with_index(list, initial + 1)
-    |> Enum.map(fn {image, idx} ->
-      [sku: sku, type: "Swatch", location: String.replace(image["src"], "https", "http"), idx: idx]
+    |> Enum.map(fn {image, _idx} ->
+      {sku, "Swatch", String.replace(image["src"], "https", "http")}
     end)
   end
 
@@ -347,7 +361,7 @@ defmodule Hyperion.Amazon do
   # assign variants options to associated sku
   defp process_variants(variants) do
     func = fn var ->
-      {String.to_atom(var["attributes"]["name"]["v"]), atomize_keys(var["values"])}
+      {format_string(var["attributes"]["name"]["v"]), atomize_keys(var["values"])}
     end
 
     props = Enum.map(variants, func)
@@ -403,5 +417,12 @@ defmodule Hyperion.Amazon do
     |> String.downcase
     |> String.replace(~r/\s+/, "")
     |> String.to_atom
+  end
+
+  defp lower_first(str) do
+    str
+    |> String.first
+    |> String.downcase
+    |> Kernel.<>(String.slice(str, 1, String.length(str)))
   end
 end

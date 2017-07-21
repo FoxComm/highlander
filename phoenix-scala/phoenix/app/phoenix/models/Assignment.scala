@@ -33,17 +33,18 @@ object Assignment {
     AssignmentType.slickColumn
 
   sealed trait ReferenceType
-  case object Cart      extends ReferenceType
-  case object Order     extends ReferenceType
-  case object GiftCard  extends ReferenceType
-  case object Customer  extends ReferenceType
-  case object Return    extends ReferenceType
-  case object Sku       extends ReferenceType
-  case object Product   extends ReferenceType
-  case object Promotion extends ReferenceType
-  case object Coupon    extends ReferenceType
-  case object Taxonomy  extends ReferenceType
-  case object Taxon     extends ReferenceType
+  case object Cart        extends ReferenceType
+  case object Order       extends ReferenceType
+  case object AmazonOrder extends ReferenceType
+  case object GiftCard    extends ReferenceType
+  case object Customer    extends ReferenceType
+  case object Return      extends ReferenceType
+  case object Sku         extends ReferenceType
+  case object Product     extends ReferenceType
+  case object Promotion   extends ReferenceType
+  case object Coupon      extends ReferenceType
+  case object Taxonomy    extends ReferenceType
+  case object Taxon       extends ReferenceType
 
   object ReferenceType extends ADT[ReferenceType] {
     def types = sealerate.values[ReferenceType]
