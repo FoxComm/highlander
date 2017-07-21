@@ -1,0 +1,59 @@
+.slider {
+  width: 648px;
+  margin: 0 auto;
+}
+
+.icons {
+  display: flex;
+  font-family: "tumi-icon-ft";
+  justify-content: center;
+  margin: 0 auto;
+  padding: 10px;
+  text-align: center;
+}
+
+.icon-selected {
+  font-size: 40px;
+  font-family: "tumi-icon-ft";
+  color: #222;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.icon-unselected {
+  font-size: 40px;
+  font-family: "tumi-icon-ft";
+  color: #555;
+  opacity: 0.3;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.selected {
+  border-top: 1px solid #CCC;
+  border-bottom: 1px solid #CCC;
+  height: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.summary {
+  height: 136px;
+}
+
+.name {
+  color: #222;
+  text-transform: none;
+  font-size: 15px;
+  font-weight: 500;
+  padding-top: 15px;
+}
+
+.description {
+  padding: 0 45px;
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: #777;
+  overflow: auto;
+}
+

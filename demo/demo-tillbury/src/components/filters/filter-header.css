@@ -1,0 +1,45 @@
+.header {
+  display: flex;
+}
+
+.title-block {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 9px;
+  width: 100%;
+}
+
+.title {
+  font-size: 15px;
+  line-height: 18px;
+  padding: 10px 0 10px 0;
+}
+
+.title:hover {
+  color: #222;
+  text-decoration: none;
+}
+
+.icon-plus::before {
+  content: '+';
+}
+
+.icon-minus::before {
+  content: '-';
+}
+
+.icon-plus, .icon-minus {
+  font-size: 15px;
+  width: 12px;
+  padding: 10px 0 10px 0;
+}
+
+.clear {
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.count {
+  color: #777;
+  font-size: 11px;
+}

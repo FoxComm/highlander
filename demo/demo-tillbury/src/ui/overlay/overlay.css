@@ -1,0 +1,28 @@
+@import "media-queries.css";
+
+.overlay {
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  flex: 1;
+  height: 100%;
+  background: rgba(0, 0, 0, .6);
+  opacity: 0;
+  transition: opacity .4s;
+  transform: translateX(100%);
+}
+
+.overlay-shown {
+  composes: overlay;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (--small-only) {
+  .overlay {
+    background: none;
+  }
+}

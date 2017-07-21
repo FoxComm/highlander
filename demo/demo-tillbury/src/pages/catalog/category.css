@@ -1,0 +1,76 @@
+@import 'media-queries.css';
+
+.category {
+  max-width: 1170px;
+  margin: 0 auto;
+}
+
+.category-block {
+  border: 1px solid #ccc;
+  margin: 0 0 2em;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.links {
+  padding: 1.1em 2em;
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+}
+
+.images {
+  display: flex;
+  width: 70%;
+  justify-content: flex-end;
+}
+
+.title {
+  border: 1px solid #340c0c;
+  border-left: 0;
+  border-right: 0;
+  font-size: 14px;
+  line-height: 1;
+  margin: 0 0.35714em 1.42857em;
+  padding: 0.64286em 0.57143em 0.57143em;
+  position: relative;
+  text-transform: uppercase;
+
+  &::before {
+    content: '';
+    background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/sprite/borders.png') no-repeat -129px -361px;
+    display: inline-block;
+    height: 34px;
+    left: -30px;
+    position: absolute;
+    top: -1px;
+    width: 31px;
+  }
+
+  &::after {
+    content: '';
+    background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/sprite/borders.png') no-repeat -161px -361px;
+    display: inline-block;
+    height: 34px;
+    position: absolute;
+    right: -30px;
+    top: -1px;
+    width: 31px;
+  }
+}
+
+.sub {
+  color: #340c0c;
+  font-size: 0.83333em;
+  margin: 0 0 1.33333em;
+  text-transform: uppercase;
+  padding-left: 15px;
+}
+
+.sub-url {
+  &:hover {
+    text-decoration: underline;
+    color: #340c0c;
+  }
+}

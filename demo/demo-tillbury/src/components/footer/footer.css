@@ -1,0 +1,90 @@
+@import "media-queries.css";
+@import "variables.css";
+@import "colors.css";
+
+.footer-wrap {
+  position: relative;
+  border-top: 1px solid #340c0c;
+  background: #ffffff;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 13px;
+  max-width: 1170px;
+  margin: auto;
+  border-left: 1px solid #340c0c;
+  position: relative;
+}
+
+.links {
+  display: flex;
+  padding: 40px 15px 30px 80px;
+  width: 100%;
+}
+
+.links-mobile {
+  display: none;
+}
+
+.link-column {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+}
+
+.link {
+  margin: 0 0 10px;
+  text-transform: none;
+  color: #340c0c;
+  font-size: 14px;
+
+  &:hover {
+    text-decoration: underline;
+    color: #340c0c;
+  }
+}
+
+.link.title {
+  text-transform: uppercase;
+  color: #340c0c;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 20px;
+
+  &:hover {
+    text-decoration: none;
+    color: #340c0c;
+  }
+}
+
+.social {
+  display: flex;
+}
+
+.link.social-link {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/sprite/icons.png') no-repeat;
+  display: block;
+  height: 27px;
+  text-indent: -9999px;
+  width: 27px;
+  margin-right: 10px;
+}
+
+.icon {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/footer/flourish.png') no-repeat 0 0;
+  height: 89px;
+  position: absolute;
+  left: -23px;
+  bottom: 60px;
+  width: 45px;
+}
+
+@media (--up-to-large) {
+  .link-column {
+    width: 100%;
+  }
+}

@@ -1,0 +1,43 @@
+@import "colors.css";
+
+.crumbs {
+  display: flex;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.delimiter {
+  margin: 0 7px;
+  color: #340c0c;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.delimiter-icon {
+  width: 6px;
+  height: 6px;
+  line-height: 0;
+  margin: 0 5px 2px;
+}
+
+.link {
+  text-decoration: none;
+  color: #340c0c;
+  font-size: 14px;
+  line-height: 1;
+
+  &:hover {
+    text-decoration: underline;
+    color: #340c0c;
+  }
+}
+
+.item:last-child {
+  font-weight: 900;
+}
+
+.item {
+  font-size: 14px;
+  color: #666;
+  font-weight: 400;
+}

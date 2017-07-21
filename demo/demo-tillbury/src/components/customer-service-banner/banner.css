@@ -1,0 +1,75 @@
+.banner {
+  background: #fff5f3;
+  width: 100%;
+  padding: 1em 0;
+}
+
+.parts {
+  max-width: 1170px;
+  margin: 0 auto;
+}
+
+.title {
+  color: #340c0c;
+  font-size: 2.22222em;
+  margin: 0 0 0.5em;
+  position: relative;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.banners {
+  display: flex;
+  justify-content: space-between;
+}
+
+.banner-item {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+}
+
+.banner-title {
+  color: #340c0c;
+  font-size: 16px;
+  text-transform: uppercase;
+  text-align: center;
+  font-weight: 700;
+}
+
+.banner-subtitle {
+  color: #340c0c;
+  font-size: 14px;
+  text-align: center;
+}
+
+.icon {
+  width: 85px;
+  height: 95px;
+  margin: 0 auto;
+}
+
+.marginless {
+  margin: 0;
+}
+
+.delivery {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/customer-service-banner/customer-service-icon-sprite.png') no-repeat 0 -30px;
+}
+
+.returns {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/customer-service-banner/customer-service-icon-sprite.png') no-repeat -110px -30px;
+}
+
+.samples {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/customer-service-banner/customer-service-icon-sprite.png') no-repeat -210px -30px;
+}
+
+.gifts {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/customer-service-banner/customer-service-icon-sprite.png') no-repeat -320px -30px;
+}
+
+.contact {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/customer-service-banner/customer-service-icon-sprite.png') no-repeat -490px -30px;
+}

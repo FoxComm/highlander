@@ -1,0 +1,62 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.modal {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.shown {
+  display: flex;
+}
+
+.modal-wrapper {
+  z-index: 4;
+  height: 100%;
+  width: 100%;
+  background: var(--body-background);
+  position: fixed;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+@media (--small-only), (--medium-only) {
+  .modal-wrapper {
+    transition: transform .3s ease;
+    transform: translateX(100%);
+  }
+
+  .shown .modal-wrapper {
+    transform: translateX(0);
+  }
+}
+
+@media (--medium) {
+  .shown {
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-wrapper {
+    height: 521px;
+  }
+
+  .shown .modal-wrapper {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+  }
+}
+
+@media (--large) {
+  .modal-wrapper {
+    width: 50%;
+  }
+}

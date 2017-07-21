@@ -1,0 +1,41 @@
+.filter-block {
+  border-top: 1px solid #CCCCCC;
+  font-size: 12px;
+  margin-left: 12px;
+  padding: 10px 0;
+}
+
+.filter-value {
+  padding: 3px 0;
+
+  & > label {
+    display: flex;
+    align-items: baseline;
+    cursor: pointer;
+  }
+}
+
+.filter-checkbox {
+  -webkit-appearance: none;
+  border: 1px solid #CCC;
+  color: transparent;
+  margin-right: 10px;
+  height: 17px;
+  width: 17px;
+}
+
+.filter-checkbox::before {
+  content: "\2713";
+  padding-left: 4px;
+}
+
+.filter-checkbox:checked {
+  background: #000000;
+  border: 1px solid #000000;
+  color: #FFFFFF;
+}
+
+.count {
+  color: #777;
+  font-size: 11px;
+}

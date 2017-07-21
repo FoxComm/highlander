@@ -1,0 +1,175 @@
+.perfume-block {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/scent-of-a-dream/lights-keys-full.png') no-repeat;
+  background-position: center -280px;
+  content: '';
+  display: block;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+
+  &::before {
+    background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/scent-of-a-dream/fractal.png') no-repeat center 0;
+    content: '';
+    display: block;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  &::after {
+    content: '';
+    display: block;
+    background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/scent-of-a-dream/fractal.svg') no-repeat;
+    background-size: cover;
+    background-position: 51.5%;
+    width: 100vw;
+    height: 10000px;
+    position: absolute;
+    bottom: -4780px;
+    z-index: -1;
+    opacity: .4;
+  }
+}
+
+.perfume {
+  max-width: 1170px;
+  margin: 0 auto;
+}
+
+.title-block {
+  max-width: 600px;
+  margin: auto;
+  margin-top: 40px;
+}
+
+.title {
+  margin: auto;
+  color: #350E0E;
+}
+
+.title-controlls {
+  display: flex;
+}
+
+.left {
+  width: 20%;
+  position: relative;
+
+  &::after {
+    background: rgba(255, 255, 255, 0.85);
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    visibility: hidden;
+  }
+
+  &:hover {
+    &::after {
+      visibility: visible;
+    }
+  }
+}
+
+.right {
+  width: 20%;
+  position: relative;
+
+  &::after {
+    background: rgba(255, 255, 255, 0.85);
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    visibility: hidden;
+  }
+
+  &:hover {
+    &::after {
+      visibility: visible;
+    }
+  }
+}
+
+.center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.heading {
+  color: #350E0E;
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 0.3em;
+  line-height: 1;
+}
+
+.link {
+  width: 200px;
+  margin: 40px auto 0;
+  padding: 10px;
+  position: relative;
+  background: #fff;
+  border: 1px solid #efd8cb;
+  letter-spacing: 2px;
+  padding: 15px 10px;
+  box-shadow: 0 0 0 1px #dfb49b;
+  text-align: center;
+  text-transform: uppercase;
+
+  &::before {
+    background: #fff;
+    content: '';
+    display: block;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    top: -8px;
+    right: 50%;
+    margin-right: -36px;
+  }
+
+  &::after {
+    background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/cms/scent-of-a-dream/key-peach.svg') no-repeat;
+    content: '';
+    display: block;
+    height: 30px;
+    width: 104px;
+    position: absolute;
+    top: -17px;
+    left: 50%;
+    margin-left: -52px;
+  }
+
+  &:hover {
+    color: inherit;
+    box-shadow: 0 0 0 1px #dfb49b;
+    text-decoration: none;
+  }
+}
+
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 70px;
+  margin-top: 50px;
+}
+
+.tile {
+  width: 30%;
+  margin: 10px;
+}

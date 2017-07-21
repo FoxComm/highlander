@@ -1,0 +1,184 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.header-base {
+  position: relative;
+  height: 40px;
+  line-height: 40px;
+  font-size: 16px;
+  z-index: 10;
+}
+
+.header {
+  composes: header-base;
+  position: fixed;
+  /* should be above 5 because of image-gallery in PDP */
+  z-index: 10;
+  top: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.header-wrap {
+  position: relative;
+  background: #ffffff;
+}
+
+.wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  align-self: flex-end;
+  margin: 0 0 22px;
+}
+
+.action-link-menu {
+  composes: action-link from "ui/action-link/action-link.css";
+  height: 40px;
+  transform: translateX(-1000%);
+
+  & :global .icon {
+    width: 26px;
+    height: 40px;
+  }
+}
+
+.nav-search-logo-wrapper {
+  max-width: 1170px;
+  margin: 0 auto;
+  border-bottom: 5px solid #360C0C;
+}
+
+.logo {
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/header/logo.svg') no-repeat 0 0;
+  display: block;
+  margin: 20px auto 0;
+  height: 37px;
+  text-indent: -9999px;
+  width: 250px;
+}
+
+.logo-link-mobile {
+  display: none;
+}
+
+.navigation-wrap {
+  background: #ffffff;
+  width: 100%;
+  height: 40px;
+}
+
+.navigation {
+  max-width: 1170px;
+  transition: all 300ms;
+  background: none;
+  padding: 0 15px;
+  background: #ffffff;
+  margin: 0 auto;
+}
+
+.tools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nav-search-logo-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--body-background);
+}
+
+.flourish {
+  bottom: 0;
+  background: url('http://www.charlottetilbury.com/skin/frontend/charlottetilbury/desktop/img/header/flourish.png') no-repeat 0 0;
+  height: 61px;
+  display: inline-block;
+  left: 50%;
+  margin-left: -161px;
+  position: absolute;
+  width: 322px;
+}
+
+.flourish-underline {
+  position: absolute;
+  bottom: 0;
+  height: 8px;
+  width: 100%;
+  background: #360C0C;
+  background: linear-gradient(#5B1313, #370C0C);
+}
+
+.search-container {
+  height: 54px;
+  background: #340c0c;
+}
+
+@media (--small-only), (--medium-only) {
+  .search {
+    display: none;
+  }
+
+  :global(.icon).logo {
+    width: 75px;
+  }
+}
+
+@media (--small-only) {
+  .header-wrap {
+    box-shadow: none;
+  }
+
+  .header-base {
+    height: 60px;
+    background: var(--body-background);
+    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, .3);
+  }
+
+  .navigation {
+    display: none;
+  }
+
+  .logo {
+    width: 94px;
+    height: 37px;
+    margin: 10px 0;
+  }
+
+  .action-link-menu {
+    transform: translateX(0);
+  }
+
+  .logo-link-mobile {
+    display: block;
+  }
+
+  .nav-search-logo-wrapper {
+    display: none;
+  }
+}
+
+@media (--large) {
+  :global(.icon).logo {
+    vertical-align: middle;
+    margin-left: 20px;
+    width: 80px;
+  }
+
+  .search {
+    width: auto;
+    display: flex;
+    align-items: center;
+    margin-top: -4px;
+    margin-left: 30px;
+    margin-right: 20px;
+  }
+
+  .tools {
+    width: auto;
+  }
+}

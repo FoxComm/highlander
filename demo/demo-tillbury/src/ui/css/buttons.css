@@ -1,0 +1,75 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.button {
+  width: 100%;
+  font-weight: 900;
+  font-size: 16px;
+  padding: 0 12px;
+  height: 35px;
+  border: none;
+  background-color: var(--red);
+  color: var(--button-label-color);
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+._loading {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+  animation: caramel .5s linear infinite;
+
+  &:hover {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+    animation: caramel .5s linear infinite;
+  }
+
+  &:disabled {
+    color: var(--button-disabled-color);
+    background: var(--button-disabled-background);
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+    animation: caramel .5s linear infinite;
+
+    &:hover {
+      color: var(--button-disabled-color);
+      cursor: not-allowed;
+    }
+  }
+}
+
+._primary {
+  background-color: #98172d;
+  color: var(--white);
+  border-radius: 0;
+}
+
+._pdp {
+  font-size: 13px;
+  height: auto;
+  padding: 11px 12px;
+}
+
+._secondary {
+  background: var(--button-alt-default-background);
+  color: var(--button-label-color);
+
+  &:active {
+    background: var(--button-alt-active-background);
+  }
+
+  &:focus {
+    background: var(--button-alt-default-background);
+    color: var(--button-label-color);
+  }
+}
+
+@keyframes caramel {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 20px 0;
+  }
+}

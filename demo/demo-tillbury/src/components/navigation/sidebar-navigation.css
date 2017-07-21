@@ -1,0 +1,75 @@
+@import "colors.css";
+
+.list {
+  height: 100%;
+}
+
+.item-link {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 13px 0 17px;
+  font-size: 14px;
+  line-height: 45px;
+  border-bottom: 1px solid var(--border-sidebar-color);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--link-alt-color);
+  white-space: nowrap;
+
+  &::after {
+    content: '>';
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+.top-item-link {
+  composes: item-link;
+}
+
+.action-link-back {
+  display: block;
+  width: 100%;
+}
+
+.submenu {
+  position: absolute;
+  left: -100%;
+  opacity: 0;
+  background: var(--body-background);
+  transition: opacity .2s;
+}
+
+.submenu-open {
+  display: block;
+}
+
+.submenu-hovered {
+  top: 0;
+}
+
+.submenu-link-item {
+  composes: item-link;
+  padding-left: 39px;
+  font-size: 11px;
+  color: var(--soft-grey);
+
+  &::after {
+    content: none;
+  }
+}
+
+.active {
+  color: var(--red);
+}
+
+.opened .submenu {
+  position: relative;
+  left: 0;
+  opacity: 1;
+}
+
+.expanded .top-item-link {
+  display: none;
+}
