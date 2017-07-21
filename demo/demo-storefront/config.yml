@@ -1,0 +1,149 @@
+# Core Store Settings
+storeName: 'FoxCommerce Demo'           # required
+storeDescription: 'A minimal Fox store' # required
+adminEmail: 'fox@foxcommerce.com'       # required
+FoxCommerceAPIKey: 1234567890qwerty     # required
+captureOnOrderState: placed             # required; order state when we capture payment
+googleAnalyticsID: UA9999999            # optional
+weightUnit: lbs                         # optional; default 'lbs'
+timezone: 'America/New_York'            # optional; default 'America/New_York'
+
+# Custom Content Types
+contentTypes:
+
+  # abstracted object model example
+  - id: String            # required, unique url-friendly identifier
+    name: String          # required, human-readable, singular
+    plural: String        # optional, for displaying if plural is not just "S"
+    hierarchical: Bool    # flat list or nested tree structure; default false
+    fields: Array         # optional, list of key/value pairs
+      - name: String        # required, unique url-friendly identifier
+        type: String        # required, field type
+                            #   supported types:
+                            #   text, textara, richtext, image, imageSet
+                            #   TODO: single select [radio, dropdown], multi select [checkboxes]
+        required: Bool      # optional, enforces validation; default false
+        validation: Regex   # optional, validates value against if required; default /.+/
+        repeatable: Bool    # optional, allows to add many values that become an Array
+        showListView: Bool  # optional, show a column in the list view; default false
+    relations:            # optional, builds relationships to other content types
+      - to: Object        # required [for each relation], eg. Product
+        alias: String     # optional, eg. related Admin User alias "Author" of blog posts as below
+
+  # default product model
+  - id: 'product'
+    name: Product
+    fields:
+      - name: title
+        type: text
+        required: true
+        showListView: true
+      - name: content
+        type: richtext
+        showListView: false
+    media:
+      - name: images
+        type: imageSet
+        showListView: true  # on imageSet, picks the first for list view
+        setAs: featured
+
+  # extended product model
+  - id: 'product'
+    name: Product
+    fields:
+      - name: title
+        type: text
+        required: true
+        showListView: true
+      - name: content
+        type: richtext
+      - name: shortDescription
+        type: textarea
+      - name: longDescription
+        type: richtext
+        required: true
+      - name: featuredImage
+        type: image
+        required: true
+        showListView: true
+      media:
+        - name: images
+          type: imageSet
+          setAs: modelShot, onWhite, closeup
+        - name: lookbook
+          type: imageSet
+          setAs: featured, lifestyle
+
+  # example custom content types
+  - id: 'post'
+    name: 'Blog Post'
+    plural: Posts
+    fields:
+      - name: title
+        type: text
+        showListView: true
+      - name: body
+        type: richtext
+      - name: excerpt
+        type: textarea
+    relations:
+      - to: Admin
+        alias: author # would come back from API as `post.author`
+
+  - id: testimonial
+    name: Testimonial
+    fields:
+      - name: content
+        type: richtext
+        showListView: true
+      - name: author
+        type: text
+        showListView: true
+    relations:
+      - to: Product
+
+
+# Custom taxonomies
+taxonomies:
+
+  # model
+  - id: String            # required, unique url friendly identifier
+    name: String          # required, human-readable, singular
+    constrained: Bool     # optional, pre-defined list of values vs store admin can add anything; default false
+    exclusive: Bool       # optional, meaning can Object belong to 1 category, or many; default false
+    fields: Array         # optional, same options as fields for contentTypes
+      - name: String
+        type: String
+    appliesTo: Array      # required, Objects that can be classified by this taxonomy
+      - Object
+    actAsVariant: Bool    # when applied to Product type, acts as a parameter that can be used to create Variants; default false
+
+  # examples
+  - id: size
+    name: Size
+    exclusive: true
+    appliesTo:
+      - Product
+    actAsVariant: true
+  - id: color
+    name: Color
+    constrained: true
+    exclusive: true
+    fields:
+      - name: swatch
+        type: text
+        showListView: true
+    appliesTo:
+      - Product
+    actAsVariant: true
+  - id: material
+    name: Material
+    constrained: true
+    exclusive: true
+    fields:
+      - name: swatch
+        type: image
+        showListView: true
+    appliesTo:
+      - Product
+    actAsVariant: false

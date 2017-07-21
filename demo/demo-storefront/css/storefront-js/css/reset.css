@@ -1,0 +1,22 @@
+div, span, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, em, img, strong, sub, sup, b, u, i, dl, dt, dd, fieldset, form, label, legend, footer, header, hgroup, menu, nav, output, section, summary, time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+	line-height: 1;
+}
+ol, ul, li {
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}

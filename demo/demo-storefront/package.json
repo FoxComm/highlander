@@ -1,0 +1,22 @@
+{
+  "name": "fox-commerce-demo",
+  "version": "0.0.0",
+  "description": "A minimal storefront implementation",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint --ext .js --ext .jsx .",
+    "flow": "flow check",
+    "dev": "webpack --progress --colors --watch",
+    "test": "",
+    "precompile": "babel src -d lib",
+    "watch-precompile": "babel src -d lib -w --skip-initial-build"
+  },
+  "author": "FoxCommerce",
+  "license": "MIT",
+  "devDependencies": {
+  },
+  "dependencies": {
+    "@foxcomm/api-js": "^1.1.3",
+    "@foxcomm/storefront-js": "^1.9.4",
+  }
+}

@@ -1,0 +1,7 @@
+/* import core foxcommerce styles to run components */
+/*@import '@FoxComm/storefront-js/css/index.css';*/  /* for when it’s in a separate pkg */
+@import './storefront-js/css/index.css';
+
+/* import local css files, or add rules here: */
+@import './_var.css';
+@import './typography.css';

@@ -1,0 +1,26 @@
+@custom-media --viewport-xs-only screen and (max-width: 767px);
+@custom-media --viewport-md screen and (min-width: 768px);
+@custom-media --viewport-lg screen and (min-width: 1080px);
+
+@media (--viewport-md) {
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+}
+.row {
+  display: flex;
+}
+.half {
+  width: 50%;
+}
+.third {
+  width: 33%;
+}
+.two-thirds {
+  width: 66%;
+}
+.quarter {
+  width: 25%;
+}

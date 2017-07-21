@@ -1,0 +1,44 @@
+@import url(//fonts.googleapis.com/css?family=Raleway:300,400,500,600,700|Poppins:300,400,500,600,700&subset=latin);
+
+body {
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  color: var(--text-color);
+}
+
+/* Titles
+*/
+.title-xl,
+.title-lg,
+.title-md,
+.title-sm {
+  font-family: 'Poppins', sans-serif;
+  margin-top: 1em;
+  font-weight: 300;
+}
+.title-xl {
+  font-size: 3em;
+}
+.title-lg {
+  font-size: 2em;
+}
+.title-lg + .title-md {
+  margin-top: 0;
+}
+.title-md {
+  font-size: 1.5em;
+  font-weight: normal;
+}
+.title-sm {
+  font-family: 'Raleway', sans-serif;
+  font-size: 1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Core elements
+*/
+p, ul.bullet, ol.number, .bullet li, .number li {
+  margin: 0.1em 0 0.8em 0;
+  line-height: 1.4;
+}
