@@ -1,0 +1,6 @@
+@import "colors.css";
+
+.action-link {
+  color: var(--link-color);
+  cursor: pointer;
+}

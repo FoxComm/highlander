@@ -1,0 +1,10 @@
+
+.subtitle {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 15px 0;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}

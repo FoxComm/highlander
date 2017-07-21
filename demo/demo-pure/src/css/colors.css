@@ -1,0 +1,114 @@
+:root {
+  --dark-blackish: #212121;
+  --greyish: #C4C4C4;
+  --redish: #F65554;
+  --greenish: #49C699;
+  --white-smokish: #F4F4F4;
+  --bunker: rgb(33, 33, 33);
+
+  /* peacock: */
+  --water-blue: #0B7DDC;
+  --science-blue: #0266B9;
+  --baby-blue: #B6D7FF;
+  --malibu: #66AFF5;
+
+  --cherry-red: #E90018;
+
+  --black: #000000;
+  --blackish: #222222;
+  --mine-shaft: #333333;
+  --tundora: #444444;
+  --gray: #888888;
+  --grayish: #AAAAAA;
+  --cod-gray: #1A1A1A;
+  --silver: #CCCCCC;
+  --alto: #DDDDDD;
+  --gallery: #EEEEEE;
+  --white: #FFFFFF;
+  --metallic-gray: #BABABA;
+  --half-transparent-black: rgba(0, 0, 0, 0.5);
+}
+
+:root {
+  --base-color: var(--white);
+
+  --additional-color: #3E3436;
+  --border-color: rgba(33, 33, 33, 0.10);
+  --background-color: #FBFBFB;
+
+  --color-error: var(--cherry-red);
+  --color-panels-bg: var(--white-smokish);
+  --color-text-grey: var(--greyish);
+
+  --search-placeholder: rgba(255,255,255,.14);
+  --icon: var(--bunker);
+  --input-text-color: #000000;
+
+  --text-color-dark: var(--bunker);
+  --text-color-main: var(--bunker);
+
+  --text-color-on-sale: #AA0F0F;
+}
+
+:root {
+  /* Backgrounds */
+  --body-background: var(--white);
+  --input-background: var(--white);
+  --select-active-background: var(--gallery);
+  --body-gray-over-background: var(--half-transparent-black);
+
+  /* Inputs */
+  --input-background: var(--white);
+  --input-border-color: var(--metallic-gray);
+  --input-error-color: var(--cherry-red);
+  --input-placeholder-color: var(--gray);
+
+  --input-text-color: var(--blackish);
+  --input-focus-border-color: var(--water-blue);
+  --input-active-border-color: var(--baby-blue);
+  --input-focus-border-color: var(--water-blue);
+
+  /* Text colors */
+  --text-color: var(--blackish);
+  --label-color: var(--gray);
+  --error-color: var(--cherry-red);
+  --navigation-alt-color: var(--tundora);
+
+  /* Button colors */
+  --button-default-background: var(--water-blue);
+  --button-active-background: var(--science-blue);
+  --button-focus-background: var(--water-blue);
+  --button-in-progress-background: var(--science-blue);
+  --button-alt-default-background: var(--mine-shaft);
+  --button-alt-active-background: var(--black);
+  --button-disabled-background: var(--silver);
+
+  --button-label-color: var(--white);
+  --button-disabled-color: var(--gallery);
+
+  --link-color: var(--water-blue);
+  --link-hover-color: var(--water-blue);
+  --link-visited-color: var(--malibu);
+  --link-alt-color: var(--cod-gray);
+
+  --focus-color: var(--baby-blue);
+
+  /* Radio button */
+  --radio-button-border: var(--alto);
+  --radio-button-inner-circle: var(--white);
+  --radio-button-unchecked: var(--white);
+  --radio-button-outer-circle: var(--water-blue);
+  --radio-button-disabled-background: var(--silver);
+
+  /* Checkbox */
+  --checkbox-background: var(--white);
+  --checkbox-border: var(--alto);
+  --checkbox-checked: var(--water-blue);
+  --checkbox-disabled: var(--silver);
+
+  /* Borders */
+  --border-color: var(--alto);
+
+  /* Logo */
+  --logo-alt-color: var(--grayish);
+}

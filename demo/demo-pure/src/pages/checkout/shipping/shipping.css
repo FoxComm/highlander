@@ -1,0 +1,41 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.shippingAddress {
+  composes: address-details from 'ui/address/address.css';
+  line-height: 1.3;
+  text-align: left;
+  color: var(--text-color);
+  font-size: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.action-link-addresses {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.plus {
+  composes: plus-icon from "ui/css/plus-icon.css";
+  margin-right: 8px;
+}
+
+@media (--large) {
+  .action-link-addresses {
+    margin-right: 0;
+  }
+}

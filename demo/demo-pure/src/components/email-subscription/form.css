@@ -1,0 +1,56 @@
+@import "colors.css";
+
+.email {
+  display: flex;
+  margin-bottom: 40px;
+
+  & input {
+    width: 100%;
+    padding-left: 12px;
+    border: none;
+    font-size: 15px;
+    font-weight: 400;
+    background-color: var(--input-background);
+    color: var(--text-color);
+
+    &:focus {
+      color: var(--input-active-border-color);
+    }
+  }
+}
+
+.button {
+  padding: 0 1.6em;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--button-label-color);
+  background: var(--button-default-background);
+  border: none;
+  height: 46px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+@media (--medium-only) {
+  .email {
+    lost-column: 8/10;
+    lost-offset: -1/10;
+  }
+}
+
+@media (--medium) {
+  .email {
+    margin-bottom: 70px;
+  }
+}
+
+@media (--large) {
+  .email {
+    & input {
+      padding-left: 20px;
+    }
+  }
+}

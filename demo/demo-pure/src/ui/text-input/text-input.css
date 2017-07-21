@@ -1,0 +1,117 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.block {
+  position: relative;
+  border: 1px solid var(--input-border-color);
+  border-radius: 2px;
+}
+
+.textInput {
+  height: 40px;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 11px 5px;
+  border-radius: 2px;
+  color: var(--input-text-color);
+  border: none;
+  box-shadow: none;
+
+  &:active {
+    z-index: 2;
+  }
+
+  &.error {
+    color: var(--color-error);
+  }
+
+  &.empty {
+    padding: 10px 11px 10px;
+  }
+
+  &::placeholder {
+    color: var(--input-placeholder-color);
+  }
+}
+
+.hasTopMessages .textInput {
+  padding-top: 15px;
+}
+
+.block.error {
+  z-index: 2;
+  border-color: var(--color-error);
+}
+
+.block.focused {
+  z-index: 2;
+  border-color: var(--input-focus-border-color);
+  box-shadow: 0 0 0 3px var(--input-active-border-color);
+}
+
+:root {
+  --top-line-height: 10px;
+  --top-font-size: 8px;
+}
+
+.errorMessage {
+  font-size: var(--top-font-size);
+  position: absolute;
+  right: 11px;
+  top: 6px;
+  line-height: var(--top-line-height);
+  color: var(--color-error);
+  transition: right .4s ease;
+}
+
+.hasCard .errorMessage {
+  right: calc(12px + 44px);
+}
+
+.hasSymbol .errorMessage {
+  right: calc(1em + 11px);
+}
+
+.placeholder {
+  font-size: var(--top-font-size);
+  position: absolute;
+  left: 11px;
+  top: 6px;
+  line-height: var(--top-line-height);
+  color: var(--input-placeholder-color);
+}
+
+.labelElement {
+  position: absolute;
+  right: 6px;
+}
+
+.labelText {
+  composes: labelElement;
+  --line-height: 28px;
+  line-height: var(--line-height);
+  top: calc(50% - var(--line-height) / 2);
+  font-size: 10px;
+}
+
+div.pos-b {
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
+div.pos-l {
+  margin-right: -1px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+div.pos-t {
+  margin-bottom: -1px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+div.pos-r {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

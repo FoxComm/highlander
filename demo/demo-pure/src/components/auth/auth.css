@@ -1,0 +1,163 @@
+@import "colors.css";
+@import "media-queries.css";
+
+:root {
+  --dividerMargin: 20px;
+}
+
+.auth-block {
+  position: relative;
+  z-index: 15;
+  margin-top: 44px;
+  margin-bottom: 20px;
+
+  lost-column: 3/12;
+  lost-offset: -1/12;
+
+  & :global(.fc-errors) {
+    margin-bottom: 10px;
+  }
+}
+
+.logo {
+  margin-bottom: 92px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.title {
+  margin-bottom: 12px;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--text-color);
+}
+
+.top-message {
+  margin-top: 27px;
+  margin-bottom: 30px;
+  font-size: 16px;
+  line-height: 1.25;
+  text-align: left;
+  font-weight: 300;
+}
+
+.top-message-success {
+  composes: top-message;
+  color: var(--greenish);
+}
+
+.top-message-error {
+  composes: top-message;
+  color: var(--redish);
+}
+
+.inputs-body {
+  margin-top: 24px;
+  margin-bottom: 32px;
+}
+
+.google-login {
+  composes: button from "ui/css/buttons.css";
+  background-color: var(--redish);
+  border: 1px solid color(var(--redish));
+  margin-bottom: calc(46px - var(--dividerMargin));
+  width: 100%;
+
+  &:hover {
+    color: var(--redish);
+  }
+
+  & :global(.icon) {
+    transition: none;
+  }
+}
+
+.divider {
+  composes: block from "ui/css/wrap-to-lines.css";
+  margin-bottom: calc(30px - var(--dividerMargin));
+}
+
+.form-field {
+  width: 100%;
+}
+
+.primary-button {
+  composes: button from "ui/css/buttons.css";
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.bottom-message {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.restore-link {
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--link-alt-color);
+  opacity: 0.38;
+  text-decoration: none;
+
+  &:hover {
+    opacity: 1.0;
+  }
+}
+
+.link {
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    color: var(--link-hover-color);
+  }
+}
+
+@media (--small-only), (--medium-only) {
+  .auth-block {
+    lost-column: 1/1;
+    lost-offset: 0;
+    margin-top: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .top-message {
+    margin-bottom: 20px;
+  }
+
+  .logo {
+    width: 104px;
+    height: 56px;
+    margin-bottom: 40px;
+  }
+
+  .title {
+    margin-bottom: 20px;
+    font-size: 17px;
+    font-weight: normal;
+  }
+
+  .google-login {
+    margin-bottom: calc(20px - var(--dividerMargin));
+  }
+
+  .divider {
+    composes: block from "ui/css/wrap-to-lines.css";
+    margin-bottom: calc(20px - var(--dividerMargin));
+  }
+
+  .switch-stage {
+    font-size: 14px;
+    line-height: 17px;
+  }
+}
+
+@media (--medium-only) {
+  .auth-block {
+    lost-column: 5/11;
+    lost-offset: -3/11;
+  }
+}

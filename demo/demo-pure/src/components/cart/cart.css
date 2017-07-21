@@ -1,0 +1,138 @@
+/* back-icon, header-text */
+@import "colors.css";
+@import "media-queries.css";
+@import "variables.css";
+
+.cart-box {
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  right: 0;
+  height: 100%;
+  lost-column: 5/12;
+  background: var(--body-background);
+  transform: translateX(100%);
+  transition: transform .2s;
+  composes: scrollbar from "ui/css/scrollbar.css";
+}
+
+.cart-shown .cart-box {
+  transform: translateX(0);
+}
+
+.cart-header {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.my-cart {
+  margin-left: 25px;
+  color: var(--text-color);
+}
+
+.action-link-cart-close {
+  composes: action-link from "ui/action-link/action-link.css";
+  margin-right: 20px;
+}
+
+.empty-cart {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-text {
+  font-size: 16px;
+  color: var(--text-color);
+  opacity: 0.3;
+  text-transform: uppercase;
+}
+
+.checkout-button {
+  height: 58px;
+  width: 100%;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  text-align: center;
+  line-height: 29px;
+  border-radius: 0;
+  vertical-align: baseline;
+}
+
+.cart-content {
+  position: absolute;
+  padding: 0 20px 0 25px;
+  width: 100%;
+  top: 50px;
+  height: calc(100% - 108px);
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+
+  & :global(.fc-errors) {
+    width: 100%;
+  }
+
+  & :global(.fc-alert) {
+    border-radius: 0;
+    margin-top: 0;
+  }
+}
+
+.line-items {
+  height: 100%;
+}
+
+.subtotal-price {
+  margin-left: 5px;
+  vertical-align: baseline;
+}
+
+.cart-footer {
+  width: 100%;
+  height: 58px;
+  position: absolute;
+  bottom: 0;
+}
+
+@media (--small-only), (--medium-only) {
+  .cart-box {
+    lost-column: 12/12;
+  }
+}
+
+@media (--medium), (--large) {
+  .action-link-cart-close {
+    margin-right: 25px;
+  }
+}
+
+@media (--large) {
+  .cart-content {
+    height: calc(100% - 130px);
+  }
+
+  .cart-footer {
+    width: 100%;
+    height: 80px;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .checkout-button {
+    width: calc(100% - 50px);
+    border-radius: 4px;
+  }
+}

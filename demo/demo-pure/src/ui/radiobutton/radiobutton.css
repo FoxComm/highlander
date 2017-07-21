@@ -1,0 +1,48 @@
+@import "colors.css";
+
+.radiobutton {
+  --size: 14px;
+
+  & .input {
+    width: var(--size);
+    height: var(--size);
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+
+    &:checked, &:active, &:focus {
+      & + .label:before {
+        background: var(--radio-button-inner-circle);
+        box-shadow: inset 0 0 0 3px var(--radio-button-outer-circle);
+        border: none;
+      }
+    }
+
+    &:disabled {
+      & + .label:before {
+        background: var(--radio-button-disabled-background);
+        box-shadow: none;
+      }
+    }
+  }
+
+  & .label {
+    display: flex;
+    margin-top: -20px;
+    position: relative;
+
+    &:before {
+      content: "";
+      display: inline-block;
+      min-width: var(--size);
+      height: var(--size);
+      background: var(--radio-button-unchecked);
+      margin-right: 8px;
+      margin-top: 2px;
+      vertical-align: middle;
+      border-radius: 100%;
+      border: 1px solid var(--radio-button-border);
+    }
+  }
+
+}

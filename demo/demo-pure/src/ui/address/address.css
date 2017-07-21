@@ -1,0 +1,58 @@
+@import "colors.css";
+
+.address-details {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checkbox {
+  font-size: 14px;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: row;
+}
+
+.text-field {
+  composes: text-field from "ui/common.css";
+  margin: 0;
+  flex: 1;
+}
+
+.text-field-state {
+  composes: text-field;
+  flex-grow: 2;
+  display: flex;
+  border: 1px solid var(--input-border-color);
+  border-right-width: 0;
+}
+
+.text-field-zip {
+  composes: text-field;
+  flex-grow: 1;
+}
+
+.text-input {
+  composes: textInput from "ui/text-input/text-input.css";
+}
+
+.theme-white-bg {
+  & .text-input, & input[type=text] {
+    &::placeholder {
+      color: var(--input-placeholder-color);
+    }
+    background: var(--input-background);
+  }
+}
+
+.address-title {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-color);
+}

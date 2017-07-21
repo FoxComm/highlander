@@ -1,0 +1,115 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.action-link-payment {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.action-link-add-methods {
+  composes: action-link from "ui/action-link/action-link.css";
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.plus {
+  composes: plus-icon from "ui/css/plus-icon.css";
+  margin-right: 8px;
+}
+
+.credit-cards-list, .gc-coupon {
+  padding: 15px 10px 0px 15px;
+}
+
+.promo-codes {
+  padding: 10px 10px 10px 38px;
+  background: var(--select-active-background);
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.text-field {
+  composes: text-field from "ui/common.css";
+  margin: 0;
+}
+
+.union-fields {
+  display: flex;
+
+  & .text-field {
+    width: 50%;
+  }
+
+  & .card-number-field {
+    width: 75%;
+  }
+
+  & .cvc-field {
+    width: 25%;
+  }
+}
+
+.promo-line {
+  padding-top: 10px;
+}
+
+.cvc-field {
+  composes: text-field;
+}
+
+.same-address-checkbox {
+  margin-top: 20px;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.default-checkbox {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.card-form {
+  margin: 15px 10px 15px 15px;
+}
+
+.billing-address {
+  font-size: 12px;
+  margin-left: 25px;
+}
+
+.no-address {
+  font-size: 12px;
+  margin-left: 25px;
+}
+
+.new-billing-address {
+  margin-top: 20px;
+}
+
+.payment-icon {
+  --payment-icon-height: 30px;
+  top: calc(50% - var(--payment-icon-height) / 2);
+}
+
+@media (--large) {
+  .action-link-payment {
+    margin-right: 0;
+  }
+}

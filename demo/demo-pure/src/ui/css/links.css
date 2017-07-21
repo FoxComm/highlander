@@ -1,0 +1,36 @@
+.links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  & .link:not(:last-child) {
+    margin-right: 30px;
+  }
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 230px;
+  height: 80px;
+  border-width: 3px;
+  border-style: solid;
+  font-size: 23px;
+  text-decoration: none;
+  position: relative;
+}
+
+.link:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.link:hover:before {
+  opacity: 0.16;
+}

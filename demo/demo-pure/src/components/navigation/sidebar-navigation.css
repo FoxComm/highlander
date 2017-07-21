@@ -1,0 +1,54 @@
+@import "colors.css";
+
+.list {
+  width: 100%;
+}
+
+.item-link {
+  display: block;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 2.33;
+  text-decoration: none;
+  color: var(--link-alt-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.submenu {
+  display: none;
+}
+
+.submenu-open {
+  display: block;
+  position: absolute;
+  top: 50px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--body-background);
+}
+
+.submenu-hovered {
+  top: 0;
+}
+
+.submenu-link-item {
+  display: block;
+  width: 100%;
+  font-size: 18px;
+  line-height: 2.33;
+  text-decoration: none;
+  color: var(--link-alt-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.drawer-columns {
+  lost-column: 11/12;
+  lost-offset: -0.5/12;
+}
+
+.action-link-back {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 17px;
+}

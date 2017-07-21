@@ -1,0 +1,72 @@
+@import "variables.css";
+@import "media-queries.css";
+@import "colors.css";
+
+.list-wrapper {
+  position: relative;
+}
+
+.loader {
+  lost-column: 9/11;
+}
+
+.list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  composes: inner-wrap from 'ui/css/layout.css';
+  lost-column: 11/12;
+  lost-offset: -0.5/12;
+}
+
+.not-found {
+  margin: 80px 0;
+  text-align: center;
+  width: 100%;
+}
+
+.sorting {
+  composes: inner-wrap from 'ui/css/layout.css';
+  margin-bottom: 20px;
+  display: flex;
+  align-items: baseline;
+  lost-column: 10/12;
+  lost-offset: -0.5/12;
+}
+
+.mobile-filter-spacer {
+  flex-grow: 1;
+}
+
+.sidebar-mobile-dofilter {
+  font-family: Lato;
+  font-size: 14px;
+  cursor: pointer;
+  color: #0b7ddc;
+  color: var(--water-blue);
+}
+
+.load-more {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: var(--link-color);
+  cursor: pointer;
+}
+
+@media (--small-only) {
+  .list {
+    lost-column: 1;
+    lost-offset: 0;
+  }
+
+  .sorting {
+    lost-column: 1;
+    lost-offset: 0;
+  }
+
+  .loader {
+    lost-column: 11/11;
+  }
+}
