@@ -1,0 +1,25 @@
+
+@import "typography.css";
+@import "media-queries.css";
+
+.search-icon {
+  width: 31px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: center;
+
+  &::before {
+    content: '\e80d';
+    @apply --icon-ft;
+    color: #c41e3a;
+    font-size: 18px;
+  }
+}
+
+@media (--medium) {
+  .search-icon {
+    display: none;
+  }
+}

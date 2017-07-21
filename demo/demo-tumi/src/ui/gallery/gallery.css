@@ -1,0 +1,23 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.gallery {
+  height: 100%;
+}
+
+.image {
+  height: auto;
+}
+
+:global .image-gallery-left-nav,
+:global .image-gallery-right-nav {
+  font-size: 2em;
+}
+
+:global .image-gallery-fullscreen-button::before,
+:global .image-gallery-play-button::before,
+:global .image-gallery-left-nav::before,
+:global .image-gallery-right-nav::before {
+  color: #222;
+  text-shadow: none;
+}

@@ -1,0 +1,14 @@
+.breadcrumb {
+  color: #666;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+} 
+
+.link {
+  color: #666;
+}
+
+.delimiter {
+  padding: 0 7px;
+}
+

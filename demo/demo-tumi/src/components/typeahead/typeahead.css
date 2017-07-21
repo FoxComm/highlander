@@ -1,0 +1,113 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.block {
+  position: relative;
+}
+
+.searchView {
+  position: static;
+}
+
+/* @todo remove globals from here somehow */
+.block._active :global(.fc-pilled-input__input-container),
+.block._active :global(.fc-pilled-input__input-container:hover) {
+  border-color: #a2dee1 !important;
+}
+
+.block :global(.fc-form-field-label) {
+  display: block;
+}
+
+.block :global(.fc-image-column) {
+  max-width: 50px;
+  max-height: 50px;
+}
+
+.input {
+  flex: 1 1 auto;
+}
+
+.list._search .input {
+  padding-left: 40px;
+}
+
+.input-icon {
+  display: none;
+  color: #bfbfbf;
+  position: absolute;
+  left: 13px;
+  bottom: 11px;
+}
+
+.list._search .input-icon {
+  display: block;
+}
+
+.list {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  z-index: 2;
+}
+
+.list._visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.items {
+  max-height: 375px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--body-background);
+
+  font-size: 12px;
+}
+
+.item {
+  padding: 0;
+  overflow: auto;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.item:last-child {
+  box-shadow: none;
+  border-bottom: none;
+}
+
+.item:hover {
+  background-color: #f7f7f7;
+  cursor: pointer;
+}
+
+.list._modal .item {
+  width: 600px;
+}
+
+.item :global(.fc-grid) {
+  line-height: 20px;
+}
+
+.not-found {
+  padding: 15px 20px;
+}
+
+/* @todo refactor Alert component */
+.need-more-characters {
+  margin-top: 0;
+}
+
+@media (--small-only), (--medium-only) {
+  .items {
+    height: 80vh;
+    max-height: none;
+  }
+
+  .list._modal .item {
+    width: 100%;
+  }
+}

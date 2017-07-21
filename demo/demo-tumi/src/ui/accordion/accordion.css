@@ -1,0 +1,52 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.title {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin: 0;
+  height: 40px;
+  font-weight: 400;
+  font-size: 15px;
+  cursor: pointer;
+
+  &:before {
+    width: 15px;
+    content: "-";
+    font-weight: 700;
+    font-size: 20px;
+  }
+}
+
+.content {
+  overflow: hidden;
+  max-height: 500px;
+  transition: all .3s;
+  border-top: 1px solid #EBEBEB;
+  margin-left: 15px;
+}
+
+.accordion {
+  border-bottom: 2px solid #CCC;
+
+  &._collapsed {
+    & .content {
+      max-height: 0;
+      border-top: none;
+      padding: 0;
+    }
+
+    & .title {
+      &:before {
+        content: "+";
+      }
+    }
+  }
+}
+
+@media (--small-only), (--medium-only) {
+  .title {
+    padding: 15px;
+  }
+}

@@ -1,0 +1,454 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.page {
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50vw;
+  background-size: cover;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url(https://cdn-media.amplience.com/tumi/images/OB-LP_Hero_1280_1600x650.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: -1;
+  }
+}
+
+.orlebar {
+  padding: 2% 6%;
+  overflow: hidden;
+
+  & .orlebar-logo {
+    margin-bottom: 6px;
+    text-align: center;
+
+    & img {
+      width: 30vw;
+    }
+  }
+
+  & .slides {
+    float: left;
+    width: 70%;
+  }
+
+  & .product {
+    float: left;
+    width: 30%;
+    padding-left: 2%;
+  }
+
+  & .product-image img {
+    width: 100%;
+  }
+
+  & .product-title {
+    margin-top: -12px;
+    margin-bottom: 3vw;
+    font-size: 1.5vw;
+    color: var(--soft-grey);
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  & .product-links {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  & .product-link {
+    font-size: 1.2vw;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  & .orlebar-button-shop {
+    display: none;
+    padding: 16px 30px;
+    margin: 0 auto;
+    font-size: 16px;
+    font-weight: 600;
+    background: var(--orange);
+    color: var(--white);
+  }
+}
+
+.print {
+  position: relative;
+  padding: 2% 6% 4%;
+  margin-bottom: 6vw;
+  overflow: hidden;
+
+  & .print-text {
+    float: left;
+    width: 40%;
+    padding-right: 2%;
+    color: var(--soft-grey);
+    text-align: right;
+  }
+
+  & .print-title {
+    font-size: 1.4vw;
+    line-height: 1.5;
+    margin-bottom: 1.2vw;
+  }
+
+  & .print-by {
+    font-size: .8vw;
+  }
+
+  & .print-slides {
+    float: left;
+    width: 60%;
+
+    & .slide {
+      height: 38vw;
+      background-position-x: 60%;
+    }
+  }
+
+  & .print-cover {
+    position: absolute;
+    top: 35%;
+    left: 6%;
+    width: 42%;
+    height: 70%;
+    background-image: url('https://cdn-media.amplience.com/tumi/images/SP17_LS_TUMI OB_4_1400x933.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 1;
+  }
+}
+
+.collections {
+  padding: 2% 6%;
+  display: flex;
+  justify-content: space-between;
+
+  & .collections-title {
+    display: none;
+  }
+
+  & .collection {
+    width: 31%;
+    text-align: center
+  }
+
+  & .collection-image {
+    width: 100%;
+    height: 27vw;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  & .collection-title {
+    font-size: 1.8vw;
+    margin: 1.4vw 0 .8vw;
+    color: var(--soft-grey);
+  }
+
+  & .collection-link {
+    font-size: 1.2vw;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.tribeca {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 41vw;
+  background-size: cover;
+  background-image: url('https://cdn-media.amplience.com/tumi/images/tribeca_lp_herobg_1600x650_1.jpg');
+  border-bottom: .3vw solid var(--yellow);
+  text-align: center;
+  color: var(--white);
+
+  & .tribeca-title {
+    font-size: 1.4vw;
+    letter-spacing: 4px;
+  }
+
+  & .tribeca-title-big {
+    font-size: 3vw;
+    letter-spacing: 15px;
+    margin: 2vw 0 5vw;
+  }
+
+  & .tribeca-more {
+    padding: 1vw 3vw;
+    font-size: 1vw;
+    font-weight: 600;
+    background: var(--white);
+    transition: color .2s;
+
+    &:hover {
+      color: var(--red);
+    }
+  }
+
+  & img {
+    width: 20vw;
+    margin: 3vw 0 2vw;
+  }
+}
+
+.caption {
+  margin-bottom: 30px;
+  font-size: 1.5vw;
+  line-height: 1.2;
+  color: var(--soft-grey);
+  text-align: center;
+}
+
+.slide {
+  position: relative;
+  width: 100%;
+  height: 37vw;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position-y: 55%;
+}
+
+.bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30vw;
+  height: 25vw;
+  background: rgba(255, 255, 255, .95);
+  z-index: 1;
+}
+
+.title {
+  user-select: none;
+  font-size: 3vw;
+  color: var(--blackish);
+}
+
+.text {
+  user-select: none;
+  font-size: 1.5vw;
+  margin: 1vw 0 1.5vw;
+  color: var(--gray);
+}
+
+.link {
+  font-size: 1.1vw;
+  font-weight: 700;
+  color: var(--blackish);
+  padding: 1vw 3vw;
+  border: 3px solid #ccc;
+  transition: color .2s;
+
+  &:hover {
+    color: var(--red);
+  }
+}
+
+.slide:global(.slick-slide) {
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+:global .slick-track {
+  width: 9000px;
+}
+
+:global .slick-arrow {
+  top: inherit;
+  bottom: 2vw;
+  transform: none;
+  z-index: 1;
+
+  &::before {
+    font-family: inherit;
+  }
+}
+
+:global .slick-prev {
+  left: calc(50% - 8vw);
+  transform: translateX(-100%);
+}
+
+:global .slick-next {
+  right: calc(50% - 8vw);
+  transform: translateX(100%);
+}
+
+:global .slick-dots {
+  bottom: 2vw;
+
+  & li {
+    width: auto;
+    height: auto;
+    margin: 0 1vw;
+
+    & button {
+      width: 1.5vw;
+      height: 1.5vw;
+      max-width: 20px;
+      max-height: 20px;
+      border: 2px solid rgba(255, 255, 255, .8);
+      border-radius: 50%;
+      transform: scale(.8);
+      transition: all .2s;
+
+      &::before {
+        content: none;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, .2);
+        transform: scale(1);
+      }
+    }
+  }
+
+  & li:global(.slick-active) button {
+    background: rgba(255, 255, 255, .8);
+    transform: scale(1);
+  }
+}
+
+@media (--small-only) {
+  :global .slick-arrow {
+    bottom: 1.4vw;
+  }
+
+  :global .slick-prev {
+    left: calc(50% - 12vw);
+  }
+
+  :global .slick-next {
+    right: calc(50% - 12vw);
+  }
+
+  :global .slick-arrow::before {
+    font-size: 14px;
+  }
+
+  .slides,
+  .product,
+  .tribeca {
+    display: none;
+  }
+
+  .orlebar {
+    padding-bottom: 240px;
+    margin-bottom: 0;
+    background-color: transparent;
+    background-image: url(https://cdn-media.amplience.com/tumi/images/TUMI_Orlebar_Tote_Group_Horizontal_72dpi.jpg);
+    background-size: 140%;
+    background-repeat: no-repeat;
+    background-position: 50% bottom;
+    text-align: center;
+
+    & .orlebar-logo img {
+      width: 70%;
+      margin-top: 10px;
+    }
+
+    & .orlebar-button-shop {
+      display: inline-block;
+    }
+  }
+
+  .print {
+    margin-bottom: 0;
+
+    & .print-title,
+    & .print-slides,
+    & .print-cover {
+      display: none;
+    }
+
+    & .print-text {
+      width: auto;
+      text-align: center;
+    }
+
+    & .print-by {
+      font-size: 3.4vw;
+    }
+  }
+
+  .caption {
+    font-size: 3.8vw;
+    line-height: 1.4;
+    color: var(--text-color);
+  }
+
+  .collections {
+    flex-direction: column;
+    padding: 0;
+
+    & .collections-title {
+      display: block;
+      padding: 15px 20px;
+      margin: 0;
+      font-size: 6vw;
+      font-weight: 100;
+      text-align: center;
+      color: var(--soft-grey);
+      background: var(--metallic-gray);
+    }
+
+    & .collection {
+      width: auto;
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ebebeb;
+      text-align: left;
+
+      & .collection-image {
+        width: 20vw;
+        height: 15vw;
+        margin-right: 30px;
+        background-size: cover;
+      }
+
+      & .collection-title {
+        display: none;
+      }
+
+      & .collection-link {
+        font-size: 4vw;
+      }
+    }
+  }
+}

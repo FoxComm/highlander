@@ -1,0 +1,155 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.header-base {
+  position: relative;
+  height: 40px;
+  line-height: 40px;
+  font-size: 16px;
+  background: var(--header-background);
+  z-index: 6;
+}
+
+.header {
+  composes: header-base;
+}
+
+.header-wrap {
+  position: fixed;
+  /* should be above 5 because of image-gallery in PDP */
+  z-index: 6;
+  top: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-shadow: 0 2px 1px rgba(167,167,167,.5);
+}
+
+.wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding-left: 15px;
+}
+
+.action-link-menu {
+  composes: action-link from "ui/action-link/action-link.css";
+  height: 40px;
+  transform: translateX(-1000%);
+
+  & :global .icon {
+    width: 26px;
+    height: 40px;
+  }
+}
+
+.logo {
+  width: 124px;
+  height: 47px;
+  margin: 18px 0 10px;
+}
+
+.logo-link-mobile {
+  display: none;
+}
+
+.navigation {
+  width: 100%;
+  transition: all 300ms;
+  background: none;
+  box-shadow: 0 2px 1px rgba(167, 167, 167, .5);
+}
+
+.tools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nav-search-logo-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--body-background);
+}
+
+.searchbar {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: -1;
+  transition: top .3s ease-in-out;
+
+  &:global(._open) {
+    top: 100%;
+  }
+}
+
+@media (--small-only), (--medium-only) {
+  .search {
+    display: none;
+  }
+
+  :global(.icon).logo {
+    width: 75px;
+  }
+}
+
+@media (--small-only) {
+  .searchbar {
+    box-shadow: 0 4px 6px -5px rgba(0, 0, 0, .6);
+  }
+
+  .header-wrap {
+    box-shadow: none;
+  }
+
+  .header-base {
+    height: 60px;
+    background: var(--body-background);
+    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, .3);
+  }
+
+  .navigation {
+    display: none;
+  }
+
+  .logo {
+    width: 94px;
+    height: 37px;
+    margin: 10px 0;
+  }
+
+  .action-link-menu {
+    transform: translateX(0);
+  }
+
+  .logo-link-mobile {
+    display: block;
+  }
+
+  .nav-search-logo-wrapper {
+    display: none;
+  }
+}
+
+@media (--large) {
+  :global(.icon).logo {
+    vertical-align: middle;
+    margin-left: 20px;
+    width: 80px;
+  }
+
+  .search {
+    width: auto;
+    display: flex;
+    align-items: center;
+    margin-top: -4px;
+    margin-left: 30px;
+    margin-right: 20px;
+  }
+
+  .tools {
+    width: auto;
+  }
+}

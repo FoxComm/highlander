@@ -1,0 +1,82 @@
+@import "colors.css";
+
+.facets {
+  top: -17px;
+}
+
+:root {
+  --facet-bottom-gap: 10px;
+}
+
+.facet {
+  --flash-height: 6px;
+  margin: calc(-1 * var(--flash-height)) -15px;
+  padding: var(--flash-height) 15px;
+  margin-bottom: calc(var(--facet-bottom-gap) - var(--flash-height));
+
+  &:last-child {
+    margin-bottom: calc(var(--facet-bottom-gap) - var(--flash-height));
+  }
+}
+
+@keyframes flash-animation {
+  from {
+    background-color: var(--baby-blue);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+.facet-flash {
+  border-radius: 8px;
+  animation: flash-animation 2s ease-in;
+}
+
+.facet-header {
+  display: flex;
+  align-items: baseline;
+}
+
+.facet-name {
+  padding: 6px 0 8px;
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--blackish);
+}
+
+.facet-value {
+  letter-spacing: .04em;
+  flex-grow: 1;
+  font-size: 12px;
+  margin-left: 7px;
+  text-transform: capitalize;
+}
+
+.facet-message {
+  flex-grow: 1;
+  font-size: 12px;
+  line-height: 1.33;
+  color: var(--label-color);
+  margin-left: 17px;
+}
+
+.checkbox-facet {
+}
+
+.circle-facet {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.color-facet {
+  max-width: 200px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.acc-content {
+  padding: 15px 0;
+}

@@ -1,0 +1,131 @@
+/* back-icon, header-text */
+@import "colors.css";
+@import "media-queries.css";
+@import "variables.css";
+
+.cart-box {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 400px;
+  padding: 18px 30px 30px;
+  background: var(--metallic-gray);
+
+  transform: scale(0);
+  transform-origin: 100% 0;
+  opacity: .1;
+  transition: opacity .28s ease-in, transform .3s cubic-bezier(0.23, 0.89, 0.69, 1.07);
+
+  cursor: default;
+  z-index: 3;
+}
+
+.cart-shown .cart-box {
+  transform: scale(1);
+  opacity: 1;
+
+  transition: opacity .18s ease-in, transform .24s cubic-bezier(0.23, 0.89, 0.69, 1.07);
+}
+
+.cart-header {
+  display: flex;
+  align-items: baseline;
+  font-size: 16px;
+  height: 35px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cart-header a {
+  margin-left: 20px;
+  font-size: 11px;
+  text-decoration: underline;
+  color: var(--text-color);
+}
+
+.my-cart {
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-color);
+}
+
+.items-count {
+  margin-right: 10px;
+}
+
+.action-link-cart-close {
+  composes: action-link from "ui/action-link/action-link.css";
+  margin-right: 20px;
+}
+
+.empty-text {
+  padding: 30px 0;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 40px;
+  color: var(--black);
+}
+
+.checkout-button {
+  height: 40px;
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: baseline;
+}
+
+.cart-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+
+  & :global(.fc-errors) {
+    width: 100%;
+  }
+
+  & :global(.fc-alert) {
+    border-radius: 0;
+    margin-top: 0;
+  }
+}
+
+.line-items {
+  height: 100%;
+  color: var(--black);
+  overflow: hidden;
+}
+
+.subtotal-price {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 40px;
+  color: var(--black);
+}
+
+.cart-footer {
+  border-top: 1px solid var(--border-color);
+}
+
+@media (--small-only) {
+  .cart-box {
+    width: 100%;
+  }
+}
+
+@media (--medium), (--large) {
+  .action-link-cart-close {
+    margin-right: 25px;
+  }
+}
+
+@media (--large) {
+  .cart-content {
+    height: calc(100% - 130px);
+  }
+}

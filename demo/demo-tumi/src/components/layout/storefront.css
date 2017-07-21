@@ -1,0 +1,51 @@
+@import "media-queries.css";
+@import "variables.css";
+@import "colors.css";
+
+.container {
+  width: 100%;
+  flex: 1 100%;
+  margin: 0 auto;
+  padding-top: 137px;
+}
+
+.content-container {
+  flex: 1 1 auto;
+  z-index: 0;
+  margin: 0 auto;
+  max-width: var(--max-content-width);
+
+  &.full-width {
+    max-width: none;
+  }
+
+  &:after {
+    display: none;
+  }
+}
+
+.categories {
+  margin-top: 40px;
+}
+
+.mobile-sidebar {
+  display: none;
+}
+
+.overlay {
+  display: none;
+}
+
+@media (--up-to-large) {
+  .mobile-sidebar {
+    display: block;
+    position: relative;
+    z-index: 10;
+  }
+}
+
+@media (--small-only) {
+  .container {
+    padding-top: 60px;
+  }
+}

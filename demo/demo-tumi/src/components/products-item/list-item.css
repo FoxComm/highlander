@@ -1,0 +1,275 @@
+@import "colors.css";
+@import "variables.css";
+@import "media-queries.css";
+
+.list-item {
+  width: calc(33% - 10px);
+  margin: 0 5px 10px;
+  text-align: center;
+  line-height: 19px;
+  font-size: 16px;
+  color: var(--text-color);
+  transition: all 400ms;
+  text-decoration: none;
+  color: #555555;
+  position: relative;
+}
+
+.link {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 0;
+  text-decoration: none;
+  position: relative;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.dark-overlay {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  background: #000;
+  opacity: 0.03;
+}
+
+.link-content {
+}
+
+.preview {
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 30px;
+  height: 302px;
+
+  &:hover .hover-info {
+    opacity: 0.9;
+  }
+
+  &:before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+  }
+}
+
+.preview-hover {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 10px auto;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.link-inner {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &.link-inner-label {
+    height: 24px;
+    margin-bottom: 10px;
+  }
+}
+
+.hover-gallery :global(.image-gallery-image) {
+  padding: 30px;
+  height: 302px;
+}
+
+.hover-gallery {
+  position: relative;
+  overflow: auto;
+  width: 100%;
+  height: 302px;
+}
+
+.hover-inner {
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.hover-info {
+  display: none;
+}
+
+.preview-image {
+  max-width: 260px;
+  margin: 0 auto;
+  width: 100%;
+  height: auto;
+}
+
+.text-block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.title-line {
+  height: 38px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.title {
+  margin: 0;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-color);
+  white-space: pre-line;
+  line-height: 1.1;
+  letter-spacing: .025em;
+}
+
+.subtitle {
+  line-height: 1.25;
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 10px;
+  color: #777;
+  padding-top: 3px;
+  letter-spacing: .06em;
+  margin: 0;
+}
+
+.quick-shop-button {
+  background: #fff;
+  width: 150px;
+  padding: 11px 0;
+  text-aling: center;
+  font-size: 13px;
+  letter-spacing: .025em;
+  font-weight: 600;
+  color: #222;
+  text-transform: capitalize;
+  border: 2px solid #222;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 0;
+  line-height: 1;
+  margin-top: 20px;
+}
+
+.price-line {
+  display: flex;
+  justify-content: space-between;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.price {
+  font-weight: normal;
+  font-size: 14px;
+  color: var(--text-color-main);
+  line-height: 17px;
+}
+
+.on-sale-price,
+.retail-price {
+  display: block;
+}
+
+.on-sale-price {
+  color: var(--text-color-on-sale);
+}
+
+.retail-price {
+  text-decoration: line-through;
+}
+
+.label {
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: .025em;
+  float: left;
+  color: #fff;
+  background: #bbb;
+  text-transform: uppercase;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 10px;
+  margin: 0 0 10px;
+}
+
+.empty-label {
+  height: 24px;
+  line-height: 24px;
+  padding: 0 10px;
+  margin: 0 0 10px;
+}
+
+.color-swatches {
+  height: 16px;
+  width: 100%;
+  margin: 20px 0 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.color-swatch {
+  height: 16px;
+  width: 16px;
+  margin-right: 9px;
+  color: #555;
+  line-height: 16px;
+  font-size: 12px;
+
+  &:hover {
+    text-decoration: underline;
+    color: #555;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+@media (--small-only) {
+  .list-item {
+    lost-column: 1/2;
+  }
+}
+
+@media (--medium-only) {
+  .list-item {
+    lost-column: 1/2;
+  }
+}
+
+@media (--medium) {
+  .on-sale-price,
+  .retail-price {
+    display: inline-block;
+  }
+
+  .retail-price {
+    margin-right: 7px;
+  }
+}
+
+@media (--up-to-large) {
+  .preview-hover {
+    display: none;
+  }
+}

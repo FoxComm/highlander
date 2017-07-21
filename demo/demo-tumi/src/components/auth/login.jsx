@@ -1,0 +1,184 @@
+/* @flow */
+
+import _ from 'lodash';
+import React, { Component, Element } from 'react';
+import { autobind } from 'core-decorators';
+import { Link } from 'react-router';
+import { connect } from 'react-redux';
+
+import { browserHistory } from 'lib/history';
+
+import styles from './auth.css';
+
+import TextInput from 'ui/text-input/text-input';
+import { FormField, Form } from 'ui/forms';
+import Button from 'ui/buttons';
+
+import * as actions from 'modules/auth';
+import { authBlockTypes } from 'paragons/auth';
+import { fetch as fetchCart, saveLineItemsAndCoupons } from 'modules/cart';
+
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
+
+type AuthState = {
+  email: string,
+  password: string,
+  error: ?string,
+};
+
+type Props = Localized & {
+  getPath: Function,
+  isLoading: boolean,
+  authenticate: Function,
+  fetchCart: Function,
+  saveLineItemsAndCoupons: Function,
+  onAuthenticated?: Function,
+  title?: string|Element<*>|null,
+  onSignupClick: Function,
+  mergeGuestCart: boolean,
+};
+
+const mapState = state => ({
+  cart: state.cart,
+  isLoading: _.get(state.asyncActions, ['auth-login', 'inProgress'], false),
+});
+
+class Login extends Component {
+  props: Props;
+
+  state: AuthState = {
+    email: '',
+    password: '',
+    error: null,
+  };
+
+  static defaultProps = {
+    mergeGuestCart: false,
+  };
+
+  @autobind
+  onChangeEmail({target}: any) {
+    this.setState({
+      email: target.value,
+      error: null,
+    });
+  }
+
+  @autobind
+  onChangePassword({target}: any) {
+    this.setState({
+      password: target.value,
+      error: null,
+    });
+  }
+
+  @autobind
+  authenticate() {
+    const { email, password } = this.state;
+    const kind = 'merchant';
+    const auth = this.props.authenticate({email, password, kind}).then(() => {
+      this.props.saveLineItemsAndCoupons(this.props.mergeGuestCart);
+      browserHistory.push(this.props.getPath());
+      this.props.toggleAuthMenu();
+    }, (err) => {
+      const errors = _.get(err, ['responseJson', 'errors'], [err.toString()]);
+
+      const migratedErrorPresent = _.find(errors, (error) => {
+        return error.indexOf('is migrated and has to reset password') >= 0;
+      });
+
+      if (migratedErrorPresent) {
+        browserHistory.push(this.props.getPath(authBlockTypes.FORCE_RESTORE_PASSWORD));
+        return;
+      }
+
+      this.setState({error: 'Email or password is invalid'});
+    });
+
+    if (this.props.onAuthenticated) {
+      auth.then(this.props.onAuthenticated);
+    }
+  }
+
+  @autobind
+  googleAuthenticate(e: any) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.googleSignin().then(() => {
+      this.props.fetchCart();
+    });
+  }
+
+  get title() {
+    const { t, title } = this.props;
+    return title !== null
+      ? <div styleName="title">{title || t('Sign in to your TUMI.com account')}</div>
+      : null;
+  }
+
+  get bottomMessage() {
+    const { props } = this;
+    const { t } = props;
+
+    return (
+      <div styleName="bottom-message">
+        <div styleName="title">{t('New here?')}</div>
+        <Link to={props.getPath(authBlockTypes.SIGNUP)} onClick={props.onSignupClick} styleName="link">
+          {t('Create an Account')}
+        </Link>
+      </div>
+    );
+  }
+
+  render(): Element<*> {
+    const { password, email } = this.state;
+    const { props } = this;
+    const { t, getPath } = props;
+
+    const restoreLink = (
+      <Link to={getPath(authBlockTypes.RESTORE_PASSWORD)} styleName="restore-link">
+        {t('Forgot password?')}
+      </Link>
+    );
+
+    return (
+      <div>
+        {this.title}
+        <Form onSubmit={this.authenticate}>
+          <div styleName="inputs-body">
+            <FormField key="email" styleName="form-field" error={this.state.error}>
+              <TextInput pos="top" label={t('Email')} value={email} type="email" onChange={this.onChangeEmail} />
+            </FormField>
+            <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
+              <TextInput
+                type="password"
+                pos="bottom"
+                styleName="form-field-input"
+                label={t('Password')}
+                value={password}
+                onChange={this.onChangePassword}
+              />
+            </FormField>
+            <div styleName="password-controls">
+              {restoreLink}
+            </div>
+          </div>
+          <Button
+            type="submit"
+            styleName="primary-button"
+            isLoading={this.props.isLoading}
+            children={t('Sign in')}
+          />
+          {this.bottomMessage}
+        </Form>
+      </div>
+    );
+  }
+}
+
+export default connect(mapState, {
+  ...actions,
+  fetchCart,
+  saveLineItemsAndCoupons,
+})(localized(Login));

@@ -1,0 +1,32 @@
+.pager {
+  display: flex;
+  line-height: 40px;
+}
+
+.arrow-icon {
+  width: 10px;
+  height: 10px;
+  color: #000000;
+
+  & :global(.icon__cnt) {
+    display: block;
+  }
+}
+
+._hidden {
+  display: none;
+}
+
+.left-arrow {
+  margin-right: 10px;
+}
+
+.right-arrow {
+  margin-left: 10px;
+}
+
+.delimiter {
+  padding: 0 10px;
+}
+
+.page-text {}

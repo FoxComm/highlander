@@ -1,0 +1,43 @@
+@import "typography.css";
+
+.wrapper {
+  display: inline-block;
+  position: relative;
+}
+
+:root {
+  --dropicon-width: 37px;
+}
+
+.dropdown {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  right: 0;
+  top: 0;
+  pointer-events: none;
+  height: 100%;
+  width: var(--dropicon-width);
+  text-align: center;
+  border-left: 1px solid #ccc;
+
+  &:after {
+    content: '\e801';
+    @apply --icon-ft;
+    font-size: 5px;
+    vertical-align: baseline;
+  }
+}
+
+.select {
+  display: block;
+  width: 100%;
+  min-width: calc(170px + var(--dropicon-width));
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  padding: 10px calc(4px + var(--dropicon-width)) 10px 4px;
+  font-size: 11px;
+}

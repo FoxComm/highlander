@@ -1,0 +1,147 @@
+@import "media-queries.css";
+@import "colors.css";
+@import "typography.css";
+
+.tools {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .025em;
+}
+
+.login {
+  padding: 0 32px;
+  cursor: pointer;
+  transition: all 300ms;
+
+  &.active,
+  &:hover {
+    background: var(--white);
+
+    & .login-link {
+      color: var(--redish);
+    }
+  }
+}
+
+.login-link {
+  display: inline-block;
+  line-height: 30px;
+  text-decoration: none;
+}
+
+.user-info {
+  position: relative;
+}
+
+.username {
+  cursor: pointer;
+  transition: all 300ms;
+
+  &:hover {
+    opacity: .7;
+  }
+}
+
+.menu {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  min-width: 134px;
+  background: var(--body-background);
+  border: 1px solid var(--input-border-color);
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    transform: rotate(39deg) skewX(-10deg);
+    background: var(--body-background);
+    border-color: var(--input-border-color);
+    border-style: solid;
+    border-width: 1px 0 0 1px;
+  }
+}
+
+.menu-link {
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 20px;
+  font-size: 13px;
+  text-decoration: none;
+  color: var(--link-alt-color);
+
+  &:hover {
+    background: var(--select-active-background);
+  }
+}
+
+.cart-quantity {
+  margin-left: 5px;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.action-link-cart {
+  composes: action-link from "ui/action-link/action-link.css";
+  min-width: 50px;
+  text-align: center;
+  background: var(--red);
+  color: var(--white);
+  text-decoration: none;
+}
+
+.cart-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+
+  &::before {
+    content: '\e80b';
+    @apply --icon-ft;
+    color: #c41e3a;
+    font-size: 18px;
+  }
+}
+
+@media (--medium) {
+  .cart-icon {
+    height: 40px;
+
+    &::before {
+      color: #fff;
+    }
+  }
+}
+
+@media (--small-only) {
+  .login,
+  .menu {
+    display: none;
+  }
+
+  .username {
+    cursor: default;
+  }
+
+  .action-link-cart {
+    height: 60px;
+    background: var(--white);
+    color: var(--red);
+  }
+
+  .cart-quantity {
+    line-height: 60px;
+    color: var(--soft-grey);
+  }
+}
