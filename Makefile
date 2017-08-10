@@ -28,4 +28,7 @@ provision:
 publish:
 	cd developer-portal && make publish
 
-.PHONY: prepare config up destroy provision publish
+restart-apps:
+	ansible-playbook -v tabernacle/ansible/restart_marathon_apps.yml
+
+.PHONY: prepare config up destroy provision publish restart-apps

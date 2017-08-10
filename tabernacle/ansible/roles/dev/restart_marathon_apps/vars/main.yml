@@ -1,0 +1,47 @@
+marathon_apps:
+  # core-backend group
+    isaac: "{{ lookup('env', 'ISAAC_RESTART') | default(false) }}"
+    middlewarehouse: "{{ lookup('env', 'MIDDLEWAREHOUSE_RESTART') | default(false) }}"
+    phoenix: "{{ lookup('env', 'PHOENIX_RESTART') | default(false) }}"
+    solomon: "{{ lookup('env', 'SOLOMON_RESTART') | default(false) }}"
+
+  # core-consumers group
+    capture-consumer: "{{ lookup('env', 'CAPTURE_RESTART') | default(false) }}"
+    customer-groups-consumer: "{{ lookup('env', 'CG_RESTART') | default(false) }}"
+    gift-card-consumer: "{{ lookup('env', 'GC_RESTART') | default(false) }}"
+    green-river: "{{ lookup('env', 'GREEN_RIVER_RESTART') | default(false) }}"
+    shipments-consumer: "{{ lookup('env', 'SHIPMENTS_RESTART') | default(false) }}"
+
+  # core-frontend group
+    ashes: "{{ lookup('env', 'ASHES_RESTART') | default(false) }}"
+    peacock: "{{ lookup('env', 'PEACOCK_RESTART') | default(false) }}"
+    perfect-gourmet: "{{ lookup('env', 'TPG_RESTART') | default(false) }}"
+    top-drawer: "{{ lookup('env', 'TD_RESTART') | default(false) }}"
+
+  # core-integrations group
+    geronimo: "{{ lookup('env', 'GERONIMO_RESTART') | default(false) }}"
+    messaging: "{{ lookup('env', 'MESSAGING_RESTART') | default(false) }}"
+    hyperion: "{{ lookup('env', 'HYPERION_RESTART') | default(false) }}"
+
+  # ic-backend group
+    anthill: "{{ lookup('env', 'ANTHILL_RESTART') | default(false) }}"
+    bernardo: "{{ lookup('env', 'BERNARDO_RESTART') | default(false) }}"
+    eggcrate: "{{ lookup('env', 'EGGCRATE_RESTART') | default(false) }}"
+    river-rock: "{{ lookup('env', 'RIVER_ROCK_RESTART') | default(false) }}"
+
+  # ic-consumers group
+    digger-sphex-consumer: "{{ lookup('env', 'DIGGER_SPHEX_RESTART') | default(false) }}"
+    orders-anthill: "{{ lookup('env', 'ORDERS_ANTHILL_RESTART') | default(false) }}"
+    orders-reviews: "{{ lookup('env', 'ORDERS_REVIEWS_RESTART') | default(false) }}"
+    orders-sphex: "{{ lookup('env', 'ORDERS_SPHEX_RESTART') | default(false) }}"
+    product-activity: "{{ lookup('env', 'PRODUCT_ACTIVITY_RESTART') | default(false) }}"
+
+  # ic-hooks group
+    neo4j-reset: "{{ lookup('env', 'NEO4J_RESET_RESTART') | default(false) }}"
+
+  # ic-integrations group
+    suggester: "{{ lookup('env', 'SUGGESTER_RESTART') | default(false) }}"
+
+  # ic-storage group
+    henhouse: "{{ lookup('env', 'HENHOUSE_RESTART') | default(false) }}"
+    neo4j: "{{ lookup('env', 'NEO4J_RESTART') | default(false) }}"
