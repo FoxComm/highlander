@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import Errors from 'components/utils/errors';
@@ -28,7 +28,7 @@ class ErrorsExample extends React.Component {
 
   render() {
     return (
-      <div className="demo-blocked">
+      <div className="demo">
         <Errors
           errors={['Bad gateway', 'Good gateway', 'not found', 'not found']}
           sanitizeError={error => error + '!'}

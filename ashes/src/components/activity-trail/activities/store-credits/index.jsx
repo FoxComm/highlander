@@ -6,7 +6,7 @@ import types from '../base/types';
 // components
 import GiftCardLink from '../base/gift-card-link';
 import CordTarget from '../base/cord-target';
-import Currency from '../../../common/currency';
+import Currency from 'components/utils/currency';
 import Title from '../base/title';
 
 const representatives = {

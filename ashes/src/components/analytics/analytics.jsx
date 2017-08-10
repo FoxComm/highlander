@@ -12,7 +12,7 @@ import Spinner from 'components/core/spinner';
 import { ApiErrors } from 'components/utils/errors';
 import QuestionBoxList from './question-box-list';
 import type { Props as QuestionBoxType } from './question-box';
-import Currency from '../common/currency';
+import Currency from 'components/utils/currency';
 import TrendButton, { TrendType } from './trend-button';
 import StaticColumnSelector from './static-column-selector';
 import { Dropdown } from '../dropdown';

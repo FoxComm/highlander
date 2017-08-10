@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .alert {
   position: relative;
@@ -10,8 +10,7 @@
 }
 
 .message {
-  font-size: 13px;
-  line-height: 18px;
+  font: var(--font-body);
   flex: 1 1 auto;
 }
 

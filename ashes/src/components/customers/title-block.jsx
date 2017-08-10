@@ -5,13 +5,11 @@ import PropTypes from 'prop-types';
 
 // components
 import Icon from 'components/core/icon';
+import { DateTime } from 'components/utils/datetime';
+import Currency from 'components/utils/currency';
 
 //styles
 import styles from './title-block.css';
-
-//components
-import Currency from '../common/currency';
-import { DateTime } from 'components/common/datetime';
 
 export default class Customer extends React.Component {
   static propTypes = {

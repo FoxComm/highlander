@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .selectable-list {
   background-color: var(--bg-white);

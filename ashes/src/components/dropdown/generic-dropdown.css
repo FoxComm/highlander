@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import 'variables.css';
 
 .block {
   &:focus {
@@ -21,8 +21,6 @@
   /* Fucks up the gear icon/button that toggles the columns for tables in Chrome 58.03 for linux */
 
   /* padding: 0 10px !important; */
-
-  padding-top: 11px !important;
 
   &:active {
     box-shadow: none !important;

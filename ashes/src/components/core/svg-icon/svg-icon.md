@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import SvgIcon from 'components/core/svg-icon';

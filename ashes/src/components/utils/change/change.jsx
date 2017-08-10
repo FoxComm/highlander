@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import { identity } from 'lodash';
 import classNames from 'classnames';
 import React from 'react';
 
@@ -10,6 +11,8 @@ import s from './change.css';
 type Props = {
   /** value of change */
   value: number,
+  /** value formatting function */
+  format?: (value: number) => string
 };
 
 /**
@@ -17,15 +20,14 @@ type Props = {
  *
  * @function Change
  */
-const Change = (props: Props) => {
-  const { value } = props;
+const Change = ({ value, format = identity }: Props) => {
 
   const cls = classNames(s.change, {
     [s.positive]: value > 0,
     [s.negative]: value < 0,
   });
 
-  return <span className={cls}>{Math.abs(value)}</span>;
+  return <span className={cls}>{format(Math.abs(value))}</span>;
 };
 
 export default Change;

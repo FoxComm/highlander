@@ -1,4 +1,4 @@
-@import "colors.css";
+@import "variables.css";
 
 .change {
   &::before {
@@ -8,7 +8,7 @@
   }
 
   &.positive {
-    color: var(--color-action-text);
+    color: var(--color-link);
 
     &::before {
       content: "+";

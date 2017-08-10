@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import Change from 'components/utils/change';
@@ -8,9 +8,9 @@ import Change from 'components/utils/change';
 
 ### States
 ```
-<div className="demo" >
-  <Change value={2} /><br />
-  <Change value={-2} /><br />
-  <Change value={0} /><br />
+<div className="demo-inline" >
+  <Change value={2} />
+  <Change value={-2} />
+  <Change value={0} />
 </div>
 ```

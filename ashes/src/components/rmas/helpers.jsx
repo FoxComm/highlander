@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'components/link';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
-import { DateTime } from '../common/datetime';
-import Currency from '../common/currency';
+import { DateTime } from 'components/utils/datetime';
+import Currency from 'components/utils/currency';
 import PaymentMethod from '../../components/payment/payment-method';
 
 const CustomerInfo = props => {

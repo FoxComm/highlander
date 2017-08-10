@@ -34,5 +34,14 @@
 
   /* all other background colors are damned! */
 
+  /* allowed fonts */
+  --font-page-title: 300 30px/41px 'Open Sans';
+  --font-section-title: 600 16px/22px 'Open Sans';
+  --font-labels: 600 14px/20px 'Open Sans';
+  --font-nav: 400 14px/20px 'Open Sans';
+  --font-body: 400 13px/18px 'Open Sans';
+
+  /* all other background colors are damned! */
+
   --decor24: #ffbb3c;
 }

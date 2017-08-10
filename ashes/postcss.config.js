@@ -31,9 +31,9 @@ const plugins = [
   require('postcss-import')({
     path: ['src/css', 'node_modules'],
   }),
-  require('postcss-assets')({
-    loadPaths: ['src/images/'],
-  }),
+  require('postcss-url')({ url: 'inline', maxSize: 4 }),
+  // @todo remove second `postcss-url` after https://github.com/postcss/postcss-url/issues/104
+  require('postcss-url')({ url: 'rebase', to: './src' }),
 
   require('postcss-cssnext')({
     features: {
@@ -51,4 +51,10 @@ const plugins = [
   }),
 ];
 
-exports.plugins = plugins;
+// uncomment and then
+// ./node_modules/.bin/postcss-debug -c ./postcss.config.js ./styleguide/styleguide.css
+// module.exports = function(postcss) {
+//   return postcss(plugins);
+// };
+
+module.exports.plugins = plugins;

@@ -1,4 +1,4 @@
-#### Basic usage
+##### Basic usage
 
 ```javascript
 import ConfirmationModal from 'components/core/confirmation-modal';

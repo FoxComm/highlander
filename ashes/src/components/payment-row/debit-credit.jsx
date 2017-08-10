@@ -2,7 +2,7 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
-import Currency from 'components/common/currency';
+import Currency from 'components/utils/currency';
 import CurrencyInput from 'components/forms/currency-input';
 import { Form, FormField } from 'components/forms';
 import SaveCancel from 'components/core/save-cancel';

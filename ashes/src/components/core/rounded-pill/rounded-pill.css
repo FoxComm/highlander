@@ -1,13 +1,12 @@
 @import 'common.css';
-@import 'colors.css';
+@import 'variables.css';
 
 .main {
   display: inline-flex;
   align-items: stretch;
   vertical-align: top;
   min-height: 32px;
-  font-size: 12px;
-  line-height: 16px;
+  font: var(--font-body);
   color: var(--color-light-text);
   background-color: var(--bg-nav-main);
   border-radius: 16px;
@@ -38,21 +37,21 @@
 }
 
 .label {
-  padding: 8px 15px;
+  padding: 7px 14px;
   border-radius: 17px;
   transition: background .2s;
 
   .closable & {
     border-radius: 17px 0 0 17px;
   }
+
+  .main.closable & {
+    padding-right: 8px;
+    padding-left: 10px;
+  }
 }
 
 .main.clickable:not(.loading) .label:hover {
   background-color: var(--bg-nav-active);
   cursor: pointer;
-}
-
-.main.closable .label {
-  padding-right: 8px;
-  padding-left: 10px;
 }

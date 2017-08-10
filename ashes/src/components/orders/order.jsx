@@ -10,7 +10,7 @@ import { allowedStateTransitions } from '../../paragons/order';
 // components
 import { Dropdown } from '../dropdown';
 import RemorseTimer from './remorseTimer';
-import { DateTime } from '../common/datetime';
+import { DateTime } from 'components/utils/datetime';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
