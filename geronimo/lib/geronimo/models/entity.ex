@@ -10,14 +10,16 @@ defmodule Geronimo.Entity do
   use Geronimo.Kafka.Avro
 
   @derive {Poison.Encoder, only: [:id, :kind, :content, :schema_version,
-                                  :content_type_id, :created_by, :inserted_at, :updated_at, :versions, :scope]}
+                                  :content_type_id, :created_by, :inserted_at, :updated_at, :versions,
+                                  :scope, :storefront]}
 
-  @required_params [:content, :kind, :content_type_id, :created_by, :schema_version, :scope]
+  @required_params [:content, :kind, :content_type_id, :created_by, :schema_version, :scope, :storefront]
   @optional_params []
 
   schema "entities" do
     field :kind, :string
     field :content, :map
+    field :storefront, :string
     field :schema_version, :utc_datetime
     field :content_type_id, :integer
     field :created_by, :integer
@@ -32,15 +34,15 @@ defmodule Geronimo.Entity do
     |> validate_required(@required_params)
   end
 
-  def create({:ok, params}, content_type = %ContentType{}, user = %Geronimo.User{}) do
+  def create({:ok, params}, content_type = %ContentType{}, storefront, user = %Geronimo.User{}) do
     prms = Map.merge(%{content: params}, %{schema_version: content_type.updated_at,
                                kind: content_type.name,
                                content_type_id: content_type.id,
-                               created_by: user.id, scope: user.scope})
+                               created_by: user.id, scope: user.scope, storefront: storefront})
     Repo.transaction(fn ->
       case Repo.insert(changeset(%Geronimo.Entity{}, prms)) do
         {:ok, record} ->
-          Geronimo.Kafka.Worker.push_async(table(), record)
+          Geronimo.Kafka.Pusher.push_async(__MODULE__, record)
           record
         {_, changes} ->
           Repo.rollback(changes)
@@ -49,7 +51,7 @@ defmodule Geronimo.Entity do
     end)
   end
 
-  def create(errors, _, _) when is_list(errors), do: wrap_errors(errors)
+  def create(errors, _, _, _) when is_list(errors), do: wrap_errors(errors)
 
   def update(id, prms = {:ok, params}, user = %Geronimo.User{}) when is_tuple(prms) do
     {:ok, row} = get(id, user.scope)
@@ -58,6 +60,7 @@ defmodule Geronimo.Entity do
     Repo.transaction(fn ->
       case Repo.update(changes)  do
         {:ok, record} ->
+          Geronimo.Kafka.Pusher.push_async(__MODULE__, record)
           Map.merge(record, %{versions: get_versions(record.id)})
         {:error, changeset} ->
           Repo.rollback(changeset)
@@ -69,7 +72,7 @@ defmodule Geronimo.Entity do
   def update(_id, errors, _user) when is_list(errors), do: wrap_errors(errors)
 
   def version_fields do
-    "id, content, kind, schema_version, content_type_id, inserted_at, updated_at"
+    "id, content, kind, schema_version, storefront, content_type_id, inserted_at, updated_at"
   end
 
   def content_field, do: :content
@@ -88,6 +91,7 @@ defmodule Geronimo.Entity do
       "kind" =>            entity.kind,
       "created_by" =>      entity.created_by,
       "id" =>              entity.id,
+      "storefront" =>      entity.storefront,
       "inserted_at" =>     Timex.format!(entity.inserted_at, "%FT%T.%fZ", :strftime),
       "updated_at" =>      Timex.format!(entity.updated_at, "%FT%T.%fZ", :strftime),
       "schema_version" =>  Timex.format!(entity.schema_version, "%FT%T.%fZ", :strftime),

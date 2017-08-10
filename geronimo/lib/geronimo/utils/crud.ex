@@ -33,7 +33,7 @@ defmodule Geronimo.Crud do
         Repo.transaction(fn ->
           case Repo.insert(changeset(apply(__MODULE__, :__struct__, []), payload)) do
             {:ok, record} ->
-              Geronimo.Kafka.Worker.push_async(table(), record)
+              Geronimo.Kafka.Pusher.push_async(__MODULE__, record)
               record
             {_, changes} -> Repo.rollback(changes)
           end
@@ -88,7 +88,9 @@ defmodule Geronimo.Crud do
       defp apply_change(changeset) do
         Repo.transaction(fn  ->
           case Repo.update(changeset)  do
-            {:ok, record} -> Map.merge(record, %{versions: get_versions(record.id)})
+            {:ok, record} ->
+              Geronimo.Kafka.Pusher.push_async(__MODULE__, record)
+              Map.merge(record, %{versions: get_versions(record.id)})
             {:error, changeset} ->
               Repo.rollback(changeset)
               {:error, changeset}

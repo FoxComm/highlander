@@ -1,0 +1,23 @@
+[
+  {
+    "request": {
+      "body": "{\"schema\":\"wrong!\"}",
+      "headers": [],
+      "method": "post",
+      "options": [],
+      "request_body": "",
+      "url": "http://127.0.0.1:8081/subjects/entities-key/versions"
+    },
+    "response": {
+      "body": "{\"error_code\":42201,\"message\":\"Input schema is an invalid Avro schema\"}",
+      "headers": {
+        "Date": "Fri, 23 Jun 2017 05:38:25 GMT",
+        "Content-Type": "application/vnd.schemaregistry.v1+json",
+        "Content-Length": "71",
+        "Server": "Jetty(9.2.12.v20150709)"
+      },
+      "status_code": 422,
+      "type": "ok"
+    }
+  }
+]

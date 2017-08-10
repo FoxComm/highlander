@@ -1,0 +1,23 @@
+[
+  {
+    "request": {
+      "body": "",
+      "headers": [],
+      "method": "get",
+      "options": [],
+      "request_body": "",
+      "url": "http://127.0.0.1:8081/subjects/entities-key/versions/112121212"
+    },
+    "response": {
+      "body": "{\"error_code\":40402,\"message\":\"Version not found.\"}",
+      "headers": {
+        "Date": "Fri, 23 Jun 2017 05:38:24 GMT",
+        "Content-Type": "application/vnd.schemaregistry.v1+json",
+        "Content-Length": "51",
+        "Server": "Jetty(9.2.12.v20150709)"
+      },
+      "status_code": 404,
+      "type": "ok"
+    }
+  }
+]
