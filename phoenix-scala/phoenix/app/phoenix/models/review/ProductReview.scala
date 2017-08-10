@@ -10,6 +10,8 @@ import core.utils.Validation
 import phoenix.utils.aliases.Json
 import core.db._
 import core.db.ExPostgresDriver.api._
+import phoenix.models.account.User
+import phoenix.models.inventory.{Sku, Skus}
 
 case class ProductReview(id: Int = 0,
                          scope: LTree,
@@ -41,8 +43,11 @@ object ProductReviews
     extends FoxTableQuery[ProductReview, ProductReviews](new ProductReviews(_))
     with ReturningId[ProductReview, ProductReviews] {
 
-  def findOneByUserAndSku(userId: Int, skuId: Int): DBIO[Option[ProductReview]] =
+  def findOneByUserAndSku(userId: User#Id, skuId: Sku#Id): DBIO[Option[ProductReview]] =
     filter(_.userId === userId).filter(_.skuId === skuId).result.headOption
+
+  def findAllWithSkusByUser(userId: User#Id): DBIO[Seq[(ProductReview, Sku)]] =
+    filter(_.userId === userId).join(Skus).on(_.skuId === _.id).result
 
   val returningLens: Lens[ProductReview, Int] = lens[ProductReview].id
 }
