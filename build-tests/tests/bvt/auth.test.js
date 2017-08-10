@@ -1,11 +1,11 @@
-import test from '../helpers/test';
-import { CustomerApi, AdminApi } from '../helpers/Api';
-import isString from '../helpers/isString';
-import isNumber from '../helpers/isNumber';
-import isDate from '../helpers/isDate';
-import $ from '../payloads';
+import test from '../../helpers/test';
+import { CustomerApi, AdminApi } from '../../helpers/Api';
+import isString from '../../helpers/isString';
+import isNumber from '../../helpers/isNumber';
+import isDate from '../../helpers/isDate';
+import $ from '../../payloads';
 
-test('Can sign up', async (t) => {
+test('[bvt] Can sign up', async (t) => {
   const api = new CustomerApi(t);
   const { email, name, password } = $.randomUserCredentials();
   const signupResponse = await api.auth.signup(email, name, password);
@@ -23,7 +23,7 @@ test('Can sign up', async (t) => {
   t.is(signupResponse.user.storeCreditTotals.currentBalance, 0);
 });
 
-test('Can sign in as customer', async (t) => {
+test('[bvt] Can sign in as customer', async (t) => {
   const api = new CustomerApi(t);
   const { email, name, password } = $.randomUserCredentials();
   await api.auth.signup(email, name, password);
@@ -33,7 +33,7 @@ test('Can sign in as customer', async (t) => {
   t.is(loginResponse.user.email, email, 'Email in login response doesn\'t match real user email.');
 });
 
-test('Can sign in as admin', async (t) => {
+test('[bvt] Can sign in as admin', async (t) => {
   const api = new AdminApi(t);
   const loginResponse = await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   t.truthy(loginResponse.jwt, 'Login response should have a "jwt" field.');
@@ -41,7 +41,7 @@ test('Can sign in as admin', async (t) => {
   t.truthy(loginResponse.user && loginResponse.user.email, 'Login response should have an "user.email" field.');
 });
 
-test('Can\'t sign in as admin with a customer org', async (t) => {
+test('[bvt] Can\'t sign in as admin with a customer org', async (t) => {
   const api = new AdminApi(t);
   try {
     await api.auth.login($.adminEmail, $.adminPassword, $.customerOrg);
@@ -57,13 +57,13 @@ test('Can\'t sign in as admin with a customer org', async (t) => {
   }
 });
 
-test('Can sign out', async (t) => {
+test('[bvt] Can sign out', async (t) => {
   const api = new CustomerApi(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   await api.auth.logout();
 });
 
-test('Can view customer account details', async (t) => {
+test('[bvt] Can view customer account details', async (t) => {
   const api = new CustomerApi(t);
   const { email, name, password } = $.randomUserCredentials();
   const signupResponse = await api.auth.signup(email, name, password);

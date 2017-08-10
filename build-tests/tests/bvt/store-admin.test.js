@@ -1,12 +1,12 @@
-import test from '../helpers/test';
-import { AdminApi } from '../helpers/Api';
-import isNumber from '../helpers/isNumber';
-import isString from '../helpers/isString';
-import isArray from '../helpers/isArray';
-import isDate from '../helpers/isDate';
-import $ from '../payloads';
+import test from '../../helpers/test';
+import { AdminApi } from '../../helpers/Api';
+import isNumber from '../../helpers/isNumber';
+import isString from '../../helpers/isString';
+import isArray from '../../helpers/isArray';
+import isDate from '../../helpers/isDate';
+import $ from '../../payloads';
 
-test('Can list store admins', async (t) => {
+test('[bvt] Can list store admins', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const storeAdmins = await adminApi.storeAdmins.list();
   t.truthy(isArray(storeAdmins));
@@ -21,7 +21,7 @@ test('Can list store admins', async (t) => {
   }
 });
 
-test('Can view store admin details', async (t) => {
+test('[bvt] Can view store admin details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const storeAdmins = await adminApi.storeAdmins.list();
   const storeAdmin = await adminApi.storeAdmins.one(storeAdmins[0].id);
@@ -31,7 +31,7 @@ test('Can view store admin details', async (t) => {
   t.truthy(isString(storeAdmin.state));
 });
 
-test('Can create a new store admin', async (t) => {
+test('[bvt] Can create a new store admin', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomStoreAdminPayload();
   const newStoreAdmin = await adminApi.storeAdmins.create(payload);
@@ -41,7 +41,7 @@ test('Can create a new store admin', async (t) => {
   t.is(newStoreAdmin.email, payload.email);
 });
 
-test('Can update store admin details', async (t) => {
+test('[bvt] Can update store admin details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newStoreAdmin = await adminApi.storeAdmins.create($.randomStoreAdminPayload());
   const payload = $.randomStoreAdminPayload();

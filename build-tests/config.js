@@ -38,11 +38,11 @@ export default {
     fullApiSequenceLogging: false,
   },
   'STAGE-TD': {
-    apiUrl: 'https://td-prod.foxcommerce.com',
+    apiUrl: 'https://td-stage.foxcommerce.com',
     storefronts: [
       {
         name: 'TD',
-        url: 'https://td-prod.foxcommerce.com/',
+        url: 'https://td-stage.foxcommerce.com/',
         categories: TD_CATEGORIES,
       },
     ],
@@ -51,18 +51,18 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-  'APPLIANCE-AEMXDP': {
-    apiUrl: 'https://appliance-10-240-0-51.foxcommerce.com',
+  'TEST': {
+    apiUrl: 'https://test.foxcommerce.com',
     storefronts: [
       {
         name: 'TPG',
-        url: 'https://appliance-10-240-0-51.foxcommerce.com/perfect-gourmet',
+        url: 'https://test.foxcommerce.com/perfect-gourmet',
         categories: TPG_CATEGORIES,
         aboutPagePath: 'about',
       },
       {
         name: 'TD',
-        url: 'https://appliance-10-240-0-51.foxcommerce.com/top-drawer',
+        url: 'https://test.foxcommerce.com/top-drawer',
         categories: TD_CATEGORIES,
       },
     ],
@@ -71,4 +71,44 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-}[process.env['BVT_ENV'] || 'APPLIANCE-AEMXDP'];
+  'FEATURE-BRANCH-APPLE': {
+    apiUrl: 'https://feature-branch-apple.foxcommerce.com',
+    storefronts: [
+      {
+        name: 'TPG',
+        url: 'https://feature-branch-apple.foxcommerce.com/perfect-gourmet',
+        categories: TPG_CATEGORIES,
+        aboutPagePath: 'about',
+      },
+      {
+        name: 'TD',
+        url: 'https://feature-branch-apple.foxcommerce.com/top-drawer',
+        categories: TD_CATEGORIES,
+      },
+    ],
+    stripeKey: 'pk_test_JvTXpI3DrkV6QwdcmZarmlfk',
+    networkErrorRetries: 4,
+    testGiftCardFlow: false,
+    fullApiSequenceLogging: false,
+  },
+  'APPLIANCE-KANGAROOS': {
+    apiUrl: 'https://appliance-10-240-0-7.foxcommerce.com',
+    storefronts: [
+      {
+        name: 'TPG',
+        url: 'https://appliance-10-240-0-7.foxcommerce.com/perfect-gourmet',
+        categories: TPG_CATEGORIES,
+        aboutPagePath: 'about',
+      },
+      {
+        name: 'TD',
+        url: 'https://appliance-10-240-0-7.foxcommerce.com/top-drawer',
+        categories: TD_CATEGORIES,
+      },
+    ],
+    stripeKey: 'pk_test_JvTXpI3DrkV6QwdcmZarmlfk',
+    networkErrorRetries: 4,
+    testGiftCardFlow: false,
+    fullApiSequenceLogging: false,
+  },
+}[process.env['BVT_ENV']];

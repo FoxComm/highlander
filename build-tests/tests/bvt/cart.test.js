@@ -1,14 +1,15 @@
-import test from '../helpers/test';
-import createCreditCard from '../helpers/createCreditCard';
-import placeRandomOrder from '../helpers/placeRandomOrder';
-import { AdminApi, CustomerApi } from '../helpers/Api';
-import isArray from '../helpers/isArray';
-import isString from '../helpers/isString';
-import isNumber from '../helpers/isNumber';
-import isDate from '../helpers/isDate';
-import $ from '../payloads';
+/* eslint-disable no-trailing-spaces */
+import test from '../../helpers/test';
+import createCreditCard from '../../helpers/createCreditCard';
+import placeRandomOrder from '../../helpers/placeRandomOrder';
+import { AdminApi, CustomerApi } from '../../helpers/Api';
+import isArray from '../../helpers/isArray';
+import isString from '../../helpers/isString';
+import isNumber from '../../helpers/isNumber';
+import isDate from '../../helpers/isDate';
+import $ from '../../payloads';
 
-test('Can add line item', async (t) => {
+test('[bvt] Can add line item', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct = await adminApi.products.create('default', productPayload);
@@ -27,7 +28,7 @@ test('Can add line item', async (t) => {
   // t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can update line item', async (t) => {
+test('[bvt] Can update line item', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct = await adminApi.products.create('default', productPayload);
@@ -47,7 +48,7 @@ test('Can update line item', async (t) => {
   // t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can remove line item', async (t) => {
+test('[bvt] Can remove line item', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct = await adminApi.products.create('default', productPayload);
@@ -63,7 +64,7 @@ test('Can remove line item', async (t) => {
   t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can set shipping address', async (t) => {
+test('[bvt] Can set shipping address', async (t) => {
   const customerApi = await CustomerApi.loggedIn(t);
   await customerApi.cart.get();
   const payload = $.randomCreateAddressPayload();
@@ -81,7 +82,7 @@ test('Can set shipping address', async (t) => {
   t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can list available shipping methods', async (t) => {
+test('[bvt] Can list available shipping methods', async (t) => {
   const customerApi = await CustomerApi.loggedIn(t);
   await customerApi.cart.get();
   await customerApi.cart.setShippingAddress($.randomCreateAddressPayload());
@@ -95,7 +96,7 @@ test('Can list available shipping methods', async (t) => {
   }
 });
 
-test('Can choose shipping method', async (t) => {
+test('[bvt] Can choose shipping method', async (t) => {
   const customerApi = await CustomerApi.loggedIn(t);
   await customerApi.cart.get();
   await customerApi.cart.setShippingAddress($.randomCreateAddressPayload());
@@ -107,7 +108,7 @@ test('Can choose shipping method', async (t) => {
   t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can apply credit card', async (t) => {
+test('[bvt] Can apply credit card', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -132,7 +133,7 @@ test('Can apply credit card', async (t) => {
   t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can remove credit card', async (t) => {
+test('[bvt] Can remove credit card', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -150,7 +151,7 @@ test('Can remove credit card', async (t) => {
   t.deepEqual(foundOrder, fullOrderAfterRemovingCC);
 });
 
-test('Can apply gift card', async (t) => {
+test('[bvt] Can apply gift card', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const giftCardPayload = $.randomGiftCardPayload();
   const newGiftCard = await adminApi.giftCards.create(giftCardPayload);
@@ -171,7 +172,7 @@ test('Can apply gift card', async (t) => {
   t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can remove gift card', async (t) => {
+test('[bvt] Can remove gift card', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const giftCardPayload = $.randomGiftCardPayload();
   const newGiftCard = await adminApi.giftCards.create(giftCardPayload);
@@ -188,7 +189,7 @@ test('Can remove gift card', async (t) => {
   t.deepEqual(foundOrder, fullOrderAfterRemovingGC);
 });
 
-test('Can apply store credit', async (t) => {
+test('[bvt] Can apply store credit', async (t) => {
   const customerApi = await CustomerApi.loggedIn(t);
   const adminApi = await AdminApi.loggedIn(t);
   const storeCreditPayload = $.randomStoreCreditPayload();
@@ -208,7 +209,7 @@ test('Can apply store credit', async (t) => {
   t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can remove store credit', async (t) => {
+test('[bvt] Can remove store credit', async (t) => {
   const customerApi = await CustomerApi.loggedIn(t);
   const adminApi = await AdminApi.loggedIn(t);
   const storeCreditPayload = $.randomStoreCreditPayload();
@@ -225,7 +226,7 @@ test('Can remove store credit', async (t) => {
   t.deepEqual(foundOrder, fullOrderAfterRemovingSC);
 });
 
-test('Can apply coupon', async (t) => {
+test('[bvt] Can apply coupon', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const context = 'default';
   const newPromotion = await adminApi.promotions.create(context, $.randomCreatePromotionPayload());
@@ -249,7 +250,7 @@ test('Can apply coupon', async (t) => {
   t.deepEqual(foundOrder, fullOrder);
 });
 
-test('Can remove coupon', async (t) => {
+test('[bvt] Can remove coupon', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const context = 'default';
   const newPromotion = await adminApi.promotions.create(context, $.randomCreatePromotionPayload());
@@ -275,7 +276,7 @@ test('Can remove coupon', async (t) => {
   // t.deepEqual(foundOrder, fullOrderAfterRemovingCoupon);
 });
 
-test('Can checkout a cart', async (t) => {
+test('[bvt] Can checkout a cart', async (t) => {
   const { fullOrder, newCard, newCustomer } = await placeRandomOrder(t);
   t.is(fullOrder.paymentState, 'auth');
   t.is(fullOrder.orderState, 'remorseHold');

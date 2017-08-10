@@ -1,10 +1,9 @@
 build:
 	npm install
 
-test:
-	./node_modules/.bin/ava --verbose --concurrency=3 > results.txt 2>&1
+test-bvt:
+	rm -rf allure-report allure-results
+	./node_modules/mocha/bin/mocha --compilers js:babel-core/register 'test/*' --reporter mocha-allure-reporter
 
 report:
-	rm -rf allure-report allure-results
-	node make-allure-report.js results.txt
 	allure generate allure-results

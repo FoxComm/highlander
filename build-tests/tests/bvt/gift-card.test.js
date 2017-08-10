@@ -1,15 +1,15 @@
-import test from '../helpers/test';
+import test from '../../helpers/test';
 import testNotes from './testNotes';
-import { AdminApi, CustomerApi } from '../helpers/Api';
-import createCreditCard from '../helpers/createCreditCard';
-import waitFor from '../helpers/waitFor';
-import isNumber from '../helpers/isNumber';
-import isString from '../helpers/isString';
-import isDate from '../helpers/isDate';
-import $ from '../payloads';
-import config from '../config';
+import { AdminApi, CustomerApi } from '../../helpers/Api';
+import createCreditCard from '../../helpers/createCreditCard';
+import waitFor from '../../helpers/waitFor';
+import isNumber from '../../helpers/isNumber';
+import isString from '../../helpers/isString';
+import isDate from '../../helpers/isDate';
+import $ from '../../payloads';
+import config from '../../config';
 
-test('Can create a gift card', async (t) => {
+test('[bvt] Can create a gift card', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomGiftCardPayload();
   const newGiftCard = await adminApi.giftCards.create(payload);
@@ -28,7 +28,7 @@ test('Can create a gift card', async (t) => {
   t.is(newGiftCard.storeAdmin.name, $.adminName);
 });
 
-test('Can view gift card details', async (t) => {
+test('[bvt] Can view gift card details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomGiftCardPayload();
   const newGiftCard = await adminApi.giftCards.create(payload);
@@ -36,7 +36,7 @@ test('Can view gift card details', async (t) => {
   t.deepEqual(foundGiftCard, newGiftCard);
 });
 
-test('Can put a gift card "On Hold"', async (t) => {
+test('[bvt] Can put a gift card "On Hold"', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newGiftCard = await adminApi.giftCards.create($.randomGiftCardPayload());
   const updatedGiftCard = await adminApi.giftCards.update(newGiftCard.code, { state: 'onHold' });
@@ -52,7 +52,7 @@ test('Can put a gift card "On Hold"', async (t) => {
   t.is(updatedGiftCard.currentBalance, newGiftCard.currentBalance);
 });
 
-test('Can "Cancel" a gift card', async (t) => {
+test('[bvt] Can "Cancel" a gift card', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newGiftCard = await adminApi.giftCards.create($.randomGiftCardPayload());
   const payload = { state: 'canceled', reasonId: 1 };
@@ -71,7 +71,7 @@ test('Can "Cancel" a gift card', async (t) => {
   t.is(updatedGiftCard.canceledAmount, newGiftCard.currentBalance);
 });
 
-test('Can make gift card "Active"', async (t) => {
+test('[bvt] Can make gift card "Active"', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newGiftCard = await adminApi.giftCards.create($.randomGiftCardPayload());
   const updatedGiftCardOnHold = await adminApi.giftCards.update(newGiftCard.code, { state: 'onHold' });
@@ -81,7 +81,7 @@ test('Can make gift card "Active"', async (t) => {
 });
 
 if (config.testGiftCardFlow) {
-  test('Can send gift card to a customer', async (t) => {
+  test('[bvt] Can send gift card to a customer', async (t) => {
     const adminApi = await AdminApi.loggedIn(t);
     const credentials = $.randomUserCredentials();
     const newCustomer = await adminApi.customers.create(credentials);
