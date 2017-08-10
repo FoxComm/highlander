@@ -10,6 +10,7 @@ import org.json4s.JsonAST.JNull
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import phoenix.models.catalog.Catalog
+import phoenix.models.coupon.CouponUsageRules
 import phoenix.models.promotion.Promotion
 import phoenix.payloads.CouponPayloads.CreateCoupon
 import phoenix.payloads.ProductPayloads.CreateProductPayload
@@ -170,12 +171,14 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
   trait CouponFixtureBase {
     def couponActiveFrom: Instant       = Instant.now.minus(1, DAYS)
     def couponActiveTo: Option[Instant] = None
+    def couponUsageRules: CouponUsageRules =
+      CouponUsageRules(isUnlimitedPerCode = true, isUnlimitedPerCustomer = true)
 
     def promotion: PromotionResponse
 
     lazy val coupon = couponsApi
       .create(
-        CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo),
+        CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo, couponUsageRules),
                      promotion.id,
                      singleCode = Some(Lorem.letterify("?????")),
                      generateCodes = None))(implicitly, defaultAdminAuth)
@@ -185,19 +188,17 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
 
     lazy val couponCode = coupon.code
 
-    protected def couponAttrs(activeFrom: Instant, activeTo: Option[Instant]): Map[String, Json] = {
-      val usageRules = {
-        ("isExclusive"            → true) ~
-        ("isUnlimitedPerCode"     → true) ~
-        ("isUnlimitedPerCustomer" → true)
-      }.asShadowVal(t = "usageRules")
+    protected def couponAttrs(activeFrom: Instant,
+                              activeTo: Option[Instant],
+                              usageRules: CouponUsageRules): Map[String, Json] = {
+      import org.json4s.Extraction.decompose
 
       val commonAttrs = Map[String, Any](
         "name"           → "Order coupon",
         "storefrontName" → "Order coupon",
         "description"    → "Order coupon description",
         "details"        → "Order coupon details".richText,
-        "usageRules"     → usageRules,
+        "usageRules"     → decompose(usageRules).asShadowVal(t = "usageRules"),
         "activeFrom"     → activeFrom
       )
 
