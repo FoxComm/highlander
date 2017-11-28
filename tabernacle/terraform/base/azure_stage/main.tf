@@ -23,28 +23,10 @@ resource "azurerm_resource_group" "fox_staging" {
   location  = "East US"
 }
 
-resource "azurerm_virtual_network" "network" {
-  name = "foxnet_staging"
-  address_space = ["10.0.0.0/16"]
-  location = "East US"
+resource "azurerm_container_registry" "test" {
+  name                = "fox_staging_registry"
   resource_group_name = "${azurerm_resource_group.fox_staging.name}"
-
-  subnet {
-    name = "default"
-    address_prefix = "10.0.1.0/24"
-  }
+  location            = "${azurerm_resource_group.fox_staging.location}"
+  admin_enabled       = true
+  sku                 = "Standard"
 }
-# provider "azure" {
-#   publish_settings = "${file("credentials.publishsettings")}"
-# }
-# 
-# resource "azure_virtual_network" "default" {
-#   name          = "fox-network"
-#   address_space = ["10.1.2.0/24"]
-#   location      = "East US"
-# 
-#   subnet {
-#     name           = "subnet1"
-#     address_prefix = "10.1.2.0/25"
-#   }
-# }
