@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createEmptyProduct, configureProduct, duplicateProduct } from 'paragons/product';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import { dissoc, assoc, update, merge } from 'sprout-data';
 
 import { actions as imagesActions } from './images';

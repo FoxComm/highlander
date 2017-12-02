@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
+import { makeLocalStore, addAsyncReducer } from '@foxcommerce/wings';
 
 // components
 import UsersTypeahead from './users-typeahead';

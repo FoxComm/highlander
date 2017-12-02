@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 // utils
-import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid } from '@foxcomm/wings/lib/payment-cards';
+import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid } from '@foxcommerce/wings/lib/payment-cards';
 
 // components
 import { Checkbox } from 'components/core/checkbox';

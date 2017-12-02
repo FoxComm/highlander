@@ -9,7 +9,7 @@ import Api from 'lib/api';
 import * as search from 'lib/search';
 import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
 import { Request, aggregations } from 'elastic/request';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 import requestAdapter, { fromRawQuery } from '../utils/request-adapter';
 

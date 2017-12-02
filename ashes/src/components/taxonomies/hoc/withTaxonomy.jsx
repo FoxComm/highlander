@@ -4,7 +4,7 @@ import { identity, get, flow, omit } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createReducer } from 'redux-act';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
+import { makeLocalStore, addAsyncReducer } from '@foxcommerce/wings';
 
 // actions
 import { fetchTaxonomyInternal as fetch } from 'modules/taxonomies/details';

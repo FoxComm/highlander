@@ -3,7 +3,7 @@ import { createAction, createReducer } from 'redux-act';
 import superagent from 'superagent';
 import Api from '../lib/api';
 import { dissoc } from 'sprout-data';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 // types
 

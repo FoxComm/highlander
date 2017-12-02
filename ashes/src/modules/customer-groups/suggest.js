@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import { searchGroups } from 'elastic/customer-groups';
 
 const _suggestGroups = createAsyncActions('suggestGroups', searchGroups);

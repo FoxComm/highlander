@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { trackEvent } from 'lib/analytics';
-import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
+import { skuIdentity } from '@foxcommerce/wings/lib/paragons/sku';
 
 import EditableContentBox from 'components/content-box/editable-content-box';
 import CartLineItem from './line-item';

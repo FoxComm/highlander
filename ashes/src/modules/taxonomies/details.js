@@ -3,7 +3,7 @@
 // libs
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import { createEmptyTaxonomy, duplicateTaxonomy } from 'paragons/taxonomy';
 import _ from 'lodash';
 

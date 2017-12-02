@@ -5,7 +5,7 @@ import { createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { assoc } from 'sprout-data';
 
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 export type UpdateSettingsPayload = {
   settings: {[key: string]: any},

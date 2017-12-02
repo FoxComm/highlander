@@ -5,7 +5,7 @@ import pick from 'lodash/pick';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import { createEmptyTaxon, duplicateTaxon } from 'paragons/taxon';
 
 const defaultContext = 'default';
