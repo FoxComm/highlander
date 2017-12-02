@@ -3,7 +3,7 @@
 /* eslint max-len: 0 */
 
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import { categoryNameToUrl } from 'paragons/categories';
 
 

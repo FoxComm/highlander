@@ -3,7 +3,7 @@
 import { createReducer, createAction } from 'redux-act';
 import _ from 'lodash';
 
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 import type { Attributes, Sku, Album } from 'types/sku';
 

@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import { loadCountry, usaDetails } from 'modules/countries';
 import { createReducer } from 'redux-act';
 

@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import { env } from 'lib/env';
-import ProductImage from '@foxcomm/wings/lib/ui/imgix/product-image';
+import ProductImage from '@foxcommerce/wings/lib/ui/imgix/product-image';
 import styles from './image.css';
 
 type Props = {

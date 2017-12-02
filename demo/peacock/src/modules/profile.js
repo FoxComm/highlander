@@ -1,6 +1,6 @@
 
 import { createReducer, createAction } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import _ from 'lodash';
 
 import { updateUser } from './auth';

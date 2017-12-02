@@ -6,7 +6,7 @@ import _ from 'lodash';
 import classNames from 'classnames';
 
 // components
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcommerce/wings/lib/ui/alerts/error-alerts';
 import ActionLink from 'ui/action-link/action-link';
 
 // styles

@@ -11,7 +11,7 @@ module.exports = function(gulp, $) {
     'node_modules/react-image-gallery/styles/css/image-gallery.css',
     'node_modules/slick-carousel/slick/slick.css',
     'node_modules/slick-carousel/slick/slick-theme.css',
-    'node_modules/@foxcomm/wings/lib/bundle.css',
+    'node_modules/@foxcommerce/wings/lib/bundle.css',
     'public/common.css',
     'build/bundle.css',
   ];

@@ -14,7 +14,7 @@ import { Link } from 'react-router';
 import Button from 'ui/buttons';
 import EditAddress from 'ui/address/edit-address';
 import makeLocalStore from 'lib/local-store';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcommerce/wings/lib/ui/alerts/error-alerts';
 
 import * as addressActions from 'modules/edit-address';
 import addressReducer from 'modules/edit-address';

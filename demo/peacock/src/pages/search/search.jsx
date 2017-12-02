@@ -3,7 +3,7 @@
 // libs
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
-import { addAsyncReducer } from '@foxcomm/wings';
+import { addAsyncReducer } from '@foxcommerce/wings';
 import makeLocalStore from 'lib/local-store';
 import _ from 'lodash';
 import localized from 'lib/i18n';
