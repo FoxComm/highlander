@@ -16,7 +16,7 @@
   version "3.1.0"
   resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fbabel-plugin-react-stylenames/-/babel-plugin-react-stylenames-3.1.0.tgz#34b9dc9625a502e42e86536e99548de90f1439e6"
 
-"@foxcomm/wings@^1.9.11":
+"@foxcommerce/wings@^1.9.11":
   version "1.9.11"
   resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.9.11.tgz#94c5a84072f1e8a1a1e56b7b0e497f1a188302c3"
   dependencies:

@@ -86,7 +86,7 @@
   "dependencies": {
     "@foxcomm/api-js": "^1.1.6",
     "@foxcomm/babel-plugin-react-stylenames": "^3.1.0",
-    "@foxcomm/wings": "^1.9.11",
+    "@foxcommerce/wings": "^1.9.11",
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",
     "currency-symbol-map": "^2.2.0",
