@@ -1,5 +1,6 @@
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
-DOCKER_IMAGE ?= peacock
+include ../../makelib
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
+DOCKER_IMAGE ?= pure
 DOCKER_TAG ?= master
 
 dev d:

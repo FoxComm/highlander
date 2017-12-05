@@ -1,4 +1,4 @@
-DOCKER_STAGE_REPO=docker-stage.foxcommerce.com:5000
+DOCKER_STAGE_REPO=foxstagingregistry.azurecr.io
 
 # colors
 RED = \033[33m
