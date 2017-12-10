@@ -1,0 +1,30 @@
+---
+
+- name: Packing Cluster Database
+  hosts: all
+  become: true
+  vars:
+    user: fox
+    packing: true
+    with_onboarding: true
+  roles:
+    - { role: base/rsyslog }
+    - { role: base/flyway }
+    - { role: base/db }
+    - { role: base/bottledwater }
+    - { role: base/pgweb }
+  post_tasks:
+    - name: Enable Services
+      service: name={{item}} enabled=yes
+      with_items:
+        - consul_agent
+        - postgresql
+        - bottledwater_phoenix
+        - bottledwater_middlewarehouse
+        - bottledwater_onboarding
+        - pgweb
+    - name: Reload Systemd Daemon
+      command: systemctl daemon-reload
+
+
+

@@ -4,7 +4,7 @@
   hosts: all
   become: true
   vars:
-    user: ubuntu
+    user: fox
     packing: true
   roles:
     - { role: base/common }
@@ -14,5 +14,4 @@
     - { role: base/secret_keys }
     - { role: base/ssl_certs }
     - { role: base/consul }
-    - { role: base/mesos }
     - { role: base/consul_agent }
