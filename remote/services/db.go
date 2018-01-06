@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/FoxComm/highlander/remote/utils"
 	"github.com/FoxComm/highlander/remote/utils/failures"
@@ -83,18 +84,23 @@ func (r RemoteDB) CreateWithTable(model interface{}, table string) failures.Fail
 	return failures.New(r.db.Table(table).Create(model).Error)
 }
 
-func (r RemoteDB) FindByID(table string, id int, model interface{}) failures.Failure {
-	return r.FindByIDWithFailure(table, id, model, failures.FailureNotFound)
+func (r RemoteDB) FindByID(id int, model interface{}) failures.Failure {
+	return r.FindByIDWithFailure(id, model, failures.FailureNotFound)
 }
 
-func (r RemoteDB) FindByIDWithFailure(table string, id int, model interface{}, failure int) failures.Failure {
+func (r RemoteDB) FindByIDWithFailure(id int, model interface{}, failure int) failures.Failure {
 	res := r.db.First(model, id)
 
 	if res.RecordNotFound() {
-		err := fmt.Errorf("%s with id %d was not found", table, id)
+		err := fmt.Errorf("%s with id %d was not found", typeName(model), id)
 		return failures.NewGeneralFailure(err, failure)
 	}
 
+	return failures.New(res.Error)
+}
+
+func (r RemoteDB) FindWhere(field string, value interface{}, models interface{}) failures.Failure {
+	res := r.db.Where(fmt.Sprintf("%s = ?", field), value).Find(models)
 	return failures.New(res.Error)
 }
 
@@ -102,6 +108,18 @@ func (r RemoteDB) Save(model interface{}) failures.Failure {
 	return failures.New(r.db.Save(model).Error)
 }
 
+func (r RemoteDB) Delete(model interface{}) failures.Failure {
+	return failures.New(r.db.Delete(model).Error)
+}
+
 func (r RemoteDB) Ping() error {
 	return r.db.DB().Ping()
+}
+
+func typeName(i interface{}) string {
+	if t := reflect.TypeOf(i); t.Kind() == reflect.Ptr {
+		return t.Elem().Name()
+	} else {
+		return t.Name()
+	}
 }

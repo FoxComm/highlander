@@ -67,9 +67,10 @@ func (c CreateChannel) PhoenixModel() *phoenix.Channel {
 
 // UpdateChannel is the structure of payload needed to update a channel.
 type UpdateChannel struct {
-	Name          *string `json:"name"`
-	PurchaseOnFox *bool   `json:"purchaseOnFox"`
-	CatalogID     *int64  `json:"catalogId"`
+	Name          *string   `json:"name"`
+	Hosts         *[]string `json:"hosts"`
+	PurchaseOnFox *bool     `json:"purchaseOnFox"`
+	CatalogID     *int64    `json:"catalogId"`
 }
 
 // Validate ensures that they payload has the correct format.

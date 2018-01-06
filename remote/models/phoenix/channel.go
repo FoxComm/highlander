@@ -9,17 +9,19 @@ import (
 // Channel represents an avenue for purchasing on the Fox Platform. This could
 // be a website (theperfectgourmet.com), third-party (Amazon), or sale type (B2B).
 type Channel struct {
-	ID               int
-	Scope            string
-	Name             string
-	PurchaseLocation int
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	ID                    int
+	IntelligenceChannelID int
+	Scope                 string
+	Name                  string
+	PurchaseLocation      int
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 func NewChannel(scope string, name string, purchaseLocation int) *Channel {
 	return &Channel{
-		ID:               0,
+		ID: 0,
+		IntelligenceChannelID: 0,
 		Scope:            scope,
 		Name:             name,
 		PurchaseLocation: purchaseLocation,
