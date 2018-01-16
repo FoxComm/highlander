@@ -63,4 +63,72 @@ object ContentUtils {
 
         (form.merge(formJson), shadow.merge(shadowJson))
     }
+
+  def attributesForUpdate(form: Form,
+                          shadow: Shadow,
+                          attributes: Option[Content.ContentAttributes]): (JValue, JValue) =
+    attributes match {
+      case Some(attrs) ⇒
+        val (newForm, newShadow) = encodeContentAttributes(attrs)
+        (form.attributes.merge(newForm), newShadow)
+      case None ⇒
+        (form.attributes, shadow.attributes)
+    }
+
+  def buildRelations(rawRelations: Option[JValue])(implicit fmt: Formats): Content.ContentRelations =
+    rawRelations.flatMap(_.extract[Option[Content.ContentRelations]]) match {
+      case Some(relations) ⇒ relations
+      case None            ⇒ Map.empty[String, Seq[Commit#Id]]
+    }
+
+  def updateRelations(existingRelations: Option[JValue], newRelations: Option[Content.ContentRelations])(
+      implicit fmt: Formats): Content.ContentRelations =
+    (buildRelations(existingRelations), newRelations) match {
+      case (existingRels, None) ⇒
+        existingRels
+      case (existingRels, Some(newRels)) if existingRels.isEmpty ⇒
+        newRels
+      case (existingRels, Some(newRels)) ⇒
+        existingRels.foldLeft(Content.emptyRelations) {
+          case (acc, (key, commits)) ⇒
+            newRels.get(key) match {
+              case Some(newCommits) if newCommits.isEmpty ⇒
+                acc
+              case Some(newCommits) if newCommits.nonEmpty ⇒
+                acc + (key → newCommits)
+              case None ⇒
+                acc + (key → commits)
+            }
+        }
+    }
+
+  def updateRelatedContent(relationsJson: Option[JValue],
+                           kind: String,
+                           toRemoveId: Commit#Id,
+                           toAddId: Commit#Id)(implicit fmt: Formats): Content.ContentRelations = {
+    val relations = buildRelations(relationsJson)
+    relations.get(kind).foldLeft(relations) { (acc, commits) ⇒
+      val updated = commits.foldLeft(Seq.empty[Commit#Id]) { (newCommits, commit) ⇒
+        if (commit == toRemoveId) newCommits :+ toAddId
+        else newCommits :+ commit
+      }
+
+      acc + (kind → updated)
+    }
+  }
+
+  def removeFromRelations(relations: Option[JValue], toRemoveId: Commit#Id, toRemoveKind: String)(
+      implicit fmt: Formats): Content.ContentRelations = {
+
+    val contentRelations = buildRelations(relations)
+    contentRelations.get(toRemoveKind) match {
+      case Some(commits) if commits.length > 1 ⇒
+        val newCommits = commits.filterNot(_ == toRemoveId)
+        contentRelations + (toRemoveKind → newCommits)
+      case Some(commits) if commits.length <= 1 ⇒
+        contentRelations - toRemoveKind
+      case None ⇒
+        contentRelations
+    }
+  }
 }

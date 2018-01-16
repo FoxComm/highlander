@@ -6,6 +6,8 @@ import cats.implicits._
 import core.failures.Failures
 import org.json4s._
 
+import objectframework.services.ContentUtils
+
 /**
   * Content is an illuminated content object: it's the most primitive Object
   * Framework entity that should be used outside this library. Any objects
@@ -27,7 +29,12 @@ object Content {
   type ContentAttributes = Map[String, ContentAttribute]
   type ContentRelations  = Map[String, Seq[Commit#Id]]
 
-  def build(commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
+  val emptyRelations: ContentRelations = Map.empty[String, Seq[Commit#Id]]
+
+  def buildCommitT(t: (Commit, Form, Shadow)): Either[Failures, Content] =
+    (buildCommit _).tupled(t)
+
+  def buildCommit(commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
     buildContentAttributes(form, shadow).map { attributes ⇒
       Content(
         id = form.id,
@@ -35,15 +42,15 @@ object Content {
         viewId = None,
         commitId = commit.id,
         attributes = attributes,
-        relations = buildContentRelations(shadow.relations),
+        relations = ContentUtils.buildRelations(shadow.relations),
         createdAt = form.createdAt,
         updatedAt = shadow.createdAt,
         archivedAt = None
       )
     }
 
-  def build(head: Head, commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
-    build(commit, form, shadow).map(_.copy(viewId = Some(head.viewId), archivedAt = head.archivedAt))
+  def buildLatest(head: Head, commit: Commit, form: Form, shadow: Shadow): Either[Failures, Content] =
+    buildCommit(commit, form, shadow).map(_.copy(viewId = Some(head.viewId), archivedAt = head.archivedAt))
 
   private def buildContentAttributes(form: Form, shadow: Shadow): Either[Failures, ContentAttributes] = {
     val emptyAttrs: Either[Failures, ContentAttributes] = Either.right(Map.empty)
@@ -60,12 +67,6 @@ object Content {
         emptyAttrs
     }
   }
-
-  private def buildContentRelations(rawRelations: Option[JValue]): ContentRelations =
-    rawRelations.flatMap(_.extract[Option[ContentRelations]]) match {
-      case Some(relations) ⇒ relations
-      case None            ⇒ Map.empty[String, Seq[Commit#Id]]
-    }
 
   private def updateAttributes(attributes: ContentAttributes,
                                shadow: JField,
