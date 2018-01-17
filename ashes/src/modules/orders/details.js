@@ -3,7 +3,7 @@
 import { createReducer } from 'redux-act';
 import Api from 'lib/api';
 import OrderParagon from 'paragons/order';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 export type State = {
   order: ?OrderParagon,

@@ -15,6 +15,28 @@
             "tags": ["ssh", "no-ip"],
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}"
+        },
+        {
+            "name": "azure",
+            "type": "azure-arm",
+
+            "client_id": "{{user `azure_client_id`}}",
+            "client_secret": "{{user `azure_client_secret`}}",
+            "subscription_id": "{{user `azure_subscription_id`}}",
+            "tenant_id": "{{user `azure_tenant_id`}}",
+
+            "managed_image_name": "base-{{isotime \"06102-150405\"}}",
+            "managed_image_resource_group_name": "{{user `azure_resource_group`}}",
+
+            "os_type": "Linux",
+            "image_publisher": "Canonical",
+            "image_offer": "UbuntuServer",
+            "image_sku": "16.04-LTS",
+
+            "location": "{{user `azure_location`}}",
+            "vm_size": "Standard_A2",
+
+            "ssh_username" : "{{user `ssh_username`}}"
         }
     ],
     "provisioners" : [

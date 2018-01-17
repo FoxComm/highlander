@@ -6,8 +6,8 @@ import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { createReducer, createAction } from 'redux-act';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import { createAsyncActions } from '@foxcomm/wings';
+import { makeLocalStore, addAsyncReducer } from '@foxcommerce/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 // components
 import SearchInput from 'components/typeahead/input';

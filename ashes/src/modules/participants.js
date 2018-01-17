@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import Api from 'lib/api';
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 // types
 import type { EntityType } from 'types/entity';

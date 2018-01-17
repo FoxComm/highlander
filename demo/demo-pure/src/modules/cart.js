@@ -2,8 +2,8 @@
 
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
-import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
+import { createAsyncActions } from '@foxcommerce/wings';
+import { skuIdentity } from '@foxcommerce/wings/lib/paragons/sku';
 import { api as foxApi } from 'lib/api';
 import { bindActionCreators } from 'redux';
 import * as checkoutActions from 'modules/checkout';

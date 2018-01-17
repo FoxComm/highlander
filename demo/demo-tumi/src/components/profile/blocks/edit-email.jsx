@@ -5,14 +5,14 @@ import styles from '../profile.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'lib/history';
-import { clearErrorsFor } from '@foxcomm/wings';
+import { clearErrorsFor } from '@foxcommerce/wings';
 
 import { Link } from 'react-router';
 import Block from '../common/block';
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/text-input';
 import { FormField, Form } from 'ui/forms';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcommerce/wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/profile';
 

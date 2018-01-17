@@ -10,7 +10,7 @@ import _ from 'lodash';
 import TypeaheadItems from './items';
 import TypeaheadInput from './input';
 import { FormField } from 'ui/forms';
-import Alert from '@foxcomm/wings/lib/ui/alerts/alert';
+import Alert from '@foxcommerce/wings/lib/ui/alerts/alert';
 
 // styles
 import s from './typeahead.css';

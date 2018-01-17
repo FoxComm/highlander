@@ -1,7 +1,7 @@
 /* @flow */
 
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 const featured = [
   {

@@ -8,7 +8,7 @@ import { Product } from 'modules/products';
 import clickOutsideEnhancer from 'react-click-outside';
 import { responsiveConnect } from 'css/responsive-connect';
 import makeLocalStore from 'lib/local-store';
-import { addAsyncReducer } from '@foxcomm/wings/lib/redux/make-local-store';
+import { addAsyncReducer } from '@foxcommerce/wings/lib/redux/make-local-store';
 import { browserHistory } from 'lib/history';
 
 import styles from './search.css';

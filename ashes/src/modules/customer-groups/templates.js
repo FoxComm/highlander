@@ -5,7 +5,7 @@
  */
 
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import Api from 'lib/api';
 
 type State = TTemplates;

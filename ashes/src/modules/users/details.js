@@ -2,7 +2,7 @@
 
 import Api from 'lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 import {
   configureUserState,

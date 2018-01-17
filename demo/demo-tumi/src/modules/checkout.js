@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import { updateCart, resetCart, cleanShippingAddress } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
 import * as tracking from 'lib/analytics';

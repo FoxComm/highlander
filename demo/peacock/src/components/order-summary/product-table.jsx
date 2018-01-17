@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import React from 'react';
-import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
+import { skuIdentity } from '@foxcommerce/wings/lib/paragons/sku';
 
 // components
 import LineItemRow from './summary-line-item';

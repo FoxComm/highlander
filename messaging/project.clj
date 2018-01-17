@@ -51,7 +51,7 @@
   :repositories
   [["clojars" {:url "https://clojars.org/repo/"}]
    ["maven-central" {:url "https://repo1.maven.org/maven2"}]
-   ["confluent" {:url "http://packages.confluent.io/maven"}]]
+   ["confluent" {:url "https://packages.confluent.io/maven"}]]
   :source-paths
   ["src" "resources"]
   :jar-name "messaging-no-dependencies.jar"

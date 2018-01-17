@@ -1,7 +1,7 @@
 // @flow
 
 import Api from 'lib/api';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 export type NewCustomerPayload = {
   email: string,

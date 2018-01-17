@@ -7,8 +7,11 @@ DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
-	mkdir -p build
-	cd build && cmake .. && make
+	docker build -t $(DOCKER_IMAGE)-build -f Dockerfile.build .
+	docker run --name $(DOCKER_IMAGE)-builder $(DOCKER_IMAGE)-build /bin/bash /isaac/build_isaac.sh
+	docker cp $(DOCKER_IMAGE)-builder:/isaac/build build
+	docker stop $(DOCKER_IMAGE)-builder
+	docker rm $(DOCKER_IMAGE)-builder
 
 clean:
 	rm -rf ./build

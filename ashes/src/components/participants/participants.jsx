@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import styles from './participants.css';
 import { connect } from 'react-redux';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
+import { makeLocalStore, addAsyncReducer } from '@foxcommerce/wings';
 import { trackEvent } from 'lib/analytics';
 import { numberize } from 'lib/text-utils';
 import { groups } from 'paragons/participants';

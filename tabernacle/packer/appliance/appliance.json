@@ -16,6 +16,27 @@
             "use_internal_ip": true,
             "ssh_username" : "{{user `ssh_username`}}",
             "disk_size": 20
+        },
+        {
+            "name": "azure",
+            "type": "azure-arm",
+
+            "client_id": "{{user `azure_client_id`}}",
+            "client_secret": "{{user `azure_client_secret`}}",
+            "subscription_id": "{{user `azure_subscription_id`}}",
+            "tenant_id": "{{user `azure_tenant_id`}}",
+
+            "managed_image_name": "appliance-{{isotime \"06102-150405\"}}",
+            "managed_image_resource_group_name": "{{user `azure_resource_group`}}",
+
+            "os_type": "Linux",
+            "custom_managed_image_name": "{{user `base_united_image`}}",
+            "custom_managed_image_resource_group_name": "{{user `azure_resource_group`}}",
+
+            "location": "{{user `azure_location`}}",
+            "vm_size": "Standard_A2",
+
+            "ssh_username" : "{{user `ssh_username`}}"
         }
     ],
     "provisioners" : [

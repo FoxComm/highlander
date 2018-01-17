@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
+import { makeLocalStore, addAsyncReducer } from '@foxcommerce/wings';
 
 // components
 import { FormField } from 'components/forms';

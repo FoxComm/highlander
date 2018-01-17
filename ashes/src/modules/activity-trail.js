@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { update, assoc } from 'sprout-data';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 import OrderParagon from 'paragons/order';
 import searchActivities from 'elastic/activities';

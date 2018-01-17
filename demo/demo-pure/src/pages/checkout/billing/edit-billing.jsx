@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import textStyles from 'ui/text-input/text-input.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { cardMask } from '@foxcomm/wings/lib/payment-cards';
+import { cardMask } from '@foxcommerce/wings/lib/payment-cards';
 import localized from 'lib/i18n';
 import { api as foxApi } from 'lib/api';
 import { createNumberMask } from 'lib/i18n/field-masks';

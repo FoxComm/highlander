@@ -4,7 +4,7 @@ import {createAction, createReducer} from 'redux-act';
 import { assoc } from 'sprout-data';
 import Api from '../lib/api';
 import SHA1 from 'crypto-js/sha1';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 const _productGetData = createAsyncActions(
   'analytics_fetch_data',

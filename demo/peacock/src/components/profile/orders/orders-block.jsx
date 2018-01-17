@@ -12,7 +12,7 @@ import { toggleOrderDetails } from 'modules/profile';
 
 // components
 import OrderRow from './order-row';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from '@foxcommerce/wings/lib/ui/alerts/error-alerts';
 import Modal from 'ui/modal/modal';
 import CheckoutForm from 'pages/checkout/checkout-form';
 import OrderDetails from './order-details';

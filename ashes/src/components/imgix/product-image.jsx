@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import ProductImageInner from '@foxcomm/wings/lib/ui/imgix/product-image';
+import ProductImageInner from '@foxcommerce/wings/lib/ui/imgix/product-image';
 import * as PluginsActions from 'modules/plugins';
 
 

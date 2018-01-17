@@ -1,0 +1,20 @@
+---
+
+- name: Packing Cluster Kafka
+  hosts: all
+  become: true
+  vars:
+    user: fox
+    packing: true
+  roles:
+    - { role: base/rsyslog }
+    - { role: base/confluent_platform }
+  post_tasks:
+    - name: Enable Services
+      service: name={{item}} enabled=yes
+      with_items:
+        - consul_agent
+        - kafka
+        - schema_registry
+    - name: Reload Systemd Daemon
+      command: systemctl daemon-reload

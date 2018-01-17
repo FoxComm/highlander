@@ -1,7 +1,7 @@
 // libs
 import _ from 'lodash';
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 import { searchAdmins } from 'elastic/store-admins';
 
 const _suggestAdmins = createAsyncActions(

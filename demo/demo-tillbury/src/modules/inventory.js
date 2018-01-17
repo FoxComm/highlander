@@ -2,7 +2,7 @@
 
 import { assoc } from 'sprout-data';
 import { createReducer } from 'redux-act';
-import { createAsyncActions } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcommerce/wings';
 
 const _fetchInventorySummary = createAsyncActions('fetchInventorySummary',
   function(skuCode: string) {

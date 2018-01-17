@@ -10,7 +10,7 @@ import invariant from 'invariant';
 import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
 import jsen from 'jsen';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
+import { makeLocalStore, addAsyncReducer } from '@foxcommerce/wings';
 
 import styles from './object-page.css';
 

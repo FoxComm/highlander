@@ -1,7 +1,7 @@
 ---
 
 - name: Download Consul
-  unarchive: src={{consul_download_url}} dest=/usr/local/bin mode="u+x,g+x,o+x" remote_src=yes
+  unarchive: src={{consul_download_url}} dest=/usr/local/bin mode="777" remote_src=yes
 
 - name: Create Config Directory
   file: path=/etc/consul.d state=directory

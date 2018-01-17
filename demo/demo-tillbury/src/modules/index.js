@@ -18,7 +18,7 @@ import crossSell from './cross-sell';
 import inventory from './inventory';
 import contentOverlay from './content-overlay';
 
-import { reducer as asyncReducer } from '@foxcomm/wings/lib/redux/async-utils';
+import { reducer as asyncReducer } from '@foxcommerce/wings/lib/redux/async-utils';
 
 const reducer = combineReducers({
   routing: routeReducer,

@@ -7,8 +7,11 @@ DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
-	mkdir -p build
-	cd build && cmake .. && make -j4
+	docker build -t $(DOCKER_IMAGE)-build -f Dockerfile.build .
+	docker run --name $(DOCKER_IMAGE)-builder $(DOCKER_IMAGE)-build /bin/bash /bernardo/build_bernardo.sh
+	docker cp $(DOCKER_IMAGE)-builder:/bernardo/build build
+	docker stop $(DOCKER_IMAGE)-builder
+	docker rm $(DOCKER_IMAGE)-builder
 
 test:
 	$(call header, Testing)

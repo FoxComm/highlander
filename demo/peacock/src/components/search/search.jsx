@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { addAsyncReducer } from '@foxcomm/wings';
+import { addAsyncReducer } from '@foxcommerce/wings';
 import makeLocalStore from 'lib/local-store';
 import { Product } from 'modules/products';
 import styles from './search.css';

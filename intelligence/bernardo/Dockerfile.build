@@ -1,0 +1,96 @@
+FROM ubuntu:16.10
+
+RUN apt update && apt install -y \
+    postgresql-client-9.5 \
+    libgoogle-glog0v5 \
+    libssl1.0.0 \ 
+    libdouble-conversion1v5 \
+    libpqxx-4.0v5
+
+RUN apt install -y cmake
+RUN apt install -y g++
+RUN apt install -y libboost-all-dev
+RUN apt install -y libflann-dev
+
+
+# Install a whole mess of dependencies
+RUN apt-get update && apt-get install -y \
+    autoconf \
+    autoconf-archive \
+    automake \
+    binutils-dev \
+    bison \
+    build-essential \
+    flex \
+    git \
+    gperf \
+    libbotan1.10-dev \
+    libcap-dev \
+    libdouble-conversion-dev \
+    libevent-dev \
+    libgflags-dev \
+    libgoogle-glog-dev \
+    libiberty-dev \
+    libjemalloc-dev \
+    libkrb5-dev \
+    liblzma-dev \
+    liblz4-dev \
+    libnuma-dev \
+    libpqxx-dev \
+    libsasl2-dev \
+    libsnappy-dev \
+    libssl-dev \
+    libtool \
+    make \
+    pkg-config \
+    unzip \
+    wget \
+    zlib1g-dev
+
+# Get the correct version of proxygen
+RUN git clone https://github.com/facebook/proxygen /proxygen
+WORKDIR /proxygen
+RUN git checkout 069658d
+WORKDIR proxygen
+
+# Get the correct version of folly
+RUN git clone https://github.com/facebook/folly
+WORKDIR folly
+# RUN git checkout f6b5f78
+RUN git checkout 017cae9
+WORKDIR ..
+
+# Get the correct version of wangle
+RUN git clone http://github.com/facebook/wangle
+WORKDIR wangle
+RUN git checkout 2c55f2b 
+
+RUN apt install -y libboost-context-dev
+
+# Build and install folly
+WORKDIR /proxygen/proxygen/folly/folly
+RUN autoreconf --install
+RUN ./configure
+RUN make
+RUN make install
+
+# Build and install wangle
+WORKDIR /proxygen/proxygen/wangle/wangle
+RUN git checkout 806be98
+RUN cmake .
+RUN make
+RUN make install
+
+# Build and install proxygen
+WORKDIR /proxygen/proxygen
+RUN git checkout  2e13a47
+RUN autoreconf -ivf
+RUN ./configure
+RUN make
+RUN make install
+
+# Get the bernardo source
+ADD . /bernardo
+
+WORKDIR /bernardo
+

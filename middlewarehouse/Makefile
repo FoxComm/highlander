@@ -38,6 +38,18 @@ build:
 	make prepare
 	make build-middlewarehouse
 
+build-all:
+	$(call header, Building All)
+	make prepare
+	make build-middlewarehouse
+	make build-elasticmanager
+	make build-middlewarehouse-seeder
+	make build-capture-consumer
+	make build-gift-card-consumer
+	make build-shipments-consumer
+	make build-shipstation-consumer
+	make build-customer-groups-consumer
+
 build-middlewarehouse:
 	$(GO) build -o middlewarehouse main.go
 
@@ -69,6 +81,17 @@ docker:
 	$(call header, Dockerizing)
 	make docker-middlewarehouse
 
+docker-all:
+	$(call header, Dockerizing All)
+	make docker-middlewarehouse
+	make docker-middlewarehouse-seeder
+	make docker-capture-consumer
+	make docker-gift-card-consumer
+	make docker-shipments-consumer
+	make docker-shipstation-consumer
+	make docker-customer-groups-consumer
+	make docker-elasticmanager
+
 docker-middlewarehouse:
 	$(DOCKER) build -t $(DOCKER_IMAGE) .
 
@@ -99,6 +122,17 @@ docker-elasticmanager:
 docker-push:
 	$(call header, Registering)
 	make push-middlewarehouse
+
+docker-push-all:
+	$(call header, Registering All)
+	make push-middlewarehouse
+	make push-middlewarehouse-seeder
+	make push-capture-consumer
+	make push-gift-card-consumer
+	make push-shipments-consumer
+	make push-shipstation-consumer
+	make push-customer-groups-consumer
+	make push-elasticmanager
 
 push-middlewarehouse:
 	$(DOCKER) tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)

@@ -10,6 +10,9 @@
 # AWS
 /aws_*
 
+# Azure
+/*.publishsettings
+
 # local settings
 .env.local
 .terraform

@@ -27,7 +27,7 @@ set(MISC_LIBRARIES
     libproxygenlib.a
     libz.a
     libwangle.a
-    libfolly.a
+    libfolly.so
     libevent.a
     libpthread.so
     libboost_context.a
