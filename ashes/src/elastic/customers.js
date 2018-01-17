@@ -1,11 +1,11 @@
 /* @flow */
 
 import { toQuery } from './common';
-import { post } from '../lib/search';
+import Agni from 'lib/agni';
 import * as dsl from './dsl';
 
 const MAX_RESULTS = 1000;
-const mapping = 'customers_search_view/_search';
+const mapping = 'customers_search_view';
 const searchUrl = `${mapping}?size=${MAX_RESULTS}`;
 
 export function groupCount(criteria: Object, match: string) {
@@ -17,7 +17,7 @@ export function groupSearch(criteria: Object, match: string, forCount: boolean =
   if (forCount) {
     req.size = 0;
   }
-  return post(mapping, req);
+  return Agni.search(mapping, req);
 }
 
 export function searchCustomers(excludes: Array<number>, token: string) {
@@ -45,5 +45,5 @@ export function searchCustomers(excludes: Array<number>, token: string) {
     },
   });
 
-  return post(searchUrl, matchRule);
+  return Agni.search(searchUrl, matchRule);
 }

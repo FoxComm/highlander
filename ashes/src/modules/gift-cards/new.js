@@ -1,14 +1,12 @@
-
 /* @flow weak */
 
 // state for gift card adding form
 
 import _ from 'lodash';
-import Api from '../../lib/api';
+import Api from 'lib/api';
 import { combineReducers } from 'redux';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
-
 
 const _createAction = (desc, ...args) => createAction(`GIFT_CARDS_NEW_${desc}`, ...args);
 
@@ -26,7 +24,7 @@ const emptyFilters = [];
 const emptyPhrase = '';
 const quickSearch = makeQuickSearch(
   'giftCards.adding.suggestedCustomers',
-  'customers_search_view/_search',
+  'customers_search_view',
   emptyFilters,
   emptyPhrase
 );

@@ -9,7 +9,7 @@ import searchTerms from './search-terms';
 const { reducer, actions } = makeLiveSearch(
   'products.list',
   searchTerms,
-  'products_search_view/_search',
+  'products_search_view',
   'productsScope',
   {
     rawSorts: ['title'],

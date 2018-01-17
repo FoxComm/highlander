@@ -6,7 +6,7 @@ import { addNativeFilters, addShouldFilters } from '../../elastic/common';
 const { reducer, actions } = makeLiveSearch(
   'carts.list',
   searchTerms,
-  'carts_search_view/_search',
+  'carts_search_view',
   'cartsScope',
   {
     processQuery: (query) => {

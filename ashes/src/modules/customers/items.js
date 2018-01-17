@@ -41,7 +41,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'customers.items',
   searchTerms,
-  'customer_items_view/_search',
+  'customer_items_view',
   'customerItemsScope',
   {
     skipInitialFetch: true,

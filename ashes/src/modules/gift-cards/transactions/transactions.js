@@ -1,4 +1,3 @@
-
 import makeLiveSearch from 'modules/live-search';
 
 const searchTerms = [
@@ -59,7 +58,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'giftCards.transactions.list',
   searchTerms,
-  'gift_card_transactions_view/_search',
+  'gift_card_transactions_view',
   'giftCardTransactionsScope', {
     skipInitialFetch: true
   }

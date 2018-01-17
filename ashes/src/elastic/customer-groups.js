@@ -1,10 +1,10 @@
 /* @flow */
 
-import { post } from '../lib/search';
+import Agni from 'lib/agni';
 import * as dsl from './dsl';
 
 const MAX_RESULTS = 1000;
-const searchUrl = `customer_groups_search_view/_search?size=${MAX_RESULTS}`;
+const searchUrl = `customer_groups_search_view?size=${MAX_RESULTS}`;
 
 export function searchGroups(excludeGroups: Array<number>, token: string) {
   let filters = [];
@@ -31,5 +31,5 @@ export function searchGroups(excludeGroups: Array<number>, token: string) {
     },
   });
 
-  return post(searchUrl, matchRule);
+  return Agni.search(searchUrl, matchRule);
 }
