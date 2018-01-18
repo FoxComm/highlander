@@ -15,7 +15,8 @@ defmodule Solomon.PermissionView do
   end
 
   def render("permission.json", %{permission: permission}) do
-    %{id: permission.id,
+    %{
+      id: permission.id,
       resource_id: permission.resource_id,
       actions: permission.actions,
       frn: permission.frn,
@@ -24,7 +25,8 @@ defmodule Solomon.PermissionView do
   end
 
   def render("full_permission.json", %{permission: permission}) do
-    %{id: permission.id,
+    %{
+      id: permission.id,
       resource_id: permission.resource_id,
       resource_name: permission.resource.name,
       actions: permission.actions,
@@ -37,5 +39,4 @@ defmodule Solomon.PermissionView do
   def render("deleted.json", _) do
     %{deleted: "success"}
   end
-
 end

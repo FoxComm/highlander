@@ -11,9 +11,6 @@ defmodule Solomon.SystemView do
   end
 
   def render("system.json", %{system: system}) do
-    %{id: system.id,
-      name: system.name,
-      description: system.description
-    }
+    %{id: system.id, name: system.name, description: system.description}
   end
 end

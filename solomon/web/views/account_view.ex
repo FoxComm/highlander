@@ -11,8 +11,6 @@ defmodule Solomon.AccountView do
   end
 
   def render("account.json", %{account: account}) do
-    %{id: account.id,
-      ratchet: account.ratchet
-    }
+    %{id: account.id, ratchet: account.ratchet}
   end
 end
