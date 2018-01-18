@@ -1,11 +1,12 @@
 defmodule Hyperion.MWSAuth do
   alias Hyperion.Amazon.Credentials
+
   @moduledoc """
   Stores %MWSClient.Config{} in the memory via Agent
   """
 
   def start_link do
-    Agent.start_link(fn -> MapSet.new end, name: __MODULE__)
+    Agent.start_link(fn -> MapSet.new() end, name: __MODULE__)
   end
 
   def get(token) do
@@ -28,8 +29,9 @@ defmodule Hyperion.MWSAuth do
     try do
       {:ok, data} = Hyperion.JwtAuth.verify(token)
       data[:scope]
-    rescue _e in [RuntimeError, MatchError] ->
-      raise NotAllowed
+    rescue
+      _e in [RuntimeError, MatchError] ->
+        raise NotAllowed
     end
   end
 end

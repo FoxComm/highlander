@@ -4,9 +4,9 @@ defmodule Hyperion do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    unless Mix.env == :prod do
-      Envy.auto_load
-      Envy.reload_config
+    unless Mix.env() == :prod do
+      Envy.auto_load()
+      Envy.reload_config()
     end
 
     children = [

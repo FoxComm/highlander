@@ -51,7 +51,8 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
   end
 
   def render_bullet_points(product) do
-    points = Enum.filter(product, fn{k, _v} -> String.match?(to_string(k), ~r/bulletpoint/) end)
+    points = Enum.filter(product, fn {k, _v} -> String.match?(to_string(k), ~r/bulletpoint/) end)
+
     for {k, v} <- points do
       unless v == nil && k == nil do
         """
@@ -70,6 +71,7 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
         <Value>#{list[:asin]}</Value>
         </StandardProductID>
         """
+
       Keyword.has_key?(list, :upc) ->
         """
         <StandardProductID>
@@ -77,6 +79,7 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
         <Value>#{list[:upc]}</Value>
         </StandardProductID>
         """
+
       Keyword.has_key?(list, :ean) ->
         """
         <StandardProductID>
@@ -84,6 +87,7 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
         <Value>#{list[:ean]}</Value>
         </StandardProductID>
         """
+
       Keyword.has_key?(list, :isbn) ->
         """
         <StandardProductID>
@@ -91,6 +95,7 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
         <Value>#{list[:isbn]}</Value>
         </StandardProductID>
         """
+
       true ->
         """
         #{nil}

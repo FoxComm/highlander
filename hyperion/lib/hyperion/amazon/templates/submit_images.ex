@@ -21,7 +21,7 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
     """
   end
 
-  def render_main_image([{main, message_id}|_]) do
+  def render_main_image([{main, message_id} | _]) do
     """
     <Message>
       <MessageID>#{message_id}</MessageID>
@@ -35,8 +35,7 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
     """
   end
 
-
-  def render_pt_images([_|pt_images]) do
+  def render_pt_images([_ | pt_images]) do
     for {item, idx} <- pt_images do
       """
       <Message>
@@ -54,7 +53,7 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
 
   def render_swatches([]), do: ""
 
-  def render_swatches([swatches|_]) do
+  def render_swatches([swatches | _]) do
     for swatch <- swatches do
       """
       <Message>
