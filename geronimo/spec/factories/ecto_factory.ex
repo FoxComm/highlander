@@ -7,9 +7,11 @@ defmodule Geronimo.EctoFactory do
       def content_type_factory do
         %ContentType{
           name: "FooBar",
-          schema: %{foo: %{type: ["string"], requred: true},
-                    bar: %{type: ["string"], requred: false},
-                    baz: %{type: ["array", []], requred: true}},
+          schema: %{
+            foo: %{type: ["string"], requred: true},
+            bar: %{type: ["string"], requred: false},
+            baz: %{type: ["array", []], requred: true}
+          },
           scope: "1",
           created_by: 1
         }

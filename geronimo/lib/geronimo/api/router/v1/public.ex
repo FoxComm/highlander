@@ -6,7 +6,7 @@ defmodule Geronimo.Router.V1.Public do
 
   # /v1/public
   namespace :health do
-    desc "Check health"
+    desc("Check health")
 
     get do
       conn
@@ -17,9 +17,11 @@ defmodule Geronimo.Router.V1.Public do
   end
 
   namespace :entities do
-    desc "Get all created entities"
+    desc("Get all created entities")
+
     namespace :health do
-      desc "Check geronimo health"
+      desc("Check geronimo health")
+
       get do
         conn
         |> put_status(204)
@@ -33,7 +35,7 @@ defmodule Geronimo.Router.V1.Public do
       respond_with(conn, entities)
     end
 
-    desc "Get entity with specific ID"
+    desc("Get entity with specific ID")
 
     route_param :id do
       get do

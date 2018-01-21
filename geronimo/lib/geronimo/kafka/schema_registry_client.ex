@@ -5,10 +5,14 @@ defmodule Geronimo.Kafka.SchemaRegistryClient do
     case get("/subjects/#{object}/versions/#{id}") do
       {:ok, %HTTPoison.Response{body: body, headers: _, status_code: 200}} ->
         body[:schema]
-        |> Poison.decode!
-        |> Utils.atomize
-      {:ok, %HTTPoison.Response{body: body, headers: _, status_code: _}} -> body
-      {:error, err} -> err
+        |> Poison.decode!()
+        |> Utils.atomize()
+
+      {:ok, %HTTPoison.Response{body: body, headers: _, status_code: _}} ->
+        body
+
+      {:error, err} ->
+        err
     end
   end
 
@@ -22,8 +26,8 @@ defmodule Geronimo.Kafka.SchemaRegistryClient do
 
   def process_response_body(body) do
     body
-    |> Poison.decode!
-    |> Enum.map(fn({k, v}) -> {String.to_atom(k), v} end)
+    |> Poison.decode!()
+    |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
   end
 
   def schema_registry_url do

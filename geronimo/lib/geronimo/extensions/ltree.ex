@@ -1,5 +1,4 @@
 defmodule Geronimo.Type.Ltree do
-
   @behaviour Postgrex.Extension
 
   def init(opts) do
@@ -10,11 +9,10 @@ defmodule Geronimo.Type.Ltree do
 
   def format(_state), do: :text
 
-
   def encode(_state) do
     quote do
       bin when is_binary(bin) ->
-        [<<byte_size(bin) :: signed-size(32)>> | bin]
+        [<<byte_size(bin)::signed-size(32)>> | bin]
     end
   end
 
@@ -32,4 +30,3 @@ defmodule Geronimo.Type.Ltree do
     end
   end
 end
-

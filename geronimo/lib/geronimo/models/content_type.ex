@@ -8,16 +8,17 @@ defmodule Geronimo.ContentType do
   use Timex.Ecto.Timestamps
   use Geronimo.Kafka.Avro
 
-  @derive {Poison.Encoder, only: [:id, :name, :schema, :scope, :created_by, :inserted_at, :updated_at, :versions]}
+  @derive {Poison.Encoder,
+           only: [:id, :name, :schema, :scope, :created_by, :inserted_at, :updated_at, :versions]}
 
   @required_params [:schema, :name, :scope, :created_by]
   @optional_params []
 
   schema "content_types" do
-    field :name, :string
-    field :schema, :map
-    field :scope, :string
-    field :created_by, :integer
+    field(:name, :string)
+    field(:schema, :map)
+    field(:scope, :string)
+    field(:created_by, :integer)
 
     timestamps()
   end
@@ -43,14 +44,13 @@ defmodule Geronimo.ContentType do
 
   def to_avro(content_type = %Geronimo.ContentType{}) do
     %{
-      "id" =>          content_type.id,
-      "name" =>        content_type.name,
-      "schema" =>      Poison.encode!(content_type.schema),
-      "scope" =>       content_type.scope,
-      "created_by" =>  content_type.created_by,
+      "id" => content_type.id,
+      "name" => content_type.name,
+      "schema" => Poison.encode!(content_type.schema),
+      "scope" => content_type.scope,
+      "created_by" => content_type.created_by,
       "inserted_at" => Timex.format!(content_type.inserted_at, "%FT%T.%fZ", :strftime),
-      "updated_at" =>  Timex.format!(content_type.updated_at, "%FT%T.%fZ", :strftime)
+      "updated_at" => Timex.format!(content_type.updated_at, "%FT%T.%fZ", :strftime)
     }
   end
-
 end

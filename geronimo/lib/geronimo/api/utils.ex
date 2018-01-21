@@ -10,8 +10,7 @@ defmodule Geronimo.Api.Utils do
 
   defp wrap(collection) do
     if is_list(collection) do
-      %{items: collection,
-        count: Enum.count(collection) }
+      %{items: collection, count: Enum.count(collection)}
     else
       collection
     end
