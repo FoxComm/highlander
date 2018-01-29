@@ -24,7 +24,8 @@ set(MISC_LIBRARIES
     libproxygenlib.a
     libz.a
     libwangle.a
-    libfolly.so
+    libfolly.a
+    libiberty.a
     libevent.a
     libpthread.so
     ssl
