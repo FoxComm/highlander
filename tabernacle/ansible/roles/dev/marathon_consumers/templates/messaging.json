@@ -21,7 +21,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/messaging:{{docker_tags.messaging}}",
+      "image": "{{docker_registry}}/messaging:{{docker_tags.messaging}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -49,5 +49,8 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3
     }
+  ],
+  "uris": [
+    "file:///docker/docker.tar.gz"
   ]
 }

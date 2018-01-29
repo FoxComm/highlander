@@ -21,7 +21,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/customer-groups-consumer:{{docker_tags.customer_groups_consumer}}",
+      "image": "{{docker_registry}}/customer-groups-consumer:{{docker_tags.customer_groups_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -50,5 +50,8 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3
     }
+  ],
+  "uris": [
+    "file:///docker/docker.tar.gz"
   ]
 }

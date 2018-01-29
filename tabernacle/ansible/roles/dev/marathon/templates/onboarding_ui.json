@@ -21,7 +21,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/onboarding-ui:{{docker_tags.onboarding_ui}}",
+      "image": "{{docker_registry}}/onboarding-ui:{{docker_tags.onboarding_ui}}",
       "network": "HOST",
       "portMappings": [],
       "privileged": false,
@@ -55,5 +55,8 @@
       "name": "default",
       "labels": {}
     }
+  ],
+  "uris": [
+    "file:///docker/docker.tar.gz"
   ]
 }

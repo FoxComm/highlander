@@ -7,7 +7,7 @@
   apt_repository: repo='deb [arch=amd64] {{confluent_url}} stable main' state=present update_cache=yes
 
 - name: Install Packages
-  apt: name=confluent-platform-2.11.7 state=latest force=yes
+  apt: name=confluent-platform-oss-2.11 state=latest force=yes
 
 - name: Create Kafka dir
   file: path=/var/lib/kafka state=directory

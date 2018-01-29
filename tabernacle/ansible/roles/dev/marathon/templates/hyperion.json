@@ -45,13 +45,16 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/hyperion:{{docker_tags.hyperion}}",
+      "image": "{{docker_registry}}/hyperion:{{docker_tags.hyperion}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
     }
   },
+  "uris": [
+    "file:///docker/docker.tar.gz"
+  ],
   "healthChecks": [
     {
       "path": "/v1/public/health",

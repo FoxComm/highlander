@@ -1,2 +1,2 @@
-confluent_url: http://packages.confluent.io/deb/2.0
+confluent_url: http://packages.confluent.io/deb/4.0
 confluent_key_url: "{{confluent_url}}/archive.key"
