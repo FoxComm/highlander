@@ -45,11 +45,14 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/ashes:{{docker_tags.ashes}}",
+      "image": "{{docker_registry}}/ashes:{{docker_tags.ashes}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "uris": [
+    "file:///docker/docker.tar.gz"
+  ]
 }

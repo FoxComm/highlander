@@ -44,11 +44,14 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/firebrand:{{docker_tags.firebrand}}",
+      "image": "{{docker_registry}}/firebrand:{{docker_tags.firebrand}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "uris": [
+    "file:///docker/docker.tar.gz"
+  ]
 }

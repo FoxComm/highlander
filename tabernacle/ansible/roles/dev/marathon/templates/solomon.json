@@ -38,7 +38,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/solomon:{{docker_tags.solomon}}",
+      "image": "{{docker_registry}}/solomon:{{docker_tags.solomon}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -56,5 +56,8 @@
       "ignoreHttp1xx": false,
       "portIndex": 0
     }
+  ],
+  "uris": [
+    "file:///docker/docker.tar.gz"
   ]
 }

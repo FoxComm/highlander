@@ -36,7 +36,7 @@ marathon_delay: 10
 
 # Docker defaults
 docker_tag: master
-docker_registry: docker-stage.foxcommerce.com
+docker_registry: commercecoop
 docker_registry_provider: gce
 docker_logs_dir: /logs
 docker_logs_host_dir: /var/log/docker

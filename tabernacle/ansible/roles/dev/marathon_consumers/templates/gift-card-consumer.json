@@ -21,7 +21,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/gift-card-consumer:{{docker_tags.gift_card_consumer}}",
+      "image": "{{docker_registry}}/gift-card-consumer:{{docker_tags.gift_card_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -49,5 +49,8 @@
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false
     }
+  ],
+  "uris": [
+    "file:///docker/docker.tar.gz"
   ]
 }

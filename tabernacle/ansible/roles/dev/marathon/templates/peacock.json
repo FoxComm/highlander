@@ -50,11 +50,14 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/peacock:{{docker_tags.peacock}}",
+      "image": "{{docker_registry}}/peacock:{{docker_tags.peacock}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "uris": [
+    "file:///docker/docker.tar.gz"
+  ]
 }

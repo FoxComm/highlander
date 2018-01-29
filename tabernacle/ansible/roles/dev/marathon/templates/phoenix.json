@@ -66,11 +66,14 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/phoenix:{{docker_tags.phoenix}}",
+      "image": "{{docker_registry}}/phoenix:{{docker_tags.phoenix}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "uris": [
+    "file:///docker/docker.tar.gz"
+  ]
 }

@@ -17,7 +17,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/greenriver:{{docker_tags.greenriver}}",
+      "image": "{{docker_registry}}/greenriver:{{docker_tags.greenriver}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -49,5 +49,8 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3
     }
+  ],
+  "uris": [
+    "file:///docker/docker.tar.gz"
   ]
 }

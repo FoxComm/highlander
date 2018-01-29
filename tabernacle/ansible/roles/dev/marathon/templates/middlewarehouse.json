@@ -21,7 +21,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/middlewarehouse:{{docker_tags.middlewarehouse}}",
+      "image": "{{docker_registry}}/middlewarehouse:{{docker_tags.middlewarehouse}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -53,5 +53,8 @@
       "ignoreHttp1xx": false,
       "port": {{middlewarehouse_port}}
     }
+  ],
+  "uris": [
+    "file:///docker/docker.tar.gz"
   ]
 }

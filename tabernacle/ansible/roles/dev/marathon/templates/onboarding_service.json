@@ -32,7 +32,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/onboarding-service:{{docker_tags.onboarding_service}}",
+      "image": "{{docker_registry}}/onboarding-service:{{docker_tags.onboarding_service}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -50,5 +50,8 @@
       "ignoreHttp1xx": false,
       "portIndex": 0
     }
+  ],
+  "uris": [
+    "file:///docker/docker.tar.gz"
   ]
 }
