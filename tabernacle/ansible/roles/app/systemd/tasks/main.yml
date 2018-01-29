@@ -1,7 +1,19 @@
 ---
 
+- name: Add localhost as a resolver
+  lineinfile:
+    path: /etc/resolv.conf
+    insertbefore: "^nameserver"
+    line: "nameserver 127.0.0.1"
+
+- name: Restart dnsmasq
+  service: name=dnsmasq state=restarted
+
+- name: Reload Systemd Daemon
+  command: systemctl daemon-reload
+
 - name: Enable Appliance Services
-  service: name={{item}} enabled=yes
+  service: name={{item}} state=restarted
   with_items:
     - consul_agent
     - consul_template

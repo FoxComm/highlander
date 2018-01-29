@@ -1,19 +1,19 @@
 ---
 
 - name: Add Docker Key
-  apt_key: url=https://download.docker.com/linux/ubuntu/gpg state=present
+  apt_key: url=https://download.docker.com/linux/debian/gpg state=present
 
 - name: Add Docker Repository
-  apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable" state=present update_cache=yes
+  apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/debian jessie stable" state=present update_cache=yes
 
 - name: Install Docker-Compose Dependency
   pip: name=ipaddress
 
 - name: Install Docker
-  apt: name={{item}} state=latest force=yes
-  with_items:
-    - docker-ce
-    - docker-compose
+  apt: name=docker-ce state=latest force=yes
+
+- name: Install Docker Compose
+  pip: name=docker-compose
 
 - name: Add User to Docker Group
   user: name={{user}} groups=docker append=yes

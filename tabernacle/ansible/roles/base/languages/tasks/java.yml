@@ -3,15 +3,18 @@
 - name: Install Debian Configuration Utils
   apt: name=debconf-utils state=latest force=yes
 
-- name: Add Oracle Java Repository
-  apt_repository: repo="ppa:webupd8team/java" update_cache=yes
-
-- name: Automatically select the Oracle License
-  shell: echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+- name: Add Jessie Backports Repository
+  apt_repository:
+    repo: "deb http://http.debian.net/debian jessie-backports main"
+    state: present
+    update_cache: yes
 
 - name: Install Java Packages
-  apt: name={{item}} state=latest force=yes
+  apt:
+    name: "{{item}}"
+    state: latest
+    force: yes
+    default_release: jessie-backports
   with_items:
-    - oracle-java8-installer
-    - oracle-java8-set-default
     - ca-certificates-java
+    - openjdk-8-jre-headless

@@ -6,7 +6,10 @@
     - httpie
     - jq
     - ncdu
-    - pgcli
+    - python-dev
+
+- name: Install pgcli
+  pip: name=pgcli
 
 - name: Install consulate
   pip: name=consulate

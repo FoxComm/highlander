@@ -4,7 +4,7 @@
   hosts: all
   become: true
   vars:
-    user: ubuntu
+    user: commerce
     is_appliance: true
     db_host: localhost
     packing: true
