@@ -9,6 +9,7 @@ import {
 } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
+import Agni from 'lib/agni';
 import { browserHistory } from 'lib/history';
 
 // modules
@@ -86,7 +87,7 @@ function apiCall(
     });
   }
 
-  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${toLoad}`, payload);
+  const promise = Agni.search(`/public/products_catalog_view?size=${toLoad}`, payload);
 
   const chained = promise.then((response) => {
     return {
