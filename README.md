@@ -1,8 +1,8 @@
 # Highlander
 
-[![Build status](https://badge.buildkite.com/f3f7826395143bf97d4f1b11fd2fb3c78ecb2a9c71b5acb43e.svg)](https://buildkite.com/foxcommerce/highlander-master)
+**FoxCommerce has be acquired by the [SHOP Cooperative](https://shoppers.shop)!**
 
-Highlander is the brand-spanking-new FoxCommerce mono-repo.
+**Highlander is still in active use and its development is being maintained as part of the [SHOP Protocol](https://github.com/ShoppersShop). However, the mono repo has been broken up into its various services.**
 
 Please proceed to [wiki](https://github.com/FoxComm/highlander/wiki) for more detailed info.
 
@@ -58,3 +58,7 @@ Logical relationships between services and software.
 Physical model.
 
 ![alt text](documents/diagrams/system/system.neato.png "Physical Model")
+
+# License
+
+MIT
