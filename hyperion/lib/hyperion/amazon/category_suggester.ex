@@ -1,5 +1,6 @@
 defmodule Hyperion.Amazon.CategorySuggester do
   import Ecto.Query
+
   @moduledoc """
   Suggests category for the product by it's title and/or query_string
   """
@@ -13,9 +14,17 @@ defmodule Hyperion.Amazon.CategorySuggester do
     # primary = get_primary_category(asin, cfg)
     primary = []
     secondary = fetch_secondary_categories(q, primary[:node_id], limit)
+
     case primary[:data] do
-      nil -> %{primary: nil, secondary: secondary, count: Enum.count(secondary)}
-      _ -> %{primary: primary[:data], secondary: secondary, count: Enum.count(primary[:data] ++ secondary)}
+      nil ->
+        %{primary: nil, secondary: secondary, count: Enum.count(secondary)}
+
+      _ ->
+        %{
+          primary: primary[:data],
+          secondary: secondary,
+          count: Enum.count(primary[:data] ++ secondary)
+        }
     end
   end
 
@@ -31,7 +40,7 @@ defmodule Hyperion.Amazon.CategorySuggester do
   Suggests category only by title
   """
   def suggest_categories(%{title: title, limit: _limit}, cfg) do
-    (from c in Category, limit: 10) |> Hyperion.Repo.all
+    from(c in Category, limit: 10) |> Hyperion.Repo.all()
     # We should keep the next code
     # asin = get_product_asin(title, cfg)
     # primary = get_primary_category(asin, cfg)
@@ -53,15 +62,24 @@ defmodule Hyperion.Amazon.CategorySuggester do
     cond do
       hd(data)["ProductCategoryName"] == "Shops" ->
         tl(data) |> hd
-      true -> hd(data)
+
+      true ->
+        hd(data)
     end
   end
 
   defp get_product_asin(query, cfg) do
     case MWSClient.list_matching_products(query, cfg) do
       {:success, res} ->
-        product = hd(res["ListMatchingProductsResponse"]["ListMatchingProductsResult"]["Products"]["Product"])
+        product =
+          hd(
+            res["ListMatchingProductsResponse"]["ListMatchingProductsResult"]["Products"][
+              "Product"
+            ]
+          )
+
         product["Identifiers"]["MarketplaceASIN"]["ASIN"]
+
       {_, _} ->
         raise "ASIN not found"
     end
@@ -70,21 +88,39 @@ defmodule Hyperion.Amazon.CategorySuggester do
   defp get_primary_category(asin, cfg) do
     case MWSClient.get_product_categories_for_asin(asin, cfg) do
       {:success, resp} ->
-        category = case resp["GetProductCategoriesForASINResponse"]["GetProductCategoriesForASINResult"]["Self"] do
-                     x when is_list(x) -> pick_right_category(x)
-                     x -> x
-                   end
+        category =
+          case resp["GetProductCategoriesForASINResponse"]["GetProductCategoriesForASINResult"][
+                 "Self"
+               ] do
+            x when is_list(x) -> pick_right_category(x)
+            x -> x
+          end
+
         fetch_main_category_details(category["ProductCategoryId"])
+
       {_, _} ->
         raise "No categories found for given ASIN"
     end
   end
 
   defp fetch_main_category_details(node_id) do
-    data = (from c in Category, select: %{node_id: c.node_id, node_path: c.node_path, size_opts: c.size_opts,
-                                          department: c.department, item_type: c.item_type})
-           |> where([c], c.node_id in ^[node_id] and not is_nil(c.department) and not is_nil(c.item_type))
-           |> Hyperion.Repo.all
+    data =
+      from(
+        c in Category,
+        select: %{
+          node_id: c.node_id,
+          node_path: c.node_path,
+          size_opts: c.size_opts,
+          department: c.department,
+          item_type: c.item_type
+        }
+      )
+      |> where(
+        [c],
+        c.node_id in ^[node_id] and not is_nil(c.department) and not is_nil(c.item_type)
+      )
+      |> Hyperion.Repo.all()
+
     case data do
       [] -> %{data: nil, node_id: node_id}
       _ -> %{data: data, node_id: node_id}
@@ -92,19 +128,24 @@ defmodule Hyperion.Amazon.CategorySuggester do
   end
 
   defp fetch_secondary_categories(q, nil, limit) do
-    (from c in Category, where: ilike(c.node_path,^"%#{String.downcase(q)}%")
-     and not is_nil(c.node_id) and not is_nil(c.department) and not is_nil(c.item_type), limit: ^limit)
-    |> Hyperion.Repo.all
+    from(
+      c in Category,
+      where:
+        ilike(c.node_path, ^"%#{String.downcase(q)}%") and not is_nil(c.node_id) and
+          not is_nil(c.department) and not is_nil(c.item_type),
+      limit: ^limit
+    )
+    |> Hyperion.Repo.all()
   end
 
   defp fetch_secondary_categories(q, node_id, limit) do
-    (from c in Category,
-     where: ilike(c.node_path,^"%#{String.downcase(q)}%")
-     and c.node_id != ^node_id and not is_nil(c.node_id)
-     and not is_nil(c.department) and not is_nil(c.item_type),
-     limit: ^limit)
-    |> Hyperion.Repo.all
+    from(
+      c in Category,
+      where:
+        ilike(c.node_path, ^"%#{String.downcase(q)}%") and c.node_id != ^node_id and
+          not is_nil(c.node_id) and not is_nil(c.department) and not is_nil(c.item_type),
+      limit: ^limit
+    )
+    |> Hyperion.Repo.all()
   end
 end
-
-

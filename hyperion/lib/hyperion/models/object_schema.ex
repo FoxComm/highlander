@@ -1,13 +1,12 @@
 defmodule ObjectSchema do
-
   use Ecto.Schema
   import Ecto.Changeset
 
   @derive {Poison.Encoder, only: [:id, :schema_name, :schema]}
 
   schema "object_schema" do
-    field :schema_name
-    field :schema, :map
+    field(:schema_name)
+    field(:schema, :map)
 
     timestamps()
   end

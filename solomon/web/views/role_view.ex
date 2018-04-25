@@ -14,19 +14,17 @@ defmodule Solomon.RoleView do
   def render("show.json", %{role: role}) do
     %{role: render_one(role, RoleView, "role.json")}
   end
-  
+
   def render("role_with_permissions.json", %{role: role}) do
-    %{id: role.id,
+    %{
+      id: role.id,
       name: role.name,
-      scope_id: role.scope_id, 
+      scope_id: role.scope_id,
       granted_permissions: render_many(role.permissions, PermissionView, "permission.json")
     }
   end
 
   def render("role.json", %{role: role}) do
-    %{id: role.id,
-      name: role.name,
-      scope_id: role.scope_id
-    }
-  end 
+    %{id: role.id, name: role.name, scope_id: role.scope_id}
+  end
 end

@@ -15,6 +15,7 @@ defmodule Solomon.ScopeService do
     case Repo.get(Scope, scope_id) do
       nil ->
         {:error, "scope not found"}
+
       scope ->
         {:ok, get_scope_path(scope)}
     end
@@ -37,81 +38,89 @@ defmodule Solomon.ScopeService do
     case get_resp_header(conn, "scope") do
       [] ->
         conn
-        |> send_resp(:unauthorized, Poison.encode!(%{
-          errors: [
-            "unauthorized request"
-          ]
-        }))
+        |> send_resp(
+          :unauthorized,
+          Poison.encode!(%{
+            errors: [
+              "unauthorized request"
+            ]
+          })
+        )
+
       [scope] ->
-        "^" <> Regex.escape(scope)
-        |> Regex.compile!
+        ("^" <> Regex.escape(scope))
+        |> Regex.compile!()
     end
   end
 
   def scoped_index(conn, Scope) do
     req_scope_path = get_request_scope_regex(conn)
+
     Repo.all(Scope)
-    |> Enum.filter(
-      fn scope ->
-        Regex.match?(req_scope_path, get_scope_path(scope))
-      end
-    )
+    |> Enum.filter(fn scope ->
+      Regex.match?(req_scope_path, get_scope_path(scope))
+    end)
   end
 
   def scoped_index(conn, schema) do
     req_scope_path = get_request_scope_regex(conn)
+
     Repo.all(
-      from object in schema,
-      join: scope in Scope,
-      on: object.scope_id == scope.id,
-      select: {object, scope}
+      from(
+        object in schema,
+        join: scope in Scope,
+        on: object.scope_id == scope.id,
+        select: {object, scope}
+      )
     )
-    |> Enum.filter(
-      fn {object, scope} ->
-        Regex.match?(req_scope_path, get_scope_path(scope))
-      end
-    )
+    |> Enum.filter(fn {object, scope} ->
+      Regex.match?(req_scope_path, get_scope_path(scope))
+    end)
     |> Enum.map(fn {object, scope} -> object end)
   end
 
   def scoped_show(conn, Scope, id) do
     req_scope_path = get_request_scope_regex(conn)
     scope = Repo.get!(Scope, id)
+
     if Regex.match?(req_scope_path, get_scope_path(scope)) do
       scope
-    else {
-      :error,
-      Ecto.Changeset.add_error(
-        Scope.changeset(scope, %{}),
-        :scope,
-        "insufficient permissions"
-      )
-    }
+    else
+      {
+        :error,
+        Ecto.Changeset.add_error(
+          Scope.changeset(scope, %{}),
+          :scope,
+          "insufficient permissions"
+        )
+      }
     end
   end
 
   def scoped_show(conn, schema, id) do
     req_scope_path = get_request_scope_regex(conn)
     object = Repo.get!(schema, id)
+
     if Regex.match?(req_scope_path, get_scope_path_by_id!(object.scope_id)) do
       object
-    else {
-      :error,
-      Ecto.Changeset.add_error(
-        schema.changeset(object, %{}),
-        :scope,
-        "insufficient permissions"
-      )
-    }
+    else
+      {
+        :error,
+        Ecto.Changeset.add_error(
+          schema.changeset(object, %{}),
+          :scope,
+          "insufficient permissions"
+        )
+      }
     end
   end
 
   def validate_scoped_changeset(changeset, conn, scope_id) do
     req_scope_path = get_request_scope_regex(conn)
-    if(
-      !changeset.valid? || # pass on existing errors
-      Regex.match?(req_scope_path, get_scope_path_by_id!(scope_id))
-    ) do
+
+    if !changeset.valid? || Regex.match?(req_scope_path, get_scope_path_by_id!(scope_id))
+
+       # pass on existing errors do
       changeset
     else
       Ecto.Changeset.add_error(
@@ -130,7 +139,12 @@ defmodule Solomon.ScopeService do
   end
 
   defp insert_role_permission(role_id, permission_id) do
-    changeset = RolePermission.changeset(%RolePermission{}, %{role_id: role_id, permission_id: permission_id})
+    changeset =
+      RolePermission.changeset(%RolePermission{}, %{
+        role_id: role_id,
+        permission_id: permission_id
+      })
+
     Repo.insert(changeset)
   end
 
@@ -138,6 +152,7 @@ defmodule Solomon.ScopeService do
     case Repo.get(Scope, scope_id) do
       nil ->
         {:error, "scope not found"}
+
       scope ->
         {:ok, get_scope_path(scope)}
     end
@@ -149,7 +164,7 @@ defmodule Solomon.ScopeService do
   end
 
   def get_scope_path(scope) do
-    if(is_integer(scope.id)) do
+    if is_integer(scope.id) do
       case scope.parent_path do
         nil -> to_string(scope.id)
         "" -> to_string(scope.id)
@@ -161,7 +176,7 @@ defmodule Solomon.ScopeService do
   end
 
   def super_scope_regex(scope_path) do
-    "^" <> Regex.escape(scope_path)
-    |> Regex.compile!
+    ("^" <> Regex.escape(scope_path))
+    |> Regex.compile!()
   end
 end

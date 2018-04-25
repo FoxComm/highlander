@@ -13,6 +13,7 @@ defmodule Solomon.Scrypt do
         {n, r, p} = unwrap_params(params)
         salt = decode64!(enc_salt)
         {:ok, hash == scrypt(passwd, salt, n, r, p, 32)}
+
       _ ->
         {:error, %{errors: %{hashed_password: "invalid"}}}
     end
@@ -26,9 +27,12 @@ defmodule Solomon.Scrypt do
 
   defp scrypt(passwd, salt, n, r, p, buflen) do
     params = Integer.to_string(bor(Kernel.trunc(:math.log2(n)) <<< 16, bor(r <<< 8, p)), 16)
-    :scrypt.start
-    derived = :scrypt.scrypt(passwd, salt, n, r, p, buflen)
-    |> encode64
+    :scrypt.start()
+
+    derived =
+      :scrypt.scrypt(passwd, salt, n, r, p, buflen)
+      |> encode64
+
     "$s0$" <> params <> "$" <> encode64(salt) <> "$" <> derived
   end
 end

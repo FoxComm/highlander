@@ -11,7 +11,8 @@ defmodule Solomon.OrganizationView do
   end
 
   def render("organization.json", %{organization: organization}) do
-    %{id: organization.id,
+    %{
+      id: organization.id,
       name: organization.name,
       kind: organization.kind,
       parent_id: organization.parent_id,

@@ -16,7 +16,8 @@ defmodule Solomon.ScopeView do
   end
 
   def render("scope.json", %{scope: scope}) do
-    %{id: scope.id,
+    %{
+      id: scope.id,
       source: scope.source,
       parent_id: scope.parent_id,
       parent_path: scope.parent_path

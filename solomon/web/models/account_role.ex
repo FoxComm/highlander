@@ -2,8 +2,8 @@ defmodule Solomon.AccountRole do
   use Solomon.Web, :model
 
   schema "account_roles" do
-    belongs_to :account, Solomon.Account
-    belongs_to :role, Solomon.Role
+    belongs_to(:account, Solomon.Account)
+    belongs_to(:role, Solomon.Role)
   end
 
   @required_fields ~w(account_id role_id)a

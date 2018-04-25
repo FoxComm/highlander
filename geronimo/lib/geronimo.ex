@@ -4,9 +4,9 @@ defmodule Geronimo do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    unless Mix.env == :prod do
-      Envy.auto_load
-      Envy.reload_config
+    unless Mix.env() == :prod do
+      Envy.auto_load()
+      Envy.reload_config()
     end
 
     children = [
@@ -16,7 +16,9 @@ defmodule Geronimo do
     case Application.fetch_env(:geronimo, :start_kafka_worker) do
       {:ok, "true"} ->
         Geronimo.Kafka.Worker.start()
-      _ -> nil
+
+      _ ->
+        nil
     end
 
     opts = [strategy: :one_for_one, name: Geronimo.Supervisor]

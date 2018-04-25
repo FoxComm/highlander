@@ -38,10 +38,18 @@ defmodule Geronimo.Kafka.Avro do
       Returns AVRO schema for given model according to Ecto.Schema
       """
       def avro_schema(as_json \\ true) do
-        fields = apply(__MODULE__, :__schema__, [:types])
-                 |> Enum.into([])
-                 |> Enum.map(fn {k, v} -> avro_field_type({k, v}) end)
-        schema = %{fields: fields, name: model_name(), namespace: "com.foxcommerce.geronimo", type: "record"}
+        fields =
+          apply(__MODULE__, :__schema__, [:types])
+          |> Enum.into([])
+          |> Enum.map(fn {k, v} -> avro_field_type({k, v}) end)
+
+        schema = %{
+          fields: fields,
+          name: model_name(),
+          namespace: "com.foxcommerce.geronimo",
+          type: "record"
+        }
+
         case as_json do
           true -> Poison.encode!(schema)
           _ -> schema
@@ -55,13 +63,13 @@ defmodule Geronimo.Kafka.Avro do
 
       defp avro_field_type({k, v}) do
         case v do
-          :integer ->            %{"name" => Atom.to_string(k), "type" => ["int", "null"]}
-          :id ->                 %{"name" => Atom.to_string(k), "type" => ["int", "null"]}
-          :string ->             %{"name" => Atom.to_string(k), "type" => ["string", "null"]}
-          :map ->                %{"name" => Atom.to_string(k), "type" => ["string", "null"]}
-          :utc_datetime ->       %{"name" => Atom.to_string(k), "type" => ["string", "null"]}
+          :integer -> %{"name" => Atom.to_string(k), "type" => ["int", "null"]}
+          :id -> %{"name" => Atom.to_string(k), "type" => ["int", "null"]}
+          :string -> %{"name" => Atom.to_string(k), "type" => ["string", "null"]}
+          :map -> %{"name" => Atom.to_string(k), "type" => ["string", "null"]}
+          :utc_datetime -> %{"name" => Atom.to_string(k), "type" => ["string", "null"]}
           Timex.Ecto.DateTime -> %{"name" => Atom.to_string(k), "type" => ["string", "null"]}
-          other ->               raise %UnknownSchemaTypeError{message: "Unknown field type #{other}"}
+          other -> raise %UnknownSchemaTypeError{message: "Unknown field type #{other}"}
         end
       end
     end

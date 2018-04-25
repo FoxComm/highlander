@@ -6,8 +6,6 @@ defmodule Hyperion.Supervisor do
   end
 
   def init([]) do
-    [ worker(Hyperion.Repo, [])
-    ] |> supervise(strategy: :one_for_one)
+    [worker(Hyperion.Repo, [])] |> supervise(strategy: :one_for_one)
   end
-
 end

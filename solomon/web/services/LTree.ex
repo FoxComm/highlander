@@ -1,5 +1,4 @@
 defmodule Solomon.LTree do
-
   @behaviour Postgrex.Extension
 
   # postgres already reads strings in for ltree 

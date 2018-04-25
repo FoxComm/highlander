@@ -6,13 +6,15 @@ defmodule Geronimo.JwtAuth do
   """
   def verify(payload) do
     opts = %{alg: "RS256", key: key()}
+
     try do
       case JsonWebToken.verify(payload, opts) do
         {:ok, data} -> data
         _ -> raise %NotAllowedError{}
       end
-    rescue RuntimeError ->
-      raise %NotAllowedError{}
+    rescue
+      RuntimeError ->
+        raise %NotAllowedError{}
     end
   end
 

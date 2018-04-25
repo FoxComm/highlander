@@ -11,7 +11,8 @@ defmodule Solomon.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    %{id: user.id,
+    %{
+      id: user.id,
       email: user.email,
       is_disabled: user.is_disabled,
       disabled_by: user.disabled_by,
@@ -27,7 +28,8 @@ defmodule Solomon.UserView do
   end
 
   def render("user_with_account_id.json", %{user: user}) do
-    %{id: user.id,
+    %{
+      id: user.id,
       email: user.email,
       is_disabled: user.is_disabled,
       disabled_by: user.disabled_by,

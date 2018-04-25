@@ -11,7 +11,7 @@ defmodule Solomon do
       # Start the Ecto repository
       supervisor(Solomon.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(Solomon.Endpoint, []),
+      supervisor(Solomon.Endpoint, [])
       # Start your own worker by calling: Solomon.Worker.start_link(arg1, arg2, arg3)
       # worker(Solomon.Worker, [arg1, arg2, arg3]),
     ]
