@@ -2,15 +2,10 @@ package foxcomm.agni.interpreter
 
 import scala.language.higherKinds
 import cats.data.NonEmptyList
-import foxcomm.agni.dsl.query._
-
-sealed trait QueryError
-object QueryError {}
+import foxcomm.agni.dsl.query.QueryFunction
 
 trait QueryInterpreter[F[_], V] extends Interpreter[F, NonEmptyList[QueryFunction], V] {
-  type Result = V
-
-  final def eval(qf: QueryFunction): F[Result] = qf match {
+  final def eval(qf: QueryFunction): F[V] = qf match {
     case qf: QueryFunction.matches ⇒ matchesF(qf)
     case qf: QueryFunction.equals  ⇒ equalsF(qf)
     case qf: QueryFunction.exists  ⇒ existsF(qf)
@@ -19,17 +14,17 @@ trait QueryInterpreter[F[_], V] extends Interpreter[F, NonEmptyList[QueryFunctio
     case qf: QueryFunction.bool    ⇒ boolF(qf)
   }
 
-  def matchesF(qf: QueryFunction.matches): F[Result]
+  def matchesF(qf: QueryFunction.matches): F[V]
 
-  def equalsF(qf: QueryFunction.equals): F[Result]
+  def equalsF(qf: QueryFunction.equals): F[V]
 
-  def existsF(qf: QueryFunction.exists): F[Result]
+  def existsF(qf: QueryFunction.exists): F[V]
 
-  def rangeF(qf: QueryFunction.range): F[Result]
+  def rangeF(qf: QueryFunction.range): F[V]
 
-  def rawF(qf: QueryFunction.raw): F[Result]
+  def rawF(qf: QueryFunction.raw): F[V]
 
-  def boolF(qf: QueryFunction.bool): F[Result]
+  def boolF(qf: QueryFunction.bool): F[V]
 }
 
 object QueryInterpreter {

@@ -6,25 +6,27 @@ import io.circe.generic.extras.Configuration
 import io.circe.{Json, Printer}
 import java.io.ByteArrayOutputStream
 import monix.eval.Task
+import monix.execution.Cancelable
 import org.elasticsearch.action.ActionListener
-import scala.concurrent.Promise
 
 package object agni {
   private[this] val smileFactory = new SmileFactory()
   private[this] val jsonFactory  = new JsonFactory()
 
+  val Discriminator: String = "type"
+
   implicit val configuration: Configuration =
-    Configuration.default.withDefaults.withDiscriminator("type").withSnakeCaseKeys
+    Configuration.default.withDefaults.withDiscriminator(Discriminator).withSnakeCaseKeys
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  def async[A, B](action: ActionListener[A] ⇒ Any): Task[A] = Task.deferFuture {
-    val p = Promise[A]()
+  def async[A, B](action: ActionListener[A] ⇒ Any): Task[A] = Task.create { (_, cb) ⇒
     action(new ActionListener[A] {
-      def onFailure(e: Throwable): Unit = p.tryFailure(e)
+      def onFailure(e: Throwable): Unit = cb.onError(e)
 
-      def onResponse(response: A): Unit = p.trySuccess(response)
+      def onResponse(response: A): Unit = cb.onSuccess(response)
     })
-    p.future
+
+    Cancelable.empty
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.While"))

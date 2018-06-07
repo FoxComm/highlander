@@ -1,0 +1,13 @@
+{
+  "type": "fc",
+  "sort": [
+    {
+      "type": "raw",
+      "value": "price"
+    },
+    {
+      "type": "raw",
+      "value": { "date": { "order": "desc" }}
+    }
+  ]
+}

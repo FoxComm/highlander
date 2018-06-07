@@ -1,0 +1,18 @@
+{
+  "type": "fc",
+  "aggregations": [
+    {
+      "type": "some_type",
+      "name": "some_name",
+      "meta": {},
+      "value": {}
+    },
+    {
+      "type": "some_type",
+      "name": "some_other_name",
+      "value": {
+        "some_key": "some_value"
+      }
+    }
+  ]
+}
