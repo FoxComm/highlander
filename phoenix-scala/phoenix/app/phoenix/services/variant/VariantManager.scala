@@ -155,7 +155,7 @@ object VariantManager {
       db: DB,
       au: AU): DbResultT[FullObject[VariantValue]] = {
 
-    val (form, shadow) = payload.formAndShadow.tupled
+    val (form, shadow) = payload.formAndShadow.tuple
 
     for {
       scope    ← * <~ Scope.resolveOverride(payload.scope)
@@ -177,7 +177,7 @@ object VariantManager {
   private def updateVariantValueInner(valueId: Int, contextId: Int, payload: VariantValuePayload)(
       implicit ec: EC,
       db: DB): DbResultT[FullObject[VariantValue]] = {
-    val (form, shadow) = payload.formAndShadow.tupled
+    val (form, shadow) = payload.formAndShadow.tuple
 
     for {
       value     ← * <~ mustFindVariantValueByContextAndForm(contextId, valueId)

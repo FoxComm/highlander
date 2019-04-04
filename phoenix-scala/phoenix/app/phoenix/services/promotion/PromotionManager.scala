@@ -42,7 +42,7 @@ object PromotionManager {
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       (form, shadow) = IlluminatedPromotion
         .validatePromotion(payload.applyType, formAndShadow)
-        .tupled
+        .tuple
       ins ← * <~ ObjectUtils.insert((form, shadow), payload.schema)
       promotion ← * <~ Promotions.create(
                    Promotion(scope = scope,
