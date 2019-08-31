@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { dissoc } from 'sprout-data';
-import { post } from '../../lib/search';
+import Agni from '../../lib/agni';
 import { createReducer } from 'redux-act';
 import { createNsAction } from './../utils';
 import { toQuery, addNativeFilters } from '../../elastic/common';
@@ -59,7 +59,8 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
 
     dispatch(saveRawQuery(jsonQuery));
 
-    const promise = post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }))
+    const promise =
+      Agni.search(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }))
       .then(response => {
         if (skipProcessingFetch(getState, fetchingSearchIdx)) {
           promise.abort();

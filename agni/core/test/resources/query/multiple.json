@@ -1,0 +1,53 @@
+[
+  {
+    "type": "equals",
+    "context": "must",
+    "in": "slug",
+    "value": [ "awesome", "whatever" ]
+  },
+  {
+    "type": "matches^.5",
+    "context": "should",
+    "in": [ "title", "description", "skus.code" ],
+    "value": [ "food", "drink" ]
+  },
+  {
+    "type": "range",
+    "in": "price",
+    "value": {
+      "<": 5000,
+      "gte": 1000
+    }
+  },
+  {
+    "type": "exists",
+    "context": "not",
+    "value": "archivedAt"
+  },
+  {
+    "type": "raw",
+    "context": "filter",
+    "value": {
+      "match_all": {}
+    }
+  },
+  {
+    "type": "bool",
+    "context": "should",
+    "value": [
+      {
+        "type": "equals",
+        "in": "context",
+        "value": "default"
+      },
+      {
+        "type": "bool",
+        "context": "not",
+        "value": {
+          "type": "exists",
+          "value": "context"
+        }
+      }
+    ]
+  }
+]

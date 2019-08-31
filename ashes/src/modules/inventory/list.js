@@ -55,7 +55,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'inventory.list',
   searchTerms,
-  'inventory_search_view/_search',
+  'inventory_search_view',
   'inventoryScope',
   {
     initialState: { sortBy: '-createdAt' },

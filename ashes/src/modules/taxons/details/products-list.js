@@ -6,7 +6,7 @@ import productsSearchTerms from 'modules/products/search-terms';
 const { reducer, actions } = makeLiveSearch(
   'taxons.details.products',
   productsSearchTerms,
-  'products_search_view/_search',
+  'products_search_view',
   'productsScope',
   {
     initialState: { sortBy: 'name' },

@@ -9,7 +9,7 @@ const emptyFilters = [];
 const emptyPhrase = '';
 const quickSearch = makeQuickSearch(
   'orders.newOrder.customers',
-  'customers_search_view/_search',
+  'customers_search_view',
   emptyFilters,
   emptyPhrase
 );

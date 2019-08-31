@@ -1,7 +1,7 @@
-import { post } from '../lib/search';
+import Agni from 'lib/agni';
 import * as dsl from './dsl';
 
-const adminSearchUrl = 'store_admins_search_view/_search';
+const adminSearchUrl = 'store_admins_search_view';
 
 export function searchAdmins(token) {
   const caseInsesnitiveToken = token.toLowerCase();
@@ -14,5 +14,5 @@ export function searchAdmins(token) {
     }
   });
 
-  return post(adminSearchUrl, matchRule);
+  return Agni.search(adminSearchUrl, matchRule);
 }

@@ -1,12 +1,12 @@
 /* @flow */
 
-import { post } from '../lib/search';
+import Agni from 'lib/agni';
 import * as dsl from './dsl';
 
 // 1000 should be big enough to request all promotions with applyType = coupon
 // without size parameter ES responds with 10 items max
 const MAX_RESULTS = 1000;
-const promotionsSearchUrl: string = `promotions_search_view/_search?size=${MAX_RESULTS}`;
+const promotionsSearchUrl: string = `promotions_search_view?size=${MAX_RESULTS}`;
 
 export function searchCouponPromotions(token: string): Promise<*> {
   const filters = [];
@@ -33,5 +33,5 @@ export function searchCouponPromotions(token: string): Promise<*> {
     },
   });
 
-  return post(promotionsSearchUrl, matchRule);
+  return Agni.search(promotionsSearchUrl, matchRule);
 }

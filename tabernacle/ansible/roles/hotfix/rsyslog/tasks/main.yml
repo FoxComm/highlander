@@ -1,0 +1,8 @@
+- name: Remove Current File Data Forwarding Config
+  file: path=/etc/rsyslog.d/51-mesos.conf state=absent
+
+- name: Install New File Data Forwarding Config
+  template: src=mesos.conf.j2 dest=/etc/rsyslog.d/51-mesos.conf owner=root group=root mode=0644
+
+- name: Restart rsyslog
+  service: name=rsyslog state=restarted

@@ -4,7 +4,7 @@ import searchTerms from './search-terms';
 const { reducer, actions } = makeLiveSearch(
   'orders.list',
   searchTerms,
-  'orders_search_view/_search',
+  'orders_search_view',
   'ordersScope',
   {
     initialState: { sortBy: '-placedAt' },

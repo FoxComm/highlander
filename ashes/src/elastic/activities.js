@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { post } from '../lib/search';
+import Agni from 'lib/agni';
+import { post } from 'lib/search';
 import moment from 'moment';
 import * as dsl from './dsl';
 
@@ -58,7 +59,7 @@ export default function searchActivities(fromActivity = null, trailParams, days 
 
     const q = queryFirstActivity();
 
-    promise = post('scoped_activity_trails/_search', q)
+    promise = Agni.post('scoped_activity_trails', q)
       .then(response => {
         const result = _.isEmpty(response.result) ? [] : response.result;
         _.set(response, 'result', result);

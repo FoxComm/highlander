@@ -1,4 +1,3 @@
-
 import makeLiveSearch from 'modules/live-search';
 
 const searchTerms = [
@@ -81,7 +80,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'customers.storeCreditTransactions.list',
   searchTerms,
-  'store_credit_transactions_search_view/_search',
+  'store_credit_transactions_search_view',
   'customerStoreCreditTransactionsScope', {
     initialState: { sortBy: '-createdAt' },
     skipInitialFetch: true

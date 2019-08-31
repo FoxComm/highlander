@@ -16,11 +16,11 @@ global_args = parser.parse_args()
 
 ROOT_DIR=os.path.abspath(os.path.dirname(os.path.basename(__file__)))
 
-
 # Structure for now
 # project directory from root is key
 # dependent project directories is a value
 PROJECTS = {
+    'agni': [],
     'ashes': [],
     'data-import': [],
     'demo/peacock': [],
