@@ -9,6 +9,7 @@ export GIT_COMMIT = $(shell git rev-parse --short HEAD)
 export URL_PREFIX = /admin
 WEBPACK_PORT = 4001
 
+.PHONY: notify
 notify:
 	$(call header, $(MSG))
 
@@ -26,8 +27,8 @@ CFLAGS = -c -g -D $(NODE_ENV)
 version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('package.json')).version)")
 
 .PHONY: docker
-docker: MSG=Dockerizing
-docker: notify
+docker:
+	MSG=Dockerizing make notify
 	docker build -t $(DOCKER_IMAGE) . --build-arg NPM_TOKEN=${NPM_TOKEN}
 
 .PHONY: docker-run
@@ -35,8 +36,8 @@ docker-run:
 	docker run -it -p 4000:4000 ashes:latest
 
 .PHONY: docker-push
-docker-push: MSG=Registering
-docker-push: notify
+docker-push:
+	MSG=Registering make notify
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
@@ -52,12 +53,17 @@ tag:
 clean:
 	rm -rf ./build/admin
 
+# Do we actually need tests (not checks) on built aplication inside Ashes?
 .PHONY: test
-test: MSG=Testing
-test: notify flow lint mocha
+test:
+	MSG=Testing make notify
 
-.PHONY: t
-t: flow lint mocha
+.PHONY: notify-check
+notify-check:
+	MSG=Checking make notify
+
+.PHONY: check t
+check t: notify-check flow lint mocha
 
 .PHONY: mocha-spec
 mocha-spec:
@@ -97,6 +103,7 @@ fmt-%:
 
 .PHONY: build-styleguide
 build-styleguide:
+	MSG="Building Styleguilde" make notify
 	styleguidist build --config styleguide/config.styleguide.js
 
 .PHONY: styleguide sg
@@ -107,6 +114,7 @@ styleguide sg:
 
 .PHONY: install i
 install i:
+	MSG=Installing make notify
 	rm -rf ./node_modules
 	yarn cache clean
 	yarn --pure-lockfile
@@ -131,6 +139,7 @@ dev d:
 
 .PHONY: build-prod
 build-prod:
+	MSG="Building Application" make notify
 	NODE_ENV=production webpack --progress
 
 .PHONY: prod p
@@ -140,5 +149,4 @@ prod p: clean build-prod
 # Buildkite ###
 
 .PHONY: build
-build: MSG=Building
-build: notify clean install build-styleguide build-prod
+build: clean install check build-styleguide build-prod
