@@ -11,6 +11,7 @@ clean:
 prep:
 	npm install
 	cd node_modules/aglio-theme-fox && npm install
+	rsync -av node_modules/aglio-theme-fox/templates/assets/ content/assets/
 
 build:
 	$(call header, Building)
@@ -35,5 +36,8 @@ docker-push:
 publish: build
 	firebase use production
 	firebase deploy
+
+serve: build
+	firebase serve
 
 .PHONY: prep clean build test docker docker-push publish
