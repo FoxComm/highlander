@@ -130,6 +130,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
 
   def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] =
     try {
+      Console.err.println(s"message: ${new String(message)}")
 
       val keyJson =
         if (key == null || key.isEmpty) {

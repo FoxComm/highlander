@@ -51,6 +51,18 @@ GERONIMO_DB_HOST=localhost
 GERONIMO_DB_USER=geronimo
 GERONIMO_DB_NAME=geronimo_development
 GERONIMO_DB_PASSWORD=''
+
+# kafka
+BROKER_HOST=kafka_broker_host
+BROKER_PORT=9092
+CONSUMER_GROUP=geronimo_kafka_ex
+SCHEMA_REGISTRY_IP=schema_registry_ip
+SCHEMA_REGISTRY_PORT=8081
+
+# Start kafka worker on application start
+START_WORKER=true 
+
+#jwt
 PUBLIC_KEY=/path/to/public_key.pem
 ```
 
@@ -488,6 +500,8 @@ Params:
 |----|----|-----------|---------|
 |content_type_id|Integer|Corresponding ContentType id|Yes|
 |content|JSON|Content of an Entity|Yes|
+|storefront|string|Storefront on which given entity has been created|Yes|
+
 
 **Request:**
 `POST /v1/admin/entities/`
@@ -495,6 +509,7 @@ Params:
 ```json
 {
 	"content_type_id": 1,
+    "storefront": "foo.bar",
 	"content": {
 		"title":"Some title foooooo",
 		"body":"Lorem ipsum",
@@ -511,6 +526,7 @@ Params:
     "updated_at": "2017-06-12T03:15:17Z",
     "scope": "1",
     "schema_version": "2017-06-12T03:13:46Z",
+    "storefront": "foo.bar",
     "kind": "BlogPost",
     "inserted_at": "2017-06-12T03:15:17Z",
     "id": 3,

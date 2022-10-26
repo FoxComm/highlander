@@ -7,3 +7,12 @@ config :geronimo, Geronimo.Repo,
   hostname: System.get_env("GERONIMO_DB_HOST"),
   pool: Ecto.Adapters.SQL.Sandbox,
   types: Geronimo.PostgresTypes
+
+config :exvcr, [
+  vcr_cassette_library_dir: "spec/fixture/vcr_cassettes",
+  filter_sensitive_data: [
+    [pattern: "<PASSWORD>.+</PASSWORD>", placeholder: "PASSWORD_PLACEHOLDER"]
+  ],
+  filter_url_params: false,
+  response_headers_blacklist: []
+]

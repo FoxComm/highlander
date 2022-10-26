@@ -7,7 +7,7 @@ defmodule Geronimo.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     preferred_cli_env: [espec: :test],
+     preferred_cli_env: [espec: :test, vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test],
      elixirc_paths: elixirc_paths(Mix.env),
      deps: deps()]
   end
@@ -44,6 +44,7 @@ defmodule Geronimo.Mixfile do
     {:inflex, "~> 1.8.1" },
     {:exsync, "~> 0.1", only: :dev},
     {:espec, "~> 1.3.2", only: :test},
-    {:ex_machina, "~> 2.0", only: :test}]
+    {:ex_machina, "~> 2.0", only: :test},
+    {:exvcr, "~> 0.8", only: :test}]
   end
 end

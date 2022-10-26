@@ -33,7 +33,7 @@ defmodule Geronimo.Validation do
 
   def valid_date?(d) do
     case Timex.parse(d, "%FT%T.%fZ", :strftime) do
-      {:error, _} -> {:error, "should be like 1970-01-01T00:00:00.000000Z"}
+      {:error, _} -> {:error, "should be like 1970-01-01T00:00:00.0Z"}
       {:ok, _}    -> :ok
     end
   end

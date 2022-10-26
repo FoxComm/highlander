@@ -1,0 +1,23 @@
+[
+  {
+    "request": {
+      "body": "{\"schema\":\"{\\\"type\\\":\\\"record\\\",\\\"namespace\\\":\\\"com.foxcommerce.geronimo\\\",\\\"name\\\":\\\"entities_pkey\\\",\\\"fields\\\":[{\\\"type\\\":[\\\"null\\\",\\\"int\\\"],\\\"name\\\":\\\"id\\\"}]}\"}",
+      "headers": [],
+      "method": "post",
+      "options": [],
+      "request_body": "",
+      "url": "http://127.0.0.1:8081/subjects/entities-key/versions"
+    },
+    "response": {
+      "body": "{\"id\":140}",
+      "headers": {
+        "Date": "Fri, 23 Jun 2017 05:38:25 GMT",
+        "Content-Type": "application/vnd.schemaregistry.v1+json",
+        "Content-Length": "10",
+        "Server": "Jetty(9.2.12.v20150709)"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

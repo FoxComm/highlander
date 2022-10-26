@@ -1,27 +1,32 @@
 defmodule Geronimo.Kafka.Worker do
+  @moduledoc """
+  Starts KafkaEs worker on app start and registers all needed schemas
+  NB: Add new modules to register_schemas() if needed.
+  """
+
   require Logger
+  alias Geronimo.Kafka.SchemaRegistryClient
 
   def start do
     kafka_url = [{Application.fetch_env!(:geronimo, :kafka_host),
                   Application.fetch_env!(:geronimo, :kafka_port) |> String.to_integer }]
     KafkaEx.create_worker(:geronimo_worker, [uris: kafka_url,
                           consumer_group: Application.fetch_env!(:geronimo, :consumer_group)])
+    register_schemas()
   end
 
-  def push(kind, obj) do
-    KafkaEx.produce("geronimo_#{kind}", 0, Poison.encode!(obj),
-                    key: "#{kind}_#{obj.id}", worker_name: :geronimo_worker)
-  end
+  def register_schemas do
+    Task.async(fn->
+      modules = [Geronimo.ContentType, Geronimo.Entity]
 
-  def push_async(kind, obj) do
-    unless Mix.env == :test do
-      Task.async(fn ->
-        push(kind, obj)
+      Enum.each(modules, fn(module) ->
+        key_schema = apply(module, :avro_schema_key, [])
+        value_schema = apply(module, :avro_schema_value, [])
+        object = apply(module, :table, [])
+        {:ok, k_res} = SchemaRegistryClient.store_schema("#{object}-key", key_schema)
+        {:ok, v_ver} = SchemaRegistryClient.store_schema("#{object}-value", value_schema)
+        Logger.info "Schemas for #{object} registered. Key: #{inspect(k_res)}, value: #{inspect(v_ver)}"
       end)
-    end
-  end
-
-  def push_async_await(kind, obj) do
-    push_async(kind, obj) |> Task.await
+    end) |> Task.await
   end
 end

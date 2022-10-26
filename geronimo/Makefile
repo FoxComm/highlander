@@ -33,8 +33,7 @@ test:
 	MIX_ENV=test mix espec
 
 seed:
-	mix run priv/seeds/clothes_accessories_categories.exs
-	mix run priv/seeds/clothes_schema.exs
+	mix run priv/seeds/seeds.exs
 
 ####################################################################
 # Docker build targets                                             #
@@ -82,6 +81,7 @@ migrate:
 
 reset:
 	@make drop-db
+	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
 	@make drop-user
 	@make create-user
 	@make create-db
