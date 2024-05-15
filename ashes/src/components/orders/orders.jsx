@@ -115,7 +115,7 @@ class Orders extends Component {
 
   get renderRow(): Function {
     return (row, index, columns, params) => {
-      const key = `order-${row.referenceNumber}`;
+      const key = `order-${row.id}`;
 
       return <OrderRow order={row} columns={columns} key={key} params={params} />;
     };

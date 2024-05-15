@@ -3,7 +3,6 @@ create or replace function update_returns_search_view_from_returns_insert_fn() r
            insert into returns_search_view (
                id,
                reference_number,
-               order_id,
                order_ref,
                created_at,
                state,
@@ -16,7 +15,6 @@ create or replace function update_returns_search_view_from_returns_insert_fn() r
                -- return
                new.id as id,
                new.reference_number as reference_number,
-               new.order_id as order_id,
                new.order_ref as order_ref,
                to_json_timestamp(new.created_at) as created_at,
                new.state as state,

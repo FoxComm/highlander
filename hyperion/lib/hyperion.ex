@@ -9,6 +9,13 @@ defmodule Hyperion do
       Envy.reload_config
     end
 
+    # Create plugin on app start only if ENV var defined
+    # Pattern match against `True' because of marathon
+    case Application.fetch_env(:hyperion, :create_plugin) do
+      {:ok, "true"} -> Hyperion.PhoenixScala.Client.create_amazon_plugin_in_ashes()
+      _ -> nil
+    end
+
     children = [
       worker(Hyperion.Repo, []),
       worker(Hyperion.Amazon.Workers.CustomersOrdersWorker, []),
@@ -16,11 +23,6 @@ defmodule Hyperion do
       worker(Hyperion.MWSAuth, [])
     ]
 
-    # Create plugin on app start only if ENV var defined
-    case Application.fetch_env(:hyperion, :create_plugin) do
-      {:ok, "true"} -> Hyperion.PhoenixScala.Client.create_amazon_plugin_in_ashes()
-      _ -> nil
-    end
 
     opts = [strategy: :one_for_one, name: Hyperion.Supervisor]
     Supervisor.start_link(children, opts)

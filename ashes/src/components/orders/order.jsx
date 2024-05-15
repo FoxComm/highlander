@@ -1,3 +1,5 @@
+// @flow
+
 // libs
 import React, { Element } from 'react';
 import _ from 'lodash';
@@ -34,14 +36,12 @@ import type { StateToProps, DispatchToProps, Props, StateType, ReduxState, Order
 const shippingClaims = readAction(frn.mdl.shipment);
 const fraudClaims = readAction(frn.oms.fraud);
 
-const orderRefNum = props => {
-  return props.params.order;
-};
+const orderRefNum = props => props.params.order;
 
 const mapStateToProps = (state: ReduxState): StateToProps => {
   return {
     details: state.orders.details,
-    isFetching: _.get(state.asyncActions, 'getOrder.inProgress', null),
+    isFetching: _.get(state.asyncActions, 'getOrder.inProgress', false),
     fetchError: _.get(state.asyncActions, 'getOrder.err', null),
   };
 };
@@ -59,13 +59,14 @@ export default class Order extends React.Component {
 
   componentDidMount() {
     this.props.clearFetchErrors();
-    this.props.fetchOrder(this.orderRefNum);
+    this.fetchOrder();
   }
 
   componentWillReceiveProps(nextProps: Props): void {
     if (this.orderRefNum != orderRefNum(nextProps)) {
-      this.props.fetchOrder(orderRefNum(nextProps));
+      this.fetchOrder(orderRefNum(nextProps));
     }
+
     if (_.get(nextProps, 'details.order.state') !== 'remorseHold') {
       if (this.updateInterval != null) {
         clearInterval(this.updateInterval);
@@ -78,6 +79,16 @@ export default class Order extends React.Component {
     if (this.updateInterval != null) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
+    }
+  }
+
+  fetchOrder(customOrderNum?: number): void {
+    const orderNum = customOrderNum || this.orderRefNum;
+
+    if (this.props.route.amazon) {
+      this.props.fetchAmazonOrder(orderNum);
+    } else {
+      this.props.fetchOrder(orderNum);
     }
   }
 
@@ -107,7 +118,8 @@ export default class Order extends React.Component {
   }
 
   get renderDetails(): Element<*> {
-    const details = React.cloneElement(this.props.children, { ...this.props, entity: this.order });
+    const entityType = !this.props.route.amazon ? 'orders' : 'amazon-orders';
+    const details = React.cloneElement(this.props.children, { ...this.props, entity: this.order, entityType });
 
     return (
       <div className="fc-grid">
@@ -119,13 +131,13 @@ export default class Order extends React.Component {
   }
 
   get subNav(): Element<*> {
-    return <SubNav order={this.order} />;
+    return <SubNav order={this.order} isAmazon={this.props.route.amazon} />;
   }
 
   @autobind
   onRemorseCountdownFinish() {
     if (this.updateInterval == null) {
-      this.updateInterval = setInterval(() => this.props.fetchOrder(this.orderRefNum), 5000);
+      this.updateInterval = setInterval(() => this.fetchOrder(), 5000);
     }
   }
 
@@ -161,9 +173,11 @@ export default class Order extends React.Component {
     const order = this.order;
     const claims = getClaims();
 
-    if (order.orderState === 'canceled' ||
-        order.orderState === 'shipped') {
-      return <StateComponent stateId="fct-order-state__value" value={order.shippingState} model="order" />;
+    if (order.orderState.toLowerCase() === 'canceled' ||
+        order.orderState.toLowerCase() === 'shipped') {
+      const status = order.shippingState === '---' ? order.orderState : order.shippingState;
+
+      return <StateComponent stateId="fct-order-state__value" value={status} model="order" />;
     }
 
     let holdStates = ['manualHold'];
@@ -181,12 +195,14 @@ export default class Order extends React.Component {
         allowedStateTransitions[order.orderState].indexOf(state) != -1;
     });
 
+    const items = _.map(visibleAndSortedOrderStates, state => [state, states.order[state]]);
+
     return (
       <Dropdown
         id="fct-order-state-dd"
         dropdownValueId="fct-order-state__value"
         name="orderState"
-        items={_.map(visibleAndSortedOrderStates, state => [state, states.order[state]])}
+        items={items}
         placeholder={'Order state'}
         value={order.orderState}
         onChange={this.onStateChange}
@@ -233,6 +249,7 @@ export default class Order extends React.Component {
 
   get contents(): Element<*> {
     const order = this.order;
+
     return (
       <div>
         <PageTitle title={`${order.title} ${this.orderRefNum}`}>

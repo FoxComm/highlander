@@ -24,7 +24,6 @@ import phoenix.payloads.PaymentPayloads._
 import phoenix.payloads.UserPayloads._
 import phoenix.responses.CreditCardResponse
 import phoenix.responses.cord.CartResponse
-import phoenix.responses.CreditCardResponse
 import phoenix.services.carts.CartPaymentUpdater
 import phoenix.utils.aliases.stripe.StripeCard
 import phoenix.utils.seeds.Factories
@@ -80,6 +79,18 @@ class CustomerIntegrationTest
       val guest    = customer.copy(name = "guest".some, isGuest = true.some)
     }
 
+  }
+
+  "GET /v1/customers/email/:email" - {
+    "fetches customer info by email" in new Fixture {
+      customersApi.getByEmail(customer.email.value).as[CustomerResponse].id must === (customer.accountId)
+    }
+
+    "fails if customer not found" in {
+      customersApi
+        .getByEmail("foo@bar.baz")
+        .mustFailWith404(NotFoundFailure404(User, "foo@bar.baz"))
+    }
   }
 
   "GET /v1/customers/:accountId" - {

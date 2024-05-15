@@ -19,6 +19,7 @@
 
 - `sbt '~re-start'`: reloads the application automatically on code changes
 - `sbt seed`: execute the seeds
+- `sbt seedDemo`: execute demo seeds: admins, random data for orders and so on... 
 - `sbt test`: run all of the unit and integration tests
 - `sbt '~test:compile`: re-compiles the application automatically on code changes
 

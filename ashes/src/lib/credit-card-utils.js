@@ -23,13 +23,18 @@ export function expirationYears() {
   return _.range(20).map(n => [current + n, current + n]);
 }
 
-export function formatExpiration(card) {
-  return `${card.expMonth}/${card.expYear}`;
+export function formatExpiration({ expMonth, expYear }) {
+  if (!expMonth || !expYear) {
+    return 'N/A';
+  }
+
+  return `${expMonth}/${expYear}`;
 }
 
-
 export function formatNumber(card) {
-  return `xxxx xxxx xxxx ${card.lastFour}`;
+  const lastFour = card.lastFour || 'xxxx';
+
+  return `xxxx xxxx xxxx ${lastFour}`;
 }
 
 export function getBillingAddress(getState, customerId, addressId) {

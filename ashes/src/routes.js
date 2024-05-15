@@ -22,7 +22,7 @@ export default function makeRoutes(jwtToken) {
   const claims = getClaims(jwtToken);
 
   return [
-    <Route path={rootPath}>
+    <Route path={rootPath} key="root">
       <IndexRedirect to={indexRedirect} />
       {authRoutes(claims)}
       <Route component={Site}>
@@ -36,6 +36,6 @@ export default function makeRoutes(jwtToken) {
       </Route>
       <Route path="*" component={NotFound} />
     </Route>,
-    <Redirect from="*" to={indexRedirect} />,
+    <Redirect from="*" to={indexRedirect} key="index-redirect" />,
   ];
 }

@@ -21,6 +21,7 @@ export type DispatchToProps = {
 export type OwnProps = {
   children: any; // @todo
   params: Object;
+  route: Object;
 };
 
 export type Props = OwnProps & StateToProps & DispatchToProps;

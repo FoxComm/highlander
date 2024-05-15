@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import _ from 'lodash';
@@ -13,15 +12,15 @@ import type { PaymentMethod as TPaymentMethod } from 'paragons/order';
 import styles from './payment-method.css';
 
 type Props = {
-  paymentMethod: TPaymentMethod;
-  type?: string;
-  className?: string;
-}
+  paymentMethod: TPaymentMethod,
+  type?: string,
+  className?: string,
+};
 
 function getIconType(type, paymentMethod) {
   switch (type) {
     case 'creditCard':
-      return paymentMethod.brand.toLowerCase().replace(/ /g, '');
+      return paymentMethod.brand ? paymentMethod.brand.toLowerCase().replace(/ /g, '') : null;
     default:
       return _.snakeCase(type);
   }
@@ -51,10 +50,23 @@ const PaymentMethod = (props: Props) => {
   const { paymentMethod } = props;
 
   const type = _.get(props, 'paymentMethod.type', 'creditCard');
-  const icon = static_url(`images/payments/payment_${getIconType(type, paymentMethod)}.svg`);
+  const iconType = getIconType(type, paymentMethod);
+
+  let icon;
+
+  if (iconType) {
+    icon = (
+      <img
+        styleName="payment-icon"
+        className="fc-icon-lg"
+        src={static_url(`images/payments/payment_${iconType}.svg`)}
+      />
+    );
+  }
+
   return (
     <div className={props.className} styleName="payment-method">
-      <img styleName="payment-icon" className="fc-icon-lg" src={icon} />
+      {icon}
       <div styleName="payment-summary">
         <strong>{getTitle(type, paymentMethod)}</strong>
         <div>{getSubtitle(type, paymentMethod)}</div>

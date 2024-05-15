@@ -1,0 +1,1 @@
+alter table amazon_orders add column account_id int;

@@ -32,7 +32,8 @@ object Factories
     with PromotionSeeds
     with ObjectSchemaSeeds
     with CouponSeeds
-    with SharedSearchSeeds {
+    with SharedSearchSeeds
+    with AmazonOrdersSeeds {
 
   override implicit val formats = JsonFormatters.phoenixFormats
 

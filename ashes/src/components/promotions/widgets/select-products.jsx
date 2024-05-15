@@ -152,7 +152,7 @@ class ProductsQualifier extends Component {
     }
   }
 
-  render(): Element<*> {
+  render() {
     return (
       <div styleName="products">
         <strong styleName="label">{this.props.label}</strong>

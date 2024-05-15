@@ -6,6 +6,18 @@ defmodule Hyperion.Amazon.Credentials do
     |> build_cfg
   end
 
+  def safe_mws_config(token) do
+    Client.safe_get_credentials(token)
+    |> build_cfg
+  end
+
+  defp build_cfg(client) when is_nil(client) do
+    %MWSClient.Config{aws_access_key_id: mws_access_key_id(),
+                      aws_secret_access_key: mws_secret_access_key(),
+                      seller_id: "",
+                      mws_auth_token: "" }
+  end
+
   defp build_cfg(client) do
     %MWSClient.Config{aws_access_key_id: mws_access_key_id(),
                       aws_secret_access_key: mws_secret_access_key(),

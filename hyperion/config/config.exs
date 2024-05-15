@@ -21,6 +21,7 @@ config :hyperion,
 config :hyperion,
   public_key: System.get_env("PUBLIC_KEY"),
   push_check_interval: System.get_env("PUSH_CHECK_INTERVAL"),
+  orders_fetch_interval: System.get_env("ORDERS_FETCH_INTERVAL"),
   create_plugin: System.get_env("CREATE_ASHES_PLUGIN")
 
 # This configuration is loaded before any dependency and is restricted

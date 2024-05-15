@@ -67,6 +67,9 @@ const getRoutes = (jwt: Object) => {
           frn: frn.activity.order,
         }),
       ]),
+      router.read('amazon-order', { path: 'amazon/:order', component: Order, amazon: true }, [
+        router.read('amazon-order-details', { component: OrderDetails, isIndex: true }),
+      ]),
     ]);
 
   return (
