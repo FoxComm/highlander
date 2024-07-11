@@ -328,6 +328,16 @@ object Customer {
                     ProductReviewManager.createProductReview(auth.account.id, payload)
                   }
                 } ~
+                (get & pathEnd) {
+                  getOrFailures {
+                    ProductReviewManager.getAllReviewsForCustomer(auth.account.id)
+                  }
+                } ~
+                (get & path(IntNumber) & pathEnd) { reviewId ⇒
+                  getOrFailures {
+                    ProductReviewManager.getReviewForCustomer(auth.account.id, reviewId)
+                  }
+                } ~
                 (path(IntNumber) & patch & entity(as[UpdateProductReviewPayload]) & pathEnd) {
                   (reviewId, payload) ⇒
                     mutateOrFailures {
