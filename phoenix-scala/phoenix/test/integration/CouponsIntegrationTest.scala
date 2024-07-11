@@ -9,13 +9,13 @@ import objectframework.models.ObjectContext
 import org.json4s.JsonAST._
 import phoenix.failures.CartFailures.OrderAlreadyPlaced
 import phoenix.failures.CouponFailures.CouponIsNotActive
-import phoenix.models.cord.{Carts, Orders}
-import phoenix.models.coupon.Coupon
+import phoenix.models.cord.{Carts, Order, Orders}
+import phoenix.models.coupon.{Coupon, CouponUsageRules}
 import phoenix.models.traits.IlluminatedModel
 import phoenix.payloads.CartPayloads.CreateCart
 import phoenix.payloads.LineItemPayloads.UpdateLineItemsPayload
 import phoenix.responses.CouponResponses.CouponResponse
-import phoenix.responses.cord.CartResponse
+import phoenix.responses.cord.{CartResponse, OrderResponse}
 import phoenix.utils.time.RichInstant
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -23,6 +23,17 @@ import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
 import core.utils.Money._
 import core.db._
+import phoenix.failures.ShippingMethodFailures.ShippingMethodNotFoundByName
+import phoenix.models.Reasons
+import phoenix.models.location.Region
+import phoenix.models.shipping.{ShippingMethod, ShippingMethods}
+import phoenix.payloads.GiftCardPayloads.GiftCardCreateByCsr
+import phoenix.payloads.OrderPayloads.UpdateOrderPayload
+import phoenix.payloads.PaymentPayloads.GiftCardPayment
+import phoenix.payloads.UpdateShippingMethod
+import phoenix.responses.AddressResponse
+import phoenix.responses.giftcards.GiftCardResponse
+import phoenix.utils.seeds.Factories
 
 class CouponsIntegrationTest
     extends IntegrationTestBase
@@ -171,6 +182,64 @@ class CouponsIntegrationTest
         }
       }
     }
+  }
+
+  "→ Coupon code from cancelled order can be reused" in new Coupon_AnyQualifier_PercentOff {
+    import slick.jdbc.PostgresProfile.api._
+
+    override def couponUsageRules = CouponUsageRules(
+      isUnlimitedPerCode = false,
+      usesPerCode = Some(1),
+      isUnlimitedPerCustomer = false,
+      usesPerCustomer = Some(1)
+    )
+
+    // TODO: extract CheckoutFixture and reuse it here (more refactoring will be needed for that) @michalrus
+
+    val (customer, customerLoginData) = api_newCustomerWithLogin()
+    val skuCode                       = ProductSku_ApiFixture().skuCode
+    val refNum                        = api_newCustomerCart(customer.id).referenceNumber
+
+    // Place the order.
+    {
+      val addressPayload = randomAddress(regionId = Region.californiaId)
+      val address = customersApi(customer.id).addresses
+        .create(addressPayload)
+        .as[AddressResponse]
+
+      val (shipMethod, reason) = (for {
+        _ ← * <~ ShippingMethods.createAll(Factories.shippingMethods)
+        shipMethodName = ShippingMethod.expressShippingNameForAdmin
+        shipMethod ← * <~ ShippingMethods
+                      .filter(_.adminDisplayName === shipMethodName)
+                      .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
+        reason ← * <~ Reasons.create(Factories.reason(defaultAdmin.id))
+      } yield (shipMethod, reason)).gimme
+
+      val cartApi = cartsApi(refNum)
+      cartApi.lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 2))).mustBeOk()
+      cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
+      cartApi.shippingMethod
+        .update(UpdateShippingMethod(shipMethod.id))
+        .asTheResult[CartResponse]
+      cartApi.coupon.add(couponCode).asTheResult[CartResponse]
+      val grandTotal = cartApi.get.asTheResult[CartResponse].totals.total
+      val gcCode = giftCardsApi
+        .create(GiftCardCreateByCsr(grandTotal, reason.id))
+        .as[GiftCardResponse]
+        .code
+      cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
+      cartApi.checkout().as[OrderResponse]
+    }
+
+    // Cancel.
+    ordersApi(refNum).update(UpdateOrderPayload(Order.Canceled)).as[OrderResponse].orderState must === (
+      Order.Canceled)
+
+    // Try to reuse that same coupon.
+    val refNum2 = api_newCustomerCart(customer.id).referenceNumber
+    cartsApi(refNum2).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 2))).mustBeOk()
+    cartsApi(refNum2).coupon.add(couponCode).asTheResult[CartResponse]
   }
 
   trait CartCouponFixture extends StoreAdmin_Seed with Coupon_TotalQualifier_PercentOff {

@@ -1,5 +1,6 @@
 package phoenix.services.orders
 
+import cats.syntax._
 import cats.implicits._
 import core.db._
 import core.failures.NotFoundFailure400
@@ -15,6 +16,7 @@ import phoenix.models.payment.storecredit.StoreCreditAdjustments.scope._
 import phoenix.responses.cord.{AllOrders, OrderResponse}
 import phoenix.responses.{BatchMetadata, BatchMetadataSource}
 import phoenix.services.LogActivity
+import phoenix.services.coupon.CouponUsageService
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import responses.BatchResponse
@@ -22,20 +24,31 @@ import slick.jdbc.PostgresProfile.api._
 
 object OrderStateUpdater {
 
-  def updateState(
-      admin: User,
-      refNum: String,
-      newState: Order.State)(implicit ec: EC, db: DB, ac: AC, apis: Apis, au: AU): DbResultT[OrderResponse] =
+  def updateState(admin: User, refNum: String, newState: Order.State)(implicit ec: EC,
+                                                                      db: DB,
+                                                                      ac: AC,
+                                                                      oc: OC,
+                                                                      apis: Apis,
+                                                                      au: AU): DbResultT[OrderResponse] =
     for {
       order   ← * <~ Orders.mustFindByRefNum(refNum)
       _       ← * <~ order.transitionState(newState)
       _       ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated ← * <~ Orders.mustFindByRefNum(refNum)
       _ ← * <~ doOrMeh(updated.state == Order.Canceled,
-                       DbResultT.fromResult(apis.middlewarehouse.cancelHold(refNum)))
+                       DbResultT.fromResult(apis.middlewarehouse.cancelHold(refNum)) >> freeCoupon(order))
       response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
       _        ← * <~ doOrMeh(order.state != newState, LogActivity().orderStateChanged(admin, response, order.state))
     } yield response
+
+  private def freeCoupon(order: Order)(implicit ec: EC, db: DB, oc: OC): DbResultT[Unit] =
+    for {
+      maybePromo ← * <~ OrderPromotions.filterByCordRef(order.refNum).one
+      customer   ← Users.mustFindByAccountId(order.accountId)
+      _ ← maybePromo.flatMap(_.couponCodeId).traverse { codeId ⇒
+           CouponUsageService.incrementUsageCounts(codeId, customer, incrementBy = -1)
+         }
+    } yield ()
 
   def updateStates(
       admin: User,
