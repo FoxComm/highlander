@@ -1,0 +1,5 @@
+machine_ip: "{{ lookup('env','MACHINE_IP') }}"
+machine_server: "{{machine_ip}}:8080"
+base_url: http://{{machine_server}}/v2/apps/
+
+jq: "[.apps[] | [.tasksRunning, .tasksHealthy, .tasksUnhealthy, .tasksStaged]] | unique"

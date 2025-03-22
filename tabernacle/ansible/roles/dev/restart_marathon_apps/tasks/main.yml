@@ -1,0 +1,61 @@
+---
+
+  - name: Check if machine ip is empty
+    assert:
+      that:
+        - machine_ip != ""
+      msg: "No machine ip was specified"
+
+  - name: Restart Applications
+    uri:
+      url: "{{base_url}}/highlander/{{item.group}}/{{item.app}}/restart"
+      method: POST
+    with_items:
+      - { group: core-backend, app: isaac }
+      - { group: core-backend, app: middlewarehouse }
+      - { group: core-backend, app: phoenix }
+      - { group: core-backend, app: solomon }
+
+      - { group: core-consumers, app: capture-consumer }
+      - { group: core-consumers, app: customer-groups-consumer }
+      - { group: core-consumers, app: gift-card-consumer }
+      - { group: core-consumers, app: green-river }
+      - { group: core-consumers, app: shipments-consumer }
+
+      - { group: core-frontend, app: ashes }
+      - { group: core-frontend, app: peacock }
+      - { group: core-frontend, app: perfect-gourmet }
+      - { group: core-frontend, app: top-drawer }
+
+      - { group: core-integrations, app: geronimo }
+      - { group: core-integrations, app: messaging }
+      - { group: core-integrations, app: hyperion }
+
+      - { group: ic-backend, app: anthill }
+      - { group: ic-backend, app: bernardo }
+      - { group: ic-backend, app: eggcrate }
+      - { group: ic-backend, app: river-rock }
+
+      - { group: ic-consumers, app: digger-sphex-consumer }
+      - { group: ic-consumers, app: orders-anthill }
+      - { group: ic-consumers, app: orders-reviews }
+      - { group: ic-consumers, app: orders-sphex }
+      - { group: ic-consumers, app: product-activity }
+
+      - { group: ic-hooks, app: neo4j-reset }
+
+      - { group: ic-integrations, app: suggester }
+
+      - { group: ic-storage, app: henhouse }
+      - { group: ic-storage, app: neo4j }
+    when: marathon_apps[item.app]
+
+  - name: Sleep for 5 seconds
+    shell: sleep 5
+
+  - name: Wait for the apps to be healthy
+    shell: curl -sS -XGET {{base_url}} | jq -c '{{jq}}'
+    register: unhealthy_task
+    until: unhealthy_task.stdout == '[[1,1,0,0]]'
+    retries: "{{marathon_retries}}"
+    delay: "{{marathon_delay}}"
