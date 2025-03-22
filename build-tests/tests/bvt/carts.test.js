@@ -1,15 +1,15 @@
-import test from '../helpers/test';
+import test from '../../helpers/test';
 import testNotes from './testNotes';
 import testWatchers from './testWatchers';
-import createCreditCard from '../helpers/createCreditCard';
-import placeRandomOrder from '../helpers/placeRandomOrder';
-import { AdminApi, CustomerApi } from '../helpers/Api';
-import isArray from '../helpers/isArray';
-import isString from '../helpers/isString';
-import isNumber from '../helpers/isNumber';
-import $ from '../payloads';
+import createCreditCard from '../../helpers/createCreditCard';
+import placeRandomOrder from '../../helpers/placeRandomOrder';
+import { AdminApi, CustomerApi } from '../../helpers/Api';
+import isArray from '../../helpers/isArray';
+import isString from '../../helpers/isString';
+import isNumber from '../../helpers/isNumber';
+import $ from '../../payloads';
 
-test('Can view cart details', async (t) => {
+test('[bvt] Can view cart details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -38,7 +38,7 @@ test('Can view cart details', async (t) => {
   t.deepEqual(foundCart, cart);
 });
 
-test('Can list available shipping methods', async (t) => {
+test('[bvt] Can list available shipping methods', async (t) => {
   const customerApi = await CustomerApi.loggedIn(t);
   const cart = await customerApi.cart.get();
   await customerApi.cart.setShippingAddress($.randomCreateAddressPayload());
@@ -55,7 +55,7 @@ test('Can list available shipping methods', async (t) => {
   t.deepEqual(shippingMethodsFromAdminApi, shippingMethodsFromCustomerApi);
 });
 
-test('Can update line items', async (t) => {
+test('[bvt] Can update line items', async (t) => {
   const customerApi = await CustomerApi.loggedIn(t);
   const { referenceNumber } = await customerApi.cart.get();
   const adminApi = await AdminApi.loggedIn(t);
@@ -77,7 +77,7 @@ test('Can update line items', async (t) => {
   // t.deepEqual(cart, updatedCart);
 });
 
-test('Updating one line item doesn\'t affect others', async (t) => {
+test('[bvt] Updating one line item doesn\'t affect others', async (t) => {
   const customerApi = await CustomerApi.loggedIn(t);
   const { referenceNumber } = await customerApi.cart.get();
   const adminApi = await AdminApi.loggedIn(t);
@@ -106,7 +106,7 @@ test('Updating one line item doesn\'t affect others', async (t) => {
   // t.deepEqual(cart, updatedCart);
 });
 
-test('Can\'t access the cart once order for it has been placed', async (t) => {
+test('[bvt] Can\'t access the cart once order for it has been placed', async (t) => {
   const { fullOrder } = await placeRandomOrder(t);
   try {
     const adminApi = await AdminApi.loggedIn(t);

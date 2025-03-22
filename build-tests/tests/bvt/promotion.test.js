@@ -1,11 +1,11 @@
-import test from '../helpers/test';
+import test from '../../helpers/test';
 import testNotes from './testNotes';
-import { AdminApi } from '../helpers/Api';
-import isNumber from '../helpers/isNumber';
-import isDate from '../helpers/isDate';
-import $ from '../payloads';
+import { AdminApi } from '../../helpers/Api';
+import isNumber from '../../helpers/isNumber';
+import isDate from '../../helpers/isDate';
+import $ from '../../payloads';
 
-test('Can create a promotion', async (t) => {
+test('[bvt] Can create a promotion', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomCreatePromotionPayload();
   const newPromotion = await adminApi.promotions.create('default', payload);
@@ -26,14 +26,14 @@ test('Can create a promotion', async (t) => {
   }
 });
 
-test('Can view promotion details', async (t) => {
+test('[bvt] Can view promotion details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newPromotion = await adminApi.promotions.create('default', $.randomCreatePromotionPayload());
   const foundPromotion = await adminApi.promotions.one('default', newPromotion.id);
   t.deepEqual(foundPromotion, newPromotion);
 });
 
-test('Can update promotion details', async (t) => {
+test('[bvt] Can update promotion details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newPromotion = await adminApi.promotions.create('default', $.randomCreatePromotionPayload());
   const payload = $.randomUpdatePromotionPayload(newPromotion.discounts.map(d => d.id));

@@ -1,13 +1,13 @@
-import test from '../helpers/test';
+import test from '../../helpers/test';
 import testNotes from './testNotes';
-import { AdminApi } from '../helpers/Api';
-import isNumber from '../helpers/isNumber';
-import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
-import waitFor from '../helpers/waitFor';
-import $ from '../payloads';
+import { AdminApi } from '../../helpers/Api';
+import isNumber from '../../helpers/isNumber';
+import isDate from '../../helpers/isDate';
+import isArray from '../../helpers/isArray';
+import waitFor from '../../helpers/waitFor';
+import $ from '../../payloads';
 
-test('Can create a new SKU', async (t) => {
+test('[bvt] Can create a new SKU', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomSkuPayload();
   const newSku = await adminApi.skus.create('default', payload);
@@ -18,14 +18,14 @@ test('Can create a new SKU', async (t) => {
   t.deepEqual(newSku.albums, payload.albums || []);
 });
 
-test('Can view SKU details', async (t) => {
+test('[bvt] Can view SKU details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newSku = await adminApi.skus.create('default', $.randomSkuPayload());
   const foundSku = await adminApi.skus.one('default', newSku.attributes.code.v);
   t.deepEqual(foundSku, newSku);
 });
 
-test('Can update SKU details', async (t) => {
+test('[bvt] Can update SKU details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newSku = await adminApi.skus.create('default', $.randomSkuPayload());
   const payload = $.randomSkuPayload();
@@ -37,7 +37,7 @@ test('Can update SKU details', async (t) => {
   t.deepEqual(updatedSku.albums, payload.albums || []);
 });
 
-test('Can archive a SKU', async (t) => {
+test('[bvt] Can archive a SKU', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newSku = await adminApi.skus.create('default', $.randomSkuPayload());
   const archivedSku = await adminApi.skus.archive('default', newSku.attributes.code.v);
@@ -48,7 +48,7 @@ test('Can archive a SKU', async (t) => {
   t.deepEqual(archivedSku.context, newSku.context);
 });
 
-test('Can access the inventory', async (t) => {
+test('[bvt] Can access the inventory', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newSku = await adminApi.skus.create('default', $.randomSkuPayload());
   const inventory = await waitFor(500, 10000, () => adminApi.skus.inventory(newSku.attributes.code.v));

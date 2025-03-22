@@ -1,12 +1,12 @@
-import test from '../helpers/test';
+import test from '../../helpers/test';
 import testNotes from './testNotes';
-import { AdminApi } from '../helpers/Api';
-import $ from '../payloads';
-import isDate from '../helpers/isDate';
-import isArray from '../helpers/isArray';
-import isNumber from '../helpers/isNumber';
+import { AdminApi } from '../../helpers/Api';
+import $ from '../../payloads';
+import isDate from '../../helpers/isDate';
+import isArray from '../../helpers/isArray';
+import isNumber from '../../helpers/isNumber';
 
-test('Can create a new customer', async (t) => {
+test('[bvt] Can create a new customer', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -14,7 +14,7 @@ test('Can create a new customer', async (t) => {
   t.is(newCustomer.email, credentials.email);
 });
 
-test('Can view customer details', async (t) => {
+test('[bvt] Can view customer details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -23,7 +23,7 @@ test('Can view customer details', async (t) => {
   t.is(foundCustomer.email, credentials.email);
 });
 
-test('Can update customer details', async (t) => {
+test('[bvt] Can update customer details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -33,7 +33,7 @@ test('Can update customer details', async (t) => {
   t.is(updatedCustomer.email, otherCredentials.email);
 });
 
-test('Can list shipping addresses', async (t) => {
+test('[bvt] Can list shipping addresses', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -41,7 +41,7 @@ test('Can list shipping addresses', async (t) => {
   t.truthy(isArray(addresses));
 });
 
-test('Can add a new shipping address', async (t) => {
+test('[bvt] Can add a new shipping address', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -56,7 +56,7 @@ test('Can add a new shipping address', async (t) => {
   t.is(addedAddress.phoneNumber, address.phoneNumber);
 });
 
-test('Can update shipping address details', async (t) => {
+test('[bvt] Can update shipping address details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -81,7 +81,7 @@ test('Can update shipping address details', async (t) => {
   t.is(foundAddress.phoneNumber, otherAddress.phoneNumber);
 });
 
-test('Can delete a shipping address', async (t) => {
+test('[bvt] Can delete a shipping address', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -92,7 +92,7 @@ test('Can delete a shipping address', async (t) => {
   t.truthy(foundAddress.deletedAt);
 });
 
-test('Can list customer\'s credit cards', async (t) => {
+test('[bvt] Can list customer\'s credit cards', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -100,7 +100,7 @@ test('Can list customer\'s credit cards', async (t) => {
   t.truthy(isArray(creditCards));
 });
 
-test('Can add customer\'s credit card', async (t) => {
+test('[bvt] Can add customer\'s credit card', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -135,7 +135,7 @@ test('Can add customer\'s credit card', async (t) => {
   t.is(addedCard.address.phoneNumber, payload.billingAddress.phoneNumber);
 });
 
-test('Can issue store credit', async (t) => {
+test('[bvt] Can issue store credit', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -153,13 +153,13 @@ test('Can issue store credit', async (t) => {
   t.truthy(isDate(newStoreCredit.createdAt));
 });
 
-test('Can list customer groups', async (t) => {
+test('[bvt] Can list customer groups', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const customerGroups = await adminApi.customerGroups.list();
   t.truthy(isArray(customerGroups));
 });
 
-test('Can create a new customer group', async (t) => {
+test('[bvt] Can create a new customer group', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomCustomerGroupPayload();
   const newCustomerGroup = await adminApi.customerGroups.create(payload);
@@ -171,14 +171,14 @@ test('Can create a new customer group', async (t) => {
   t.deepEqual(newCustomerGroup.elasticRequest, payload.elasticRequest);
 });
 
-test('Can view customer group details', async (t) => {
+test('[bvt] Can view customer group details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newCustomerGroup = await adminApi.customerGroups.create($.randomCustomerGroupPayload());
   const foundCustomerGroup = await adminApi.customerGroups.one(newCustomerGroup.id);
   t.deepEqual(foundCustomerGroup, newCustomerGroup);
 });
 
-test('Can update customer group details', async (t) => {
+test('[bvt] Can update customer group details', async (t) => {
   const adminApi = await AdminApi.loggedIn(t);
   const newCustomerGroup = await adminApi.customerGroups.create($.randomCustomerGroupPayload());
   const payload = $.randomCustomerGroupPayload();

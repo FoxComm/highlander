@@ -1,0 +1,3 @@
+--timeout 60000
+--reporter mocha-multi
+--require babel-register

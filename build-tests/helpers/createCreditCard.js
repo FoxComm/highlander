@@ -1,8 +1,9 @@
 import $ from '../payloads';
+import * as step from './steps';
 
 export default async (api, customerId) => {
   const creditCardDetails = $.randomCreditCardDetailsPayload(customerId);
-  const newTokenResponse = await api.dev.creditCardToken(creditCardDetails);
+  const newTokenResponse = await step.getCreditCardToken(api, creditCardDetails);
   const payload = {
     token: newTokenResponse.token,
     lastFour: newTokenResponse.lastFour,
@@ -13,5 +14,5 @@ export default async (api, customerId) => {
     billingAddress: creditCardDetails.address,
     addressIsNew: true,
   };
-  return api.customerCreditCards.add(customerId, payload);
+  return step.addCustomerCreditCard(api, customerId, payload);
 };
